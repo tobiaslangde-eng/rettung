@@ -61,9 +61,12 @@ Nach ca. 20–40 Minuten ist der Build fertig und in **App Store Connect → Tes
 
 ## 5. In den App Store bringen
 
-In App Store Connect die App-Seite ausfüllen und zur Prüfung einreichen. Du brauchst:
+In App Store Connect die App-Seite ausfüllen und zur Prüfung einreichen.
+**Screenshots, Texte, Keywords und Prüfnotizen sind fertig vorbereitet:** [`APPSTORE-EINTRAG.md`](APPSTORE-EINTRAG.md).
 
-- **Screenshots** für 6,9″-iPhones (z. B. aus dem iPhone-Simulator oder vom eigenen iPhone)
+Du brauchst:
+
+- **Screenshots** für 6,9″-iPhones – liegen in [`appstore/`](appstore/)
 - **Datenschutz-URL** – Vorlage: [`docs/DATENSCHUTZ.md`](DATENSCHUTZ.md), z. B. als GitHub-Seite
   oder auf einer eigenen Website veröffentlichen
 - **App-Datenschutz**: „Keine Daten erfasst“
