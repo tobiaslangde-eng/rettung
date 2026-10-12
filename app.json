@@ -1,18 +1,21 @@
 {
   "expo": {
-    "name": "Kiirabi – Rettungseinsatz",
+    "name": "Kiirabi",
     "slug": "retung",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "backgroundColor": "#F4F1EA",
+    "backgroundColor": "#EEF3F8",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "ee.kiirabi.rettung"
     },
     "android": {
+      "package": "ee.kiirabi.rettung",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#0072CE",
+        "backgroundColor": "#0A2E52",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"

@@ -53,6 +53,17 @@ Der Fortschritt wird lokal gespeichert. Im **Lexikon** findest du Normwerte und 
 
 Alle Grafiken sind Vektorgrafiken (`react-native-svg`) in `src/components/Folk.tsx`.
 
+## App herunterladen
+
+Bei jedem Push baut GitHub Actions (`.github/workflows/android-apk.yml`) automatisch:
+
+- **Kiirabi.apk** – die Android-App
+- **Kiirabi-Web.html** – das ganze Spiel als eine Datei für jeden Browser, auch offline
+
+Beides liegt unter **Releases** im Repository (neuester Build oben).
+Android: APK auf dem Handy öffnen und „Installation aus unbekannten Quellen“ erlauben.
+Für iPhone ist ein Apple-Entwicklerkonto nötig (`npx eas-cli@latest build -p ios`); bis dahin läuft das Spiel dort über Expo Go oder im Browser.
+
 ## Starten
 
 ```bash

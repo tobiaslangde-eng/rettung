@@ -1,0 +1,77 @@
+# Baut die Android-App (APK) und die Web-Version als einzelne HTML-Datei
+# und stellt beide unter „Releases“ zum Herunterladen bereit.
+name: App bauen
+
+on:
+  push:
+    branches: [main, claude/medical-game-app-expo-nru897]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: app-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Web-Version als einzelne HTML-Datei
+        run: npm run build:web
+
+      - name: Android-Projekt erzeugen
+        run: npx expo prebuild --platform android --no-install
+        env:
+          CI: 1
+
+      - name: APK bauen
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,armeabi-v7a,x86_64
+
+      - name: Dateien umbenennen
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/release/app-release.apk out/Kiirabi.apk
+          cp dist/kiirabi.html out/Kiirabi-Web.html
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kiirabi
+          path: out/
+
+      - name: Release veröffentlichen
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: app-${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          name: Kiirabi – Build ${{ github.run_number }}
+          make_latest: true
+          body: |
+            **Kiirabi – Rettungseinsatz**, automatisch gebaut aus `${{ github.ref_name }}` (${{ github.sha }}).
+
+            - **Kiirabi.apk**: Android-App. Auf dem Handy herunterladen, öffnen und die Installation aus unbekannten Quellen erlauben.
+            - **Kiirabi-Web.html**: das ganze Spiel als eine Datei. Herunterladen und im Browser öffnen, funktioniert auch offline.
+          files: out/*
