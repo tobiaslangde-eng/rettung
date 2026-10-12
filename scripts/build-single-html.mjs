@@ -1,12 +1,16 @@
 // Baut aus dem Expo-Web-Export (`npx expo export --platform web`) eine einzige,
 // eigenständige HTML-Datei, die überall gehostet oder direkt geöffnet werden kann.
 //
-// Nutzung: node scripts/build-single-html.mjs [exportDir=dist] [outFile=dist/kiirabi.html]
+// Nutzung: node scripts/build-single-html.mjs [exportDir=dist] [outFile=dist/kiirabi.html] [--fragment]
+// Ohne --fragment entsteht ein vollständiges HTML-Dokument zum Herunterladen.
+// Mit --fragment nur der Seiteninhalt (für Hosts, die selbst <html>/<head> drumherum setzen).
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const exportDir = process.argv[2] ?? 'dist';
-const outFile = process.argv[3] ?? join(exportDir, 'kiirabi.html');
+const args = process.argv.slice(2).filter((a) => !a.startsWith('--'));
+const fragment = process.argv.includes('--fragment');
+const exportDir = args[0] ?? 'dist';
+const outFile = args[1] ?? join(exportDir, 'kiirabi.html');
 
 const index = readFileSync(join(exportDir, 'index.html'), 'utf8');
 const scriptSrc = index.match(/<script src="\/?([^"]+\.js)"/)?.[1];
@@ -60,5 +64,19 @@ const html = `<title>Kiirabi Rettungseinsatz</title>
 <script>${js}</script>
 `;
 
-writeFileSync(outFile, html);
-console.log(`Geschrieben: ${outFile} (${(html.length / 1024).toFixed(0)} KB)`);
+const doc = fragment
+  ? html
+  : `<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111417">
+</head>
+<body style="margin:0">
+${html}</body>
+</html>
+`;
+
+writeFileSync(outFile, doc);
+console.log(`Geschrieben: ${outFile} (${(doc.length / 1024).toFixed(0)} KB)`);
