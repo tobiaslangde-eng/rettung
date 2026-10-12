@@ -60,6 +60,7 @@ Bei jedem Push baut GitHub Actions (`.github/workflows/android-apk.yml`) automat
 - **Kiirabi-Mac-arm64.dmg / Kiirabi-Mac-x64.dmg** – Desktop-App für Mac (Apple-Chip / Intel)
 - **Kiirabi-Linux.AppImage** – Desktop-App für Linux
 - **Kiirabi.apk** – die Android-App
+- **Kiirabi-iOS-unsigniert.ipa** – iOS-App zum Sideloaden mit [Sideloadly](https://sideloadly.io) oder [AltStore](https://altstore.io) und der eigenen Apple-ID (kostenlose Apple-ID: läuft 7 Tage, dann neu installieren)
 - **Kiirabi-Web.html** – das ganze Spiel als eine Datei für jeden Browser, auch offline
 
 Die Desktop-Apps (Ordner `desktop/`, Electron) laden die Web-Version in ein eigenes Fenster und laufen

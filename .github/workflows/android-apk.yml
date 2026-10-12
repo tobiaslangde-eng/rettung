@@ -1,5 +1,6 @@
 # Baut alle Versionen von Kiirabi und stellt sie unter „Releases“ zum Herunterladen bereit:
 #   - Android-App (APK)
+#   - iOS-App als unsignierte .ipa (zum Sideloaden, z. B. mit Sideloadly oder AltStore)
 #   - Desktop-App für Windows (.exe), macOS (.dmg) und Linux (.AppImage)
 #   - Web-Version als einzelne HTML-Datei
 name: App bauen
@@ -64,6 +65,45 @@ jobs:
           name: android-web
           path: out/
 
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: iOS-Projekt erzeugen (inkl. CocoaPods)
+        run: npx expo prebuild --platform ios
+        env:
+          CI: 1
+
+      - name: App bauen (ohne Signatur)
+        run: |
+          set -o pipefail
+          xcodebuild -workspace ios/Kiirabi.xcworkspace -scheme Kiirabi -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath ios/build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build | tail -n 80
+
+      - name: IPA packen
+        run: |
+          mkdir -p out/Payload
+          cp -R ios/build/Build/Products/Release-iphoneos/Kiirabi.app out/Payload/
+          cd out && zip -qry Kiirabi-iOS-unsigniert.ipa Payload && rm -rf Payload
+          ls -la
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios
+          path: out/
+
   desktop:
     strategy:
       fail-fast: false
@@ -110,7 +150,9 @@ jobs:
           path: ${{ matrix.files }}
 
   release:
-    needs: [android, desktop]
+    needs: [android, ios, desktop]
+    # Auch veröffentlichen, wenn eine einzelne Plattform fehlschlägt – solange Android durch ist.
+    if: ${{ !cancelled() && needs.android.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -136,6 +178,7 @@ jobs:
             | Mac (Apple-Chip M1–M4) | **Kiirabi-Mac-arm64.dmg** | Öffnen, Kiirabi in „Programme“ ziehen. Beim ersten Start: Rechtsklick auf Kiirabi → *Öffnen* (oder Systemeinstellungen → Datenschutz & Sicherheit → *Trotzdem öffnen*). |
             | Mac (Intel) | **Kiirabi-Mac-x64.dmg** | wie oben |
             | Linux | **Kiirabi-Linux.AppImage** | Ausführbar machen (`chmod +x`), dann starten. |
+            | iPhone/iPad | **Kiirabi-iOS-unsigniert.ipa** | Mit [Sideloadly](https://sideloadly.io) oder [AltStore](https://altstore.io) und deiner Apple-ID installieren (am Computer, iPhone per Kabel). Mit kostenloser Apple-ID läuft die App 7 Tage, danach erneut installieren. |
             | Android | **Kiirabi.apk** | Auf dem Handy öffnen und „Installation aus unbekannten Quellen“ erlauben. |
             | Jeder Browser | **Kiirabi-Web.html** | Herunterladen und öffnen, läuft auch offline. |
 
