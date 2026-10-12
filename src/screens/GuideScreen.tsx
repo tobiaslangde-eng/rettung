@@ -2,7 +2,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card, Eyebrow, Ornament, TopBar } from '../components/Estonian';
 import { DIFFICULTIES } from '../game/difficulty';
 import { POINTS } from '../game/scoring';
-import { colors, spacing, type } from '../theme';
+import { colors, spacing, type, fonts } from '../theme';
 
 const STEPS = [
   { et: 'Väljakutse', de: 'Alarm', text: 'Mein Melder piept: Die Leitstelle schickt mich irgendwo in Estland hin. Mit Blaulicht geht es los.' },
@@ -35,7 +35,7 @@ export function GuideScreen({ onBack }: { onBack: () => void }) {
           <Eyebrow et="Raskusaste" de="Schwierigkeit" />
           {DIFFICULTIES.map((d) => (
             <View key={d.id} style={{ marginTop: spacing.sm }}>
-              <Text style={[type.body, { fontWeight: '800' }]}>
+              <Text style={[type.body, { fontFamily: fonts.extrabold }]}>
                 {d.icon} {d.label} · {d.et}
               </Text>
               <Text style={type.small}>{d.description}</Text>
@@ -71,7 +71,7 @@ function Row({ label, pts }: { label: string; pts: number }) {
   return (
     <View style={styles.row}>
       <Text style={[type.body, { flex: 1 }]}>{label}</Text>
-      <Text style={{ fontWeight: '800', color: pts < 0 ? colors.kihnuRed : colors.sinine }}>
+      <Text style={{ fontFamily: fonts.extrabold, color: pts < 0 ? colors.kihnuRed : colors.sinine }}>
         {pts > 0 ? '+' : ''}
         {pts}
       </Text>

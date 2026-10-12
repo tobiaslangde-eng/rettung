@@ -12,15 +12,26 @@ const index = readFileSync(join(exportDir, 'index.html'), 'utf8');
 const scriptSrc = index.match(/<script src="\/?([^"]+\.js)"/)?.[1];
 if (!scriptSrc) throw new Error('Kein Bundle-Script in index.html gefunden');
 
+// Nur die Schriftschnitte einbetten, die das Theme wirklich nutzt (z. B. 'Figtree_700Bold').
+const usedFonts = new Set(
+  [...readFileSync('src/theme.ts', 'utf8').matchAll(/'((?:Unbounded|Figtree)_\w+)'/g)].map((m) => m[1]),
+);
+
+let js = readFileSync(join(exportDir, scriptSrc), 'utf8');
+js = js.replace(/"\/(assets\/[^"]+\/([A-Za-z]+_\w+?)\.[0-9a-f]+\.ttf)"/g, (whole, path, name) => {
+  if (!usedFonts.has(name)) return whole;
+  const data = readFileSync(join(exportDir, path)).toString('base64');
+  return `"data:font/ttf;base64,${data}"`;
+});
 // "</script" im Bundle würde das Inline-Script vorzeitig beenden.
-const js = readFileSync(join(exportDir, scriptSrc), 'utf8').replace(/<\/script/gi, '<\\/script');
+js = js.replace(/<\/script/gi, '<\\/script');
 
 const html = `<title>Kiirabi Rettungseinsatz</title>
 <style>
   /* Ein Spielbildschirm im Handyformat, auf breiten Screens mittig vor Schwarz. */
   :root {
     --must: #111111;
-    --linen: #F4F1EA;
+    --lumi: #EEF3F8;
     --sinine: #0072CE;
     color-scheme: light;
   }
@@ -37,7 +48,7 @@ const html = `<title>Kiirabi Rettungseinsatz</title>
     flex: 1;
     max-width: 480px;
     margin: 0 auto;
-    background: var(--linen);
+    background: var(--lumi);
     box-shadow: 0 0 0 4px var(--sinine), 0 0 40px rgba(0, 0, 0, 0.6);
   }
   @media (max-width: 480px) {

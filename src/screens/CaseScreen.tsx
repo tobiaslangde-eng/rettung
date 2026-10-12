@@ -2,12 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { DriveAnimation } from '../components/DriveAnimation';
 import { Button, Card, Eyebrow, Ornament, TopBar } from '../components/Estonian';
+import { Kaheksakand, KihnuStripes } from '../components/Folk';
 import { AskKati, Kati } from '../components/Kati';
 import { MedCase } from '../data/cases';
 import { Rating, VITALS, VITAL_BY_ID, VitalId, formatVital, rateVital } from '../data/vitals';
 import { DifficultyDef, HINT_COST } from '../game/difficulty';
 import { CONDITION, CaseRun, MINUTES_PER_MEASUREMENT, clampCondition, shuffle } from '../game/scoring';
-import { colors, spacing, type } from '../theme';
+import { colors, spacing, type, fonts } from '../theme';
 
 type Phase = 'alarm' | 'drive' | 'exam' | 'diagnosis' | 'treatment';
 
@@ -184,9 +185,12 @@ export function CaseScreen({
         {phase === 'alarm' && (
           <>
             <View style={styles.alarm}>
-              <Text style={styles.alarmEyebrow}>📟 HÄIRE · MEIN MELDER PIEPT!</Text>
+              <KihnuStripes height={8} />
+              <View style={styles.alarmBody}>
+              <Text style={styles.alarmEyebrow}>📟 Häire · Mein Melder piept!</Text>
               <Text style={styles.alarmText}>Leitstelle: „{medCase.dispatch}“</Text>
-              <Text style={styles.alarmLoc}>📍 {medCase.location}</Text>
+              <Text style={styles.alarmLoc}>{medCase.location}</Text>
+              </View>
             </View>
             <Card>
               <Eyebrow et="Patsient" de="Patient" />
@@ -207,7 +211,7 @@ export function CaseScreen({
           <>
             <Card style={{ borderLeftColor: colors.kihnuRed }}>
               <Eyebrow et="Kohal" de="Ich komme an" />
-              <Text style={[type.body, { marginTop: spacing.xs, fontStyle: 'italic' }]}>{medCase.scene}</Text>
+              <Text style={[type.body, { marginTop: spacing.xs, fontFamily: fonts.italic }]}>{medCase.scene}</Text>
             </Card>
             <Card>
               <Eyebrow et="Anamnees" de="Was ich höre" />
@@ -248,12 +252,15 @@ export function CaseScreen({
                     ]}
                   >
                     <View style={styles.tileHead}>
-                      <Text style={styles.tileIcon}>{v.icon}</Text>
+                      <Kaheksakand
+                        size={13}
+                        color={right === false ? colors.kihnuRed : right === true ? colors.rabaGreen : colors.sinine}
+                      />
                       <Text style={styles.tileShort}>{v.short}</Text>
                     </View>
                     <Text style={styles.tileName}>{v.name}</Text>
                     {done || isPending ? (
-                      <Text style={[styles.tileValue, v.textOnly && { fontSize: 14 }]}>{formatVital(v.id, value)}</Text>
+                      <Text style={[styles.tileValue, v.textOnly && { fontFamily: fonts.regular, fontSize: 14 }]}>{formatVital(v.id, value)}</Text>
                     ) : (
                       <Text style={styles.tileTap}>Messen ›</Text>
                     )}
@@ -382,7 +389,9 @@ export function CaseScreen({
                   onPress={() => setTreatmentGuess((g) => (on ? g.filter((x) => x !== i) : [...g, i]))}
                   style={[styles.check, on && styles.checkOn]}
                 >
-                  <View style={[styles.box, on && styles.boxOn]}>{on && <Text style={styles.boxTick}>✓</Text>}</View>
+                  <View style={[styles.box, on && styles.boxOn]}>
+                    {on && <Kaheksakand size={16} color={colors.valge} gap={colors.sinine} />}
+                  </View>
                   <Text style={[type.body, { flex: 1 }]}>{t.text}</Text>
                 </Pressable>
               );
@@ -424,12 +433,12 @@ export function CaseScreen({
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   clock: { alignItems: 'center', borderWidth: 1, borderColor: colors.sinine, paddingHorizontal: 8, paddingVertical: 2 },
-  clockValue: { color: colors.valge, fontWeight: '800', fontSize: 16 },
-  clockLabel: { color: colors.sinineLight, fontSize: 9, letterSpacing: 1 },
-  steps: { flexDirection: 'row', backgroundColor: colors.linenDark },
-  step: { flex: 1, paddingVertical: 6, alignItems: 'center', borderRightWidth: 1, borderRightColor: colors.linen },
+  clockValue: { color: colors.valge, fontFamily: fonts.extrabold, fontSize: 16 },
+  clockLabel: { fontFamily: fonts.regular, color: colors.sinineLight, fontSize: 9, letterSpacing: 1 },
+  steps: { flexDirection: 'row', backgroundColor: colors.lumiDark },
+  step: { flex: 1, paddingVertical: 7, alignItems: 'center', borderRightWidth: 1, borderRightColor: colors.lumi },
   stepActive: { backgroundColor: colors.sinine },
-  stepText: { fontSize: 10, fontWeight: '700', color: colors.grey, letterSpacing: 0.5 },
+  stepText: { fontSize: 10, fontFamily: fonts.extrabold, color: colors.grey, letterSpacing: 1, textTransform: 'uppercase' },
   condition: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -440,23 +449,24 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.linenDark,
   },
-  mood: { fontSize: 26 },
-  conditionLabel: { fontSize: 11, fontWeight: '700', color: colors.grey, letterSpacing: 0.5 },
+  mood: { fontFamily: fonts.regular, fontSize: 26 },
+  conditionLabel: { fontSize: 11, fontFamily: fonts.bold, color: colors.grey, letterSpacing: 0.5 },
   conditionTrack: { height: 8, backgroundColor: colors.linenDark, marginTop: 4 },
   conditionFill: { height: 8 },
-  conditionValue: { fontWeight: '800', fontSize: 15, color: colors.must, width: 44, textAlign: 'right' },
-  alarm: { backgroundColor: colors.kihnuRed, padding: spacing.lg },
-  alarmEyebrow: { color: colors.valge, fontWeight: '800', letterSpacing: 1.5, fontSize: 12 },
-  alarmText: { color: colors.valge, fontSize: 18, fontWeight: '700', marginTop: spacing.sm, lineHeight: 24 },
-  alarmLoc: { color: colors.valge, marginTop: spacing.sm, opacity: 0.9 },
+  conditionValue: { fontFamily: fonts.extrabold, fontSize: 15, color: colors.must, width: 44, textAlign: 'right' },
+  alarm: { backgroundColor: colors.kihnuRed },
+  alarmBody: { padding: spacing.lg },
+  alarmEyebrow: { color: colors.valge, fontFamily: fonts.extrabold, letterSpacing: 2, fontSize: 11, textTransform: 'uppercase' },
+  alarmText: { color: colors.valge, fontSize: 18, fontFamily: fonts.display, marginTop: spacing.sm, lineHeight: 26 },
+  alarmLoc: { color: colors.valge, marginTop: spacing.sm, opacity: 0.9, fontFamily: fonts.italic, fontSize: 14 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   tile: {
     width: '48.5%',
     flexGrow: 1,
     backgroundColor: colors.valge,
     padding: spacing.md,
-    borderWidth: 2,
-    borderColor: colors.linenDark,
+    borderWidth: 1.5,
+    borderColor: colors.lumiDark,
     minHeight: 92,
   },
   tileWide: { width: '100%' },
@@ -464,20 +474,19 @@ const styles = StyleSheet.create({
   tileRight: { borderColor: colors.rabaGreen },
   tileWrong: { borderColor: colors.kihnuRed },
   tileHead: { flexDirection: 'row', justifyContent: 'space-between' },
-  tileIcon: { fontSize: 16, color: colors.sinine },
-  tileShort: { fontSize: 12, fontWeight: '800', color: colors.must, letterSpacing: 1 },
-  tileName: { fontSize: 12, color: colors.grey, marginTop: 2 },
-  tileTap: { marginTop: spacing.sm, color: colors.sinine, fontWeight: '700' },
-  tileValue: { marginTop: spacing.sm, fontSize: 20, fontWeight: '800', color: colors.must },
-  tileFeedback: { fontSize: 11, marginTop: 4, fontWeight: '600' },
+  tileShort: { fontSize: 12, fontFamily: fonts.extrabold, color: colors.must, letterSpacing: 1 },
+  tileName: { fontFamily: fonts.regular, fontSize: 12, color: colors.grey, marginTop: 2 },
+  tileTap: { marginTop: spacing.sm, color: colors.sinine, fontFamily: fonts.bold },
+  tileValue: { marginTop: spacing.sm, fontSize: 16, fontFamily: fonts.display, color: colors.must },
+  tileFeedback: { fontSize: 11, marginTop: 4, fontFamily: fonts.semibold },
   ratePanel: { backgroundColor: colors.must, padding: spacing.lg, borderTopWidth: 4, borderTopColor: colors.sinine },
-  rateAction: { color: colors.greyLight, fontStyle: 'italic', fontSize: 14 },
-  rateValue: { color: colors.valge, fontSize: 28, fontWeight: '900', marginTop: spacing.xs },
-  rateNorm: { color: colors.sinineLight, fontSize: 13, marginTop: 2 },
-  rateQ: { color: colors.valge, fontWeight: '700', fontSize: 15, marginTop: spacing.sm },
-  rateBtn: { flex: 1, backgroundColor: colors.sinine, paddingVertical: spacing.md, alignItems: 'center' },
-  rateSymbol: { color: colors.valge, fontSize: 20, fontWeight: '800' },
-  rateLabel: { color: colors.valge, fontSize: 12, fontWeight: '600' },
+  rateAction: { color: colors.greyLight, fontFamily: fonts.italic, fontSize: 14 },
+  rateValue: { color: colors.valge, fontSize: 30, fontFamily: fonts.displayBlack, marginTop: spacing.xs },
+  rateNorm: { fontFamily: fonts.regular, color: colors.sinineLight, fontSize: 13, marginTop: 2 },
+  rateQ: { color: colors.valge, fontFamily: fonts.bold, fontSize: 15, marginTop: spacing.sm },
+  rateBtn: { flex: 1, backgroundColor: colors.sinine, paddingVertical: spacing.md, alignItems: 'center', borderRadius: 2 },
+  rateSymbol: { color: colors.valge, fontSize: 20, fontFamily: fonts.extrabold },
+  rateLabel: { color: colors.valge, fontSize: 12, fontFamily: fonts.semibold },
   summaryRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: spacing.sm },
   summaryChip: {
     backgroundColor: colors.sinineLight,
@@ -485,25 +494,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     fontSize: 12,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
   },
-  option: { backgroundColor: colors.valge, padding: spacing.lg, borderWidth: 2, borderColor: colors.must },
+  option: { backgroundColor: colors.valge, padding: spacing.lg, borderWidth: 1.5, borderColor: colors.must, borderRadius: 2 },
   optionSelected: { backgroundColor: colors.sinine, borderColor: colors.sinine },
   optionRight: { backgroundColor: colors.rabaGreen, borderColor: colors.rabaGreen },
   optionWrong: { backgroundColor: colors.kihnuRed, borderColor: colors.kihnuRed },
   optionRemoved: { borderColor: colors.linenDark, backgroundColor: colors.linen },
-  optionText: { fontSize: 16, fontWeight: '700', color: colors.must },
+  optionText: { fontSize: 15, fontFamily: fonts.display, color: colors.must, lineHeight: 22 },
   check: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     backgroundColor: colors.valge,
     padding: spacing.md,
-    borderWidth: 2,
-    borderColor: colors.linenDark,
+    borderWidth: 1.5,
+    borderColor: colors.lumiDark,
   },
   checkOn: { borderColor: colors.sinine },
-  box: { width: 24, height: 24, borderWidth: 2, borderColor: colors.must, alignItems: 'center', justifyContent: 'center' },
+  box: { width: 26, height: 26, borderWidth: 1.5, borderColor: colors.must, alignItems: 'center', justifyContent: 'center' },
   boxOn: { backgroundColor: colors.sinine, borderColor: colors.sinine },
-  boxTick: { color: colors.valge, fontWeight: '900' },
+  boxTick: { color: colors.valge, fontFamily: fonts.extrabold },
 });

@@ -1,10 +1,13 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Button, Card, Eyebrow, FlagStripe, Ornament } from '../components/Estonian';
+import { Button, Eyebrow } from '../components/Estonian';
+import { EstoniaScene, Kaheksakand, Ornament } from '../components/Folk';
 import { CASES } from '../data/cases';
 import { DIFFICULTIES, Difficulty } from '../game/difficulty';
 import { rankFor } from '../game/scoring';
 import { Progress } from '../game/storage';
-import { colors, spacing, type } from '../theme';
+import { colors, fonts, spacing, type } from '../theme';
+
+const LEVEL_STARS: Record<Difficulty, number> = { leicht: 1, mittel: 2, schwer: 3 };
 
 export function HomeScreen({
   progress,
@@ -23,47 +26,57 @@ export function HomeScreen({
   const span = next ? next.min - rank.min : 1;
   const pct = next ? Math.min(1, (progress.totalPoints - rank.min) / span) : 1;
   const mastered = CASES.filter((c) => (progress.bestStars[c.id] ?? 0) >= 3).length;
+  const current = DIFFICULTIES.find((d) => d.id === progress.difficulty) ?? DIFFICULTIES[0];
 
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl }}>
       <View style={styles.hero}>
-        <Text style={styles.tere}>Tere tulemast!</Text>
-        <Text style={styles.title}>KIIRABI</Text>
-        <Text style={styles.subtitle}>Ich bin Sanitäter/in. Ich erkenne. Ich messe. Ich handle.</Text>
-        <View style={styles.cross}>
-          <View style={[styles.crossBar, { width: 44, height: 14 }]} />
-          <View style={[styles.crossBar, { width: 14, height: 44, position: 'absolute' }]} />
+        <View style={StyleSheet.absoluteFill}>
+          <EstoniaScene height={300} />
+        </View>
+        <View style={styles.heroText}>
+          <Text style={styles.tere}>Tere tulemast!</Text>
+          <Text style={styles.title}>Kiirabi</Text>
+          <Text style={styles.subtitle}>Ich bin Sanitäter/in in Estland.{'\n'}Ich erkenne. Ich messe. Ich handle.</Text>
         </View>
       </View>
-      <FlagStripe height={6} />
-      <Ornament background={colors.linen} />
+      <Ornament background={colors.valge} color={colors.sinine} accent={colors.must} />
 
-      <View style={{ padding: spacing.lg, gap: spacing.lg }}>
-        <Card>
-          <Eyebrow et="Auaste" de="Mein Dienstgrad" />
-          <Text style={[type.h2, { marginTop: spacing.xs }]}>{rank.de}</Text>
-          <Text style={type.small}>{rank.et}</Text>
-          <View style={styles.bar}>
-            <View style={[styles.barFill, { width: `${pct * 100}%` }]} />
+      <View style={styles.body}>
+        <View style={styles.rank}>
+          <View style={styles.medal}>
+            <Kaheksakand size={44} color={colors.sinine} gap={colors.valge} center={colors.valge} />
           </View>
-          <Text style={type.small}>
-            {progress.totalPoints} Punkte
-            {next ? ` · noch ${next.min - progress.totalPoints} bis „${next.de}“` : ' · Höchster Rang erreicht'}
-          </Text>
-        </Card>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Eyebrow et="Auaste" de="Mein Dienstgrad" />
+            <Text style={styles.rankName}>{rank.de}</Text>
+            <Text style={styles.rankEt}>{rank.et}</Text>
+            <View style={styles.bar}>
+              <View style={[styles.barFill, { width: `${pct * 100}%` }]} />
+            </View>
+            <Text style={type.small}>
+              {progress.totalPoints} Punkte
+              {next ? ` · noch ${next.min - progress.totalPoints} bis „${next.de}“` : ' · Höchster Rang erreicht'}
+            </Text>
+          </View>
+        </View>
 
         <View style={styles.stats}>
           <Stat value={progress.casesPlayed} label="Einsätze" et="väljakutset" />
+          <View style={styles.statRule} />
           <Stat value={progress.correctDiagnoses} label="Diagnosen" et="diagnoosi" />
-          <Stat value={`${mastered}/${CASES.length}`} label="★★★ Fälle" et="meisterdatud" />
+          <View style={styles.statRule} />
+          <Stat value={`${mastered}/${CASES.length}`} label="gemeistert" et="meisterdatud" />
         </View>
 
         {progress.streak >= 2 && (
-          <Text style={styles.streak}>🔥 {progress.streak} gute Einsätze in Folge – weiter so!</Text>
+          <View style={styles.streak}>
+            <Text style={styles.streakText}>🔥 {progress.streak} gute Einsätze in Folge</Text>
+          </View>
         )}
 
-        <View>
-          <Eyebrow et="Raskusaste" de="Wie schwer soll mein Dienst sein?" />
+        <View style={{ gap: spacing.sm }}>
+          <Eyebrow et="Raskusaste" de="Wie schwer wird meine Schicht?" />
           <View style={styles.diffRow}>
             {DIFFICULTIES.map((d) => {
               const active = progress.difficulty === d.id;
@@ -75,26 +88,38 @@ export function HomeScreen({
                   accessibilityState={{ selected: active }}
                   style={[styles.diff, active && styles.diffActive]}
                 >
-                  <Text style={[styles.diffIcon, active && { color: colors.valge }]}>{d.icon}</Text>
+                  <View style={styles.diffStars}>
+                    {[1, 2, 3].map((n) => (
+                      <Kaheksakand
+                        key={n}
+                        size={14}
+                        color={n <= LEVEL_STARS[d.id] ? colors.sinine : active ? colors.mustSoft : colors.lumiDark}
+                        gap={active ? colors.must : colors.valge}
+                      />
+                    ))}
+                  </View>
                   <Text style={[styles.diffLabel, active && { color: colors.valge }]}>{d.label}</Text>
                   <Text style={[styles.diffEt, active && { color: colors.sinineLight }]}>{d.et}</Text>
                 </Pressable>
               );
             })}
           </View>
-          <Text style={[type.small, { marginTop: spacing.sm }]}>
-            {DIFFICULTIES.find((d) => d.id === progress.difficulty)?.description}
-          </Text>
+          <Text style={type.small}>{current.description}</Text>
         </View>
 
         <Button label="Meine Schicht beginnen" sub="Alusta väljakutset" variant="alarm" onPress={onStart} />
-        <Button label="Lexikon & Normwerte" sub="Leksikon" variant="primary" onPress={onLexikon} />
-        <Button label="Anleitung" sub="Juhend" variant="outline" onPress={onGuide} />
+        <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+          <Button label="Lexikon" sub="Leksikon" variant="primary" onPress={onLexikon} style={{ flex: 1 }} />
+          <Button label="Anleitung" sub="Juhend" variant="outline" onPress={onGuide} style={{ flex: 1 }} />
+        </View>
 
-        <Text style={[type.small, { textAlign: 'center', marginTop: spacing.sm }]}>
-          Lernspiel – ersetzt keine medizinische Ausbildung und keine ärztliche Beratung.{'\n'}
-          Im Notfall: 112 (Estland & EU).
-        </Text>
+        <View style={styles.footer}>
+          <Kaheksakand size={12} color={colors.greyLight} gap={colors.lumi} />
+          <Text style={[type.small, { textAlign: 'center' }]}>
+            Lernspiel – ersetzt keine medizinische Ausbildung und keine ärztliche Beratung.{'\n'}
+            Im Notfall: 112 (Estland & EU).
+          </Text>
+        </View>
       </View>
     </ScrollView>
   );
@@ -111,51 +136,53 @@ function Stat({ value, label, et }: { value: number | string; label: string; et:
 }
 
 const styles = StyleSheet.create({
-  hero: {
-    backgroundColor: colors.must,
-    paddingTop: spacing.xxl,
-    paddingBottom: spacing.xl,
-    paddingHorizontal: spacing.xl,
+  hero: { height: 300, backgroundColor: colors.sinineDeep, overflow: 'hidden' },
+  heroText: { paddingTop: spacing.xxl + 4, paddingHorizontal: spacing.xl },
+  tere: { color: colors.sinineLight, fontSize: 13, letterSpacing: 2.5, fontFamily: fonts.extrabold, textTransform: 'uppercase' },
+  title: { color: colors.valge, fontSize: 50, fontFamily: fonts.displayBlack, letterSpacing: 1, marginTop: 2 },
+  subtitle: { color: colors.sinineLight, fontSize: 15, lineHeight: 21, marginTop: spacing.xs, fontFamily: fonts.semibold },
+  body: { padding: spacing.lg, gap: spacing.xl },
+  rank: {
+    flexDirection: 'row',
+    gap: spacing.lg,
+    backgroundColor: colors.valge,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.lumiDark,
   },
-  tere: { color: colors.sinineLight, fontSize: 14, letterSpacing: 2, fontWeight: '600' },
-  title: { color: colors.valge, fontSize: 52, fontWeight: '900', letterSpacing: 6, marginTop: spacing.xs },
-  subtitle: { color: colors.greyLight, fontSize: 14, marginTop: spacing.xs },
-  cross: {
-    position: 'absolute',
-    right: spacing.xl,
-    top: spacing.xxl + 8,
-    width: 44,
-    height: 44,
+  medal: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.must,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  crossBar: { backgroundColor: colors.sinine },
-  bar: { height: 8, backgroundColor: colors.linenDark, marginVertical: spacing.sm },
-  barFill: { height: 8, backgroundColor: colors.sinine },
-  stats: { flexDirection: 'row', gap: spacing.sm },
-  stat: {
-    flex: 1,
-    backgroundColor: colors.valge,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-    borderTopWidth: 3,
-    borderTopColor: colors.must,
-  },
-  statValue: { fontSize: 22, fontWeight: '800', color: colors.sinine },
-  statLabel: { fontSize: 12, fontWeight: '600', color: colors.must, marginTop: 2 },
-  statEt: { fontSize: 10, color: colors.grey, letterSpacing: 1 },
-  streak: { textAlign: 'center', fontWeight: '800', color: colors.kihnuRed },
-  diffRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
+  rankName: { fontFamily: fonts.display, fontSize: 19, color: colors.must, marginTop: 4 },
+  rankEt: { fontFamily: fonts.italic, fontSize: 13, color: colors.grey },
+  bar: { height: 6, backgroundColor: colors.lumiDark, marginVertical: spacing.sm },
+  barFill: { height: 6, backgroundColor: colors.sinine },
+  stats: { flexDirection: 'row', alignItems: 'stretch' },
+  statRule: { width: 1, backgroundColor: colors.lumiDark },
+  stat: { flex: 1, alignItems: 'center', paddingVertical: spacing.xs },
+  statValue: { fontSize: 24, fontFamily: fonts.display, color: colors.must },
+  statLabel: { fontFamily: fonts.bold, fontSize: 12, color: colors.must, marginTop: 2 },
+  statEt: { fontFamily: fonts.italic, fontSize: 11, color: colors.grey },
+  streak: { alignSelf: 'center', backgroundColor: colors.must, paddingHorizontal: spacing.md, paddingVertical: 6 },
+  streakText: { color: colors.kihnuYellow, fontFamily: fonts.extrabold, fontSize: 13 },
+  diffRow: { flexDirection: 'row', gap: spacing.sm },
   diff: {
     flex: 1,
     alignItems: 'center',
     paddingVertical: spacing.md,
     backgroundColor: colors.valge,
-    borderWidth: 2,
-    borderColor: colors.must,
+    borderWidth: 1,
+    borderColor: colors.lumiDark,
+    gap: 4,
   },
-  diffActive: { backgroundColor: colors.must },
-  diffIcon: { color: colors.sinine, fontSize: 14, letterSpacing: 2 },
-  diffLabel: { fontWeight: '800', fontSize: 16, color: colors.must, marginTop: 2 },
-  diffEt: { fontSize: 10, color: colors.grey, letterSpacing: 1, textTransform: 'uppercase' },
+  diffActive: { backgroundColor: colors.must, borderColor: colors.must },
+  diffStars: { flexDirection: 'row', gap: 3 },
+  diffLabel: { fontFamily: fonts.display, fontSize: 14, color: colors.must, marginTop: 2 },
+  diffEt: { fontFamily: fonts.semibold, fontSize: 10, color: colors.grey, letterSpacing: 1.5, textTransform: 'uppercase' },
+  footer: { alignItems: 'center', gap: spacing.sm, marginTop: spacing.sm },
 });

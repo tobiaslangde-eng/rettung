@@ -42,9 +42,16 @@ Der Fortschritt wird lokal gespeichert. Im **Lexikon** findest du Normwerte und 
 
 ## Estnisches Design
 
-- Flaggenfarben **sinine – must – valge** (Blau `#0072CE`, Schwarz, Weiß) als Trikolore-Streifen
-- Leinen-Hintergrund und Rauten-Ornamentband nach estnischen Volksmustern
-- Kihnu-Rot als Alarmfarbe, estnische Begriffe als zweisprachige Beschriftung
+- **Die Flagge als Landschaft:** blauer Himmel (*sinine*), schwarze Erde (*must*) mit der Tallinner Altstadt –
+  Oleviste-Kirche, Rathausturm, Langer Hermann mit Fahne, Stadtmauer und Kiefern – und weißer Schnee (*valge*).
+  Auf dem Startbildschirm am Tag, bei der Blaulichtfahrt und im Einsatzbericht bei Nacht.
+- **Kaheksakand**, der achtzackige Stern der estnischen Volkskunst, als Rangabzeichen, Schwierigkeits- und
+  Bewertungssterne, Kartenstempel und Häkchen
+- **Ornamentbänder** nach Gürtel- und Fäustlingsmustern mit Sägezahnkanten
+- **Kihnu-Streifen** (Rockmuster von der Insel Kihnu, UNESCO-Kulturerbe) an Alarm-Elementen
+- Schneeweißer Hintergrund, Schriften *Unbounded* (Titel) und *Figtree* (Text), zweisprachige Beschriftungen Estnisch/Deutsch
+
+Alle Grafiken sind Vektorgrafiken (`react-native-svg`) in `src/components/Folk.tsx`.
 
 ## Starten
 
@@ -67,7 +74,8 @@ npm run build:web     # erzeugt dist/kiirabi.html – eine eigenständige Datei 
 ```
 App.tsx                 Navigation (Zustandsautomat) & Fortschritt
 src/theme.ts            Farben & Typografie (estnisches Design)
-src/components/         Trikolore, Ornament, Buttons, Karten, Kati, Blaulichtfahrt
+src/components/Folk.tsx Kaheksakand, Ornamentband, Kihnu-Streifen, Landschaft
+src/components/         Buttons, Karten, Kati, Blaulichtfahrt
 src/data/vitals.ts      Vitalwerte, Normbereiche, Einstufung
 src/data/cases.ts       Einsatzfälle
 src/game/scoring.ts     Punkte, Sterne, Ränge, Patientenzustand

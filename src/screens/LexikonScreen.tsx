@@ -4,7 +4,7 @@ import { Card, Eyebrow, Ornament, TopBar } from '../components/Estonian';
 import { CASES } from '../data/cases';
 import { VITALS } from '../data/vitals';
 import { Progress } from '../game/storage';
-import { colors, spacing, type } from '../theme';
+import { colors, spacing, type, fonts } from '../theme';
 
 type Tab = 'werte' | 'krankheiten';
 
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   tabs: { flexDirection: 'row', backgroundColor: colors.linenDark },
   tab: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center' },
   tabActive: { backgroundColor: colors.sinine },
-  tabLabel: { fontWeight: '700', color: colors.must },
-  tabEt: { fontSize: 10, color: colors.grey, letterSpacing: 1 },
-  short: { fontWeight: '800', color: colors.must, letterSpacing: 1 },
+  tabLabel: { fontFamily: fonts.bold, color: colors.must },
+  tabEt: { fontFamily: fonts.regular, fontSize: 10, color: colors.grey, letterSpacing: 1 },
+  short: { fontFamily: fonts.extrabold, color: colors.must, letterSpacing: 1 },
 });

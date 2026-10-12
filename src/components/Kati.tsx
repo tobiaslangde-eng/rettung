@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, spacing } from '../theme';
+import { colors, spacing, fonts } from '../theme';
 
 /** Meine Kollegin Kati – Sprechblase mit Tipps. */
 export function Kati({ children }: { children: ReactNode }) {
@@ -21,7 +21,7 @@ export function AskKati({ label, onPress }: { label: string; onPress: () => void
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.ask, pressed && { opacity: 0.8 }]}>
       <View style={[styles.avatar, { width: 28, height: 28 }]}>
-        <Text style={[styles.avatarText, { fontSize: 13 }]}>K</Text>
+        <Text style={[styles.avatarText, { fontFamily: fonts.regular, fontSize: 13 }]}>K</Text>
       </View>
       <Text style={styles.askText}>{label}</Text>
     </Pressable>
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { color: colors.valge, fontWeight: '900', fontSize: 18 },
+  avatarText: { color: colors.valge, fontFamily: fonts.extrabold, fontSize: 18 },
   bubble: {
     flex: 1,
     backgroundColor: colors.sinineLight,
@@ -48,8 +48,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 0,
     borderRadius: 10,
   },
-  name: { fontSize: 11, fontWeight: '800', color: colors.sinineDark, letterSpacing: 1, textTransform: 'uppercase' },
-  text: { fontSize: 15, color: colors.must, marginTop: 2, lineHeight: 21 },
+  name: { fontSize: 11, fontFamily: fonts.extrabold, color: colors.sinineDark, letterSpacing: 1, textTransform: 'uppercase' },
+  text: { fontFamily: fonts.regular, fontSize: 15, color: colors.must, marginTop: 2, lineHeight: 21 },
   ask: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -60,5 +60,5 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     backgroundColor: colors.valge,
   },
-  askText: { color: colors.sinineDark, fontWeight: '700', flex: 1 },
+  askText: { color: colors.sinineDark, fontFamily: fonts.bold, flex: 1 },
 });

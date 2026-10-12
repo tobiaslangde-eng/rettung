@@ -1,9 +1,10 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, Eyebrow, Ornament, TopBar } from '../components/Estonian';
+import { EstoniaScene, Kaheksakand } from '../components/Folk';
 import { VITAL_BY_ID, formatVital, rateVital } from '../data/vitals';
 import { DIFFICULTY_BY_ID } from '../game/difficulty';
 import { CaseRun, ScoreResult, conditionOutcome } from '../game/scoring';
-import { colors, spacing, type } from '../theme';
+import { colors, spacing, type, fonts } from '../theme';
 
 const PRAISE = ['Nii ja naa …', 'Hea katse!', 'Tubli!', 'Suurepärane!'];
 
@@ -28,10 +29,20 @@ export function ResultScreen({
       <TopBar et="Tulemus" title="Mein Einsatzbericht" onBack={onHome} />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.hero}>
-          <Text style={styles.stars}>
-            {'★'.repeat(result.stars)}
-            <Text style={{ color: colors.grey }}>{'★'.repeat(3 - result.stars)}</Text>
-          </Text>
+          <View style={StyleSheet.absoluteFill}>
+            <EstoniaScene height={290} night />
+          </View>
+          <View style={styles.stars}>
+            {[0, 1, 2].map((i) => (
+              <Kaheksakand
+                key={i}
+                size={i === 1 ? 52 : 40}
+                color={i < result.stars ? colors.valge : colors.sinineDark}
+                gap={colors.sinineDeep}
+                center={i < result.stars ? colors.sinine : undefined}
+              />
+            ))}
+          </View>
           <Text style={styles.praise}>{PRAISE[result.stars]}</Text>
           <Text style={styles.points}>
             +{result.total} <Text style={styles.pointsMax}>Punkte</Text>
@@ -45,7 +56,7 @@ export function ResultScreen({
         <Card style={{ borderLeftColor: run.condition >= 70 ? colors.rabaGreen : run.condition >= 40 ? colors.amber : colors.kihnuRed }}>
           <Eyebrow et="Haiglas" de="In der Klinik" />
           <Text style={[type.body, { marginTop: spacing.xs }]}>
-            <Text style={{ fontSize: 22 }}>{outcome.emoji} </Text>
+            <Text style={{ fontFamily: fonts.regular, fontSize: 22 }}>{outcome.emoji} </Text>
             {outcome.text}
           </Text>
         </Card>
@@ -74,7 +85,7 @@ export function ResultScreen({
             </Text>
           )}
           <Text style={[type.body, { marginTop: spacing.sm }]}>{c.explanation}</Text>
-          <Text style={[type.small, { marginTop: spacing.sm, fontWeight: '700', color: colors.must }]}>Leitsymptome</Text>
+          <Text style={[type.small, { marginTop: spacing.sm, fontFamily: fonts.bold, color: colors.must }]}>Leitsymptome</Text>
           {c.leitsymptome.map((s) => (
             <Text key={s} style={type.small}>
               • {s}
@@ -92,7 +103,7 @@ export function ResultScreen({
                 <Text style={[type.body, { flex: 1 }]}>
                   {VITAL_BY_ID[m.id].short}: {formatVital(m.id, c.vitals[m.id])}
                 </Text>
-                <Text style={{ color: ok ? colors.rabaGreen : colors.kihnuRed, fontWeight: '700' }}>
+                <Text style={{ color: ok ? colors.rabaGreen : colors.kihnuRed, fontFamily: fonts.bold }}>
                   {truth === null ? 'Befund' : ok ? `✓ ${truth}` : `✗ ${truth}`}
                 </Text>
               </View>
@@ -116,7 +127,7 @@ export function ResultScreen({
                 <Text style={[type.small, { flex: 1, color: colors.must }]}>
                   {t.correct ? '✓' : '✗'} {t.text}
                 </Text>
-                <Text style={{ fontSize: 11, color: ok ? colors.rabaGreen : colors.kihnuRed, fontWeight: '700' }}>
+                <Text style={{ fontSize: 11, color: ok ? colors.rabaGreen : colors.kihnuRed, fontFamily: fonts.bold }}>
                   {chosen ? 'gewählt' : 'nicht gewählt'}
                 </Text>
               </View>
@@ -133,19 +144,27 @@ export function ResultScreen({
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
-  hero: { backgroundColor: colors.must, padding: spacing.xl, alignItems: 'center' },
-  stars: { fontSize: 40, color: colors.sinine, letterSpacing: 6 },
-  praise: { color: colors.valge, fontSize: 22, fontWeight: '800', marginTop: spacing.xs },
-  points: { color: colors.valge, fontSize: 30, fontWeight: '900', marginTop: spacing.sm },
-  pointsMax: { fontSize: 16, color: colors.greyLight, fontWeight: '600' },
-  diff: { color: colors.sinineLight, marginTop: spacing.xs, fontWeight: '700', fontSize: 13 },
+  hero: {
+    height: 290,
+    marginHorizontal: -spacing.lg,
+    marginTop: -spacing.lg,
+    paddingTop: spacing.xl,
+    alignItems: 'center',
+    overflow: 'hidden',
+    backgroundColor: colors.sinineDeep,
+  },
+  stars: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  praise: { color: colors.valge, fontSize: 22, fontFamily: fonts.display, marginTop: spacing.md },
+  points: { color: colors.valge, fontSize: 30, fontFamily: fonts.displayBlack, marginTop: 2 },
+  pointsMax: { fontSize: 16, color: colors.greyLight, fontFamily: fonts.semibold },
+  diff: { color: colors.sinineLight, marginTop: spacing.xs, fontFamily: fonts.bold, fontSize: 13 },
   line: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
     paddingVertical: 6,
     borderBottomWidth: 1,
-    borderBottomColor: colors.linen,
+    borderBottomColor: colors.lumiDark,
   },
-  linePts: { fontWeight: '800', fontSize: 16 },
+  linePts: { fontFamily: fonts.extrabold, fontSize: 16 },
 });

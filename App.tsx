@@ -1,7 +1,17 @@
+import {
+  Figtree_400Regular,
+  Figtree_400Regular_Italic,
+  Figtree_600SemiBold,
+  Figtree_700Bold,
+  Figtree_800ExtraBold,
+} from '@expo-google-fonts/figtree';
+import { Unbounded_700Bold, Unbounded_900Black } from '@expo-google-fonts/unbounded';
+import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { Kaheksakand } from './src/components/Folk';
 import { CASES, MedCase } from './src/data/cases';
 import { DIFFICULTY_BY_ID, Difficulty } from './src/game/difficulty';
 import { CaseRun, ScoreResult, scoreRun } from './src/game/scoring';
@@ -33,6 +43,15 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>({ name: 'home' });
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
   const lastCaseId = useRef<string | undefined>(undefined);
+  const [fontsLoaded, fontError] = useFonts({
+    Unbounded_700Bold,
+    Unbounded_900Black,
+    Figtree_400Regular,
+    Figtree_400Regular_Italic,
+    Figtree_600SemiBold,
+    Figtree_700Bold,
+    Figtree_800ExtraBold,
+  });
 
   useEffect(() => {
     loadProgress().then(setProgress);
@@ -68,6 +87,14 @@ export default function App() {
     saveProgress(next);
   };
 
+  if (!fontsLoaded && !fontError) {
+    return (
+      <View style={styles.splash}>
+        <Kaheksakand size={64} color={colors.sinine} gap={colors.must} center={colors.valge} />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
@@ -86,15 +113,21 @@ export default function App() {
           {screen.name === 'guide' && <GuideScreen onBack={home} />}
           {screen.name === 'case' && (
             <CaseScreen
-                key={screen.key}
-                medCase={screen.medCase}
-                difficulty={DIFFICULTY_BY_ID[progress.difficulty]}
-                onFinish={finishCase}
-                onAbort={home}
-              />
+              key={screen.key}
+              medCase={screen.medCase}
+              difficulty={DIFFICULTY_BY_ID[progress.difficulty]}
+              onFinish={finishCase}
+              onAbort={home}
+            />
           )}
           {screen.name === 'result' && (
-            <ResultScreen run={screen.run} result={screen.result} streak={progress.streak} onNext={startCase} onHome={home} />
+            <ResultScreen
+              run={screen.run}
+              result={screen.result}
+              streak={progress.streak}
+              onNext={startCase}
+              onHome={home}
+            />
           )}
         </View>
       </SafeAreaView>
@@ -104,5 +137,6 @@ export default function App() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.must },
-  body: { flex: 1, backgroundColor: colors.linen },
+  body: { flex: 1, backgroundColor: colors.lumi },
+  splash: { flex: 1, backgroundColor: colors.must, alignItems: 'center', justifyContent: 'center' },
 });
