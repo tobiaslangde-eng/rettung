@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "Kiirabi – Rettungseinsatz: medizinisches Lernspiel",
   "author": "Kiirabi",
+  "repository": "github:tobiaslangde-eng/retung",
   "main": "main.js",
   "private": true,
   "scripts": {
