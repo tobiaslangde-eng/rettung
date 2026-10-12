@@ -2,6 +2,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
 import { EcgStrip, MonitorScene, RatingStar } from '../components/Ems';
 import { VITAL_BY_ID, formatVital, rateVital } from '../data/vitals';
+import { BADGE_BONUS, Badge } from '../game/achievements';
 import { DIFFICULTY_BY_ID } from '../game/difficulty';
 import { CaseRun, ScoreResult, conditionOutcome } from '../game/scoring';
 import { colors, spacing, type, fonts } from '../theme';
@@ -11,12 +12,14 @@ const PRAISE = ['Da geht noch was', 'Guter Versuch', 'Gut gemacht!', 'Ausgezeich
 export function ResultScreen({
   run,
   result,
+  newBadges,
   streak,
   onNext,
   onHome,
 }: {
   run: CaseRun;
   result: ScoreResult;
+  newBadges: Badge[];
   streak: number;
   onNext: () => void;
   onHome: () => void;
@@ -50,6 +53,21 @@ export function ResultScreen({
             <EcgStrip height={56} beats={4} />
           </View>
         </View>
+        {newBadges.length > 0 && (
+          <View style={styles.badgeBox}>
+            <Text style={styles.badgeHead}>Neues Abzeichen!</Text>
+            {newBadges.map((b) => (
+              <View key={b.id} style={styles.badgeRow}>
+                <Text style={styles.badgeIcon}>{b.icon}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.badgeTitle}>{b.title}</Text>
+                  <Text style={styles.badgeDesc}>{b.description}</Text>
+                </View>
+                <Text style={styles.badgePts}>+{BADGE_BONUS}</Text>
+              </View>
+            ))}
+          </View>
+        )}
         <Card style={{ borderLeftColor: run.condition >= 70 ? colors.gruen : run.condition >= 40 ? colors.amber : colors.signalrot }}>
           <Eyebrow title="In der Klinik" />
           <Text style={[type.body, { marginTop: spacing.xs }]}>
@@ -139,6 +157,13 @@ export function ResultScreen({
 }
 
 const styles = StyleSheet.create({
+  badgeBox: { backgroundColor: colors.graphit, borderRadius: 6, padding: spacing.lg, gap: spacing.sm },
+  badgeHead: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.warngelb, textTransform: 'uppercase' },
+  badgeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  badgeIcon: { fontFamily: fonts.regular, fontSize: 30 },
+  badgeTitle: { fontFamily: fonts.bold, fontSize: 15, color: colors.weiss },
+  badgeDesc: { fontFamily: fonts.regular, fontSize: 12, color: colors.grau300 },
+  badgePts: { fontFamily: fonts.extrabold, fontSize: 16, color: colors.monitorGruen },
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   hero: {
     height: 330,

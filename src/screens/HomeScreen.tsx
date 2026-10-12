@@ -3,6 +3,7 @@ import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View } fro
 import { EcgStrip, MonitorScene, StarOfLife, WarnStripes } from '../components/Ems';
 import { Button, Eyebrow } from '../components/UI';
 import { CASES } from '../data/cases';
+import { BADGES } from '../game/achievements';
 import { DIFFICULTIES, Difficulty } from '../game/difficulty';
 import { rankFor } from '../game/scoring';
 import { Progress } from '../game/storage';
@@ -32,12 +33,14 @@ export function HomeScreen({
   onDifficulty,
   onLexikon,
   onGuide,
+  onQuiz,
 }: {
   progress: Progress;
   onStart: () => void;
   onDifficulty: (d: Difficulty) => void;
   onLexikon: () => void;
   onGuide: () => void;
+  onQuiz: () => void;
 }) {
   const { rank, next } = rankFor(progress.totalPoints);
   const span = next ? next.min - rank.min : 1;
@@ -138,9 +141,38 @@ export function HomeScreen({
         </View>
 
         <Button label="Schicht beginnen" variant="alarm" onPress={onStart} />
+        <Pressable onPress={onQuiz} accessibilityRole="button" style={({ pressed }) => [styles.quiz, pressed && { opacity: 0.85 }]}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.quizTitle}>Schnelltraining Normwerte</Text>
+            <Text style={styles.quizSub}>
+              10 Werte, schnell einschätzen{progress.quizBest > 0 ? ` · Bestwert ${progress.quizBest}/10` : ''}
+            </Text>
+          </View>
+          <Text style={styles.quizArrow}>›</Text>
+        </Pressable>
         <View style={{ flexDirection: 'row', gap: spacing.sm }}>
           <Button label="Lexikon" variant="dark" onPress={onLexikon} style={{ flex: 1 }} />
           <Button label="Anleitung" variant="outline" onPress={onGuide} style={{ flex: 1 }} />
+        </View>
+
+        <View style={{ gap: spacing.sm }}>
+          <Eyebrow title={`Abzeichen · ${progress.badges.length} von ${BADGES.length}`} />
+          <View style={styles.badges}>
+            {BADGES.map((b) => {
+              const has = progress.badges.includes(b.id);
+              return (
+                <View key={b.id} style={[styles.badge, !has && styles.badgeLocked]}>
+                  <Text style={[styles.badgeIcon, !has && { opacity: 0.25 }]}>{b.icon}</Text>
+                  <Text style={[styles.badgeTitle, !has && { color: colors.grau500 }]} numberOfLines={2}>
+                    {b.title}
+                  </Text>
+                  <Text style={styles.badgeDesc} numberOfLines={3}>
+                    {b.description}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
         </View>
 
         <Text style={[type.small, { textAlign: 'center' }]}>
@@ -227,6 +259,33 @@ const styles = StyleSheet.create({
   streak: { alignSelf: 'center', backgroundColor: colors.graphit, paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: 20 },
   streakText: { color: colors.warngelb, fontFamily: fonts.extrabold, fontSize: 13 },
   diffRow: { flexDirection: 'row', gap: spacing.sm },
+  quiz: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.nacht,
+    borderRadius: 6,
+    padding: spacing.lg,
+    borderLeftWidth: 0,
+  },
+  quizTitle: { fontFamily: fonts.displayBlack, fontSize: 20, color: colors.monitorGruen, textTransform: 'uppercase' },
+  quizSub: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau300, marginTop: 2 },
+  quizArrow: { fontFamily: fonts.regular, fontSize: 34, color: colors.monitorGruen },
+  badges: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  badge: {
+    width: '31.5%',
+    flexGrow: 1,
+    backgroundColor: colors.weiss,
+    borderWidth: 1,
+    borderColor: colors.grau200,
+    borderRadius: 6,
+    padding: spacing.sm,
+    alignItems: 'center',
+  },
+  badgeLocked: { backgroundColor: colors.grau50 },
+  badgeIcon: { fontSize: 26, fontFamily: fonts.regular },
+  badgeTitle: { fontFamily: fonts.bold, fontSize: 12, color: colors.graphit, textAlign: 'center', marginTop: 2 },
+  badgeDesc: { fontFamily: fonts.regular, fontSize: 10, color: colors.grau500, textAlign: 'center', marginTop: 2 },
   diff: {
     flex: 1,
     alignItems: 'center',

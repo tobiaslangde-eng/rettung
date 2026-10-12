@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
+import { Button, Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
+import { BADGE_BONUS } from '../game/achievements';
+import { QUIZ_POINTS } from '../game/quiz';
 import { DIFFICULTIES } from '../game/difficulty';
 import { POINTS } from '../game/scoring';
 import { colors, spacing, type, fonts } from '../theme';
@@ -14,7 +17,8 @@ const STEPS = [
   { de: 'Maßnahmen', text: 'Ich wähle alle passenden Maßnahmen. Falsche Maßnahmen schaden dem Patienten und kosten Punkte.' },
 ];
 
-export function GuideScreen({ onBack }: { onBack: () => void }) {
+export function GuideScreen({ onBack, onReset }: { onBack: () => void; onReset: () => void }) {
+  const [confirmReset, setConfirmReset] = useState(false);
   return (
     <View style={{ flex: 1 }}>
       <TopBar kicker="Hilfe" title="Anleitung" onBack={onBack} />
@@ -52,6 +56,13 @@ export function GuideScreen({ onBack }: { onBack: () => void }) {
           <Row label="Falsche Maßnahme" pts={POINTS.treatmentWrong} />
           <Row label="Zustand des Patienten am Ende (max.)" pts={POINTS.conditionMax} />
           <Row label="Tipp von Kati (nur auf Mittel)" pts={-10} />
+          <Row label="Perfekter Einsatz (3 Sterne)" pts={POINTS.perfectBonus} />
+          <Row label={`Serienbonus je gutem Einsatz in Folge (max. ${POINTS.streakMax})`} pts={POINTS.streakPerLevel} />
+          <Row label="Neues Abzeichen" pts={BADGE_BONUS} />
+          <Row label="Schnelltraining: je richtigem Wert" pts={QUIZ_POINTS} />
+          <Text style={[type.small, { marginTop: spacing.sm }]}>
+            Auf „Mittel“ zählen alle Punkte eines Einsatzes ×1,5, auf „Schwer“ ×2.
+          </Text>
         </Card>
         <Card style={{ borderLeftColor: colors.signalrot }}>
           <Eyebrow title="Hinweis" />
@@ -59,6 +70,21 @@ export function GuideScreen({ onBack }: { onBack: () => void }) {
             Dieses Spiel dient dem Lernen und Üben. Die Inhalte sind vereinfacht und ersetzen keine Ausbildung, keine
             ärztliche Beratung und keine regionalen Leitlinien/SOPs. Im Notfall immer 112 wählen.
           </Text>
+        </Card>
+        <Card style={{ borderLeftColor: colors.grau500 }}>
+          <Eyebrow title="Neu anfangen" />
+          <Text style={[type.small, { marginTop: spacing.xs }]}>
+            Setzt Punkte, Rang, Sterne und Abzeichen auf null. Das lässt sich nicht rückgängig machen.
+          </Text>
+          {confirmReset ? (
+            <View style={{ gap: spacing.sm, marginTop: spacing.md }}>
+              <Text style={[type.body, { fontFamily: fonts.bold }]}>Wirklich alles zurücksetzen?</Text>
+              <Button label="Ja, alles löschen" variant="alarm" onPress={onReset} />
+              <Button label="Abbrechen" variant="outline" onPress={() => setConfirmReset(false)} />
+            </View>
+          ) : (
+            <Button label="Fortschritt zurücksetzen" variant="outline" onPress={() => setConfirmReset(true)} style={{ marginTop: spacing.md }} />
+          )}
         </Card>
         <WarnStripes />
       </ScrollView>

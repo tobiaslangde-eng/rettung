@@ -13,6 +13,14 @@ export interface Progress {
   difficulty: Difficulty;
   /** Einsätze in Folge mit mindestens 2 Sternen */
   streak: number;
+  /** Einsätze mit 3 Sternen */
+  perfectRuns: number;
+  /** Einsätze auf „Schwer“ mit mindestens 2 Sternen */
+  hardWins: number;
+  /** Bestes Ergebnis im Schnelltraining (von 10) */
+  quizBest: number;
+  /** Freigeschaltete Abzeichen (IDs) */
+  badges: string[];
 }
 
 export const EMPTY_PROGRESS: Progress = {
@@ -22,6 +30,10 @@ export const EMPTY_PROGRESS: Progress = {
   bestStars: {},
   difficulty: 'leicht',
   streak: 0,
+  perfectRuns: 0,
+  hardWins: 0,
+  quizBest: 0,
+  badges: [],
 };
 
 export async function loadProgress(): Promise<Progress> {

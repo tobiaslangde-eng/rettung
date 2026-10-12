@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
+import { BASICS } from '../data/basics';
 import { CASES } from '../data/cases';
 import { VITALS } from '../data/vitals';
 import { Progress } from '../game/storage';
 import { colors, spacing, type, fonts } from '../theme';
 
-type Tab = 'werte' | 'krankheiten';
+type Tab = 'wissen' | 'werte' | 'krankheiten';
 
 export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack: () => void }) {
   const [tab, setTab] = useState<Tab>('werte');
@@ -15,10 +16,24 @@ export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack
       <TopBar kicker="Nachschlagen" title="Lexikon" onBack={onBack} />
       <View style={styles.tabs}>
         <TabBtn active={tab === 'werte'} label="Normwerte" sub="Vitalwerte" onPress={() => setTab('werte')} />
-        <TabBtn active={tab === 'krankheiten'} label="Krankheitsbilder" sub="Alle Fälle" onPress={() => setTab('krankheiten')} />
+        <TabBtn active={tab === 'krankheiten'} label="Krankheiten" sub={`${CASES.length} Fälle`} onPress={() => setTab('krankheiten')} />
+        <TabBtn active={tab === 'wissen'} label="Wissen" sub="Erste Hilfe" onPress={() => setTab('wissen')} />
       </View>
       <ScrollView contentContainerStyle={styles.content}>
-        {tab === 'werte' ? (
+        {tab === 'wissen' &&
+          BASICS.map((b) => (
+            <Card key={b.id}>
+              <Eyebrow title="Rettungswissen" />
+              <Text style={[type.h2, { marginTop: 2 }]}>{b.title}</Text>
+              {b.intro ? <Text style={[type.small, { marginTop: spacing.xs }]}>{b.intro}</Text> : null}
+              {b.points.map((pt) => (
+                <Text key={pt} style={[type.body, { marginTop: 4 }]}>
+                  • {pt}
+                </Text>
+              ))}
+            </Card>
+          ))}
+        {tab === 'wissen' ? null : tab === 'werte' ? (
           <>
             <Text style={type.small}>Richtwerte für Erwachsene in Ruhe. Bei Kindern gelten andere Normalbereiche.</Text>
             {VITALS.map((v) => (

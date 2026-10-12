@@ -13,6 +13,11 @@ export const POINTS = {
   efficiencyPerExtra: 4,
   /** Bonus für den Patientenzustand am Ende: Zustand / 5 */
   conditionMax: 20,
+  /** Bonus für einen perfekten Einsatz (3 Sterne) */
+  perfectBonus: 30,
+  /** Serienbonus je gutem Einsatz in Folge, gedeckelt */
+  streakPerLevel: 10,
+  streakMax: 50,
 };
 
 /** Wie sich meine Entscheidungen auf den Zustand des Patienten (0–100) auswirken. */
@@ -64,7 +69,8 @@ export interface ScoreResult {
   stars: 0 | 1 | 2 | 3;
 }
 
-export function scoreRun(run: CaseRun): ScoreResult {
+/** `streakBefore`: gute Einsätze (≥ 2 Sterne) direkt vor diesem Einsatz. */
+export function scoreRun(run: CaseRun, streakBefore = 0): ScoreResult {
   const { medCase, measured, diagnosisGuess, treatmentGuess } = run;
   const lines: ScoreLine[] = [];
 
@@ -126,10 +132,23 @@ export function scoreRun(run: CaseRun): ScoreResult {
   }
 
   const base = Math.max(0, lines.reduce((s, l) => s + l.points, 0));
-  const multiplier = DIFFICULTY_BY_ID[run.difficulty].multiplier;
-  const total = Math.round(base * multiplier);
   const ratio = base / maxScore(medCase);
   const stars = (ratio >= 0.85 ? 3 : ratio >= 0.6 ? 2 : ratio >= 0.3 ? 1 : 0) as ScoreResult['stars'];
+
+  // Boni zählen nicht in die Sternewertung, erhöhen aber die Punkte.
+  let bonus = 0;
+  if (stars === 3) {
+    lines.push({ label: 'Perfekter Einsatz', points: POINTS.perfectBonus });
+    bonus += POINTS.perfectBonus;
+  }
+  if (stars >= 2 && streakBefore > 0) {
+    const streakBonus = Math.min(POINTS.streakMax, streakBefore * POINTS.streakPerLevel);
+    lines.push({ label: `Serienbonus (${streakBefore + 1} gute Einsätze in Folge)`, points: streakBonus });
+    bonus += streakBonus;
+  }
+
+  const multiplier = DIFFICULTY_BY_ID[run.difficulty].multiplier;
+  const total = Math.round((base + bonus) * multiplier);
 
   return { lines, total, multiplier, diagnosisCorrect, missedKeyVitals, stars };
 }
@@ -158,6 +177,9 @@ export const RANKS: Rank[] = [
   { min: 800, de: 'Rettungssanitäter/in' },
   { min: 1600, de: 'Notfallsanitäter/in' },
   { min: 3000, de: 'Teamleiter/in Rettungswagen' },
+  { min: 5500, de: 'Praxisanleiter/in' },
+  { min: 9000, de: 'Leitende/r Notfallsanitäter/in' },
+  { min: 14000, de: 'Rettungsdienst-Legende' },
 ];
 
 export function rankFor(points: number): { rank: Rank; next?: Rank } {

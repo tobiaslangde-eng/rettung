@@ -13,13 +13,16 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StarOfLife } from './src/components/Ems';
 import { CASES, MedCase } from './src/data/cases';
+import { Badge, awardBadges } from './src/game/achievements';
 import { DIFFICULTY_BY_ID, Difficulty } from './src/game/difficulty';
+import { QUIZ_POINTS } from './src/game/quiz';
 import { CaseRun, ScoreResult, scoreRun } from './src/game/scoring';
 import { EMPTY_PROGRESS, Progress, loadProgress, saveProgress } from './src/game/storage';
 import { CaseScreen } from './src/screens/CaseScreen';
 import { GuideScreen } from './src/screens/GuideScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { LexikonScreen } from './src/screens/LexikonScreen';
+import { QuizScreen } from './src/screens/QuizScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
 import { colors } from './src/theme';
 
@@ -27,8 +30,9 @@ type Screen =
   | { name: 'home' }
   | { name: 'lexikon' }
   | { name: 'guide' }
+  | { name: 'quiz'; key: number }
   | { name: 'case'; medCase: MedCase; key: number }
-  | { name: 'result'; run: CaseRun; result: ScoreResult };
+  | { name: 'result'; run: CaseRun; result: ScoreResult; newBadges: Badge[] };
 
 /** Wählt passend zur Schwierigkeit bevorzugt ungemeisterte Fälle, nie denselben Fall zweimal hintereinander. */
 function pickCase(progress: Progress, lastId?: string): MedCase {
@@ -64,19 +68,41 @@ export default function App() {
   };
 
   const finishCase = (run: CaseRun) => {
-    const result = scoreRun(run);
+    const result = scoreRun(run, progress.streak);
     const id = run.medCase.id;
-    const next: Progress = {
+    const updated: Progress = {
       ...progress,
       streak: result.stars >= 2 ? progress.streak + 1 : 0,
       totalPoints: progress.totalPoints + result.total,
       casesPlayed: progress.casesPlayed + 1,
       correctDiagnoses: progress.correctDiagnoses + (result.diagnosisCorrect ? 1 : 0),
       bestStars: { ...progress.bestStars, [id]: Math.max(progress.bestStars[id] ?? 0, result.stars) },
+      perfectRuns: progress.perfectRuns + (result.stars === 3 ? 1 : 0),
+      hardWins: progress.hardWins + (run.difficulty === 'schwer' && result.stars >= 2 ? 1 : 0),
     };
+    const { progress: next, newBadges } = awardBadges(updated);
     setProgress(next);
     saveProgress(next);
-    setScreen({ name: 'result', run, result });
+    setScreen({ name: 'result', run, result, newBadges });
+  };
+
+  const finishQuiz = (correct: number) => {
+    const updated: Progress = {
+      ...progress,
+      totalPoints: progress.totalPoints + correct * QUIZ_POINTS,
+      quizBest: Math.max(progress.quizBest, correct),
+    };
+    const { progress: next } = awardBadges(updated);
+    setProgress(next);
+    saveProgress(next);
+  };
+
+  const resetProgress = () => {
+    const fresh = { ...EMPTY_PROGRESS, difficulty: progress.difficulty };
+    setProgress(fresh);
+    saveProgress(fresh);
+    lastCaseId.current = undefined;
+    setScreen({ name: 'home' });
   };
 
   const home = () => setScreen({ name: 'home' });
@@ -107,10 +133,14 @@ export default function App() {
               onDifficulty={setDifficulty}
               onLexikon={() => setScreen({ name: 'lexikon' })}
               onGuide={() => setScreen({ name: 'guide' })}
+              onQuiz={() => setScreen({ name: 'quiz', key: Date.now() })}
             />
           )}
           {screen.name === 'lexikon' && <LexikonScreen progress={progress} onBack={home} />}
-          {screen.name === 'guide' && <GuideScreen onBack={home} />}
+          {screen.name === 'guide' && <GuideScreen onBack={home} onReset={resetProgress} />}
+          {screen.name === 'quiz' && (
+            <QuizScreen key={screen.key} best={progress.quizBest} onFinish={finishQuiz} onBack={home} />
+          )}
           {screen.name === 'case' && (
             <CaseScreen
               key={screen.key}
@@ -124,6 +154,7 @@ export default function App() {
             <ResultScreen
               run={screen.run}
               result={screen.result}
+              newBadges={screen.newBadges}
               streak={progress.streak}
               onNext={startCase}
               onHome={home}

@@ -15,6 +15,11 @@ Krankheit und entscheide, was zu tun ist.
 
 ## Spielelemente
 
+- **Schnelltraining Normwerte:** 10 zufällige Messwerte in Folge als niedrig, normal oder hoch einstufen
+- **10 Abzeichen** (z. B. „Lehrbuchreif“, „Heiße Serie“, „Nervenstark“) mit je 50 Bonuspunkten
+- **Bonuspunkte** für perfekte Einsätze und Serien, 8 Ränge bis zur „Rettungsdienst-Legende“
+- **Rettungswissen im Lexikon:** Notruf (5 W), Rettungskette, ABCDE, Wiederbelebung, Seitenlage, BE-FAST, SAMPLER, GCS, Schockzeichen
+
 - **Blaulichtfahrt** mit animiertem Rettungswagen zwischen Alarm und Eintreffen
 - **Zustandsbalken** des Patienten: Jede Messung kostet Kraft, Fehler schaden, richtige Maßnahmen helfen.
   Am Ende erfahre ich, wie der Patient in der Klinik ankommt.
@@ -34,11 +39,11 @@ Krankheit und entscheide, was zu tun ist.
 Punkte bringen dich im Rang nach oben – vom *Praktikanten* bis zur *Teamleitung*.
 Der Fortschritt wird lokal gespeichert. Im **Lexikon** findest du Normwerte und alle Krankheitsbilder.
 
-### Enthaltene Fälle (14)
+### Enthaltene Fälle (24)
 
-- **Leicht:** Herzinfarkt (STEMI), Hypoglykämie, Schlaganfall, Asthmaanfall, Kreislaufkollaps, Unterarmbruch
-- **Mittel:** Anaphylaxie, Hypothermie, Hitzschlag, Hyperventilation, Krampfanfall
-- **Schwer:** Sepsis, Lungenembolie, Lungenödem (plus die mittleren Fälle)
+- **Leicht (9):** Herzinfarkt, Hypoglykämie, Schlaganfall, Asthmaanfall, Kreislaufkollaps, Unterarmbruch, Verbrennung, Nierenkolik, Alkoholvergiftung
+- **Mittel (9):** Anaphylaxie, Hypothermie, Hitzschlag, Hyperventilation, Krampfanfall, hypertensiver Notfall, Opioid-Überdosis, Gehirnerschütterung, COPD
+- **Schwer (6):** Sepsis, Lungenembolie, Lungenödem, Kohlenmonoxidvergiftung, diabetische Ketoazidose, Spannungspneumothorax (plus die mittleren Fälle)
 
 ## Design: Rettungsdienst
 
