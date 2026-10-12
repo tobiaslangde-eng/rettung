@@ -56,8 +56,16 @@ Die Grafiken sind Vektorgrafiken (`react-native-svg`) in `src/components/Ems.tsx
 
 Bei jedem Push baut GitHub Actions (`.github/workflows/android-apk.yml`) automatisch:
 
+- **Kiirabi-Windows.exe** – Desktop-App für Windows (Doppelklick, keine Installation)
+- **Kiirabi-Mac-arm64.dmg / Kiirabi-Mac-x64.dmg** – Desktop-App für Mac (Apple-Chip / Intel)
+- **Kiirabi-Linux.AppImage** – Desktop-App für Linux
 - **Kiirabi.apk** – die Android-App
 - **Kiirabi-Web.html** – das ganze Spiel als eine Datei für jeden Browser, auch offline
+
+Die Desktop-Apps (Ordner `desktop/`, Electron) laden die Web-Version in ein eigenes Fenster und laufen
+offline. Sie sind nicht von Microsoft/Apple zertifiziert: Windows zeigt beim ersten Start „Weitere
+Informationen → Trotzdem ausführen“, auf dem Mac beim ersten Start Rechtsklick → *Öffnen*.
+Lokal bauen: `cd desktop && npm install && npm run prepare-app && npm run dist:linux` (bzw. `dist:win`, `dist:mac`).
 
 Beides liegt unter **Releases** im Repository (neuester Build oben).
 Android: APK auf dem Handy öffnen und „Installation aus unbekannten Quellen“ erlauben.

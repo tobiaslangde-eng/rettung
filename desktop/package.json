@@ -1,0 +1,48 @@
+{
+  "name": "kiirabi-desktop",
+  "productName": "Kiirabi",
+  "version": "1.0.0",
+  "description": "Kiirabi – Rettungseinsatz: medizinisches Lernspiel",
+  "author": "Kiirabi",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "prepare-app": "cd .. && node -e \"require('fs').mkdirSync('desktop/app',{recursive:true})\" && npx expo export --platform web --output-dir dist && node scripts/build-single-html.mjs dist desktop/app/index.html",
+    "start": "electron .",
+    "dist:win": "electron-builder --win portable --x64 --publish never",
+    "dist:mac": "electron-builder --mac dmg --x64 --arm64 --publish never",
+    "dist:linux": "electron-builder --linux AppImage --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "44.7.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "ee.kiirabi.rettung",
+    "productName": "Kiirabi",
+    "copyright": "Kiirabi – Lernspiel",
+    "files": [
+      "main.js",
+      "app/**"
+    ],
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "icon": "build/icon.png",
+    "artifactName": "Kiirabi-${os}-${arch}.${ext}",
+    "portable": {
+      "artifactName": "Kiirabi-Windows.exe"
+    },
+    "mac": {
+      "category": "public.app-category.education",
+      "identity": "-",
+      "artifactName": "Kiirabi-Mac-${arch}.${ext}"
+    },
+    "linux": {
+      "category": "Education",
+      "artifactName": "Kiirabi-Linux.AppImage"
+    },
+    "publish": null
+  }
+}

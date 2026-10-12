@@ -1,5 +1,7 @@
-# Baut die Android-App (APK) und die Web-Version als einzelne HTML-Datei
-# und stellt beide unter „Releases“ zum Herunterladen bereit.
+# Baut alle Versionen von Kiirabi und stellt sie unter „Releases“ zum Herunterladen bereit:
+#   - Android-App (APK)
+#   - Desktop-App für Windows (.exe), macOS (.dmg) und Linux (.AppImage)
+#   - Web-Version als einzelne HTML-Datei
 name: App bauen
 
 on:
@@ -15,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  android:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -51,7 +53,7 @@ jobs:
         working-directory: android
         run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,armeabi-v7a,x86_64
 
-      - name: Dateien umbenennen
+      - name: Dateien sammeln
         run: |
           mkdir -p out
           cp android/app/build/outputs/apk/release/app-release.apk out/Kiirabi.apk
@@ -59,8 +61,64 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: kiirabi
+          name: android-web
           path: out/
+
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: dist:win
+            files: desktop/release/Kiirabi-Windows.exe
+          - os: macos-latest
+            target: dist:mac
+            files: desktop/release/Kiirabi-Mac-*.dmg
+          - os: ubuntu-latest
+            target: dist:linux
+            files: desktop/release/Kiirabi-Linux.AppImage
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            desktop/package-lock.json
+
+      - name: Abhängigkeiten installieren
+        run: |
+          npm ci
+          npm ci --prefix desktop
+
+      - name: Spiel für die Desktop-App bauen
+        working-directory: desktop
+        run: npm run prepare-app
+
+      - name: Desktop-App bauen
+        working-directory: desktop
+        run: npm run ${{ matrix.target }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.os }}
+          path: ${{ matrix.files }}
+
+  release:
+    needs: [android, desktop]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+
+      - run: ls -la out
 
       - name: Release veröffentlichen
         uses: softprops/action-gh-release@v2
@@ -72,6 +130,14 @@ jobs:
           body: |
             **Kiirabi – Rettungseinsatz**, automatisch gebaut aus `${{ github.ref_name }}` (${{ github.sha }}).
 
-            - **Kiirabi.apk**: Android-App. Auf dem Handy herunterladen, öffnen und die Installation aus unbekannten Quellen erlauben.
-            - **Kiirabi-Web.html**: das ganze Spiel als eine Datei. Herunterladen und im Browser öffnen, funktioniert auch offline.
+            | Gerät | Datei | So startest du es |
+            |---|---|---|
+            | Windows | **Kiirabi-Windows.exe** | Doppelklick. Bei „Der Computer wurde durch Windows geschützt“: *Weitere Informationen* → *Trotzdem ausführen*. |
+            | Mac (Apple-Chip M1–M4) | **Kiirabi-Mac-arm64.dmg** | Öffnen, Kiirabi in „Programme“ ziehen. Beim ersten Start: Rechtsklick auf Kiirabi → *Öffnen* (oder Systemeinstellungen → Datenschutz & Sicherheit → *Trotzdem öffnen*). |
+            | Mac (Intel) | **Kiirabi-Mac-x64.dmg** | wie oben |
+            | Linux | **Kiirabi-Linux.AppImage** | Ausführbar machen (`chmod +x`), dann starten. |
+            | Android | **Kiirabi.apk** | Auf dem Handy öffnen und „Installation aus unbekannten Quellen“ erlauben. |
+            | Jeder Browser | **Kiirabi-Web.html** | Herunterladen und öffnen, läuft auch offline. |
+
+            Die Desktop-Apps sind nicht von Microsoft/Apple zertifiziert, deshalb fragt das System beim ersten Start nach.
           files: out/*
