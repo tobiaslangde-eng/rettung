@@ -69,6 +69,11 @@ Lokal bauen: `cd desktop && npm install && npm run prepare-app && npm run dist:l
 
 Beides liegt unter **Releases** im Repository (neuester Build oben).
 Android: APK auf dem Handy öffnen und „Installation aus unbekannten Quellen“ erlauben.
+**iPhone & iPad (ohne App Store):** Kiirabi läuft als Web-App mit eigenem Icon, im Vollbild und offline.
+Der Workflow „Web-App veröffentlichen“ legt sie unter <https://tobiaslangde-eng.github.io/retung/> ab.
+Auf dem iPhone den Link in **Safari** öffnen → Teilen-Symbol → **„Zum Home-Bildschirm“**.
+Einmalig nötig: Repository öffentlich und unter *Settings → Pages* den Branch `gh-pages` als Quelle wählen.
+
 **iPhone / App Store:** Schritt-für-Schritt-Anleitung in [`docs/APPLE-RELEASE.md`](docs/APPLE-RELEASE.md) (Apple-Entwicklerkonto nötig, kein Mac nötig). Updates danach über den Workflow „iOS Release“.
 
 ## Starten
