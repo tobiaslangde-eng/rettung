@@ -1,9 +1,25 @@
 # Kiirabi – Rettungseinsatz 🚑
 
-Ein medizinisches Lernspiel mit **Expo / React Native** im **estnischen Design**.
-Du bist Sanitäter/in im estnischen Rettungsdienst (*kiirabi*) und musst bei Einsätzen
-quer durch Estland Krankheiten erkennen, Vitalwerte messen und richtig einstufen
-und die passenden Erstmaßnahmen wählen.
+Ein medizinisches Lernspiel mit **Expo / React Native** im **estnischen Design**, erzählt in der
+**Ich-Perspektive**: Ich bin Sanitäter/in im estnischen Rettungsdienst (*kiirabi*), fahre mit meiner
+Kollegin Kati zu Einsätzen quer durch Estland, messe Vitalwerte, stufe sie ein, erkenne die
+Krankheit und entscheide, was zu tun ist.
+
+## Schwierigkeitsstufen
+
+| Stufe | Fälle | Hilfen | Druck | Punkte |
+|---|---|---|---|---|
+| ◆◇◇ **Leicht** (*kerge*) | einfache Fälle | Normwerte sichtbar, Kati gibt Tipps und 50:50 gratis | gering | ×1 |
+| ◆◆◇ **Mittel** (*keskmine*) | mittlere Fälle | Normwerte muss ich kennen, Katis Tipps kosten 10 Punkte | mittel | ×1,5 |
+| ◆◆◆ **Schwer** (*raske*) | komplexe Fälle | keine Hilfe, Feedback erst im Bericht | Patient verschlechtert sich in Echtzeit | ×2 |
+
+## Spielelemente
+
+- **Blaulichtfahrt** mit animiertem Rettungswagen zwischen Alarm und Eintreffen
+- **Zustandsbalken** des Patienten: Jede Messung kostet Kraft, Fehler schaden, richtige Maßnahmen helfen.
+  Am Ende erfahre ich, wie der Patient in der Klinik ankommt.
+- **Kati**, meine Kollegin, gibt Tipps und kann zwei falsche Diagnosen ausschließen (50:50)
+- **Serien** 🔥 für mehrere gute Einsätze in Folge, Ränge vom Praktikanten bis zur Teamleitung
 
 ## Spielablauf
 
@@ -18,10 +34,11 @@ und die passenden Erstmaßnahmen wählen.
 Punkte bringen dich im Rang nach oben – vom *Praktikant* bis zur *Kiirabibrigaadi juht*.
 Der Fortschritt wird lokal gespeichert. Im **Lexikon** findest du Normwerte und alle Krankheitsbilder.
 
-### Enthaltene Fälle (12)
+### Enthaltene Fälle (14)
 
-Herzinfarkt (STEMI), Hypoglykämie, Schlaganfall, Anaphylaxie, Asthmaanfall, Sepsis,
-Hypothermie, Hitzschlag, Lungenembolie, Hyperventilation, Krampfanfall, Lungenödem.
+- **Leicht:** Herzinfarkt (STEMI), Hypoglykämie, Schlaganfall, Asthmaanfall, Kreislaufkollaps, Unterarmbruch
+- **Mittel:** Anaphylaxie, Hypothermie, Hitzschlag, Hyperventilation, Krampfanfall
+- **Schwer:** Sepsis, Lungenembolie, Lungenödem (plus die mittleren Fälle)
 
 ## Estnisches Design
 
@@ -39,15 +56,22 @@ npx expo start --web  # im Browser
 
 Typecheck: `npm run typecheck`
 
+### Als einzelne HTML-Datei (zum Teilen im Browser)
+
+```bash
+npm run build:web     # erzeugt dist/kiirabi.html – eine eigenständige Datei mit dem ganzen Spiel
+```
+
 ## Projektstruktur
 
 ```
 App.tsx                 Navigation (Zustandsautomat) & Fortschritt
 src/theme.ts            Farben & Typografie (estnisches Design)
-src/components/         Trikolore, Ornament, Buttons, Karten
+src/components/         Trikolore, Ornament, Buttons, Karten, Kati, Blaulichtfahrt
 src/data/vitals.ts      Vitalwerte, Normbereiche, Einstufung
 src/data/cases.ts       Einsatzfälle
-src/game/scoring.ts     Punkte, Sterne, Ränge
+src/game/scoring.ts     Punkte, Sterne, Ränge, Patientenzustand
+src/game/difficulty.ts  Schwierigkeitsstufen
 src/game/storage.ts     Speicherung (AsyncStorage)
 src/screens/            Start, Einsatz, Ergebnis, Lexikon, Anleitung
 ```

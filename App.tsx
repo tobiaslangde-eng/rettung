@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { CASES, MedCase } from './src/data/cases';
+import { DIFFICULTY_BY_ID, Difficulty } from './src/game/difficulty';
 import { CaseRun, ScoreResult, scoreRun } from './src/game/scoring';
 import { EMPTY_PROGRESS, Progress, loadProgress, saveProgress } from './src/game/storage';
 import { CaseScreen } from './src/screens/CaseScreen';
@@ -19,9 +20,10 @@ type Screen =
   | { name: 'case'; medCase: MedCase; key: number }
   | { name: 'result'; run: CaseRun; result: ScoreResult };
 
-/** Wählt bevorzugt Fälle, die noch nicht gemeistert wurden, und nie den gleichen Fall zweimal hintereinander. */
+/** Wählt passend zur Schwierigkeit bevorzugt ungemeisterte Fälle, nie denselben Fall zweimal hintereinander. */
 function pickCase(progress: Progress, lastId?: string): MedCase {
-  const pool = CASES.filter((c) => c.id !== lastId);
+  const levels = DIFFICULTY_BY_ID[progress.difficulty].caseLevels;
+  const pool = CASES.filter((c) => levels.includes(c.difficulty) && c.id !== lastId);
   const open = pool.filter((c) => (progress.bestStars[c.id] ?? 0) < 3);
   const from = open.length > 0 ? open : pool;
   return from[Math.floor(Math.random() * from.length)];
@@ -46,6 +48,8 @@ export default function App() {
     const result = scoreRun(run);
     const id = run.medCase.id;
     const next: Progress = {
+      ...progress,
+      streak: result.stars >= 2 ? progress.streak + 1 : 0,
       totalPoints: progress.totalPoints + result.total,
       casesPlayed: progress.casesPlayed + 1,
       correctDiagnoses: progress.correctDiagnoses + (result.diagnosisCorrect ? 1 : 0),
@@ -58,6 +62,12 @@ export default function App() {
 
   const home = () => setScreen({ name: 'home' });
 
+  const setDifficulty = (difficulty: Difficulty) => {
+    const next = { ...progress, difficulty };
+    setProgress(next);
+    saveProgress(next);
+  };
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
@@ -67,6 +77,7 @@ export default function App() {
             <HomeScreen
               progress={progress}
               onStart={startCase}
+              onDifficulty={setDifficulty}
               onLexikon={() => setScreen({ name: 'lexikon' })}
               onGuide={() => setScreen({ name: 'guide' })}
             />
@@ -74,10 +85,16 @@ export default function App() {
           {screen.name === 'lexikon' && <LexikonScreen progress={progress} onBack={home} />}
           {screen.name === 'guide' && <GuideScreen onBack={home} />}
           {screen.name === 'case' && (
-            <CaseScreen key={screen.key} medCase={screen.medCase} onFinish={finishCase} onAbort={home} />
+            <CaseScreen
+                key={screen.key}
+                medCase={screen.medCase}
+                difficulty={DIFFICULTY_BY_ID[progress.difficulty]}
+                onFinish={finishCase}
+                onAbort={home}
+              />
           )}
           {screen.name === 'result' && (
-            <ResultScreen run={screen.run} result={screen.result} onNext={startCase} onHome={home} />
+            <ResultScreen run={screen.run} result={screen.result} streak={progress.streak} onNext={startCase} onHome={home} />
           )}
         </View>
       </SafeAreaView>

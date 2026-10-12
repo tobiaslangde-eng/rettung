@@ -1,7 +1,8 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, Eyebrow, Ornament, TopBar } from '../components/Estonian';
 import { VITAL_BY_ID, formatVital, rateVital } from '../data/vitals';
-import { CaseRun, ScoreResult, maxScore } from '../game/scoring';
+import { DIFFICULTY_BY_ID } from '../game/difficulty';
+import { CaseRun, ScoreResult, conditionOutcome } from '../game/scoring';
 import { colors, spacing, type } from '../theme';
 
 const PRAISE = ['Nii ja naa …', 'Hea katse!', 'Tubli!', 'Suurepärane!'];
@@ -9,18 +10,22 @@ const PRAISE = ['Nii ja naa …', 'Hea katse!', 'Tubli!', 'Suurepärane!'];
 export function ResultScreen({
   run,
   result,
+  streak,
   onNext,
   onHome,
 }: {
   run: CaseRun;
   result: ScoreResult;
+  streak: number;
   onNext: () => void;
   onHome: () => void;
 }) {
   const c = run.medCase;
+  const diff = DIFFICULTY_BY_ID[run.difficulty];
+  const outcome = conditionOutcome(run.condition, c.patient.name.split(' ')[0]);
   return (
     <View style={{ flex: 1 }}>
-      <TopBar et="Tulemus" title="Einsatzbericht" onBack={onHome} />
+      <TopBar et="Tulemus" title="Mein Einsatzbericht" onBack={onHome} />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.hero}>
           <Text style={styles.stars}>
@@ -29,13 +34,25 @@ export function ResultScreen({
           </Text>
           <Text style={styles.praise}>{PRAISE[result.stars]}</Text>
           <Text style={styles.points}>
-            {result.total} <Text style={styles.pointsMax}>/ {maxScore(c)} Punkte</Text>
+            +{result.total} <Text style={styles.pointsMax}>Punkte</Text>
+          </Text>
+          <Text style={styles.diff}>
+            {diff.label} {diff.icon}
+            {result.multiplier > 1 ? `  ·  ×${String(result.multiplier).replace('.', ',')}` : ''}
+            {streak >= 2 ? `  ·  🔥 ${streak}er-Serie` : ''}
           </Text>
         </View>
+        <Card style={{ borderLeftColor: run.condition >= 70 ? colors.rabaGreen : run.condition >= 40 ? colors.amber : colors.kihnuRed }}>
+          <Eyebrow et="Haiglas" de="In der Klinik" />
+          <Text style={[type.body, { marginTop: spacing.xs }]}>
+            <Text style={{ fontSize: 22 }}>{outcome.emoji} </Text>
+            {outcome.text}
+          </Text>
+        </Card>
         <Ornament count={10} />
 
         <Card>
-          <Eyebrow et="Punktid" de="Wertung" />
+          <Eyebrow et="Punktid" de="Meine Wertung" />
           {result.lines.map((l, i) => (
             <View key={i} style={styles.line}>
               <Text style={[type.body, { flex: 1 }]}>{l.label}</Text>
@@ -53,7 +70,7 @@ export function ResultScreen({
           <Text style={type.small}>Estnisch: {c.diagnosisEt}</Text>
           {!result.diagnosisCorrect && (
             <Text style={[type.small, { color: colors.kihnuRed, marginTop: spacing.xs }]}>
-              Deine Wahl: {run.diagnosisGuess}
+              Mein Verdacht war: {run.diagnosisGuess}
             </Text>
           )}
           <Text style={[type.body, { marginTop: spacing.sm }]}>{c.explanation}</Text>
@@ -66,7 +83,7 @@ export function ResultScreen({
         </Card>
 
         <Card style={{ borderLeftColor: colors.must }}>
-          <Eyebrow et="Väärtused" de="Messwerte" />
+          <Eyebrow et="Väärtused" de="Meine Messwerte" />
           {run.measured.map((m) => {
             const truth = rateVital(m.id, c.vitals[m.id]);
             const ok = truth === null || truth === m.guess;
@@ -83,14 +100,14 @@ export function ResultScreen({
           })}
           {result.missedKeyVitals.length > 0 && (
             <Text style={[type.small, { color: colors.kihnuRed, marginTop: spacing.sm }]}>
-              Nicht gemessen, aber wichtig:{' '}
+              Das hätte ich messen sollen:{' '}
               {result.missedKeyVitals.map((id) => `${VITAL_BY_ID[id].short} (${formatVital(id, c.vitals[id])})`).join(', ')}
             </Text>
           )}
         </Card>
 
         <Card>
-          <Eyebrow et="Ravi" de="Maßnahmen" />
+          <Eyebrow et="Ravi" de="Meine Maßnahmen" />
           {c.treatments.map((t, i) => {
             const chosen = run.treatmentGuess.includes(i);
             const ok = chosen === t.correct;
@@ -121,6 +138,7 @@ const styles = StyleSheet.create({
   praise: { color: colors.valge, fontSize: 22, fontWeight: '800', marginTop: spacing.xs },
   points: { color: colors.valge, fontSize: 30, fontWeight: '900', marginTop: spacing.sm },
   pointsMax: { fontSize: 16, color: colors.greyLight, fontWeight: '600' },
+  diff: { color: colors.sinineLight, marginTop: spacing.xs, fontWeight: '700', fontSize: 13 },
   line: {
     flexDirection: 'row',
     alignItems: 'center',

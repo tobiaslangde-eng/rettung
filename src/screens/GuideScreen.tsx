@@ -1,17 +1,18 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card, Eyebrow, Ornament, TopBar } from '../components/Estonian';
+import { DIFFICULTIES } from '../game/difficulty';
 import { POINTS } from '../game/scoring';
 import { colors, spacing, type } from '../theme';
 
 const STEPS = [
-  { et: 'Väljakutse', de: 'Alarm', text: 'Die Leitstelle schickt dich zu einem Einsatz irgendwo in Estland. Lies die Meldung genau.' },
+  { et: 'Väljakutse', de: 'Alarm', text: 'Mein Melder piept: Die Leitstelle schickt mich irgendwo in Estland hin. Mit Blaulicht geht es los.' },
   {
     et: 'Läbivaatus',
     de: 'Untersuchung',
-    text: 'Befrage den Patienten, schau dir die Symptome an und miss Vitalwerte. Nach jeder Messung stufst du den Wert ein: niedrig, normal oder hoch.',
+    text: 'Ich höre zu, schaue genau hin und messe Vitalwerte. Jeden Wert stufe ich ein: niedrig, normal oder hoch. Jede Messung kostet Zeit – und den Patienten etwas Kraft.',
   },
-  { et: 'Diagnoos', de: 'Diagnose', text: 'Entscheide dich für eine Verdachtsdiagnose aus vier Möglichkeiten.' },
-  { et: 'Ravi', de: 'Maßnahmen', text: 'Wähle alle passenden Erstmaßnahmen. Gefährliche oder falsche Maßnahmen kosten Punkte.' },
+  { et: 'Diagnoos', de: 'Diagnose', text: 'Ich entscheide mich für eine Verdachtsdiagnose aus vier Möglichkeiten.' },
+  { et: 'Ravi', de: 'Maßnahmen', text: 'Ich wähle alle passenden Maßnahmen. Falsche Maßnahmen schaden dem Patienten und kosten Punkte.' },
 ];
 
 export function GuideScreen({ onBack }: { onBack: () => void }) {
@@ -20,8 +21,9 @@ export function GuideScreen({ onBack }: { onBack: () => void }) {
       <TopBar et="Juhend" title="Anleitung" onBack={onBack} />
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={type.body}>
-          Du bist Sanitäter/in im estnischen Rettungsdienst (kiirabi). Erkenne Krankheiten anhand von Symptomen und Messwerten
-          und triff die richtigen Entscheidungen.
+          Ich bin Sanitäter/in im estnischen Rettungsdienst (kiirabi). Zusammen mit meiner Kollegin Kati erkenne ich
+          Krankheiten an Symptomen und Messwerten und treffe die richtigen Entscheidungen. Der Zustandsbalken zeigt, wie es
+          meinem Patienten gerade geht.
         </Text>
         {STEPS.map((s, i) => (
           <Card key={s.et}>
@@ -29,6 +31,17 @@ export function GuideScreen({ onBack }: { onBack: () => void }) {
             <Text style={[type.body, { marginTop: spacing.xs }]}>{s.text}</Text>
           </Card>
         ))}
+        <Card style={{ borderLeftColor: colors.sinine }}>
+          <Eyebrow et="Raskusaste" de="Schwierigkeit" />
+          {DIFFICULTIES.map((d) => (
+            <View key={d.id} style={{ marginTop: spacing.sm }}>
+              <Text style={[type.body, { fontWeight: '800' }]}>
+                {d.icon} {d.label} · {d.et}
+              </Text>
+              <Text style={type.small}>{d.description}</Text>
+            </View>
+          ))}
+        </Card>
         <Card style={{ borderLeftColor: colors.must }}>
           <Eyebrow et="Punktid" de="Punkte" />
           <Row label="Wert richtig eingestuft" pts={POINTS.ratingCorrect} />
@@ -38,6 +51,8 @@ export function GuideScreen({ onBack }: { onBack: () => void }) {
           <Row label="Richtige Diagnose" pts={POINTS.diagnosisCorrect} />
           <Row label="Richtige Maßnahme" pts={POINTS.treatmentCorrect} />
           <Row label="Falsche Maßnahme" pts={POINTS.treatmentWrong} />
+          <Row label="Zustand des Patienten am Ende (max.)" pts={POINTS.conditionMax} />
+          <Row label="Tipp von Kati (nur auf Mittel)" pts={-10} />
         </Card>
         <Card style={{ borderLeftColor: colors.kihnuRed }}>
           <Eyebrow et="Tähelepanu" de="Hinweis" />

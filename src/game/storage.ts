@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Difficulty } from './difficulty';
 
 const KEY = 'kiirabi.progress.v1';
 
@@ -8,6 +9,10 @@ export interface Progress {
   correctDiagnoses: number;
   /** Beste Sternewertung je Fall-ID */
   bestStars: Record<string, number>;
+  /** Zuletzt gewählte Schwierigkeit */
+  difficulty: Difficulty;
+  /** Einsätze in Folge mit mindestens 2 Sternen */
+  streak: number;
 }
 
 export const EMPTY_PROGRESS: Progress = {
@@ -15,6 +20,8 @@ export const EMPTY_PROGRESS: Progress = {
   casesPlayed: 0,
   correctDiagnoses: 0,
   bestStars: {},
+  difficulty: 'leicht',
+  streak: 0,
 };
 
 export async function loadProgress(): Promise<Progress> {

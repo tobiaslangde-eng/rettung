@@ -1,5 +1,6 @@
 import { MedCase } from '../data/cases';
 import { Rating, VitalId, rateVital } from '../data/vitals';
+import { DIFFICULTY_BY_ID, Difficulty, HINT_COST } from './difficulty';
 
 export const POINTS = {
   ratingCorrect: 10,
@@ -10,7 +11,28 @@ export const POINTS = {
   treatmentWrong: -10,
   efficiencyMax: 20,
   efficiencyPerExtra: 4,
+  /** Bonus für den Patientenzustand am Ende: Zustand / 5 */
+  conditionMax: 20,
 };
+
+/** Wie sich meine Entscheidungen auf den Zustand des Patienten (0–100) auswirken. */
+export const CONDITION = {
+  start: 80,
+  wrongRating: -4,
+  wrongDiagnosis: -15,
+  treatmentCorrect: 6,
+  treatmentWrong: -10,
+};
+
+export function clampCondition(c: number): number {
+  return Math.max(5, Math.min(100, c));
+}
+
+export function conditionOutcome(condition: number, firstName: string): { emoji: string; text: string } {
+  if (condition >= 70) return { emoji: '😊', text: `${firstName} kommt stabil in der Klinik an. Das Klinikteam nickt mir anerkennend zu.` };
+  if (condition >= 40) return { emoji: '😐', text: `${firstName} ist in der Klinik angekommen – aber es war knapp.` };
+  return { emoji: '😟', text: `${firstName} ist kritisch. Das Team im Schockraum übernimmt sofort.` };
+}
 
 /** Jede Messung kostet Einsatzzeit (in Minuten). */
 export const MINUTES_PER_MEASUREMENT = 1;
@@ -21,6 +43,11 @@ export interface CaseRun {
   measured: { id: VitalId; guess: Rating | null }[];
   diagnosisGuess: string;
   treatmentGuess: number[];
+  difficulty: Difficulty;
+  /** Patientenzustand am Ende (0–100) */
+  condition: number;
+  /** Bezahlte Tipps von Kati */
+  hintsUsed: number;
 }
 
 export interface ScoreLine {
@@ -31,6 +58,7 @@ export interface ScoreLine {
 export interface ScoreResult {
   lines: ScoreLine[];
   total: number;
+  multiplier: number;
   diagnosisCorrect: boolean;
   missedKeyVitals: VitalId[];
   stars: 0 | 1 | 2 | 3;
@@ -91,12 +119,19 @@ export function scoreRun(run: CaseRun): ScoreResult {
     points: tPts,
   });
 
-  const total = Math.max(0, lines.reduce((s, l) => s + l.points, 0));
-  const max = maxScore(medCase);
-  const ratio = total / max;
+  lines.push({ label: `Zustand des Patienten (${Math.round(run.condition)} %)`, points: Math.round(run.condition / 5) });
+
+  if (run.hintsUsed > 0) {
+    lines.push({ label: `Tipps von Kati (${run.hintsUsed})`, points: -run.hintsUsed * HINT_COST });
+  }
+
+  const base = Math.max(0, lines.reduce((s, l) => s + l.points, 0));
+  const multiplier = DIFFICULTY_BY_ID[run.difficulty].multiplier;
+  const total = Math.round(base * multiplier);
+  const ratio = base / maxScore(medCase);
   const stars = (ratio >= 0.85 ? 3 : ratio >= 0.6 ? 2 : ratio >= 0.3 ? 1 : 0) as ScoreResult['stars'];
 
-  return { lines, total, diagnosisCorrect, missedKeyVitals, stars };
+  return { lines, total, multiplier, diagnosisCorrect, missedKeyVitals, stars };
 }
 
 /** Bestmögliche Punktzahl: nur die wichtigen Werte messen und alles richtig machen. */
@@ -106,6 +141,7 @@ export function maxScore(medCase: MedCase): number {
   return (
     ratableKeys * POINTS.ratingCorrect +
     POINTS.efficiencyMax +
+    POINTS.conditionMax +
     POINTS.diagnosisCorrect +
     correctTreatments * POINTS.treatmentCorrect
   );

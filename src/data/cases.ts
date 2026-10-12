@@ -16,6 +16,8 @@ export interface MedCase {
   patient: { name: string; age: number; sex: 'm' | 'w' };
   location: string;
   dispatch: string;
+  /** Was ich beim Eintreffen sehe (Ich-Perspektive) */
+  scene: string;
   /** Aussagen von Patient/Angehörigen */
   anamnese: string[];
   /** Sichtbare Befunde bei Eintreffen */
@@ -39,6 +41,7 @@ export const CASES: MedCase[] = [
     patient: { name: 'Jaan Tamm', age: 58, sex: 'm' },
     location: 'Tallinn, Altstadt – Raekoja plats',
     dispatch: 'Mann mit Brustschmerzen, kaltschweißig, sitzt auf einer Bank am Rathausplatz.',
+    scene: 'Ich finde Jaan zusammengesunken auf einer Bank vor dem Rathaus. Er presst die Faust auf die Brust, Schweißperlen auf der Stirn.',
     anamnese: [
       '„Es drückt so stark auf der Brust, als säße ein Elefant darauf.“',
       'Schmerz strahlt in den linken Arm und den Unterkiefer aus.',
@@ -78,6 +81,7 @@ export const CASES: MedCase[] = [
     patient: { name: 'Mari Kask', age: 34, sex: 'w' },
     location: 'Tartu, Universitätsbibliothek',
     dispatch: 'Frau verhält sich verwirrt und aggressiv, Kollegen sind besorgt.',
+    scene: 'Zwischen den Bücherregalen sitzt Mari auf dem Boden. Sie schaut mich glasig an und murmelt: „Lassen Sie mich in Ruhe …“',
     anamnese: [
       'Kollegin: „Sie ist Diabetikerin und hat heute das Mittagessen ausgelassen.“',
       'Hat morgens wie gewohnt Insulin gespritzt.',
@@ -116,6 +120,7 @@ export const CASES: MedCase[] = [
     patient: { name: 'Liis Mägi', age: 72, sex: 'w' },
     location: 'Pärnu, Rüütli-Straße',
     dispatch: 'Ältere Frau kann plötzlich nicht mehr richtig sprechen.',
+    scene: 'Liis sitzt am Küchentisch, die Kaffeetasse liegt zerbrochen am Boden. Als sie lächeln will, hängt ihr rechter Mundwinkel.',
     anamnese: [
       'Ehemann: „Beim Kaffeetrinken fiel ihr plötzlich die Tasse aus der rechten Hand.“',
       'Symptombeginn vor ca. 40 Minuten (genau beobachtet).',
@@ -154,6 +159,7 @@ export const CASES: MedCase[] = [
     patient: { name: 'Kalev Saar', age: 25, sex: 'm' },
     location: 'Saaremaa, Sommerfest an der Windmühle in Angla',
     dispatch: 'Mann nach Wespenstich, bekommt schlecht Luft.',
+    scene: 'Neben der alten Windmühle liegt Kalev im Gras. Sein Gesicht ist aufgedunsen, jeder Atemzug pfeift.',
     anamnese: [
       'Freund: „Er wurde vor 10 Minuten in den Hals gestochen.“',
       '„Mein Hals wird so eng …“',
@@ -192,6 +198,7 @@ export const CASES: MedCase[] = [
     patient: { name: 'Kadri Lepp', age: 19, sex: 'w' },
     location: 'Tartu, Studentenwohnheim Raatuse',
     dispatch: 'Junge Frau mit starker Atemnot, Spray hilft nicht.',
+    scene: 'Kadri sitzt vornübergebeugt auf ihrem Bett und stützt sich auf die Knie. Ich höre ihr Pfeifen schon an der Tür.',
     anamnese: [
       '„Ich … kriege … keine Luft … raus.“ (spricht nur in Satzfragmenten)',
       'Asthma seit der Kindheit, Erkältung seit drei Tagen.',
@@ -230,6 +237,7 @@ export const CASES: MedCase[] = [
     patient: { name: 'Toomas Rebane', age: 81, sex: 'm' },
     location: 'Narva, Pflegeheim am Fluss',
     dispatch: 'Bewohner seit heute verwirrt und sehr schwach.',
+    scene: 'Toomas liegt im Bett, die Decke weggestrampelt. Er fühlt sich glühend heiß an und erkennt die Pflegerin nicht.',
     anamnese: [
       'Pflegerin: „Er hustet seit Tagen und ist heute ganz anders als sonst.“',
       'Trinkt und isst seit zwei Tagen kaum.',
@@ -268,6 +276,7 @@ export const CASES: MedCase[] = [
     patient: { name: 'Andres Kuusk', age: 45, sex: 'm' },
     location: 'Peipussee, Eisfischerei bei Mustvee',
     dispatch: 'Eisfischer ins Eis eingebrochen, von Freunden herausgezogen.',
+    scene: 'Auf dem Eis liegt Andres in nassen Kleidern. Er zittert nicht mehr – das macht mir Sorgen.',
     anamnese: [
       'Freund: „Er war bestimmt 15 Minuten im Wasser, bevor wir ihn rausbekamen.“',
       'Seitdem liegt er im Schnee, nasse Kleidung.',
@@ -306,6 +315,7 @@ export const CASES: MedCase[] = [
     patient: { name: 'Margus Sepp', age: 30, sex: 'm' },
     location: 'Tallinn, Lauluväljak (Sängerfest)',
     dispatch: 'Sänger im Chor kollabiert, 32 °C im Schatten.',
+    scene: 'Hinter der Sängerbühne liegt Margus in seiner Tracht im Gras. Seine Haut ist knallrot und glühend heiß.',
     anamnese: [
       'Chorleiterin: „Wir standen drei Stunden in der Sonne, in Tracht.“',
       'Hat kaum etwas getrunken.',
@@ -344,6 +354,7 @@ export const CASES: MedCase[] = [
     patient: { name: 'Piret Ilves', age: 38, sex: 'w' },
     location: 'Tallinn, Flughafen Lennart Meri',
     dispatch: 'Frau nach Ankunft aus Asien plötzlich mit Atemnot.',
+    scene: 'Piret sitzt an Gate 3 auf ihrem Koffer, ringt nach Luft und hält sich die rechte Brustseite.',
     anamnese: [
       '„Ganz plötzlich bekam ich keine Luft mehr, und es sticht beim Einatmen.“',
       '11-Stunden-Flug, kaum aufgestanden.',
@@ -383,6 +394,7 @@ export const CASES: MedCase[] = [
     patient: { name: 'Anu Põld', age: 22, sex: 'w' },
     location: 'Tallinn, TalTech – Prüfungssaal',
     dispatch: 'Studentin hat vor der Prüfung eine „Atemattacke“.',
+    scene: 'Anu sitzt zitternd vor dem Prüfungssaal. Sie atmet schnell und tief, ihre Hände sind zu „Pfötchen“ verkrampft.',
     anamnese: [
       '„Meine Hände kribbeln, und ich kann die Finger nicht bewegen!“',
       'Große Prüfungsangst, keine Vorerkrankungen.',
@@ -421,6 +433,7 @@ export const CASES: MedCase[] = [
     patient: { name: 'Rein Oja', age: 27, sex: 'm' },
     location: 'Viljandi, Folkfestival',
     dispatch: 'Mann hat vor dem Konzert gekrampft, jetzt nicht ansprechbar.',
+    scene: 'Rein liegt neben der Bühne, um ihn herum besorgte Festivalbesucher. Er schnarcht laut und reagiert kaum.',
     anamnese: [
       'Freundin: „Er ist umgefallen und hat ca. 2 Minuten am ganzen Körper gezuckt.“',
       'Epilepsie bekannt, hat Tabletten vergessen und kaum geschlafen.',
@@ -459,6 +472,7 @@ export const CASES: MedCase[] = [
     patient: { name: 'Kristiina Pärn', age: 76, sex: 'w' },
     location: 'Haapsalu, Holzhaus am Promenadenweg',
     dispatch: 'Ältere Frau mit nächtlicher Atemnot, sitzt am offenen Fenster.',
+    scene: 'Kristiina sitzt im Nachthemd am offenen Fenster und ringt nach Luft. Ich höre es in ihrer Brust brodeln.',
     anamnese: [
       '„Im Liegen ersticke ich – ich muss sitzen.“',
       'Herzschwäche bekannt, Wassertabletten seit einer Woche nicht genommen.',
@@ -487,5 +501,83 @@ export const CASES: MedCase[] = [
     leitsymptome: ['Atemnot im Liegen (Orthopnoe)', 'Rasselgeräusche, schaumiges Sputum', 'Ödeme, oft hoher Blutdruck'],
     explanation:
       'Das schwache Herz staut Blut in die Lunge zurück. Herzbettlagerung entlastet, CPAP drückt Flüssigkeit aus den Lungenbläschen. Keine Volumengabe!',
+  },
+  {
+    id: 'synkope',
+    diagnosis: 'Kreislaufkollaps (Synkope)',
+    diagnosisEt: 'Minestus',
+    distractors: ['Epileptischer Anfall', 'Herzinfarkt', 'Hypoglykämie'],
+    difficulty: 1,
+    patient: { name: 'Helena Kivi', age: 17, sex: 'w' },
+    location: 'Tallinn, Nigulisten-Kirche (Orgelkonzert)',
+    dispatch: 'Jugendliche während eines Konzerts umgekippt, wieder wach.',
+    scene: 'Helena liegt im Kirchengang, kreidebleich. Ihre Mutter fächelt ihr Luft zu. Sie blinzelt mich an: „Was ist passiert?“',
+    anamnese: [
+      'Mutter: „Wir standen über eine Stunde, und es war sehr stickig.“',
+      '„Mir wurde schwarz vor Augen, dann lag ich plötzlich am Boden.“',
+      'Heute kaum etwas getrunken, keine Vorerkrankungen.',
+    ],
+    befund: ['Blasse, kühle Haut', 'Wieder wach und orientiert', 'Keine Zuckungen, kein Zungenbiss'],
+    vitals: {
+      puls: 52,
+      rr: [84, 52],
+      spo2: 98,
+      af: 16,
+      temp: 36.5,
+      bz: 92,
+      gcs: 15,
+      ekg: 'Sinusbradykardie',
+    },
+    keyVitals: ['rr', 'puls', 'bz'],
+    treatments: [
+      { text: 'Flach hinlegen und Beine hochlagern', correct: true },
+      { text: 'Blutzucker und EKG kontrollieren', correct: true },
+      { text: 'Später langsam aufsetzen lassen, etwas trinken', correct: true },
+      { text: 'Sofort aufstehen und weiter zuhören lassen', correct: false },
+      { text: 'Kaltes Wasser ins Gesicht schütten', correct: false },
+      { text: 'Adrenalin spritzen', correct: false },
+    ],
+    leitsymptome: ['Kurzer Bewusstseinsverlust', 'Vorher Schwarzwerden vor Augen', 'Schnelle, vollständige Erholung'],
+    explanation:
+      'Langes Stehen, Wärme und wenig Trinken lassen das Blut in die Beine sacken – das Gehirn bekommt kurz zu wenig. Beine hoch hilft schnell. Trotzdem: BZ und EKG prüfen!',
+  },
+  {
+    id: 'fraktur',
+    diagnosis: 'Unterarmbruch (Radiusfraktur)',
+    diagnosisEt: 'Küünarvarre murd',
+    distractors: ['Schulterluxation', 'Schlaganfall', 'Sehnenscheidenentzündung'],
+    difficulty: 1,
+    patient: { name: 'Mart Kallas', age: 41, sex: 'm' },
+    location: 'Tartu, Radweg am Emajõgi',
+    dispatch: 'Radfahrer gestürzt, Handgelenk verletzt.',
+    scene: 'Mart sitzt am Wegrand neben seinem Fahrrad und hält vorsichtig seinen linken Arm. Das Handgelenk sieht seltsam „abgeknickt“ aus.',
+    anamnese: [
+      '„Ich bin auf nassem Laub weggerutscht und auf die Hand gefallen.“',
+      '„Es tut höllisch weh, ich kann die Hand kaum bewegen.“',
+      'Helm getragen, Kopf nicht angeschlagen, keine Bewusstlosigkeit.',
+    ],
+    befund: ['Fehlstellung des linken Handgelenks (Bajonettstellung)', 'Starke Schwellung', 'Finger warm und beweglich'],
+    vitals: {
+      puls: 94,
+      rr: [132, 84],
+      spo2: 98,
+      af: 18,
+      temp: 36.7,
+      bz: 104,
+      gcs: 15,
+      ekg: 'Sinusrhythmus',
+    },
+    keyVitals: ['puls', 'rr'],
+    treatments: [
+      { text: 'Arm in vorgefundener Stellung schienen und ruhigstellen', correct: true },
+      { text: 'Durchblutung, Motorik und Sensibilität (DMS) prüfen', correct: true },
+      { text: 'Ringe und Uhr entfernen, kühlen, Schmerztherapie', correct: true },
+      { text: 'Den Knochen selbst wieder geraderücken', correct: false },
+      { text: 'Mit dem Fahrrad nach Hause fahren lassen', correct: false },
+      { text: 'Den Arm kräftig durchbewegen zum Test', correct: false },
+    ],
+    leitsymptome: ['Sichere Zeichen: Fehlstellung, Knochen sichtbar', 'Schmerz, Schwellung, Funktionsverlust', 'Typisch nach Sturz auf die Hand'],
+    explanation:
+      'Bei einer Fraktur zählt DMS: vor und nach dem Schienen Durchblutung, Motorik und Sensibilität prüfen. Ringe früh entfernen – die Schwellung nimmt zu. Normale Vitalwerte sind hier ein gutes Zeichen!',
   },
 ];

@@ -1,12 +1,15 @@
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { DriveAnimation } from '../components/DriveAnimation';
 import { Button, Card, Eyebrow, Ornament, TopBar } from '../components/Estonian';
+import { AskKati, Kati } from '../components/Kati';
 import { MedCase } from '../data/cases';
 import { Rating, VITALS, VITAL_BY_ID, VitalId, formatVital, rateVital } from '../data/vitals';
-import { CaseRun, MINUTES_PER_MEASUREMENT, shuffle } from '../game/scoring';
+import { DifficultyDef, HINT_COST } from '../game/difficulty';
+import { CONDITION, CaseRun, MINUTES_PER_MEASUREMENT, clampCondition, shuffle } from '../game/scoring';
 import { colors, spacing, type } from '../theme';
 
-type Phase = 'alarm' | 'exam' | 'diagnosis' | 'treatment';
+type Phase = 'alarm' | 'drive' | 'exam' | 'diagnosis' | 'treatment';
 
 const STEPS: { phase: Phase; et: string; de: string }[] = [
   { phase: 'alarm', et: 'Väljakutse', de: 'Alarm' },
@@ -21,12 +24,26 @@ const RATINGS: { value: Rating; label: string; symbol: string }[] = [
   { value: 'hoch', label: 'hoch', symbol: '↑' },
 ];
 
+function mood(condition: number) {
+  if (condition >= 70) return '🙂';
+  if (condition >= 40) return '😣';
+  return '😵';
+}
+
+function conditionColor(condition: number) {
+  if (condition >= 70) return colors.rabaGreen;
+  if (condition >= 40) return colors.amber;
+  return colors.kihnuRed;
+}
+
 export function CaseScreen({
   medCase,
+  difficulty,
   onFinish,
   onAbort,
 }: {
   medCase: MedCase;
+  difficulty: DifficultyDef;
   onFinish: (run: CaseRun) => void;
   onAbort: () => void;
 }) {
@@ -37,17 +54,39 @@ export function CaseScreen({
   const [diagnosisGuess, setDiagnosisGuess] = useState<string | null>(null);
   const [diagnosisLocked, setDiagnosisLocked] = useState(false);
   const [treatmentGuess, setTreatmentGuess] = useState<number[]>([]);
+  const [condition, setCondition] = useState<number>(CONDITION.start);
+  const [hintsUsed, setHintsUsed] = useState(0);
+  const [examHint, setExamHint] = useState(difficulty.hints === 'gratis');
+  const [fiftyFifty, setFiftyFifty] = useState(false);
 
   const diagnosisOptions = useMemo(() => shuffle([medCase.diagnosis, ...medCase.distractors]), [medCase]);
+  /** Bei 50:50 fallen diese beiden falschen Antworten weg */
+  const removedByFifty = useMemo(() => shuffle([...medCase.distractors]).slice(0, 2), [medCase]);
   const treatmentOrder = useMemo(() => shuffle(medCase.treatments.map((_, i) => i)), [medCase]);
 
-  const goto = (p: Phase) => {
+  const firstName = medCase.patient.name.split(' ')[0];
+
+  // Schwer: Der Patient verschlechtert sich in Echtzeit, solange ich untersuche und überlege.
+  const draining = difficulty.drainPerSecond > 0 && (phase === 'exam' || (phase === 'diagnosis' && !diagnosisLocked));
+  useEffect(() => {
+    if (!draining) return;
+    const t = setInterval(() => setCondition((c) => clampCondition(c - difficulty.drainPerSecond)), 1000);
+    return () => clearInterval(t);
+  }, [draining, difficulty.drainPerSecond]);
+
+  const goto = useCallback((p: Phase) => {
     setPhase(p);
     scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, []);
+  const arrive = useCallback(() => goto('exam'), [goto]);
+
+  const takeHint = () => {
+    if (difficulty.hints === 'kostet') setHintsUsed((h) => h + 1);
   };
 
   const measure = (id: VitalId) => {
     if (pending || measured.some((m) => m.id === id)) return;
+    setCondition((c) => clampCondition(c - difficulty.measureCost));
     if (VITAL_BY_ID[id].textOnly) {
       setMeasured((m) => [...m, { id, guess: null }]);
     } else {
@@ -61,9 +100,45 @@ export function CaseScreen({
     setPending(null);
   };
 
+  const lockDiagnosis = () => {
+    setDiagnosisLocked(true);
+    if (diagnosisGuess !== medCase.diagnosis) setCondition((c) => clampCondition(c + CONDITION.wrongDiagnosis));
+  };
+
+  const finish = () => {
+    // Falsch eingestufte Werte und Maßnahmen wirken sich erst am Ende auf den Zustand aus,
+    // damit auf „Schwer“ kein Feedback vorab durchsickert.
+    let c = condition;
+    for (const m of measured) {
+      const truth = rateVital(m.id, medCase.vitals[m.id]);
+      if (truth !== null && truth !== m.guess) c += CONDITION.wrongRating;
+    }
+    for (const i of treatmentGuess) {
+      c += medCase.treatments[i].correct ? CONDITION.treatmentCorrect : CONDITION.treatmentWrong;
+    }
+    onFinish({
+      medCase,
+      measured,
+      diagnosisGuess: diagnosisGuess ?? '',
+      treatmentGuess,
+      difficulty: difficulty.id,
+      condition: clampCondition(c),
+      hintsUsed,
+    });
+  };
+
+  if (phase === 'drive') {
+    return <DriveAnimation location={medCase.location} onDone={arrive} />;
+  }
+
   const minutes = 4 + measured.length * MINUTES_PER_MEASUREMENT + (pending ? MINUTES_PER_MEASUREMENT : 0);
   const stepIndex = STEPS.findIndex((s) => s.phase === phase);
   const p = medCase.patient;
+  const missingKey = medCase.keyVitals.find((id) => !measured.some((m) => m.id === id));
+  const examHintText = missingKey
+    ? `Miss doch mal ${VITAL_BY_ID[missingKey].name} – das ist hier wichtig!`
+    : `Wir haben alles Wichtige gemessen. Was meinst du, was ${firstName} hat?`;
+  const hintCostLabel = difficulty.hints === 'kostet' ? ` (−${HINT_COST} Punkte)` : '';
 
   return (
     <View style={{ flex: 1 }}>
@@ -87,34 +162,55 @@ export function CaseScreen({
           </View>
         ))}
       </View>
+      {phase !== 'alarm' && (
+        <View style={styles.condition}>
+          <Text style={styles.mood}>{mood(condition)}</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.conditionLabel}>
+              Zustand von {firstName}
+              {draining ? '  · verschlechtert sich!' : ''}
+            </Text>
+            <View style={styles.conditionTrack}>
+              <View
+                style={[styles.conditionFill, { width: `${condition}%`, backgroundColor: conditionColor(condition) }]}
+              />
+            </View>
+          </View>
+          <Text style={styles.conditionValue}>{Math.round(condition)}%</Text>
+        </View>
+      )}
 
       <ScrollView ref={scrollRef} contentContainerStyle={styles.content}>
         {phase === 'alarm' && (
           <>
             <View style={styles.alarm}>
-              <Text style={styles.alarmEyebrow}>⚠ HÄIRE · EINSATZ</Text>
-              <Text style={styles.alarmText}>{medCase.dispatch}</Text>
+              <Text style={styles.alarmEyebrow}>📟 HÄIRE · MEIN MELDER PIEPT!</Text>
+              <Text style={styles.alarmText}>Leitstelle: „{medCase.dispatch}“</Text>
               <Text style={styles.alarmLoc}>📍 {medCase.location}</Text>
             </View>
             <Card>
               <Eyebrow et="Patsient" de="Patient" />
               <Text style={[type.h2, { marginTop: spacing.xs }]}>{p.name}</Text>
               <Text style={type.small}>
-                {p.sex === 'm' ? 'männlich' : 'weiblich'}, {p.age} Jahre · Schwierigkeit {'◆'.repeat(medCase.difficulty)}
-                {'◇'.repeat(3 - medCase.difficulty)}
+                {p.sex === 'm' ? 'männlich' : 'weiblich'}, {p.age} Jahre · {difficulty.label} {difficulty.icon}
               </Text>
             </Card>
-            <Text style={type.small}>
-              Tipp: Jede Messung kostet eine Minute. Miss die Werte, die zur Situation passen – und stufe sie richtig ein.
-            </Text>
-            <Button label="Ausrücken" sub="Sõidame välja" variant="alarm" onPress={() => goto('exam')} />
+            <Kati>
+              Komm, schnapp dir den Notfallrucksack – wir fahren! Denk dran: Jede Messung kostet Zeit
+              {difficulty.drainPerSecond > 0 ? ', und heute zählt jede Sekunde.' : '.'}
+            </Kati>
+            <Button label="Los geht's!" sub="Sõidame välja" variant="alarm" onPress={() => goto('drive')} />
           </>
         )}
 
         {phase === 'exam' && (
           <>
+            <Card style={{ borderLeftColor: colors.kihnuRed }}>
+              <Eyebrow et="Kohal" de="Ich komme an" />
+              <Text style={[type.body, { marginTop: spacing.xs, fontStyle: 'italic' }]}>{medCase.scene}</Text>
+            </Card>
             <Card>
-              <Eyebrow et="Anamnees" de="Befragung" />
+              <Eyebrow et="Anamnees" de="Was ich höre" />
               {medCase.anamnese.map((a, i) => (
                 <Text key={i} style={[type.body, { marginTop: spacing.xs }]}>
                   • {a}
@@ -122,7 +218,7 @@ export function CaseScreen({
               ))}
             </Card>
             <Card style={{ borderLeftColor: colors.must }}>
-              <Eyebrow et="Leid" de="Sichtbefund" />
+              <Eyebrow et="Leid" de="Was ich sehe" />
               {medCase.befund.map((b, i) => (
                 <Text key={i} style={[type.body, { marginTop: spacing.xs }]}>
                   • {b}
@@ -130,14 +226,14 @@ export function CaseScreen({
               ))}
             </Card>
 
-            <Eyebrow et="Mõõtmised" de="Werte prüfen" />
+            <Eyebrow et="Mõõtmised" de="Was messe ich?" />
             <View style={styles.grid}>
               {VITALS.map((v) => {
                 const done = measured.find((m) => m.id === v.id);
                 const isPending = pending === v.id;
                 const value = medCase.vitals[v.id];
                 const truth = rateVital(v.id, value);
-                const right = done && truth !== null ? done.guess === truth : null;
+                const right = done && truth !== null && difficulty.instantFeedback ? done.guess === truth : null;
                 return (
                   <Pressable
                     key={v.id}
@@ -161,34 +257,35 @@ export function CaseScreen({
                     ) : (
                       <Text style={styles.tileTap}>Messen ›</Text>
                     )}
-                    {done && truth !== null && (
+                    {done && truth !== null && right !== null && (
                       <Text style={[styles.tileFeedback, { color: right ? colors.rabaGreen : colors.kihnuRed }]}>
                         {right ? `✓ ${truth}` : `✗ eigentlich ${truth}`} · Norm {v.normal}
                       </Text>
+                    )}
+                    {done && truth !== null && right === null && (
+                      <Text style={[styles.tileFeedback, { color: colors.grey }]}>meine Einschätzung: {done.guess}</Text>
                     )}
                   </Pressable>
                 );
               })}
             </View>
 
-            {pending && (
-              <View style={styles.ratePanel}>
-                <Text style={styles.rateQ}>
-                  {VITAL_BY_ID[pending].name}: {formatVital(pending, medCase.vitals[pending])} – wie ist der Wert?
-                </Text>
-                <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm }}>
-                  {RATINGS.map((r) => (
-                    <Pressable key={r.value} style={styles.rateBtn} onPress={() => rate(r.value)}>
-                      <Text style={styles.rateSymbol}>{r.symbol}</Text>
-                      <Text style={styles.rateLabel}>{r.label}</Text>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
+            {!pending && difficulty.hints !== 'keine' && (
+              examHint ? (
+                <Kati>{examHintText}</Kati>
+              ) : (
+                <AskKati
+                  label={`Kati fragen, was ich messen soll${hintCostLabel}`}
+                  onPress={() => {
+                    setExamHint(true);
+                    takeHint();
+                  }}
+                />
+              )
             )}
 
             <Button
-              label="Verdachtsdiagnose stellen"
+              label="Ich habe einen Verdacht"
               sub="Edasi diagnoosini"
               disabled={!!pending || measured.length === 0}
               onPress={() => goto('diagnosis')}
@@ -199,7 +296,7 @@ export function CaseScreen({
         {phase === 'diagnosis' && (
           <>
             <Card>
-              <Eyebrow et="Kokkuvõte" de="Deine Befunde" />
+              <Eyebrow et="Kokkuvõte" de="Meine Befunde" />
               <Text style={[type.small, { marginTop: spacing.xs }]}>{medCase.befund.join(' · ')}</Text>
               <View style={styles.summaryRow}>
                 {measured.map((m) => (
@@ -209,41 +306,64 @@ export function CaseScreen({
                 ))}
               </View>
             </Card>
-            <Text style={type.h2}>Was hat {p.name.split(' ')[0]}?</Text>
+            <Text style={type.h2}>Ich überlege … was hat {firstName}?</Text>
             {diagnosisOptions.map((d) => {
+              const removed = fiftyFifty && removedByFifty.includes(d);
               const selected = diagnosisGuess === d;
               const isCorrect = d === medCase.diagnosis;
+              const reveal = diagnosisLocked && difficulty.instantFeedback;
               let style = selected ? styles.optionSelected : null;
-              if (diagnosisLocked && isCorrect) style = styles.optionRight;
-              else if (diagnosisLocked && selected) style = styles.optionWrong;
+              if (reveal && isCorrect) style = styles.optionRight;
+              else if (reveal && selected) style = styles.optionWrong;
               return (
                 <Pressable
                   key={d}
-                  disabled={diagnosisLocked}
+                  disabled={diagnosisLocked || removed}
                   onPress={() => setDiagnosisGuess(d)}
-                  style={[styles.option, style]}
+                  style={[styles.option, style, removed && styles.optionRemoved]}
                 >
-                  <Text style={[styles.optionText, (selected || (diagnosisLocked && isCorrect)) && { color: colors.valge }]}>
+                  <Text
+                    style={[
+                      styles.optionText,
+                      (selected || (reveal && isCorrect)) && { color: colors.valge },
+                      removed && { textDecorationLine: 'line-through', color: colors.greyLight },
+                    ]}
+                  >
                     {d}
                   </Text>
                 </Pressable>
               );
             })}
+            {!diagnosisLocked && !fiftyFifty && difficulty.hints !== 'keine' && (
+              <AskKati
+                label={`Kati: „Lass uns zwei ausschließen“ – 50:50${hintCostLabel}`}
+                onPress={() => {
+                  setFiftyFifty(true);
+                  takeHint();
+                  if (diagnosisGuess && removedByFifty.includes(diagnosisGuess)) setDiagnosisGuess(null);
+                }}
+              />
+            )}
             {diagnosisLocked ? (
               <>
-                <Text style={[type.body, { fontWeight: '700' }]}>
-                  {diagnosisGuess === medCase.diagnosis ? '✓ Richtig! ' : '✗ Leider falsch. '}
-                  {medCase.diagnosis} – „{medCase.diagnosisEt}“
-                </Text>
-                <Button label="Weiter zu den Maßnahmen" sub="Edasi ravini" onPress={() => goto('treatment')} />
+                {difficulty.instantFeedback ? (
+                  <Kati>
+                    {diagnosisGuess === medCase.diagnosis
+                      ? `Genau, das denke ich auch: ${medCase.diagnosis}! Auf Estnisch: „${medCase.diagnosisEt}“.`
+                      : `Hm, ich glaube eher, es ist: ${medCase.diagnosis} („${medCase.diagnosisEt}“). ${firstName} geht es schlechter …`}
+                  </Kati>
+                ) : (
+                  <Kati>Okay, ich vertraue dir. Was machen wir jetzt?</Kati>
+                )}
+                <Button label="Jetzt handeln" sub="Edasi ravini" onPress={() => goto('treatment')} />
               </>
             ) : (
               <Button
-                label="Diagnose bestätigen"
+                label="Das ist meine Diagnose"
                 sub="Kinnita"
                 variant="dark"
                 disabled={!diagnosisGuess}
-                onPress={() => setDiagnosisLocked(true)}
+                onPress={lockDiagnosis}
               />
             )}
           </>
@@ -251,8 +371,8 @@ export function CaseScreen({
 
         {phase === 'treatment' && (
           <>
-            <Text style={type.h2}>Welche Maßnahmen ergreifst du?</Text>
-            <Text style={type.small}>Wähle alle richtigen Maßnahmen. Falsche Maßnahmen kosten Punkte.</Text>
+            <Text style={type.h2}>Was mache ich jetzt?</Text>
+            <Text style={type.small}>Ich wähle alle richtigen Maßnahmen. Falsche Maßnahmen schaden {firstName}.</Text>
             {treatmentOrder.map((i) => {
               const t = medCase.treatments[i];
               const on = treatmentGuess.includes(i);
@@ -268,18 +388,35 @@ export function CaseScreen({
               );
             })}
             <Button
-              label="Maßnahmen durchführen"
+              label="Los, ich handle!"
               sub="Alusta ravi"
               variant="alarm"
               disabled={treatmentGuess.length === 0}
-              onPress={() =>
-                onFinish({ medCase, measured, diagnosisGuess: diagnosisGuess ?? '', treatmentGuess })
-              }
+              onPress={finish}
             />
           </>
         )}
         <Ornament count={10} />
       </ScrollView>
+        {phase === 'exam' && pending && (
+          <View style={styles.ratePanel}>
+            <Text style={styles.rateAction}>{VITAL_BY_ID[pending].action}</Text>
+            <Text style={styles.rateValue}>{formatVital(pending, medCase.vitals[pending])}</Text>
+            {difficulty.showNormBeforeRating && (
+              <Text style={styles.rateNorm}>Norm: {VITAL_BY_ID[pending].normal}</Text>
+            )}
+            <Text style={styles.rateQ}>Wie schätze ich den Wert ein?</Text>
+            <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm }}>
+              {RATINGS.map((r) => (
+                <Pressable key={r.value} style={styles.rateBtn} onPress={() => rate(r.value)}>
+                  <Text style={styles.rateSymbol}>{r.symbol}</Text>
+                  <Text style={styles.rateLabel}>{r.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        )}
+
     </View>
   );
 }
@@ -293,8 +430,23 @@ const styles = StyleSheet.create({
   step: { flex: 1, paddingVertical: 6, alignItems: 'center', borderRightWidth: 1, borderRightColor: colors.linen },
   stepActive: { backgroundColor: colors.sinine },
   stepText: { fontSize: 10, fontWeight: '700', color: colors.grey, letterSpacing: 0.5 },
+  condition: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.valge,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.linenDark,
+  },
+  mood: { fontSize: 26 },
+  conditionLabel: { fontSize: 11, fontWeight: '700', color: colors.grey, letterSpacing: 0.5 },
+  conditionTrack: { height: 8, backgroundColor: colors.linenDark, marginTop: 4 },
+  conditionFill: { height: 8 },
+  conditionValue: { fontWeight: '800', fontSize: 15, color: colors.must, width: 44, textAlign: 'right' },
   alarm: { backgroundColor: colors.kihnuRed, padding: spacing.lg },
-  alarmEyebrow: { color: colors.valge, fontWeight: '800', letterSpacing: 2, fontSize: 12 },
+  alarmEyebrow: { color: colors.valge, fontWeight: '800', letterSpacing: 1.5, fontSize: 12 },
   alarmText: { color: colors.valge, fontSize: 18, fontWeight: '700', marginTop: spacing.sm, lineHeight: 24 },
   alarmLoc: { color: colors.valge, marginTop: spacing.sm, opacity: 0.9 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
@@ -318,8 +470,11 @@ const styles = StyleSheet.create({
   tileTap: { marginTop: spacing.sm, color: colors.sinine, fontWeight: '700' },
   tileValue: { marginTop: spacing.sm, fontSize: 20, fontWeight: '800', color: colors.must },
   tileFeedback: { fontSize: 11, marginTop: 4, fontWeight: '600' },
-  ratePanel: { backgroundColor: colors.must, padding: spacing.lg },
-  rateQ: { color: colors.valge, fontWeight: '700', fontSize: 15 },
+  ratePanel: { backgroundColor: colors.must, padding: spacing.lg, borderTopWidth: 4, borderTopColor: colors.sinine },
+  rateAction: { color: colors.greyLight, fontStyle: 'italic', fontSize: 14 },
+  rateValue: { color: colors.valge, fontSize: 28, fontWeight: '900', marginTop: spacing.xs },
+  rateNorm: { color: colors.sinineLight, fontSize: 13, marginTop: 2 },
+  rateQ: { color: colors.valge, fontWeight: '700', fontSize: 15, marginTop: spacing.sm },
   rateBtn: { flex: 1, backgroundColor: colors.sinine, paddingVertical: spacing.md, alignItems: 'center' },
   rateSymbol: { color: colors.valge, fontSize: 20, fontWeight: '800' },
   rateLabel: { color: colors.valge, fontSize: 12, fontWeight: '600' },
@@ -336,6 +491,7 @@ const styles = StyleSheet.create({
   optionSelected: { backgroundColor: colors.sinine, borderColor: colors.sinine },
   optionRight: { backgroundColor: colors.rabaGreen, borderColor: colors.rabaGreen },
   optionWrong: { backgroundColor: colors.kihnuRed, borderColor: colors.kihnuRed },
+  optionRemoved: { borderColor: colors.linenDark, backgroundColor: colors.linen },
   optionText: { fontSize: 16, fontWeight: '700', color: colors.must },
   check: {
     flexDirection: 'row',
