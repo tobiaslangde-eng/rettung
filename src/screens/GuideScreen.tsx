@@ -5,7 +5,7 @@ import { POINTS } from '../game/scoring';
 import { colors, spacing, type, fonts } from '../theme';
 
 const STEPS = [
-  { de: 'Alarm', text: 'Mein Melder piept: Die Leitstelle schickt mich irgendwo in Estland hin. Mit Blaulicht geht es los.' },
+  { de: 'Alarm', text: 'Mein Melder piept: Die Leitstelle schickt mich zum nächsten Notfall. Mit Blaulicht geht es los.' },
   {
     de: 'Untersuchung',
     text: 'Ich höre zu, schaue genau hin und messe Vitalwerte. Jeden Wert stufe ich ein: niedrig, normal oder hoch. Jede Messung kostet Zeit – und den Patienten etwas Kraft.',

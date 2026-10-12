@@ -1,6 +1,6 @@
-# Datenschutzerklärung – Kiirabi
+# Datenschutzerklärung – Einsatz 112
 
-**Kiirabi – Rettungseinsatz** ist ein Lernspiel.
+**Einsatz 112** ist ein Lernspiel.
 
 - Die App erhebt **keine personenbezogenen Daten** und überträgt keine Daten an Server.
 - Es gibt kein Benutzerkonto, keine Werbung, keine Analyse- oder Tracking-Dienste.

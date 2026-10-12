@@ -1,4 +1,4 @@
-# App-Store-Eintrag – Kiirabi
+# App-Store-Eintrag – Einsatz 112
 
 Alle Texte zum Einfügen in **App Store Connect → App → App-Store-Reiter (Deutsch)**.
 Die Zeichenlimits von Apple sind eingehalten.
@@ -9,7 +9,7 @@ In dieser Reihenfolge hochladen – Apple skaliert sie für kleinere iPhones sel
 
 | | Datei | Überschrift |
 |---|---|---|
-| 1 | [`appstore/01.png`](appstore/01.png) | Rette Leben – von Tallinn bis Saaremaa |
+| 1 | [`appstore/01.png`](appstore/01.png) | Rette Leben – von Köln bis Sylt |
 | 2 | [`appstore/02.png`](appstore/02.png) | Der Melder piept: 14 Einsätze, drei Schwierigkeitsstufen |
 | 3 | [`appstore/03.png`](appstore/03.png) | Mit Blaulicht zum Einsatzort |
 | 4 | [`appstore/04.png`](appstore/04.png) | Puls, Blutdruck, SpO2, EKG: messen und einschätzen |
@@ -17,20 +17,20 @@ In dieser Reihenfolge hochladen – Apple skaliert sie für kleinere iPhones sel
 
 ## Texte
 
-**Name** (max. 30): `Kiirabi – Rettungseinsatz`
+**Name** (max. 30): `Einsatz 112 – Rettungsdienst`
 
-**Untertitel** (max. 30): `Sanitäter-Lernspiel in Estland`
+**Untertitel** (max. 30): `Das Sanitäter-Lernspiel`
 
 **Werbetext** (max. 170):
-> Der Melder piept! Als Sanitäter/in in Estland messe ich Vitalwerte, erkenne Krankheiten und entscheide, was zu tun ist – in drei Schwierigkeitsstufen.
+> Der Melder piept! Als Sanitäter/in messe ich Vitalwerte, erkenne Krankheiten und entscheide, was zu tun ist – in drei Schwierigkeitsstufen.
 
 **Keywords** (max. 100):
-`Sanitäter,Rettungsdienst,Notfall,Erste Hilfe,Vitalwerte,Medizin,Lernspiel,Estland,EKG,Pflege`
+`Sanitäter,Rettungsdienst,Notfall,Erste Hilfe,Vitalwerte,Medizin,Lernspiel,Notarzt,EKG,Pflege`
 
 **Beschreibung:**
-> Tere! Ich bin Sanitäter/in im estnischen Rettungsdienst – kiirabi.
+> Ich bin Sanitäter/in im Rettungsdienst.
 >
-> Mein Melder piept, und mit Blaulicht geht es los: in die Tallinner Altstadt, ins Studentenwohnheim in Tartu, zum Sängerfest, aufs Eis des Peipussees. Vor Ort höre ich zu, schaue genau hin und messe: Puls, Blutdruck, Sauerstoffsättigung, Atemfrequenz, Temperatur, Blutzucker, Bewusstsein und 12-Kanal-EKG. Jeden Wert schätze ich selbst ein – niedrig, normal oder hoch?
+> Mein Melder piept, und mit Blaulicht geht es los: in die Kölner Altstadt, ins Studentenwohnheim in Freiburg, zum Chorfest in München, aufs Eis der Müritz. Vor Ort höre ich zu, schaue genau hin und messe: Puls, Blutdruck, Sauerstoffsättigung, Atemfrequenz, Temperatur, Blutzucker, Bewusstsein und 12-Kanal-EKG. Jeden Wert schätze ich selbst ein – niedrig, normal oder hoch?
 >
 > Dann stelle ich meine Verdachtsdiagnose und entscheide, was zu tun ist. Jede Messung kostet Zeit, jede falsche Maßnahme schadet meinem Patienten. Am Ende zeigt der Einsatzbericht, wie mein Patient in der Klinik ankommt.
 >
@@ -41,7 +41,7 @@ In dieser Reihenfolge hochladen – Apple skaliert sie für kleinere iPhones sel
 > • Look wie im echten Rettungsdienst: Patientenmonitor mit EKG, Warnmarkierung, Reflexstreifen
 > • Ohne Werbung, ohne Konto, ohne Datenerfassung
 >
-> Hinweis: Kiirabi ist ein Lernspiel mit vereinfachten Inhalten. Es ersetzt keine medizinische Ausbildung, keine ärztliche Beratung und keine Leitlinien. Im Notfall immer 112 wählen.
+> Hinweis: Einsatz 112 ist ein Lernspiel mit vereinfachten Inhalten. Es ersetzt keine medizinische Ausbildung, keine ärztliche Beratung und keine Leitlinien. Im Notfall immer 112 wählen.
 
 ## Weitere Angaben
 
@@ -58,4 +58,4 @@ In dieser Reihenfolge hochladen – Apple skaliert sie für kleinere iPhones sel
 
 ## Notizen für die App-Prüfung (Review Notes)
 
-> Kiirabi is an educational game for learning paramedic basics (recognising vital signs and common emergencies). All patients and cases are fictional. The app gives no medical advice for real persons, collects no data and needs no login. A disclaimer is shown on the start screen and in the guide.
+> Einsatz 112 is an educational game for learning paramedic basics (recognising vital signs and common emergencies). All patients and cases are fictional. The app gives no medical advice for real persons, collects no data and needs no login. A disclaimer is shown on the start screen and in the guide.

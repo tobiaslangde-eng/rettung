@@ -1,4 +1,4 @@
-# Kiirabi für iPhone veröffentlichen
+# Einsatz 112 für iPhone veröffentlichen
 
 Das Projekt ist fertig für Apple vorbereitet (`eas.json`, Bundle-ID `ee.kiirabi.rettung`,
 Exportkonformität, Workflow „iOS Release“). Gebaut wird auf den Mac-Servern von Expo –
@@ -49,7 +49,7 @@ Nach ca. 20–40 Minuten ist der Build fertig und in **App Store Connect → Tes
 
 1. In App Store Connect unter *TestFlight* dich selbst als internen Tester eintragen.
 2. Die App **TestFlight** aus dem App Store auf dem iPhone installieren.
-3. Einladung annehmen → Kiirabi installieren.
+3. Einladung annehmen → Einsatz 112 installieren.
 
 ## 4. Spätere Updates ohne eigenen Rechner
 
@@ -73,13 +73,13 @@ Du brauchst:
 - **Altersfreigabe**: Fragebogen ausfüllen (medizinische Inhalte: „selten/gering“)
 - **Beschreibung** – Vorschlag:
 
-> Kiirabi – Rettungseinsatz: Als Sanitäter/in in Estland erkenne ich Krankheiten, messe
-> Vitalwerte und entscheide, was zu tun ist. 14 Einsätze von Tallinn bis Saaremaa,
-> drei Schwierigkeitsstufen, Lexikon mit Normwerten. Im estnischen Design.
+> Einsatz 112: Als Sanitäter/in erkenne ich Krankheiten, messe Vitalwerte und
+> entscheide, was zu tun ist. 14 Einsätze von Köln bis Sylt, drei Schwierigkeitsstufen,
+> Lexikon mit Normwerten.
 > Lernspiel – ersetzt keine medizinische Ausbildung oder ärztliche Beratung.
 
 **Hinweis zur Prüfung:** Apple prüft Apps mit medizinischen Inhalten genauer
-(Richtlinie 1.4.1). Kiirabi ist als Lernspiel gekennzeichnet und gibt keine Diagnosen für
+(Richtlinie 1.4.1). Einsatz 112 ist als Lernspiel gekennzeichnet und gibt keine Diagnosen für
 echte Personen; den Hinweis „Lernspiel – keine medizinische Beratung“ in der Beschreibung
 und in den Prüfnotizen unbedingt beibehalten.
 

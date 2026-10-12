@@ -1,8 +1,8 @@
 # Einsatz 112 – Rettungsdienst-Lernspiel 🚑
 
-Ein medizinisches Lernspiel mit **Expo / React Native** im **estnischen Design**, erzählt in der
-**Ich-Perspektive**: Ich bin Sanitäter/in im estnischen Rettungsdienst (*kiirabi*), fahre mit meiner
-Kollegin Kati zu Einsätzen quer durch Estland, messe Vitalwerte, stufe sie ein, erkenne die
+Ein medizinisches Lernspiel mit **Expo / React Native** im **Rettungsdienst-Design**, komplett auf Deutsch und
+erzählt in der **Ich-Perspektive**: Ich bin Sanitäter/in im Rettungsdienst, fahre mit meiner
+Kollegin Kati zu Einsätzen quer durch Deutschland, messe Vitalwerte, stufe sie ein, erkenne die
 Krankheit und entscheide, was zu tun ist.
 
 ## Schwierigkeitsstufen
@@ -23,15 +23,15 @@ Krankheit und entscheide, was zu tun ist.
 
 ## Spielablauf
 
-1. **Väljakutse – Alarm:** Einsatzmeldung der Leitstelle (Tallinn, Tartu, Pärnu, Saaremaa, Peipussee …).
-2. **Läbivaatus – Untersuchung:** Anamnese und Sichtbefund lesen, Werte messen
+1. **Alarm:** Einsatzmeldung der Leitstelle (Köln, Heidelberg, Lübeck, Rügen, Müritz …).
+2. **Untersuchung:** Anamnese und Sichtbefund lesen, Werte messen
    (Puls, Blutdruck, SpO₂, Atemfrequenz, Temperatur, Blutzucker, GCS, 12-Kanal-EKG)
    und jeden Wert als *niedrig / normal / hoch* einstufen. Jede Messung kostet eine Minute.
-3. **Diagnoos – Diagnose:** Verdachtsdiagnose aus vier Möglichkeiten wählen.
-4. **Ravi – Maßnahmen:** Alle richtigen Erstmaßnahmen auswählen – falsche kosten Punkte.
-5. **Tulemus – Einsatzbericht:** Punkte, Sterne, Erklärung und Leitsymptome.
+3. **Diagnose:** Verdachtsdiagnose aus vier Möglichkeiten wählen.
+4. **Maßnahmen:** Alle richtigen Erstmaßnahmen auswählen – falsche kosten Punkte.
+5. **Einsatzbericht:** Punkte, Sterne, Erklärung und Leitsymptome.
 
-Punkte bringen dich im Rang nach oben – vom *Praktikant* bis zur *Kiirabibrigaadi juht*.
+Punkte bringen dich im Rang nach oben – vom *Praktikanten* bis zur *Teamleitung*.
 Der Fortschritt wird lokal gespeichert. Im **Lexikon** findest du Normwerte und alle Krankheitsbilder.
 
 ### Enthaltene Fälle (14)
@@ -48,7 +48,7 @@ Der Fortschritt wird lokal gespeichert. Im **Lexikon** findest du Normwerte und 
 - **Rot-weiße Warnmarkierung** wie am Heck eines Rettungswagens, **Reflexstreifen** (Gelb–Silber–Gelb)
   wie an der Einsatzkleidung
 - Graphit, Signalrot und Blaulicht-Blau auf neutralem Grau; Schriften *Barlow Condensed* und *Barlow*
-- Komplett auf Deutsch; die Einsätze spielen in Estland (Tallinn, Tartu, Pärnu …)
+- Komplett auf Deutsch; die Einsätze spielen in ganz Deutschland
 
 Die Grafiken sind Vektorgrafiken (`react-native-svg`) in `src/components/Ems.tsx`.
 
@@ -70,7 +70,7 @@ Lokal bauen: `cd desktop && npm install && npm run prepare-app && npm run dist:l
 
 Beides liegt unter **Releases** im Repository (neuester Build oben).
 Android: APK auf dem Handy öffnen und „Installation aus unbekannten Quellen“ erlauben.
-**iPhone & iPad (ohne App Store):** Kiirabi läuft als Web-App mit eigenem Icon, im Vollbild und offline.
+**iPhone & iPad (ohne App Store):** Einsatz 112 läuft als Web-App mit eigenem Icon, im Vollbild und offline.
 Der Workflow „Web-App veröffentlichen“ legt sie unter <https://tobiaslangde-eng.github.io/retung/> ab.
 Auf dem iPhone den Link in **Safari** öffnen → Teilen-Symbol → **„Zum Home-Bildschirm“**.
 Einmalig nötig: Repository öffentlich und unter *Settings → Pages* den Branch `gh-pages` als Quelle wählen.
@@ -97,7 +97,7 @@ npm run build:web     # erzeugt dist/kiirabi.html – eine eigenständige Datei 
 
 ```
 App.tsx                 Navigation (Zustandsautomat) & Fortschritt
-src/theme.ts            Farben & Typografie (estnisches Design)
+src/theme.ts            Farben & Typografie (Rettungsdienst-Design)
 src/components/Ems.tsx  Star of Life, Warnmarkierung, Reflexstreifen, Monitor, EKG, Stadt
 src/components/         Buttons, Karten, Kati, Blaulichtfahrt
 src/data/vitals.ts      Vitalwerte, Normbereiche, Einstufung
