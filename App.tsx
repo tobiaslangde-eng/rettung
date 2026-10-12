@@ -1,17 +1,17 @@
 import {
-  Figtree_400Regular,
-  Figtree_400Regular_Italic,
-  Figtree_600SemiBold,
-  Figtree_700Bold,
-  Figtree_800ExtraBold,
-} from '@expo-google-fonts/figtree';
-import { Unbounded_700Bold, Unbounded_900Black } from '@expo-google-fonts/unbounded';
+  Barlow_400Regular,
+  Barlow_400Regular_Italic,
+  Barlow_600SemiBold,
+  Barlow_700Bold,
+  Barlow_800ExtraBold,
+} from '@expo-google-fonts/barlow';
+import { BarlowCondensed_700Bold, BarlowCondensed_800ExtraBold } from '@expo-google-fonts/barlow-condensed';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { Kaheksakand } from './src/components/Folk';
+import { StarOfLife } from './src/components/Ems';
 import { CASES, MedCase } from './src/data/cases';
 import { DIFFICULTY_BY_ID, Difficulty } from './src/game/difficulty';
 import { CaseRun, ScoreResult, scoreRun } from './src/game/scoring';
@@ -44,13 +44,13 @@ export default function App() {
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
   const lastCaseId = useRef<string | undefined>(undefined);
   const [fontsLoaded, fontError] = useFonts({
-    Unbounded_700Bold,
-    Unbounded_900Black,
-    Figtree_400Regular,
-    Figtree_400Regular_Italic,
-    Figtree_600SemiBold,
-    Figtree_700Bold,
-    Figtree_800ExtraBold,
+    BarlowCondensed_700Bold,
+    BarlowCondensed_800ExtraBold,
+    Barlow_400Regular,
+    Barlow_400Regular_Italic,
+    Barlow_600SemiBold,
+    Barlow_700Bold,
+    Barlow_800ExtraBold,
   });
 
   useEffect(() => {
@@ -90,7 +90,7 @@ export default function App() {
   if (!fontsLoaded && !fontError) {
     return (
       <View style={styles.splash}>
-        <Kaheksakand size={64} color={colors.sinine} gap={colors.must} center={colors.valge} />
+        <StarOfLife size={72} />
       </View>
     );
   }
@@ -136,7 +136,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.must },
-  body: { flex: 1, backgroundColor: colors.lumi },
-  splash: { flex: 1, backgroundColor: colors.must, alignItems: 'center', justifyContent: 'center' },
+  root: { flex: 1, backgroundColor: colors.graphit },
+  body: { flex: 1, backgroundColor: colors.grau50 },
+  splash: { flex: 1, backgroundColor: colors.graphit, alignItems: 'center', justifyContent: 'center' },
 });

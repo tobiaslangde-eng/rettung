@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Card, Eyebrow, Ornament, TopBar } from '../components/Estonian';
+import { Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
 import { DIFFICULTIES } from '../game/difficulty';
 import { POINTS } from '../game/scoring';
 import { colors, spacing, type, fonts } from '../theme';
@@ -31,7 +31,7 @@ export function GuideScreen({ onBack }: { onBack: () => void }) {
             <Text style={[type.body, { marginTop: spacing.xs }]}>{s.text}</Text>
           </Card>
         ))}
-        <Card style={{ borderLeftColor: colors.sinine }}>
+        <Card style={{ borderLeftColor: colors.blaulicht }}>
           <Eyebrow et="Raskusaste" de="Schwierigkeit" />
           {DIFFICULTIES.map((d) => (
             <View key={d.id} style={{ marginTop: spacing.sm }}>
@@ -42,7 +42,7 @@ export function GuideScreen({ onBack }: { onBack: () => void }) {
             </View>
           ))}
         </Card>
-        <Card style={{ borderLeftColor: colors.must }}>
+        <Card style={{ borderLeftColor: colors.graphit }}>
           <Eyebrow et="Punktid" de="Punkte" />
           <Row label="Wert richtig eingestuft" pts={POINTS.ratingCorrect} />
           <Row label="Wert falsch eingestuft" pts={POINTS.ratingWrong} />
@@ -54,14 +54,14 @@ export function GuideScreen({ onBack }: { onBack: () => void }) {
           <Row label="Zustand des Patienten am Ende (max.)" pts={POINTS.conditionMax} />
           <Row label="Tipp von Kati (nur auf Mittel)" pts={-10} />
         </Card>
-        <Card style={{ borderLeftColor: colors.kihnuRed }}>
+        <Card style={{ borderLeftColor: colors.signalrot }}>
           <Eyebrow et="Tähelepanu" de="Hinweis" />
           <Text style={[type.small, { marginTop: spacing.xs }]}>
             Dieses Spiel dient dem Lernen und Üben. Die Inhalte sind vereinfacht und ersetzen keine Ausbildung, keine
             ärztliche Beratung und keine regionalen Leitlinien/SOPs. Im Notfall immer 112 wählen.
           </Text>
         </Card>
-        <Ornament count={10} />
+        <WarnStripes />
       </ScrollView>
     </View>
   );
@@ -71,7 +71,7 @@ function Row({ label, pts }: { label: string; pts: number }) {
   return (
     <View style={styles.row}>
       <Text style={[type.body, { flex: 1 }]}>{label}</Text>
-      <Text style={{ fontFamily: fonts.extrabold, color: pts < 0 ? colors.kihnuRed : colors.sinine }}>
+      <Text style={{ fontFamily: fonts.extrabold, color: pts < 0 ? colors.signalrot : colors.blaulicht }}>
         {pts > 0 ? '+' : ''}
         {pts}
       </Text>
@@ -81,5 +81,5 @@ function Row({ label, pts }: { label: string; pts: number }) {
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
-  row: { flexDirection: 'row', paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: colors.linen },
+  row: { flexDirection: 'row', paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: colors.grau50 },
 });

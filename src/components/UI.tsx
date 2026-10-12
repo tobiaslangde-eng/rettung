@@ -1,20 +1,21 @@
 import { ReactNode } from 'react';
 import { Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { Kaheksakand, KihnuStripes } from './Folk';
-import { colors, radius, spacing, type, fonts } from '../theme';
+import { colors, fonts, radius, spacing, type } from '../theme';
+import { ReflexStripes, StarOfLife } from './Ems';
 
-/** Trikolore-Streifen: sinine – must – valge */
-export function FlagStripe({ height = 6 }: { height?: number }) {
+export { WarnStripes } from './Ems';
+
+/** Kleine estnische Flagge (sinine – must – valge) als dezenter Herkunftshinweis. */
+export function EstonianFlag({ width = 18 }: { width?: number }) {
+  const h = (width * 7) / 11 / 3;
   return (
-    <View style={{ height: height * 3 }}>
-      <View style={{ flex: 1, backgroundColor: colors.sinine }} />
-      <View style={{ flex: 1, backgroundColor: colors.must }} />
-      <View style={{ flex: 1, backgroundColor: colors.valge }} />
+    <View style={{ width, borderRadius: 1, overflow: 'hidden' }}>
+      <View style={{ height: h, backgroundColor: '#0072CE' }} />
+      <View style={{ height: h, backgroundColor: '#000000' }} />
+      <View style={{ height: h, backgroundColor: colors.weiss }} />
     </View>
   );
 }
-
-export { Ornament } from './Folk';
 
 export function Eyebrow({ et, de }: { et: string; de?: string }) {
   return (
@@ -26,17 +27,15 @@ export function Eyebrow({ et, de }: { et: string; de?: string }) {
 }
 
 /**
- * Weiße Karte mit feiner Linie. Statt eines Farbbalkens trägt jede Karte einen kleinen
- * Kaheksakand-Stempel oben rechts; seine Farbe kommt aus `borderLeftColor` (Ton der Karte).
+ * Weiße Karte mit feiner Linie. Ein Statuston (`borderLeftColor`, z. B. Grün/Rot)
+ * wird als Streifen oben an der Karte gezeigt, wie eine Statusleiste am Monitor.
  */
 export function Card({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
   const { borderLeftColor, ...rest } = StyleSheet.flatten(style) ?? {};
-  const tone = typeof borderLeftColor === 'string' ? borderLeftColor : colors.sinine;
+  const tone = typeof borderLeftColor === 'string' ? borderLeftColor : undefined;
   return (
     <View style={[styles.card, rest]}>
-      <View style={styles.stamp} pointerEvents="none">
-        <Kaheksakand size={14} color={tone} />
-      </View>
+      {tone && <View style={[styles.status, { backgroundColor: tone }]} />}
       {children}
     </View>
   );
@@ -60,12 +59,12 @@ export function Button({
   style?: StyleProp<ViewStyle>;
 }) {
   const bg = {
-    primary: colors.sinine,
-    dark: colors.must,
-    outline: colors.valge,
-    alarm: colors.kihnuRed,
+    primary: colors.blaulicht,
+    dark: colors.graphit,
+    outline: colors.weiss,
+    alarm: colors.signalrot,
   }[variant];
-  const fg = variant === 'outline' ? colors.must : colors.valge;
+  const fg = variant === 'outline' ? colors.graphit : colors.weiss;
   return (
     <Pressable
       accessibilityRole="button"
@@ -74,7 +73,7 @@ export function Button({
       style={({ pressed }) => [
         styles.btn,
         { backgroundColor: bg, opacity: disabled ? 0.4 : pressed ? 0.85 : 1 },
-        variant === 'outline' && { borderWidth: 2, borderColor: colors.must },
+        variant === 'outline' && { borderWidth: 1.5, borderColor: colors.graphit },
         style,
       ]}
     >
@@ -82,8 +81,7 @@ export function Button({
         <Text style={[styles.btnLabel, { color: fg }]}>{label}</Text>
         {sub ? <Text style={[styles.btnSub, { color: fg }]}>{sub}</Text> : null}
       </View>
-      {variant === 'alarm' && <KihnuStripes height={5} />}
-      {variant === 'primary' && <View style={styles.btnSnow} />}
+      {variant === 'alarm' && <ReflexStripes height={6} />}
     </Pressable>
   );
 }
@@ -101,45 +99,41 @@ export function TopBar({ title, et, onBack, right }: { title: string; et: string
         )}
         <View style={{ flex: 1, marginLeft: spacing.md }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Kaheksakand size={10} color={colors.sinine} gap={colors.must} />
+            <StarOfLife size={12} outline={colors.graphit} />
             <Text style={styles.topEt}>{et.toUpperCase()}</Text>
           </View>
           <Text style={styles.topTitle}>{title}</Text>
         </View>
         {right}
       </View>
-      <FlagStripe height={3} />
+      <ReflexStripes height={5} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  eyebrowDe: { color: colors.grey, letterSpacing: 1.5, fontFamily: fonts.semibold },
-  stamp: { position: 'absolute', top: 10, right: 10, opacity: 0.9 },
+  eyebrowDe: { color: colors.grau500, letterSpacing: 1.2, fontFamily: fonts.semibold },
   card: {
-    backgroundColor: colors.valge,
+    backgroundColor: colors.weiss,
     borderRadius: radius.sm,
     padding: spacing.lg,
-    paddingRight: spacing.xl + 4,
     borderWidth: 1,
-    borderColor: colors.lumiDark,
-  },
-  btn: {
-    borderRadius: 2,
+    borderColor: colors.grau200,
     overflow: 'hidden',
   },
-  btnInner: { paddingVertical: 14, paddingHorizontal: spacing.lg, alignItems: 'center' },
-  btnSnow: { height: 3, backgroundColor: colors.sinineDark },
-  btnLabel: { fontSize: 15, fontFamily: fonts.display, letterSpacing: 0.3 },
-  btnSub: { fontFamily: fonts.regular, fontSize: 11, marginTop: 2, opacity: 0.8, letterSpacing: 1.5, textTransform: 'uppercase' },
+  status: { position: 'absolute', top: 0, left: 0, right: 0, height: 3 },
+  btn: { borderRadius: radius.sm, overflow: 'hidden' },
+  btnInner: { paddingVertical: 13, paddingHorizontal: spacing.lg, alignItems: 'center' },
+  btnLabel: { fontSize: 19, fontFamily: fonts.display, letterSpacing: 0.6, textTransform: 'uppercase' },
+  btnSub: { fontFamily: fonts.semibold, fontSize: 10, marginTop: 1, opacity: 0.75, letterSpacing: 1.6, textTransform: 'uppercase' },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-    backgroundColor: colors.must,
+    backgroundColor: colors.graphit,
   },
-  back: { color: colors.valge, fontSize: 32, lineHeight: 34, fontFamily: fonts.regular },
-  topEt: { color: colors.sinineLight, fontSize: 10, letterSpacing: 2.5, fontFamily: fonts.extrabold },
-  topTitle: { color: colors.valge, fontSize: 17, fontFamily: fonts.display, marginTop: 2 },
+  back: { color: colors.weiss, fontSize: 32, lineHeight: 34, fontFamily: fonts.regular },
+  topEt: { color: colors.grau300, fontSize: 10, letterSpacing: 2.2, fontFamily: fonts.extrabold },
+  topTitle: { color: colors.weiss, fontSize: 22, fontFamily: fonts.display, letterSpacing: 0.4, textTransform: 'uppercase' },
 });

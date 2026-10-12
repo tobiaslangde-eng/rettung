@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "backgroundColor": "#EEF3F8",
+    "backgroundColor": "#F2F3F5",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "ee.kiirabi.rettung",
@@ -18,7 +18,7 @@
       "package": "ee.kiirabi.rettung",
       "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#0A2E52",
+        "backgroundColor": "#15181C",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"

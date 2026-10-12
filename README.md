@@ -40,18 +40,17 @@ Der Fortschritt wird lokal gespeichert. Im **Lexikon** findest du Normwerte und 
 - **Mittel:** Anaphylaxie, Hypothermie, Hitzschlag, Hyperventilation, Krampfanfall
 - **Schwer:** Sepsis, Lungenembolie, Lungenödem (plus die mittleren Fälle)
 
-## Estnisches Design
+## Design: Rettungsdienst
 
-- **Die Flagge als Landschaft:** blauer Himmel (*sinine*), schwarze Erde (*must*) mit der Tallinner Altstadt –
-  Oleviste-Kirche, Rathausturm, Langer Hermann mit Fahne, Stadtmauer und Kiefern – und weißer Schnee (*valge*).
-  Auf dem Startbildschirm am Tag, bei der Blaulichtfahrt und im Einsatzbericht bei Nacht.
-- **Kaheksakand**, der achtzackige Stern der estnischen Volkskunst, als Rangabzeichen, Schwierigkeits- und
-  Bewertungssterne, Kartenstempel und Häkchen
-- **Ornamentbänder** nach Gürtel- und Fäustlingsmustern mit Sägezahnkanten
-- **Kihnu-Streifen** (Rockmuster von der Insel Kihnu, UNESCO-Kulturerbe) an Alarm-Elementen
-- Schneeweißer Hintergrund, Schriften *Unbounded* (Titel) und *Figtree* (Text), zweisprachige Beschriftungen Estnisch/Deutsch
+- **Patientenmonitor** als Startbild und im Einsatzbericht: dunkles Raster, grüne EKG-Kurve,
+  Vitalwerte in den typischen Monitorfarben (HF grün, SpO₂ cyan, RR rot …)
+- **Star of Life** – das internationale Rettungsdienst-Symbol – als Rangabzeichen und App-Icon
+- **Rot-weiße Warnmarkierung** wie am Heck eines Rettungswagens, **Reflexstreifen** (Gelb–Silber–Gelb)
+  wie an der Einsatzkleidung
+- Graphit, Signalrot und Blaulicht-Blau auf neutralem Grau; Schriften *Barlow Condensed* und *Barlow*
+- Estland bleibt dezent: Einsatzorte, estnische Begriffe und eine kleine Flagge
 
-Alle Grafiken sind Vektorgrafiken (`react-native-svg`) in `src/components/Folk.tsx`.
+Die Grafiken sind Vektorgrafiken (`react-native-svg`) in `src/components/Ems.tsx`.
 
 ## App herunterladen
 
@@ -85,7 +84,7 @@ npm run build:web     # erzeugt dist/kiirabi.html – eine eigenständige Datei 
 ```
 App.tsx                 Navigation (Zustandsautomat) & Fortschritt
 src/theme.ts            Farben & Typografie (estnisches Design)
-src/components/Folk.tsx Kaheksakand, Ornamentband, Kihnu-Streifen, Landschaft
+src/components/Ems.tsx  Star of Life, Warnmarkierung, Reflexstreifen, Monitor, EKG, Stadt
 src/components/         Buttons, Karten, Kati, Blaulichtfahrt
 src/data/vitals.ts      Vitalwerte, Normbereiche, Einstufung
 src/data/cases.ts       Einsatzfälle

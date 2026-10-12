@@ -1,13 +1,30 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Button, Eyebrow } from '../components/Estonian';
-import { EstoniaScene, Kaheksakand, Ornament } from '../components/Folk';
+import { useEffect, useRef } from 'react';
+import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { EcgStrip, MonitorScene, StarOfLife, WarnStripes } from '../components/Ems';
+import { Button, EstonianFlag, Eyebrow } from '../components/UI';
 import { CASES } from '../data/cases';
 import { DIFFICULTIES, Difficulty } from '../game/difficulty';
 import { rankFor } from '../game/scoring';
 import { Progress } from '../game/storage';
-import { colors, fonts, spacing, type } from '../theme';
+import { colors, fonts, monitor, spacing, type } from '../theme';
 
-const LEVEL_STARS: Record<Difficulty, number> = { leicht: 1, mittel: 2, schwer: 3 };
+const LEVEL: Record<Difficulty, number> = { leicht: 1, mittel: 2, schwer: 3 };
+
+/** Blinkende Statusleuchte „einsatzbereit“. */
+function StatusLight() {
+  const a = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(a, { toValue: 0.25, duration: 700, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(a, { toValue: 1, duration: 700, useNativeDriver: Platform.OS !== 'web' }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [a]);
+  return <Animated.View style={[styles.statusLight, { opacity: a }]} />;
+}
 
 export function HomeScreen({
   progress,
@@ -32,20 +49,37 @@ export function HomeScreen({
     <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl }}>
       <View style={styles.hero}>
         <View style={StyleSheet.absoluteFill}>
-          <EstoniaScene height={300} />
+          <MonitorScene height={330} />
+        </View>
+        <View style={styles.heroTop}>
+          <View style={styles.status}>
+            <StatusLight />
+            <Text style={styles.statusText}>Einsatzbereit</Text>
+          </View>
+          <View style={styles.status}>
+            <EstonianFlag width={16} />
+            <Text style={styles.statusText}>Eesti</Text>
+          </View>
         </View>
         <View style={styles.heroText}>
-          <Text style={styles.tere}>Tere tulemast!</Text>
           <Text style={styles.title}>Kiirabi</Text>
-          <Text style={styles.subtitle}>Ich bin Sanitäter/in in Estland.{'\n'}Ich erkenne. Ich messe. Ich handle.</Text>
+          <Text style={styles.subtitle}>Rettungseinsatz · Ich erkenne. Ich messe. Ich handle.</Text>
+        </View>
+        <View style={styles.ecg}>
+          <EcgStrip height={64} />
+        </View>
+        <View style={styles.readouts}>
+          <Readout label="HF" value="72" color={monitor.puls} />
+          <Readout label="SpO₂" value="98" color={monitor.spo2} />
+          <Readout label="RR" value="120/80" color={monitor.rr} />
         </View>
       </View>
-      <Ornament background={colors.valge} color={colors.sinine} accent={colors.must} />
+      <WarnStripes height={14} />
 
       <View style={styles.body}>
         <View style={styles.rank}>
           <View style={styles.medal}>
-            <Kaheksakand size={44} color={colors.sinine} gap={colors.valge} center={colors.valge} />
+            <StarOfLife size={44} outline={colors.graphit} />
           </View>
           <View style={{ flex: 1, minWidth: 0 }}>
             <Eyebrow et="Auaste" de="Mein Dienstgrad" />
@@ -62,11 +96,11 @@ export function HomeScreen({
         </View>
 
         <View style={styles.stats}>
-          <Stat value={progress.casesPlayed} label="Einsätze" et="väljakutset" />
+          <Stat value={progress.casesPlayed} label="Einsätze" />
           <View style={styles.statRule} />
-          <Stat value={progress.correctDiagnoses} label="Diagnosen" et="diagnoosi" />
+          <Stat value={progress.correctDiagnoses} label="Diagnosen" />
           <View style={styles.statRule} />
-          <Stat value={`${mastered}/${CASES.length}`} label="gemeistert" et="meisterdatud" />
+          <Stat value={`${mastered}/${CASES.length}`} label="Gemeistert" />
         </View>
 
         {progress.streak >= 2 && (
@@ -76,7 +110,7 @@ export function HomeScreen({
         )}
 
         <View style={{ gap: spacing.sm }}>
-          <Eyebrow et="Raskusaste" de="Wie schwer wird meine Schicht?" />
+          <Eyebrow et="Raskusaste" de="Schwierigkeit" />
           <View style={styles.diffRow}>
             {DIFFICULTIES.map((d) => {
               const active = progress.difficulty === d.id;
@@ -88,18 +122,20 @@ export function HomeScreen({
                   accessibilityState={{ selected: active }}
                   style={[styles.diff, active && styles.diffActive]}
                 >
-                  <View style={styles.diffStars}>
+                  <View style={styles.levelBars}>
                     {[1, 2, 3].map((n) => (
-                      <Kaheksakand
+                      <View
                         key={n}
-                        size={14}
-                        color={n <= LEVEL_STARS[d.id] ? colors.sinine : active ? colors.mustSoft : colors.lumiDark}
-                        gap={active ? colors.must : colors.valge}
+                        style={[
+                          styles.levelBar,
+                          { height: 6 + n * 4 },
+                          n <= LEVEL[d.id] && { backgroundColor: colors.signalrot },
+                        ]}
                       />
                     ))}
                   </View>
-                  <Text style={[styles.diffLabel, active && { color: colors.valge }]}>{d.label}</Text>
-                  <Text style={[styles.diffEt, active && { color: colors.sinineLight }]}>{d.et}</Text>
+                  <Text style={[styles.diffLabel, active && { color: colors.weiss }]}>{d.label}</Text>
+                  <Text style={[styles.diffEt, active && { color: colors.grau300 }]}>{d.et}</Text>
                 </Pressable>
               );
             })}
@@ -107,82 +143,110 @@ export function HomeScreen({
           <Text style={type.small}>{current.description}</Text>
         </View>
 
-        <Button label="Meine Schicht beginnen" sub="Alusta väljakutset" variant="alarm" onPress={onStart} />
+        <Button label="Schicht beginnen" sub="Alusta väljakutset" variant="alarm" onPress={onStart} />
         <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-          <Button label="Lexikon" sub="Leksikon" variant="primary" onPress={onLexikon} style={{ flex: 1 }} />
+          <Button label="Lexikon" sub="Leksikon" variant="dark" onPress={onLexikon} style={{ flex: 1 }} />
           <Button label="Anleitung" sub="Juhend" variant="outline" onPress={onGuide} style={{ flex: 1 }} />
         </View>
 
-        <View style={styles.footer}>
-          <Kaheksakand size={12} color={colors.greyLight} gap={colors.lumi} />
-          <Text style={[type.small, { textAlign: 'center' }]}>
-            Lernspiel – ersetzt keine medizinische Ausbildung und keine ärztliche Beratung.{'\n'}
-            Im Notfall: 112 (Estland & EU).
-          </Text>
-        </View>
+        <Text style={[type.small, { textAlign: 'center' }]}>
+          Lernspiel – ersetzt keine medizinische Ausbildung und keine ärztliche Beratung.{'\n'}
+          Im Notfall: 112 (Estland & EU).
+        </Text>
       </View>
     </ScrollView>
   );
 }
 
-function Stat({ value, label, et }: { value: number | string; label: string; et: string }) {
+function Readout({ label, value, color }: { label: string; value: string; color: string }) {
+  return (
+    <View>
+      <Text style={[styles.readoutLabel, { color }]}>{label}</Text>
+      <Text style={[styles.readoutValue, { color }]}>{value}</Text>
+    </View>
+  );
+}
+
+function Stat({ value, label }: { value: number | string; label: string }) {
   return (
     <View style={styles.stat}>
       <Text style={styles.statValue}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
-      <Text style={styles.statEt}>{et}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: { height: 300, backgroundColor: colors.sinineDeep, overflow: 'hidden' },
-  heroText: { paddingTop: spacing.xxl + 4, paddingHorizontal: spacing.xl },
-  tere: { color: colors.sinineLight, fontSize: 13, letterSpacing: 2.5, fontFamily: fonts.extrabold, textTransform: 'uppercase' },
-  title: { color: colors.valge, fontSize: 50, fontFamily: fonts.displayBlack, letterSpacing: 1, marginTop: 2 },
-  subtitle: { color: colors.sinineLight, fontSize: 15, lineHeight: 21, marginTop: spacing.xs, fontFamily: fonts.semibold },
+  hero: { height: 330, backgroundColor: colors.nacht, overflow: 'hidden', justifyContent: 'space-between' },
+  heroTop: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.xl, paddingTop: spacing.lg },
+  status: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+  },
+  statusLight: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.monitorGruen },
+  statusText: { color: colors.grau200, fontFamily: fonts.bold, fontSize: 11, letterSpacing: 1.5, textTransform: 'uppercase' },
+  heroText: { paddingHorizontal: spacing.xl },
+  title: {
+    color: colors.weiss,
+    fontSize: 76,
+    lineHeight: 78,
+    fontFamily: fonts.displayBlack,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  subtitle: { color: colors.grau300, fontSize: 15, fontFamily: fonts.semibold },
+  ecg: { alignSelf: 'stretch', height: 64 },
+  readouts: { flexDirection: 'row', gap: spacing.xl, paddingHorizontal: spacing.xl, paddingBottom: spacing.lg },
+  readoutLabel: { fontFamily: fonts.bold, fontSize: 11, letterSpacing: 1 },
+  readoutValue: { fontFamily: fonts.displayBlack, fontSize: 28, lineHeight: 30 },
   body: { padding: spacing.lg, gap: spacing.xl },
   rank: {
     flexDirection: 'row',
     gap: spacing.lg,
-    backgroundColor: colors.valge,
+    backgroundColor: colors.weiss,
     padding: spacing.lg,
+    borderRadius: 6,
     borderWidth: 1,
-    borderColor: colors.lumiDark,
+    borderColor: colors.grau200,
   },
   medal: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: colors.must,
+    backgroundColor: colors.graphit,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  rankName: { fontFamily: fonts.display, fontSize: 19, color: colors.must, marginTop: 4 },
-  rankEt: { fontFamily: fonts.italic, fontSize: 13, color: colors.grey },
-  bar: { height: 6, backgroundColor: colors.lumiDark, marginVertical: spacing.sm },
-  barFill: { height: 6, backgroundColor: colors.sinine },
+  rankName: { fontFamily: fonts.displayBlack, fontSize: 26, color: colors.graphit, textTransform: 'uppercase', marginTop: 2 },
+  rankEt: { fontFamily: fonts.italic, fontSize: 13, color: colors.grau500 },
+  bar: { height: 6, backgroundColor: colors.grau200, marginVertical: spacing.sm, borderRadius: 3, overflow: 'hidden' },
+  barFill: { height: 6, backgroundColor: colors.signalrot },
   stats: { flexDirection: 'row', alignItems: 'stretch' },
-  statRule: { width: 1, backgroundColor: colors.lumiDark },
+  statRule: { width: 1, backgroundColor: colors.grau200 },
   stat: { flex: 1, alignItems: 'center', paddingVertical: spacing.xs },
-  statValue: { fontSize: 24, fontFamily: fonts.display, color: colors.must },
-  statLabel: { fontFamily: fonts.bold, fontSize: 12, color: colors.must, marginTop: 2 },
-  statEt: { fontFamily: fonts.italic, fontSize: 11, color: colors.grey },
-  streak: { alignSelf: 'center', backgroundColor: colors.must, paddingHorizontal: spacing.md, paddingVertical: 6 },
-  streakText: { color: colors.kihnuYellow, fontFamily: fonts.extrabold, fontSize: 13 },
+  statValue: { fontSize: 34, lineHeight: 36, fontFamily: fonts.displayBlack, color: colors.graphit },
+  statLabel: { fontFamily: fonts.bold, fontSize: 11, color: colors.grau500, letterSpacing: 1.2, textTransform: 'uppercase' },
+  streak: { alignSelf: 'center', backgroundColor: colors.graphit, paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: 20 },
+  streakText: { color: colors.warngelb, fontFamily: fonts.extrabold, fontSize: 13 },
   diffRow: { flexDirection: 'row', gap: spacing.sm },
   diff: {
     flex: 1,
     alignItems: 'center',
     paddingVertical: spacing.md,
-    backgroundColor: colors.valge,
+    backgroundColor: colors.weiss,
     borderWidth: 1,
-    borderColor: colors.lumiDark,
-    gap: 4,
+    borderColor: colors.grau200,
+    borderRadius: 6,
+    gap: 2,
   },
-  diffActive: { backgroundColor: colors.must, borderColor: colors.must },
-  diffStars: { flexDirection: 'row', gap: 3 },
-  diffLabel: { fontFamily: fonts.display, fontSize: 14, color: colors.must, marginTop: 2 },
-  diffEt: { fontFamily: fonts.semibold, fontSize: 10, color: colors.grey, letterSpacing: 1.5, textTransform: 'uppercase' },
-  footer: { alignItems: 'center', gap: spacing.sm, marginTop: spacing.sm },
+  diffActive: { backgroundColor: colors.graphit, borderColor: colors.graphit },
+  levelBars: { flexDirection: 'row', alignItems: 'flex-end', gap: 3, height: 18, marginBottom: 4 },
+  levelBar: { width: 6, borderRadius: 1, backgroundColor: colors.grau300 },
+  diffLabel: { fontFamily: fonts.displayBlack, fontSize: 20, color: colors.graphit, textTransform: 'uppercase' },
+  diffEt: { fontFamily: fonts.semibold, fontSize: 10, color: colors.grau500, letterSpacing: 1.5, textTransform: 'uppercase' },
 });

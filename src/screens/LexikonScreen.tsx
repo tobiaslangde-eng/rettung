@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Card, Eyebrow, Ornament, TopBar } from '../components/Estonian';
+import { Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
 import { CASES } from '../data/cases';
 import { VITALS } from '../data/vitals';
 import { Progress } from '../game/storage';
@@ -46,9 +46,9 @@ export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack
               <Card key={c.id}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Eyebrow et={c.diagnosisEt} />
-                  <Text style={{ color: colors.sinine }}>
+                  <Text style={{ color: colors.blaulicht }}>
                     {'★'.repeat(stars)}
-                    <Text style={{ color: colors.greyLight }}>{'★'.repeat(3 - stars)}</Text>
+                    <Text style={{ color: colors.grau300 }}>{'★'.repeat(3 - stars)}</Text>
                   </Text>
                 </View>
                 <Text style={[type.h2, { marginTop: 2 }]}>{c.diagnosis}</Text>
@@ -62,7 +62,7 @@ export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack
             );
           })
         )}
-        <Ornament count={10} />
+        <WarnStripes />
       </ScrollView>
     </View>
   );
@@ -71,18 +71,18 @@ export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack
 function TabBtn({ active, label, et, onPress }: { active: boolean; label: string; et: string; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} style={[styles.tab, active && styles.tabActive]}>
-      <Text style={[styles.tabLabel, active && { color: colors.valge }]}>{label}</Text>
-      <Text style={[styles.tabEt, active && { color: colors.sinineLight }]}>{et}</Text>
+      <Text style={[styles.tabLabel, active && { color: colors.weiss }]}>{label}</Text>
+      <Text style={[styles.tabEt, active && { color: colors.blaulichtLight }]}>{et}</Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
-  tabs: { flexDirection: 'row', backgroundColor: colors.linenDark },
+  tabs: { flexDirection: 'row', backgroundColor: colors.grau200 },
   tab: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center' },
-  tabActive: { backgroundColor: colors.sinine },
-  tabLabel: { fontFamily: fonts.bold, color: colors.must },
-  tabEt: { fontFamily: fonts.regular, fontSize: 10, color: colors.grey, letterSpacing: 1 },
-  short: { fontFamily: fonts.extrabold, color: colors.must, letterSpacing: 1 },
+  tabActive: { backgroundColor: colors.blaulicht },
+  tabLabel: { fontFamily: fonts.bold, color: colors.graphit },
+  tabEt: { fontFamily: fonts.regular, fontSize: 10, color: colors.grau500, letterSpacing: 1 },
+  short: { fontFamily: fonts.extrabold, color: colors.graphit, letterSpacing: 1 },
 });

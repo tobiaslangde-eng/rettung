@@ -11,8 +11,8 @@ In dieser Reihenfolge hochladen – Apple skaliert sie für kleinere iPhones sel
 |---|---|---|
 | 1 | [`appstore/01.png`](appstore/01.png) | Rette Leben – von Tallinn bis Saaremaa |
 | 2 | [`appstore/02.png`](appstore/02.png) | Der Melder piept: 14 Einsätze, drei Schwierigkeitsstufen |
-| 3 | [`appstore/03.png`](appstore/03.png) | Mit Blaulicht durch die Altstadt |
-| 4 | [`appstore/04.png`](appstore/04.png) | Puls, Blutdruck, SpO₂, EKG: messen und einschätzen |
+| 3 | [`appstore/03.png`](appstore/03.png) | Mit Blaulicht zum Einsatzort |
+| 4 | [`appstore/04.png`](appstore/04.png) | Puls, Blutdruck, SpO2, EKG: messen und einschätzen |
 | 5 | [`appstore/05.png`](appstore/05.png) | Diagnose stellen, richtig handeln, Ränge aufsteigen |
 
 ## Texte
@@ -38,7 +38,7 @@ In dieser Reihenfolge hochladen – Apple skaliert sie für kleinere iPhones sel
 > • Drei Schwierigkeitsstufen – Leicht mit Hilfe meiner Kollegin Kati, Schwer mit Zeitdruck in Echtzeit
 > • Lexikon mit Normwerten und Leitsymptomen
 > • Ränge vom Praktikanten bis zur Teamleitung
-> • Estnisches Design: Volksmuster, der achtzackige Stern kaheksakand und die Flagge als Landschaft
+> • Look wie im echten Rettungsdienst: Patientenmonitor mit EKG, Warnmarkierung, Reflexstreifen
 > • Ohne Werbung, ohne Konto, ohne Datenerfassung
 >
 > Hinweis: Kiirabi ist ein Lernspiel mit vereinfachten Inhalten. Es ersetzt keine medizinische Ausbildung, keine ärztliche Beratung und keine Leitlinien. Im Notfall immer 112 wählen.
