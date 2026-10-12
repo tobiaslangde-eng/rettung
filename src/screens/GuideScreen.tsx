@@ -5,45 +5,44 @@ import { POINTS } from '../game/scoring';
 import { colors, spacing, type, fonts } from '../theme';
 
 const STEPS = [
-  { et: 'Väljakutse', de: 'Alarm', text: 'Mein Melder piept: Die Leitstelle schickt mich irgendwo in Estland hin. Mit Blaulicht geht es los.' },
+  { de: 'Alarm', text: 'Mein Melder piept: Die Leitstelle schickt mich irgendwo in Estland hin. Mit Blaulicht geht es los.' },
   {
-    et: 'Läbivaatus',
     de: 'Untersuchung',
     text: 'Ich höre zu, schaue genau hin und messe Vitalwerte. Jeden Wert stufe ich ein: niedrig, normal oder hoch. Jede Messung kostet Zeit – und den Patienten etwas Kraft.',
   },
-  { et: 'Diagnoos', de: 'Diagnose', text: 'Ich entscheide mich für eine Verdachtsdiagnose aus vier Möglichkeiten.' },
-  { et: 'Ravi', de: 'Maßnahmen', text: 'Ich wähle alle passenden Maßnahmen. Falsche Maßnahmen schaden dem Patienten und kosten Punkte.' },
+  { de: 'Diagnose', text: 'Ich entscheide mich für eine Verdachtsdiagnose aus vier Möglichkeiten.' },
+  { de: 'Maßnahmen', text: 'Ich wähle alle passenden Maßnahmen. Falsche Maßnahmen schaden dem Patienten und kosten Punkte.' },
 ];
 
 export function GuideScreen({ onBack }: { onBack: () => void }) {
   return (
     <View style={{ flex: 1 }}>
-      <TopBar et="Juhend" title="Anleitung" onBack={onBack} />
+      <TopBar kicker="Hilfe" title="Anleitung" onBack={onBack} />
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={type.body}>
-          Ich bin Sanitäter/in im estnischen Rettungsdienst (kiirabi). Zusammen mit meiner Kollegin Kati erkenne ich
+          Ich bin Sanitäter/in im Rettungsdienst. Zusammen mit meiner Kollegin Kati erkenne ich
           Krankheiten an Symptomen und Messwerten und treffe die richtigen Entscheidungen. Der Zustandsbalken zeigt, wie es
           meinem Patienten gerade geht.
         </Text>
         {STEPS.map((s, i) => (
-          <Card key={s.et}>
-            <Eyebrow et={`${i + 1}. ${s.et}`} de={s.de} />
+          <Card key={s.de}>
+            <Eyebrow title={`${i + 1}. ${s.de}`} />
             <Text style={[type.body, { marginTop: spacing.xs }]}>{s.text}</Text>
           </Card>
         ))}
         <Card style={{ borderLeftColor: colors.blaulicht }}>
-          <Eyebrow et="Raskusaste" de="Schwierigkeit" />
+          <Eyebrow title="Schwierigkeit" />
           {DIFFICULTIES.map((d) => (
             <View key={d.id} style={{ marginTop: spacing.sm }}>
               <Text style={[type.body, { fontFamily: fonts.extrabold }]}>
-                {d.icon} {d.label} · {d.et}
+                {d.icon} {d.label}
               </Text>
               <Text style={type.small}>{d.description}</Text>
             </View>
           ))}
         </Card>
         <Card style={{ borderLeftColor: colors.graphit }}>
-          <Eyebrow et="Punktid" de="Punkte" />
+          <Eyebrow title="Punkte" />
           <Row label="Wert richtig eingestuft" pts={POINTS.ratingCorrect} />
           <Row label="Wert falsch eingestuft" pts={POINTS.ratingWrong} />
           <Row label="Wichtigen Wert vergessen" pts={POINTS.missedKeyVital} />
@@ -55,7 +54,7 @@ export function GuideScreen({ onBack }: { onBack: () => void }) {
           <Row label="Tipp von Kati (nur auf Mittel)" pts={-10} />
         </Card>
         <Card style={{ borderLeftColor: colors.signalrot }}>
-          <Eyebrow et="Tähelepanu" de="Hinweis" />
+          <Eyebrow title="Hinweis" />
           <Text style={[type.small, { marginTop: spacing.xs }]}>
             Dieses Spiel dient dem Lernen und Üben. Die Inhalte sind vereinfacht und ersetzen keine Ausbildung, keine
             ärztliche Beratung und keine regionalen Leitlinien/SOPs. Im Notfall immer 112 wählen.

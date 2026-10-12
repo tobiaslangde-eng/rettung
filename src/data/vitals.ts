@@ -7,8 +7,6 @@ export type VitalValue = number | [number, number] | string;
 export interface VitalDef {
   id: VitalId;
   name: string;
-  /** Estnische Bezeichnung für das Design */
-  et: string;
   short: string;
   unit: string;
   icon: string;
@@ -25,14 +23,14 @@ export interface VitalDef {
 }
 
 export const VITALS: VitalDef[] = [
-  { id: 'puls', action: 'Ich lege zwei Finger ans Handgelenk und zähle mit …', name: 'Puls', et: 'Pulss', short: 'HF', unit: '/min', icon: '♥', normal: '60–100 /min', low: 60, high: 100 },
-  { id: 'rr', action: 'Ich lege die Manschette an und pumpe auf … zischhh …', name: 'Blutdruck', et: 'Vererõhk', short: 'RR', unit: 'mmHg', icon: '◎', normal: 'systolisch 90–140 mmHg', low: 90, high: 140 },
-  { id: 'spo2', action: 'Ich klemme den Pulsoximeter-Clip an den Finger …', name: 'Sauerstoffsättigung', et: 'Hapnikuküllastus', short: 'SpO₂', unit: '%', icon: '◐', normal: '95–100 %', low: 95, high: 100 },
-  { id: 'af', action: 'Ich beobachte den Brustkorb und zähle die Atemzüge …', name: 'Atemfrequenz', et: 'Hingamissagedus', short: 'AF', unit: '/min', icon: '≋', normal: '12–20 /min', low: 12, high: 20 },
-  { id: 'temp', action: 'Ich halte das Ohrthermometer ans Ohr … piep!', name: 'Temperatur', et: 'Temperatuur', short: 'T', unit: '°C', icon: '▮', normal: '36,0–37,5 °C', low: 36, high: 37.5 },
-  { id: 'bz', action: 'Ein kleiner Pieks in die Fingerkuppe, Tropfen aufs Messgerät …', name: 'Blutzucker', et: 'Veresuhkur', short: 'BZ', unit: 'mg/dl', icon: '◆', normal: '70–140 mg/dl', low: 70, high: 140 },
-  { id: 'gcs', action: 'Ich spreche laut an und prüfe Augenöffnen, Sprache und Bewegung …', name: 'Bewusstsein (GCS)', et: 'Teadvus', short: 'GCS', unit: 'Pkt.', icon: '◉', normal: '15 Punkte', low: 15, high: 15 },
-  { id: 'ekg', action: 'Ich klebe zehn Elektroden auf und schreibe ein 12-Kanal-EKG …', name: '12-Kanal-EKG', et: 'EKG', short: 'EKG', unit: '', icon: '⌁', normal: 'Sinusrhythmus, keine ST-Veränderungen', textOnly: true },
+  { id: 'puls', action: 'Ich lege zwei Finger ans Handgelenk und zähle mit …', name: 'Puls', short: 'HF', unit: '/min', icon: '♥', normal: '60–100 /min', low: 60, high: 100 },
+  { id: 'rr', action: 'Ich lege die Manschette an und pumpe auf … zischhh …', name: 'Blutdruck', short: 'RR', unit: 'mmHg', icon: '◎', normal: 'systolisch 90–140 mmHg', low: 90, high: 140 },
+  { id: 'spo2', action: 'Ich klemme den Pulsoximeter-Clip an den Finger …', name: 'Sauerstoffsättigung', short: 'SpO₂', unit: '%', icon: '◐', normal: '95–100 %', low: 95, high: 100 },
+  { id: 'af', action: 'Ich beobachte den Brustkorb und zähle die Atemzüge …', name: 'Atemfrequenz', short: 'AF', unit: '/min', icon: '≋', normal: '12–20 /min', low: 12, high: 20 },
+  { id: 'temp', action: 'Ich halte das Ohrthermometer ans Ohr … piep!', name: 'Temperatur', short: 'T', unit: '°C', icon: '▮', normal: '36,0–37,5 °C', low: 36, high: 37.5 },
+  { id: 'bz', action: 'Ein kleiner Pieks in die Fingerkuppe, Tropfen aufs Messgerät …', name: 'Blutzucker', short: 'BZ', unit: 'mg/dl', icon: '◆', normal: '70–140 mg/dl', low: 70, high: 140 },
+  { id: 'gcs', action: 'Ich spreche laut an und prüfe Augenöffnen, Sprache und Bewegung …', name: 'Bewusstsein (GCS)', short: 'GCS', unit: 'Pkt.', icon: '◉', normal: '15 Punkte', low: 15, high: 15 },
+  { id: 'ekg', action: 'Ich klebe zehn Elektroden auf und schreibe ein 12-Kanal-EKG …', name: '12-Kanal-EKG', short: 'EKG', unit: '', icon: '⌁', normal: 'Sinusrhythmus, keine ST-Veränderungen', textOnly: true },
 ];
 
 export const VITAL_BY_ID = Object.fromEntries(VITALS.map((v) => [v.id, v])) as Record<VitalId, VitalDef>;

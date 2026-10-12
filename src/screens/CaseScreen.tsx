@@ -12,11 +12,11 @@ import { colors, fonts, monitor, spacing, type } from '../theme';
 
 type Phase = 'alarm' | 'drive' | 'exam' | 'diagnosis' | 'treatment';
 
-const STEPS: { phase: Phase; et: string; de: string }[] = [
-  { phase: 'alarm', et: 'Väljakutse', de: 'Alarm' },
-  { phase: 'exam', et: 'Läbivaatus', de: 'Untersuchung' },
-  { phase: 'diagnosis', et: 'Diagnoos', de: 'Diagnose' },
-  { phase: 'treatment', et: 'Ravi', de: 'Maßnahmen' },
+const STEPS: { phase: Phase; de: string }[] = [
+  { phase: 'alarm', de: 'Alarm' },
+  { phase: 'exam', de: 'Untersuchung' },
+  { phase: 'diagnosis', de: 'Diagnose' },
+  { phase: 'treatment', de: 'Maßnahmen' },
 ];
 
 const RATINGS: { value: Rating; label: string; symbol: string }[] = [
@@ -144,13 +144,13 @@ export function CaseScreen({
   return (
     <View style={{ flex: 1 }}>
       <TopBar
-        et={STEPS[stepIndex].et}
+        kicker={`Schritt ${stepIndex + 1} von ${STEPS.length}`}
         title={STEPS[stepIndex].de}
         onBack={onAbort}
         right={
           <View style={styles.clock}>
             <Text style={styles.clockValue}>{minutes}′</Text>
-            <Text style={styles.clockLabel}>aeg</Text>
+            <Text style={styles.clockLabel}>Min.</Text>
           </View>
         }
       />
@@ -158,7 +158,7 @@ export function CaseScreen({
         {STEPS.map((s, i) => (
           <View key={s.phase} style={[styles.step, i <= stepIndex && styles.stepActive]}>
             <Text style={[styles.stepText, i <= stepIndex && { color: colors.weiss }]}>
-              {i + 1}. {s.et}
+              {s.de}
             </Text>
           </View>
         ))}
@@ -187,13 +187,13 @@ export function CaseScreen({
             <View style={styles.alarm}>
               <ReflexStripes height={6} />
               <View style={styles.alarmBody}>
-              <Text style={styles.alarmEyebrow}>📟 Häire · Mein Melder piept!</Text>
+              <Text style={styles.alarmEyebrow}>📟 Alarm · Mein Melder piept!</Text>
               <Text style={styles.alarmText}>Leitstelle: „{medCase.dispatch}“</Text>
               <Text style={styles.alarmLoc}>{medCase.location}</Text>
               </View>
             </View>
             <Card>
-              <Eyebrow et="Patsient" de="Patient" />
+              <Eyebrow title="Patient" />
               <Text style={[type.h2, { marginTop: spacing.xs }]}>{p.name}</Text>
               <Text style={type.small}>
                 {p.sex === 'm' ? 'männlich' : 'weiblich'}, {p.age} Jahre · {difficulty.label} {difficulty.icon}
@@ -203,18 +203,18 @@ export function CaseScreen({
               Komm, schnapp dir den Notfallrucksack – wir fahren! Denk dran: Jede Messung kostet Zeit
               {difficulty.drainPerSecond > 0 ? ', und heute zählt jede Sekunde.' : '.'}
             </Kati>
-            <Button label="Los geht's!" sub="Sõidame välja" variant="alarm" onPress={() => goto('drive')} />
+            <Button label="Los geht's!" variant="alarm" onPress={() => goto('drive')} />
           </>
         )}
 
         {phase === 'exam' && (
           <>
             <Card style={{ borderLeftColor: colors.signalrot }}>
-              <Eyebrow et="Kohal" de="Ich komme an" />
+              <Eyebrow title="Ich komme an" />
               <Text style={[type.body, { marginTop: spacing.xs, fontFamily: fonts.italic }]}>{medCase.scene}</Text>
             </Card>
             <Card>
-              <Eyebrow et="Anamnees" de="Was ich höre" />
+              <Eyebrow title="Was ich höre" />
               {medCase.anamnese.map((a, i) => (
                 <Text key={i} style={[type.body, { marginTop: spacing.xs }]}>
                   • {a}
@@ -222,7 +222,7 @@ export function CaseScreen({
               ))}
             </Card>
             <Card style={{ borderLeftColor: colors.graphit }}>
-              <Eyebrow et="Leid" de="Was ich sehe" />
+              <Eyebrow title="Was ich sehe" />
               {medCase.befund.map((b, i) => (
                 <Text key={i} style={[type.body, { marginTop: spacing.xs }]}>
                   • {b}
@@ -230,7 +230,7 @@ export function CaseScreen({
               ))}
             </Card>
 
-            <Eyebrow et="Mõõtmised" de="Was messe ich?" />
+            <Eyebrow title="Was messe ich?" />
             <View style={styles.grid}>
               {VITALS.map((v) => {
                 const done = measured.find((m) => m.id === v.id);
@@ -290,7 +290,7 @@ export function CaseScreen({
 
             <Button
               label="Ich habe einen Verdacht"
-              sub="Edasi diagnoosini"
+             
               disabled={!!pending || measured.length === 0}
               onPress={() => goto('diagnosis')}
             />
@@ -300,7 +300,7 @@ export function CaseScreen({
         {phase === 'diagnosis' && (
           <>
             <Card>
-              <Eyebrow et="Kokkuvõte" de="Meine Befunde" />
+              <Eyebrow title="Meine Befunde" />
               <Text style={[type.small, { marginTop: spacing.xs }]}>{medCase.befund.join(' · ')}</Text>
               <View style={styles.summaryRow}>
                 {measured.map((m) => (
@@ -353,18 +353,18 @@ export function CaseScreen({
                 {difficulty.instantFeedback ? (
                   <Kati>
                     {diagnosisGuess === medCase.diagnosis
-                      ? `Genau, das denke ich auch: ${medCase.diagnosis}! Auf Estnisch: „${medCase.diagnosisEt}“.`
-                      : `Hm, ich glaube eher, es ist: ${medCase.diagnosis} („${medCase.diagnosisEt}“). ${firstName} geht es schlechter …`}
+                      ? `Genau, das denke ich auch: ${medCase.diagnosis}!`
+                      : `Hm, ich glaube eher, es ist: ${medCase.diagnosis}. ${firstName} geht es schlechter …`}
                   </Kati>
                 ) : (
                   <Kati>Okay, ich vertraue dir. Was machen wir jetzt?</Kati>
                 )}
-                <Button label="Jetzt handeln" sub="Edasi ravini" onPress={() => goto('treatment')} />
+                <Button label="Jetzt handeln" onPress={() => goto('treatment')} />
               </>
             ) : (
               <Button
                 label="Das ist meine Diagnose"
-                sub="Kinnita"
+               
                 variant="dark"
                 disabled={!diagnosisGuess}
                 onPress={lockDiagnosis}
@@ -395,7 +395,7 @@ export function CaseScreen({
             })}
             <Button
               label="Los, ich handle!"
-              sub="Alusta ravi"
+             
               variant="alarm"
               disabled={treatmentGuess.length === 0}
               onPress={finish}

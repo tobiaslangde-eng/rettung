@@ -5,25 +5,8 @@ import { ReflexStripes, StarOfLife } from './Ems';
 
 export { WarnStripes } from './Ems';
 
-/** Kleine estnische Flagge (sinine – must – valge) als dezenter Herkunftshinweis. */
-export function EstonianFlag({ width = 18 }: { width?: number }) {
-  const h = (width * 7) / 11 / 3;
-  return (
-    <View style={{ width, borderRadius: 1, overflow: 'hidden' }}>
-      <View style={{ height: h, backgroundColor: '#0072CE' }} />
-      <View style={{ height: h, backgroundColor: '#000000' }} />
-      <View style={{ height: h, backgroundColor: colors.weiss }} />
-    </View>
-  );
-}
-
-export function Eyebrow({ et, de }: { et: string; de?: string }) {
-  return (
-    <Text style={type.eyebrow}>
-      {et}
-      {de ? <Text style={styles.eyebrowDe}>{`   ${de}`}</Text> : null}
-    </Text>
-  );
+export function Eyebrow({ title }: { title: string }) {
+  return <Text style={type.eyebrow}>{title}</Text>;
 }
 
 /**
@@ -86,7 +69,7 @@ export function Button({
   );
 }
 
-export function TopBar({ title, et, onBack, right }: { title: string; et: string; onBack?: () => void; right?: ReactNode }) {
+export function TopBar({ title, kicker, onBack, right }: { title: string; kicker: string; onBack?: () => void; right?: ReactNode }) {
   return (
     <View>
       <View style={styles.topBar}>
@@ -100,7 +83,7 @@ export function TopBar({ title, et, onBack, right }: { title: string; et: string
         <View style={{ flex: 1, marginLeft: spacing.md }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <StarOfLife size={12} outline={colors.graphit} />
-            <Text style={styles.topEt}>{et.toUpperCase()}</Text>
+            <Text style={styles.topKicker}>{kicker.toUpperCase()}</Text>
           </View>
           <Text style={styles.topTitle}>{title}</Text>
         </View>
@@ -112,7 +95,6 @@ export function TopBar({ title, et, onBack, right }: { title: string; et: string
 }
 
 const styles = StyleSheet.create({
-  eyebrowDe: { color: colors.grau500, letterSpacing: 1.2, fontFamily: fonts.semibold },
   card: {
     backgroundColor: colors.weiss,
     borderRadius: radius.sm,
@@ -134,6 +116,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.graphit,
   },
   back: { color: colors.weiss, fontSize: 32, lineHeight: 34, fontFamily: fonts.regular },
-  topEt: { color: colors.grau300, fontSize: 10, letterSpacing: 2.2, fontFamily: fonts.extrabold },
+  topKicker: { color: colors.grau300, fontSize: 10, letterSpacing: 2.2, fontFamily: fonts.extrabold },
   topTitle: { color: colors.weiss, fontSize: 22, fontFamily: fonts.display, letterSpacing: 0.4, textTransform: 'uppercase' },
 });

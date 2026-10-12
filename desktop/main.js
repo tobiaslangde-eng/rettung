@@ -1,4 +1,4 @@
-// Desktop-Hülle für Kiirabi: lädt die Web-Version des Spiels in ein eigenes Fenster.
+// Desktop-Hülle für Einsatz 112: lädt die Web-Version des Spiels in ein eigenes Fenster.
 const { app, BrowserWindow, shell } = require('electron');
 const path = require('node:path');
 
@@ -8,7 +8,7 @@ function createWindow() {
     height: 900,
     minWidth: 360,
     minHeight: 640,
-    title: 'Kiirabi',
+    title: 'Einsatz 112',
     backgroundColor: '#15181C',
     autoHideMenuBar: true,
     webPreferences: { contextIsolation: true, sandbox: true },

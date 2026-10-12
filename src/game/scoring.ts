@@ -150,15 +150,14 @@ export function maxScore(medCase: MedCase): number {
 export interface Rank {
   min: number;
   de: string;
-  et: string;
 }
 
 export const RANKS: Rank[] = [
-  { min: 0, de: 'Praktikant/in', et: 'Praktikant' },
-  { min: 300, de: 'Rettungshelfer/in', et: 'Päästeabiline' },
-  { min: 800, de: 'Rettungssanitäter/in', et: 'Kiirabitehnik' },
-  { min: 1600, de: 'Notfallsanitäter/in', et: 'Erakorralise meditsiini tehnik' },
-  { min: 3000, de: 'Teamleiter/in Rettungswagen', et: 'Kiirabibrigaadi juht' },
+  { min: 0, de: 'Praktikant/in' },
+  { min: 300, de: 'Rettungshelfer/in' },
+  { min: 800, de: 'Rettungssanitäter/in' },
+  { min: 1600, de: 'Notfallsanitäter/in' },
+  { min: 3000, de: 'Teamleiter/in Rettungswagen' },
 ];
 
 export function rankFor(points: number): { rank: Rank; next?: Rank } {

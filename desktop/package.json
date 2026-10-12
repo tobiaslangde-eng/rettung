@@ -1,9 +1,9 @@
 {
   "name": "kiirabi-desktop",
-  "productName": "Kiirabi",
+  "productName": "Einsatz 112",
   "version": "1.0.0",
-  "description": "Kiirabi – Rettungseinsatz: medizinisches Lernspiel",
-  "author": "Kiirabi",
+  "description": "Einsatz 112 – medizinisches Lernspiel",
+  "author": "Einsatz 112",
   "repository": "github:tobiaslangde-eng/retung",
   "main": "main.js",
   "private": true,
@@ -20,8 +20,8 @@
   },
   "build": {
     "appId": "ee.kiirabi.rettung",
-    "productName": "Kiirabi",
-    "copyright": "Kiirabi – Lernspiel",
+    "productName": "Einsatz 112",
+    "copyright": "Einsatz 112 – Lernspiel",
     "files": [
       "main.js",
       "app/**"
@@ -31,18 +31,18 @@
       "buildResources": "build"
     },
     "icon": "build/icon.png",
-    "artifactName": "Kiirabi-${os}-${arch}.${ext}",
+    "artifactName": "Einsatz112-${os}-${arch}.${ext}",
     "portable": {
-      "artifactName": "Kiirabi-Windows.exe"
+      "artifactName": "Einsatz112-Windows.exe"
     },
     "mac": {
       "category": "public.app-category.education",
       "identity": "-",
-      "artifactName": "Kiirabi-Mac-${arch}.${ext}"
+      "artifactName": "Einsatz112-Mac-${arch}.${ext}"
     },
     "linux": {
       "category": "Education",
-      "artifactName": "Kiirabi-Linux.AppImage"
+      "artifactName": "Einsatz112-Linux.AppImage"
     },
     "publish": null
   }

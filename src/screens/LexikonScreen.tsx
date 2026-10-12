@@ -12,10 +12,10 @@ export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack
   const [tab, setTab] = useState<Tab>('werte');
   return (
     <View style={{ flex: 1 }}>
-      <TopBar et="Leksikon" title="Lexikon" onBack={onBack} />
+      <TopBar kicker="Nachschlagen" title="Lexikon" onBack={onBack} />
       <View style={styles.tabs}>
-        <TabBtn active={tab === 'werte'} label="Normwerte" et="Normväärtused" onPress={() => setTab('werte')} />
-        <TabBtn active={tab === 'krankheiten'} label="Krankheitsbilder" et="Haigused" onPress={() => setTab('krankheiten')} />
+        <TabBtn active={tab === 'werte'} label="Normwerte" sub="Vitalwerte" onPress={() => setTab('werte')} />
+        <TabBtn active={tab === 'krankheiten'} label="Krankheitsbilder" sub="Alle Fälle" onPress={() => setTab('krankheiten')} />
       </View>
       <ScrollView contentContainerStyle={styles.content}>
         {tab === 'werte' ? (
@@ -24,7 +24,7 @@ export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack
             {VITALS.map((v) => (
               <Card key={v.id}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Eyebrow et={v.et} />
+                  <Eyebrow title="Vitalwert" />
                   <Text style={styles.short}>{v.short}</Text>
                 </View>
                 <Text style={[type.h2, { marginTop: 2 }]}>{v.name}</Text>
@@ -45,7 +45,7 @@ export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack
             return (
               <Card key={c.id}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Eyebrow et={c.diagnosisEt} />
+                  <Eyebrow title="Krankheitsbild" />
                   <Text style={{ color: colors.blaulicht }}>
                     {'★'.repeat(stars)}
                     <Text style={{ color: colors.grau300 }}>{'★'.repeat(3 - stars)}</Text>
@@ -68,11 +68,11 @@ export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack
   );
 }
 
-function TabBtn({ active, label, et, onPress }: { active: boolean; label: string; et: string; onPress: () => void }) {
+function TabBtn({ active, label, sub, onPress }: { active: boolean; label: string; sub: string; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} style={[styles.tab, active && styles.tabActive]}>
       <Text style={[styles.tabLabel, active && { color: colors.weiss }]}>{label}</Text>
-      <Text style={[styles.tabEt, active && { color: colors.blaulichtLight }]}>{et}</Text>
+      <Text style={[styles.tabEt, active && { color: colors.blaulichtLight }]}>{sub}</Text>
     </Pressable>
   );
 }

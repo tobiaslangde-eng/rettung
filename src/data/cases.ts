@@ -9,8 +9,6 @@ export interface MedCase {
   id: string;
   /** Richtige Diagnose */
   diagnosis: string;
-  /** Estnische Bezeichnung */
-  diagnosisEt: string;
   distractors: [string, string, string];
   difficulty: 1 | 2 | 3;
   patient: { name: string; age: number; sex: 'm' | 'w' };
@@ -35,7 +33,6 @@ export const CASES: MedCase[] = [
   {
     id: 'stemi',
     diagnosis: 'Akuter Herzinfarkt (STEMI)',
-    diagnosisEt: 'Äge müokardiinfarkt',
     distractors: ['Lungenembolie', 'Panikattacke', 'Sodbrennen (Reflux)'],
     difficulty: 1,
     patient: { name: 'Jaan Tamm', age: 58, sex: 'm' },
@@ -75,7 +72,6 @@ export const CASES: MedCase[] = [
   {
     id: 'hypo',
     diagnosis: 'Hypoglykämie (Unterzuckerung)',
-    diagnosisEt: 'Hüpoglükeemia',
     distractors: ['Schlaganfall', 'Alkoholvergiftung', 'Epileptischer Anfall'],
     difficulty: 1,
     patient: { name: 'Mari Kask', age: 34, sex: 'w' },
@@ -114,7 +110,6 @@ export const CASES: MedCase[] = [
   {
     id: 'stroke',
     diagnosis: 'Schlaganfall',
-    diagnosisEt: 'Insult',
     distractors: ['Hypoglykämie', 'Migräne mit Aura', 'Hirnhautentzündung'],
     difficulty: 1,
     patient: { name: 'Liis Mägi', age: 72, sex: 'w' },
@@ -153,7 +148,6 @@ export const CASES: MedCase[] = [
   {
     id: 'anaphylaxie',
     diagnosis: 'Anaphylaktischer Schock',
-    diagnosisEt: 'Anafülaktiline šokk',
     distractors: ['Asthmaanfall', 'Sonnenstich', 'Panikattacke'],
     difficulty: 2,
     patient: { name: 'Kalev Saar', age: 25, sex: 'm' },
@@ -192,7 +186,6 @@ export const CASES: MedCase[] = [
   {
     id: 'asthma',
     diagnosis: 'Akuter Asthmaanfall',
-    diagnosisEt: 'Astmahoog',
     distractors: ['Lungenembolie', 'Hyperventilation', 'Herzinfarkt'],
     difficulty: 1,
     patient: { name: 'Kadri Lepp', age: 19, sex: 'w' },
@@ -231,7 +224,6 @@ export const CASES: MedCase[] = [
   {
     id: 'sepsis',
     diagnosis: 'Sepsis bei Lungenentzündung',
-    diagnosisEt: 'Sepsis',
     distractors: ['Grippaler Infekt', 'Demenz', 'Herzinsuffizienz'],
     difficulty: 3,
     patient: { name: 'Toomas Rebane', age: 81, sex: 'm' },
@@ -270,7 +262,6 @@ export const CASES: MedCase[] = [
   {
     id: 'hypothermie',
     diagnosis: 'Unterkühlung (Hypothermie)',
-    diagnosisEt: 'Alajahtumine',
     distractors: ['Alkoholvergiftung', 'Hypoglykämie', 'Herzinfarkt'],
     difficulty: 2,
     patient: { name: 'Andres Kuusk', age: 45, sex: 'm' },
@@ -309,7 +300,6 @@ export const CASES: MedCase[] = [
   {
     id: 'hitzschlag',
     diagnosis: 'Hitzschlag',
-    diagnosisEt: 'Kuumarabandus',
     distractors: ['Grippaler Infekt', 'Schlaganfall', 'Hypoglykämie'],
     difficulty: 2,
     patient: { name: 'Margus Sepp', age: 30, sex: 'm' },
@@ -348,7 +338,6 @@ export const CASES: MedCase[] = [
   {
     id: 'le',
     diagnosis: 'Lungenembolie',
-    diagnosisEt: 'Kopsuarteri trombemboolia',
     distractors: ['Asthmaanfall', 'Rippenprellung', 'Hyperventilation'],
     difficulty: 3,
     patient: { name: 'Piret Ilves', age: 38, sex: 'w' },
@@ -388,7 +377,6 @@ export const CASES: MedCase[] = [
   {
     id: 'hyperventilation',
     diagnosis: 'Hyperventilationssyndrom',
-    diagnosisEt: 'Hüperventilatsioon',
     distractors: ['Asthmaanfall', 'Lungenembolie', 'Hypoglykämie'],
     difficulty: 2,
     patient: { name: 'Anu Põld', age: 22, sex: 'w' },
@@ -427,7 +415,6 @@ export const CASES: MedCase[] = [
   {
     id: 'krampf',
     diagnosis: 'Epileptischer Krampfanfall (postiktal)',
-    diagnosisEt: 'Epilepsiahoog',
     distractors: ['Schlaganfall', 'Synkope (Ohnmacht)', 'Hypoglykämie'],
     difficulty: 2,
     patient: { name: 'Rein Oja', age: 27, sex: 'm' },
@@ -466,7 +453,6 @@ export const CASES: MedCase[] = [
   {
     id: 'lungenoedem',
     diagnosis: 'Akute Herzinsuffizienz mit Lungenödem',
-    diagnosisEt: 'Kopsuturse',
     distractors: ['Lungenentzündung', 'Asthmaanfall', 'Anaphylaxie'],
     difficulty: 3,
     patient: { name: 'Kristiina Pärn', age: 76, sex: 'w' },
@@ -505,7 +491,6 @@ export const CASES: MedCase[] = [
   {
     id: 'synkope',
     diagnosis: 'Kreislaufkollaps (Synkope)',
-    diagnosisEt: 'Minestus',
     distractors: ['Epileptischer Anfall', 'Herzinfarkt', 'Hypoglykämie'],
     difficulty: 1,
     patient: { name: 'Helena Kivi', age: 17, sex: 'w' },
@@ -544,7 +529,6 @@ export const CASES: MedCase[] = [
   {
     id: 'fraktur',
     diagnosis: 'Unterarmbruch (Radiusfraktur)',
-    diagnosisEt: 'Küünarvarre murd',
     distractors: ['Schulterluxation', 'Schlaganfall', 'Sehnenscheidenentzündung'],
     difficulty: 1,
     patient: { name: 'Mart Kallas', age: 41, sex: 'm' },

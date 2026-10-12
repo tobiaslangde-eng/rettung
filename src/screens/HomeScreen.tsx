@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { EcgStrip, MonitorScene, StarOfLife, WarnStripes } from '../components/Ems';
-import { Button, EstonianFlag, Eyebrow } from '../components/UI';
+import { Button, Eyebrow } from '../components/UI';
 import { CASES } from '../data/cases';
 import { DIFFICULTIES, Difficulty } from '../game/difficulty';
 import { rankFor } from '../game/scoring';
@@ -56,14 +56,10 @@ export function HomeScreen({
             <StatusLight />
             <Text style={styles.statusText}>Einsatzbereit</Text>
           </View>
-          <View style={styles.status}>
-            <EstonianFlag width={16} />
-            <Text style={styles.statusText}>Eesti</Text>
-          </View>
         </View>
         <View style={styles.heroText}>
-          <Text style={styles.title}>Kiirabi</Text>
-          <Text style={styles.subtitle}>Rettungseinsatz · Ich erkenne. Ich messe. Ich handle.</Text>
+          <Text style={styles.title}>Einsatz 112</Text>
+          <Text style={styles.subtitle}>Ich bin Sanitäter/in. Ich erkenne. Ich messe. Ich handle.</Text>
         </View>
         <View style={styles.ecg}>
           <EcgStrip height={64} />
@@ -82,9 +78,8 @@ export function HomeScreen({
             <StarOfLife size={44} outline={colors.graphit} />
           </View>
           <View style={{ flex: 1, minWidth: 0 }}>
-            <Eyebrow et="Auaste" de="Mein Dienstgrad" />
+            <Eyebrow title="Mein Dienstgrad" />
             <Text style={styles.rankName}>{rank.de}</Text>
-            <Text style={styles.rankEt}>{rank.et}</Text>
             <View style={styles.bar}>
               <View style={[styles.barFill, { width: `${pct * 100}%` }]} />
             </View>
@@ -110,7 +105,7 @@ export function HomeScreen({
         )}
 
         <View style={{ gap: spacing.sm }}>
-          <Eyebrow et="Raskusaste" de="Schwierigkeit" />
+          <Eyebrow title="Schwierigkeit" />
           <View style={styles.diffRow}>
             {DIFFICULTIES.map((d) => {
               const active = progress.difficulty === d.id;
@@ -135,7 +130,6 @@ export function HomeScreen({
                     ))}
                   </View>
                   <Text style={[styles.diffLabel, active && { color: colors.weiss }]}>{d.label}</Text>
-                  <Text style={[styles.diffEt, active && { color: colors.grau300 }]}>{d.et}</Text>
                 </Pressable>
               );
             })}
@@ -143,15 +137,15 @@ export function HomeScreen({
           <Text style={type.small}>{current.description}</Text>
         </View>
 
-        <Button label="Schicht beginnen" sub="Alusta väljakutset" variant="alarm" onPress={onStart} />
+        <Button label="Schicht beginnen" variant="alarm" onPress={onStart} />
         <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-          <Button label="Lexikon" sub="Leksikon" variant="dark" onPress={onLexikon} style={{ flex: 1 }} />
-          <Button label="Anleitung" sub="Juhend" variant="outline" onPress={onGuide} style={{ flex: 1 }} />
+          <Button label="Lexikon" variant="dark" onPress={onLexikon} style={{ flex: 1 }} />
+          <Button label="Anleitung" variant="outline" onPress={onGuide} style={{ flex: 1 }} />
         </View>
 
         <Text style={[type.small, { textAlign: 'center' }]}>
           Lernspiel – ersetzt keine medizinische Ausbildung und keine ärztliche Beratung.{'\n'}
-          Im Notfall: 112 (Estland & EU).
+          Im echten Notfall immer: 112.
         </Text>
       </View>
     </ScrollView>
@@ -223,7 +217,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   rankName: { fontFamily: fonts.displayBlack, fontSize: 26, color: colors.graphit, textTransform: 'uppercase', marginTop: 2 },
-  rankEt: { fontFamily: fonts.italic, fontSize: 13, color: colors.grau500 },
   bar: { height: 6, backgroundColor: colors.grau200, marginVertical: spacing.sm, borderRadius: 3, overflow: 'hidden' },
   barFill: { height: 6, backgroundColor: colors.signalrot },
   stats: { flexDirection: 'row', alignItems: 'stretch' },
@@ -248,5 +241,4 @@ const styles = StyleSheet.create({
   levelBars: { flexDirection: 'row', alignItems: 'flex-end', gap: 3, height: 18, marginBottom: 4 },
   levelBar: { width: 6, borderRadius: 1, backgroundColor: colors.grau300 },
   diffLabel: { fontFamily: fonts.displayBlack, fontSize: 20, color: colors.graphit, textTransform: 'uppercase' },
-  diffEt: { fontFamily: fonts.semibold, fontSize: 10, color: colors.grau500, letterSpacing: 1.5, textTransform: 'uppercase' },
 });

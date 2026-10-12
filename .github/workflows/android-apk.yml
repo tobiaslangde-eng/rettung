@@ -1,4 +1,4 @@
-# Baut alle Versionen von Kiirabi und stellt sie unter „Releases“ zum Herunterladen bereit:
+# Baut alle Versionen von Einsatz 112 und stellt sie unter „Releases“ zum Herunterladen bereit:
 #   - Android-App (APK)
 #   - iOS-App als unsignierte .ipa (zum Sideloaden, z. B. mit Sideloadly oder AltStore)
 #   - Desktop-App für Windows (.exe), macOS (.dmg) und Linux (.AppImage)
@@ -57,8 +57,8 @@ jobs:
       - name: Dateien sammeln
         run: |
           mkdir -p out
-          cp android/app/build/outputs/apk/release/app-release.apk out/Kiirabi.apk
-          cp dist/kiirabi.html out/Kiirabi-Web.html
+          cp android/app/build/outputs/apk/release/app-release.apk out/Einsatz112.apk
+          cp dist/kiirabi.html out/Einsatz112-Web.html
 
       - uses: actions/upload-artifact@v4
         with:
@@ -87,7 +87,7 @@ jobs:
       - name: App bauen (ohne Signatur)
         run: |
           set -o pipefail
-          xcodebuild -workspace ios/Kiirabi.xcworkspace -scheme Kiirabi -configuration Release \
+          xcodebuild -workspace ios/Einsatz112.xcworkspace -scheme Einsatz112 -configuration Release \
             -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath ios/build \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
             build | tail -n 80
@@ -95,8 +95,8 @@ jobs:
       - name: IPA packen
         run: |
           mkdir -p out/Payload
-          cp -R ios/build/Build/Products/Release-iphoneos/Kiirabi.app out/Payload/
-          cd out && zip -qry Kiirabi-iOS-unsigniert.ipa Payload && rm -rf Payload
+          cp -R ios/build/Build/Products/Release-iphoneos/Einsatz112.app out/Payload/
+          cd out && zip -qry Einsatz112-iOS-unsigniert.ipa Payload && rm -rf Payload
           ls -la
 
       - uses: actions/upload-artifact@v4
@@ -111,13 +111,13 @@ jobs:
         include:
           - os: windows-latest
             target: dist:win
-            files: desktop/release/Kiirabi-Windows.exe
+            files: desktop/release/Einsatz112-Windows.exe
           - os: macos-latest
             target: dist:mac
-            files: desktop/release/Kiirabi-Mac-*.dmg
+            files: desktop/release/Einsatz112-Mac-*.dmg
           - os: ubuntu-latest
             target: dist:linux
-            files: desktop/release/Kiirabi-Linux.AppImage
+            files: desktop/release/Einsatz112-Linux.AppImage
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
@@ -167,20 +167,20 @@ jobs:
         with:
           tag_name: app-${{ github.run_number }}
           target_commitish: ${{ github.sha }}
-          name: Kiirabi – Build ${{ github.run_number }}
+          name: Einsatz 112 – Build ${{ github.run_number }}
           make_latest: true
           body: |
-            **Kiirabi – Rettungseinsatz**, automatisch gebaut aus `${{ github.ref_name }}` (${{ github.sha }}).
+            **Einsatz 112 – Rettungsdienst-Lernspiel**, automatisch gebaut aus `${{ github.ref_name }}` (${{ github.sha }}).
 
             | Gerät | Datei | So startest du es |
             |---|---|---|
-            | Windows | **Kiirabi-Windows.exe** | Doppelklick. Bei „Der Computer wurde durch Windows geschützt“: *Weitere Informationen* → *Trotzdem ausführen*. |
-            | Mac (Apple-Chip M1–M4) | **Kiirabi-Mac-arm64.dmg** | Öffnen, Kiirabi in „Programme“ ziehen. Beim ersten Start: Rechtsklick auf Kiirabi → *Öffnen* (oder Systemeinstellungen → Datenschutz & Sicherheit → *Trotzdem öffnen*). |
-            | Mac (Intel) | **Kiirabi-Mac-x64.dmg** | wie oben |
-            | Linux | **Kiirabi-Linux.AppImage** | Ausführbar machen (`chmod +x`), dann starten. |
-            | iPhone/iPad | **Kiirabi-iOS-unsigniert.ipa** | Mit [Sideloadly](https://sideloadly.io) oder [AltStore](https://altstore.io) und deiner Apple-ID installieren (am Computer, iPhone per Kabel). Mit kostenloser Apple-ID läuft die App 7 Tage, danach erneut installieren. |
-            | Android | **Kiirabi.apk** | Auf dem Handy öffnen und „Installation aus unbekannten Quellen“ erlauben. |
-            | Jeder Browser | **Kiirabi-Web.html** | Herunterladen und öffnen, läuft auch offline. |
+            | Windows | **Einsatz112-Windows.exe** | Doppelklick. Bei „Der Computer wurde durch Windows geschützt“: *Weitere Informationen* → *Trotzdem ausführen*. |
+            | Mac (Apple-Chip M1–M4) | **Einsatz112-Mac-arm64.dmg** | Öffnen, Einsatz 112 in „Programme“ ziehen. Beim ersten Start: Rechtsklick auf Einsatz 112 → *Öffnen* (oder Systemeinstellungen → Datenschutz & Sicherheit → *Trotzdem öffnen*). |
+            | Mac (Intel) | **Einsatz112-Mac-x64.dmg** | wie oben |
+            | Linux | **Einsatz112-Linux.AppImage** | Ausführbar machen (`chmod +x`), dann starten. |
+            | iPhone/iPad | **Einsatz112-iOS-unsigniert.ipa** | Mit [Sideloadly](https://sideloadly.io) oder [AltStore](https://altstore.io) und deiner Apple-ID installieren (am Computer, iPhone per Kabel). Mit kostenloser Apple-ID läuft die App 7 Tage, danach erneut installieren. |
+            | Android | **Einsatz112.apk** | Auf dem Handy öffnen und „Installation aus unbekannten Quellen“ erlauben. |
+            | Jeder Browser | **Einsatz112-Web.html** | Herunterladen und öffnen, läuft auch offline. |
 
             Die Desktop-Apps sind nicht von Microsoft/Apple zertifiziert, deshalb fragt das System beim ersten Start nach.
           files: out/*

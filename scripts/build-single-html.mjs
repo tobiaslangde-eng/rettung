@@ -30,7 +30,7 @@ js = js.replace(/"\/(assets\/[^"]+\/([A-Za-z]+_\w+?)\.[0-9a-f]+\.ttf)"/g, (whole
 // "</script" im Bundle würde das Inline-Script vorzeitig beenden.
 js = js.replace(/<\/script/gi, '<\\/script');
 
-const html = `<title>Kiirabi Rettungseinsatz</title>
+const html = `<title>Einsatz 112</title>
 <style>
   /* Ein Spielbildschirm im Handyformat, auf breiten Screens mittig vor Schwarz. */
   :root {
@@ -59,7 +59,7 @@ const html = `<title>Kiirabi Rettungseinsatz</title>
     #root { box-shadow: none; }
   }
 </style>
-<noscript>Bitte JavaScript aktivieren, um Kiirabi zu spielen.</noscript>
+<noscript>Bitte JavaScript aktivieren, um Einsatz 112 zu spielen.</noscript>
 <div id="root"></div>
 <script>${js}</script>
 `;
@@ -75,7 +75,7 @@ const doc = fragment
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Kiirabi">
+<meta name="apple-mobile-web-app-title" content="Einsatz 112">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">

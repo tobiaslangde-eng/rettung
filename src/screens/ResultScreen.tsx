@@ -6,8 +6,7 @@ import { DIFFICULTY_BY_ID } from '../game/difficulty';
 import { CaseRun, ScoreResult, conditionOutcome } from '../game/scoring';
 import { colors, spacing, type, fonts } from '../theme';
 
-const PRAISE = ['Nii ja naa …', 'Hea katse!', 'Tubli!', 'Suurepärane!'];
-const PRAISE_DE = ['Da geht noch was', 'Guter Versuch', 'Gut gemacht', 'Ausgezeichnet'];
+const PRAISE = ['Da geht noch was', 'Guter Versuch', 'Gut gemacht!', 'Ausgezeichnet!'];
 
 export function ResultScreen({
   run,
@@ -27,7 +26,7 @@ export function ResultScreen({
   const outcome = conditionOutcome(run.condition, c.patient.name.split(' ')[0]);
   return (
     <View style={{ flex: 1 }}>
-      <TopBar et="Tulemus" title="Mein Einsatzbericht" onBack={onHome} />
+      <TopBar kicker="Einsatz beendet" title="Mein Einsatzbericht" onBack={onHome} />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.hero}>
           <View style={StyleSheet.absoluteFill}>
@@ -39,7 +38,6 @@ export function ResultScreen({
             ))}
           </View>
           <Text style={styles.praise}>{PRAISE[result.stars]}</Text>
-          <Text style={styles.praiseDe}>{PRAISE_DE[result.stars]}</Text>
           <Text style={styles.points}>
             +{result.total} <Text style={styles.pointsMax}>Punkte</Text>
           </Text>
@@ -53,7 +51,7 @@ export function ResultScreen({
           </View>
         </View>
         <Card style={{ borderLeftColor: run.condition >= 70 ? colors.gruen : run.condition >= 40 ? colors.amber : colors.signalrot }}>
-          <Eyebrow et="Haiglas" de="In der Klinik" />
+          <Eyebrow title="In der Klinik" />
           <Text style={[type.body, { marginTop: spacing.xs }]}>
             <Text style={{ fontFamily: fonts.regular, fontSize: 22 }}>{outcome.emoji} </Text>
             {outcome.text}
@@ -62,7 +60,7 @@ export function ResultScreen({
         <WarnStripes />
 
         <Card>
-          <Eyebrow et="Punktid" de="Meine Wertung" />
+          <Eyebrow title="Meine Wertung" />
           {result.lines.map((l, i) => (
             <View key={i} style={styles.line}>
               <Text style={[type.body, { flex: 1 }]}>{l.label}</Text>
@@ -75,9 +73,8 @@ export function ResultScreen({
         </Card>
 
         <Card style={{ borderLeftColor: result.diagnosisCorrect ? colors.gruen : colors.signalrot }}>
-          <Eyebrow et="Diagnoos" de="Diagnose" />
+          <Eyebrow title="Diagnose" />
           <Text style={[type.h2, { marginTop: spacing.xs }]}>{c.diagnosis}</Text>
-          <Text style={type.small}>Estnisch: {c.diagnosisEt}</Text>
           {!result.diagnosisCorrect && (
             <Text style={[type.small, { color: colors.signalrot, marginTop: spacing.xs }]}>
               Mein Verdacht war: {run.diagnosisGuess}
@@ -93,7 +90,7 @@ export function ResultScreen({
         </Card>
 
         <Card style={{ borderLeftColor: colors.graphit }}>
-          <Eyebrow et="Väärtused" de="Meine Messwerte" />
+          <Eyebrow title="Meine Messwerte" />
           {run.measured.map((m) => {
             const truth = rateVital(m.id, c.vitals[m.id]);
             const ok = truth === null || truth === m.guess;
@@ -117,7 +114,7 @@ export function ResultScreen({
         </Card>
 
         <Card>
-          <Eyebrow et="Ravi" de="Meine Maßnahmen" />
+          <Eyebrow title="Meine Maßnahmen" />
           {c.treatments.map((t, i) => {
             const chosen = run.treatmentGuess.includes(i);
             const ok = chosen === t.correct;
@@ -134,8 +131,8 @@ export function ResultScreen({
           })}
         </Card>
 
-        <Button label="Nächster Einsatz" sub="Järgmine väljakutse" variant="alarm" onPress={onNext} />
-        <Button label="Zum Hauptmenü" sub="Avaleht" variant="outline" onPress={onHome} />
+        <Button label="Nächster Einsatz" variant="alarm" onPress={onNext} />
+        <Button label="Zum Hauptmenü" variant="outline" onPress={onHome} />
       </ScrollView>
     </View>
   );

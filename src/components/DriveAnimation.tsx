@@ -40,7 +40,7 @@ export function DriveAnimation({ location, onDone }: { location: string; onDone:
   return (
     <Pressable style={styles.root} onPress={onDone} accessibilityLabel="Fahrt überspringen">
       <View style={styles.text}>
-        <Text style={styles.et}>Sõidame!</Text>
+        <Text style={styles.et}>Einsatzfahrt</Text>
         <Text style={styles.title}>Ich fahre mit Blaulicht los …</Text>
         <Text style={styles.loc}>{location}</Text>
       </View>

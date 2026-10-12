@@ -1,7 +1,7 @@
 {
-  "name": "Kiirabi – Rettungseinsatz",
-  "short_name": "Kiirabi",
-  "description": "Medizinisches Lernspiel: Als Sanitäter/in in Estland Werte messen, Krankheiten erkennen und richtig handeln.",
+  "name": "Einsatz 112 – Rettungsdienst-Lernspiel",
+  "short_name": "Einsatz 112",
+  "description": "Medizinisches Lernspiel: Als Sanitäter/in Werte messen, Krankheiten erkennen und richtig handeln.",
   "lang": "de",
   "start_url": "./",
   "scope": "./",

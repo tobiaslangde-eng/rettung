@@ -1,4 +1,4 @@
-# Kiirabi – Rettungseinsatz 🚑
+# Einsatz 112 – Rettungsdienst-Lernspiel 🚑
 
 Ein medizinisches Lernspiel mit **Expo / React Native** im **estnischen Design**, erzählt in der
 **Ich-Perspektive**: Ich bin Sanitäter/in im estnischen Rettungsdienst (*kiirabi*), fahre mit meiner
@@ -48,7 +48,7 @@ Der Fortschritt wird lokal gespeichert. Im **Lexikon** findest du Normwerte und 
 - **Rot-weiße Warnmarkierung** wie am Heck eines Rettungswagens, **Reflexstreifen** (Gelb–Silber–Gelb)
   wie an der Einsatzkleidung
 - Graphit, Signalrot und Blaulicht-Blau auf neutralem Grau; Schriften *Barlow Condensed* und *Barlow*
-- Estland bleibt dezent: Einsatzorte, estnische Begriffe und eine kleine Flagge
+- Komplett auf Deutsch; die Einsätze spielen in Estland (Tallinn, Tartu, Pärnu …)
 
 Die Grafiken sind Vektorgrafiken (`react-native-svg`) in `src/components/Ems.tsx`.
 
@@ -56,12 +56,12 @@ Die Grafiken sind Vektorgrafiken (`react-native-svg`) in `src/components/Ems.tsx
 
 Bei jedem Push baut GitHub Actions (`.github/workflows/android-apk.yml`) automatisch:
 
-- **Kiirabi-Windows.exe** – Desktop-App für Windows (Doppelklick, keine Installation)
-- **Kiirabi-Mac-arm64.dmg / Kiirabi-Mac-x64.dmg** – Desktop-App für Mac (Apple-Chip / Intel)
-- **Kiirabi-Linux.AppImage** – Desktop-App für Linux
-- **Kiirabi.apk** – die Android-App
-- **Kiirabi-iOS-unsigniert.ipa** – iOS-App zum Sideloaden mit [Sideloadly](https://sideloadly.io) oder [AltStore](https://altstore.io) und der eigenen Apple-ID (kostenlose Apple-ID: läuft 7 Tage, dann neu installieren)
-- **Kiirabi-Web.html** – das ganze Spiel als eine Datei für jeden Browser, auch offline
+- **Einsatz112-Windows.exe** – Desktop-App für Windows (Doppelklick, keine Installation)
+- **Einsatz112-Mac-arm64.dmg / Einsatz112-Mac-x64.dmg** – Desktop-App für Mac (Apple-Chip / Intel)
+- **Einsatz112-Linux.AppImage** – Desktop-App für Linux
+- **Einsatz112.apk** – die Android-App
+- **Einsatz112-iOS-unsigniert.ipa** – iOS-App zum Sideloaden mit [Sideloadly](https://sideloadly.io) oder [AltStore](https://altstore.io) und der eigenen Apple-ID (kostenlose Apple-ID: läuft 7 Tage, dann neu installieren)
+- **Einsatz112-Web.html** – das ganze Spiel als eine Datei für jeden Browser, auch offline
 
 Die Desktop-Apps (Ordner `desktop/`, Electron) laden die Web-Version in ein eigenes Fenster und laufen
 offline. Sie sind nicht von Microsoft/Apple zertifiziert: Windows zeigt beim ersten Start „Weitere

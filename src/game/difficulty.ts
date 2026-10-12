@@ -3,7 +3,6 @@ export type Difficulty = 'leicht' | 'mittel' | 'schwer';
 export interface DifficultyDef {
   id: Difficulty;
   label: string;
-  et: string;
   icon: string;
   description: string;
   /** Welche Fall-Schwierigkeiten im Pool sind */
@@ -27,7 +26,6 @@ export const DIFFICULTIES: DifficultyDef[] = [
   {
     id: 'leicht',
     label: 'Leicht',
-    et: 'Kerge',
     icon: '◆◇◇',
     description: 'Einfache Fälle. Normwerte werden angezeigt, Kati hilft mir gratis.',
     caseLevels: [1],
@@ -41,7 +39,6 @@ export const DIFFICULTIES: DifficultyDef[] = [
   {
     id: 'mittel',
     label: 'Mittel',
-    et: 'Keskmine',
     icon: '◆◆◇',
     description: 'Normwerte muss ich kennen. Katis Tipps kosten Punkte. ×1,5 Punkte.',
     caseLevels: [2],
@@ -55,7 +52,6 @@ export const DIFFICULTIES: DifficultyDef[] = [
   {
     id: 'schwer',
     label: 'Schwer',
-    et: 'Raske',
     icon: '◆◆◆',
     description: 'Komplexe Fälle, keine Hilfe, Feedback erst im Bericht – und der Patient verschlechtert sich in Echtzeit! ×2 Punkte.',
     caseLevels: [2, 3],
