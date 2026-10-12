@@ -62,7 +62,7 @@ Bei jedem Push baut GitHub Actions (`.github/workflows/android-apk.yml`) automat
 
 Beides liegt unter **Releases** im Repository (neuester Build oben).
 Android: APK auf dem Handy öffnen und „Installation aus unbekannten Quellen“ erlauben.
-Für iPhone ist ein Apple-Entwicklerkonto nötig (`npx eas-cli@latest build -p ios`); bis dahin läuft das Spiel dort über Expo Go oder im Browser.
+**iPhone / App Store:** Schritt-für-Schritt-Anleitung in [`docs/APPLE-RELEASE.md`](docs/APPLE-RELEASE.md) (Apple-Entwicklerkonto nötig, kein Mac nötig). Updates danach über den Workflow „iOS Release“.
 
 ## Starten
 

@@ -8,8 +8,11 @@
     "userInterfaceStyle": "light",
     "backgroundColor": "#EEF3F8",
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "ee.kiirabi.rettung"
+      "supportsTablet": false,
+      "bundleIdentifier": "ee.kiirabi.rettung",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "ee.kiirabi.rettung",
