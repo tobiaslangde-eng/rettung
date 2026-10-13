@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
 import { BADGE_BONUS } from '../game/achievements';
+import { CPR_POINTS } from '../game/cpr';
+import { DAILY_GOAL, dailyGoalBonus } from '../game/daily';
 import { QUIZ_POINTS } from '../game/quiz';
 import { DIFFICULTIES } from '../game/difficulty';
 import { POINTS } from '../game/scoring';
@@ -34,6 +36,13 @@ export function GuideScreen({ onBack, onReset }: { onBack: () => void; onReset: 
             <Text style={[type.body, { marginTop: spacing.xs }]}>{s.text}</Text>
           </Card>
         ))}
+        <Card style={{ borderLeftColor: colors.warngelb }}>
+          <Eyebrow title="Tagesdienst" />
+          <Text style={[type.body, { marginTop: spacing.xs }]}>
+            Jeden Tag gibt es einen „Einsatz des Tages“ mit 50 % mehr Punkten. Wer {DAILY_GOAL} Einsätze an einem Tag schafft,
+            erreicht das Tagesziel. Schaffe ich das mehrere Tage hintereinander, wächst meine Dienst-Serie – und der Bonus mit.
+          </Text>
+        </Card>
         <Card style={{ borderLeftColor: colors.blaulicht }}>
           <Eyebrow title="Schwierigkeit" />
           {DIFFICULTIES.map((d) => (
@@ -59,7 +68,10 @@ export function GuideScreen({ onBack, onReset }: { onBack: () => void; onReset: 
           <Row label="Perfekter Einsatz (3 Sterne)" pts={POINTS.perfectBonus} />
           <Row label={`Serienbonus je gutem Einsatz in Folge (max. ${POINTS.streakMax})`} pts={POINTS.streakPerLevel} />
           <Row label="Neues Abzeichen" pts={BADGE_BONUS} />
-          <Row label="Schnelltraining: je richtigem Wert" pts={QUIZ_POINTS} />
+          <Row label="Einsatz des Tages" pts={0} text="+50 %" />
+          <Row label={`Tagesziel (${DAILY_GOAL} Einsätze), steigt mit der Dienst-Serie`} pts={dailyGoalBonus(1)} text={`+${dailyGoalBonus(1)}–${dailyGoalBonus(6)}`} />
+          <Row label="Normwerte & Wissensfragen: je richtiger Antwort" pts={QUIZ_POINTS} />
+          <Row label="Herzdruckmassage (ohne Taktgeber doppelt)" pts={CPR_POINTS} text={`bis +${CPR_POINTS * 2}`} />
           <Text style={[type.small, { marginTop: spacing.sm }]}>
             Auf „Mittel“ zählen alle Punkte eines Einsatzes ×1,5, auf „Schwer“ ×2.
           </Text>
@@ -92,13 +104,12 @@ export function GuideScreen({ onBack, onReset }: { onBack: () => void; onReset: 
   );
 }
 
-function Row({ label, pts }: { label: string; pts: number }) {
+function Row({ label, pts, text }: { label: string; pts: number; text?: string }) {
   return (
     <View style={styles.row}>
       <Text style={[type.body, { flex: 1 }]}>{label}</Text>
       <Text style={{ fontFamily: fonts.extrabold, color: pts < 0 ? colors.signalrot : colors.blaulicht }}>
-        {pts > 0 ? '+' : ''}
-        {pts}
+        {text ?? `${pts > 0 ? '+' : ''}${pts}`}
       </Text>
     </View>
   );

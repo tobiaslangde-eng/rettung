@@ -21,6 +21,21 @@ export interface Progress {
   quizBest: number;
   /** Freigeschaltete Abzeichen (IDs) */
   badges: string[];
+  /** Tagesdienst: Tag (JJJJ-MM-TT), auf den sich `dayCases` bezieht */
+  dayKey: string;
+  /** Einsätze an diesem Tag */
+  dayCases: number;
+  /** Tag, an dem der „Einsatz des Tages“ zuletzt gespielt wurde */
+  dailyCaseDay: string;
+  /** Tag, an dem das Tagesziel zuletzt erreicht wurde */
+  lastGoalDay: string;
+  /** Tage in Folge mit erreichtem Tagesziel */
+  dayStreak: number;
+  bestDayStreak: number;
+  /** Bestes Ergebnis bei den Wissensfragen (von 10) */
+  knowBest: number;
+  /** Beste Trefferquote bei der Herzdruckmassage in Prozent */
+  cprBest: number;
 }
 
 export const EMPTY_PROGRESS: Progress = {
@@ -34,6 +49,14 @@ export const EMPTY_PROGRESS: Progress = {
   hardWins: 0,
   quizBest: 0,
   badges: [],
+  dayKey: '',
+  dayCases: 0,
+  dailyCaseDay: '',
+  lastGoalDay: '',
+  dayStreak: 0,
+  bestDayStreak: 0,
+  knowBest: 0,
+  cprBest: 0,
 };
 
 export async function loadProgress(): Promise<Progress> {

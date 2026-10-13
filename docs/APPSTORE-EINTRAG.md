@@ -36,9 +36,10 @@ In dieser Reihenfolge hochladen – Apple skaliert sie für kleinere iPhones sel
 >
 > • 24 Einsätze: Herzinfarkt, Schlaganfall, Unterzuckerung, Anaphylaxie, Sepsis, Kohlenmonoxid, Spannungspneumothorax, Opioid-Überdosis und mehr
 > • Drei Schwierigkeitsstufen – Leicht mit Hilfe meiner Kollegin Kati, Schwer mit Zeitdruck in Echtzeit
-> • Schnelltraining für Normwerte und 10 Abzeichen zum Freispielen
+> • Tagesdienst: jeden Tag ein „Einsatz des Tages“, Tagesziel und Dienst-Serie
+> • Training: Herzdruckmassage im richtigen Takt, 44 Wissensfragen, Normwerte-Schnelltraining
+> • 14 Abzeichen zum Freispielen und Beförderungen bis zur Rettungsdienst-Legende
 > • Lexikon mit Normwerten, Krankheitsbildern und Rettungswissen (ABCDE, Wiederbelebung, Notruf)
-> • Ränge vom Praktikanten bis zur Teamleitung
 > • Look wie im echten Rettungsdienst: Patientenmonitor mit EKG, Warnmarkierung, Reflexstreifen
 > • Ohne Werbung, ohne Konto, ohne Datenerfassung
 >

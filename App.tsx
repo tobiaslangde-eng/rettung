@@ -14,13 +14,17 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StarOfLife } from './src/components/Ems';
 import { CASES, MedCase } from './src/data/cases';
 import { Badge, awardBadges } from './src/game/achievements';
+import { CprResult } from './src/game/cpr';
+import { DAILY_CASE_BONUS, dailyCase, registerDailyCase } from './src/game/daily';
 import { DIFFICULTY_BY_ID, Difficulty } from './src/game/difficulty';
 import { QUIZ_POINTS } from './src/game/quiz';
-import { CaseRun, ScoreResult, scoreRun } from './src/game/scoring';
+import { CaseRun, ScoreResult, rankFor, scoreRun } from './src/game/scoring';
 import { EMPTY_PROGRESS, Progress, loadProgress, saveProgress } from './src/game/storage';
 import { CaseScreen } from './src/screens/CaseScreen';
+import { CprScreen } from './src/screens/CprScreen';
 import { GuideScreen } from './src/screens/GuideScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
+import { KnowledgeScreen } from './src/screens/KnowledgeScreen';
 import { LexikonScreen } from './src/screens/LexikonScreen';
 import { QuizScreen } from './src/screens/QuizScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
@@ -31,8 +35,10 @@ type Screen =
   | { name: 'lexikon' }
   | { name: 'guide' }
   | { name: 'quiz'; key: number }
-  | { name: 'case'; medCase: MedCase; key: number }
-  | { name: 'result'; run: CaseRun; result: ScoreResult; newBadges: Badge[] };
+  | { name: 'wissen'; key: number }
+  | { name: 'cpr'; key: number }
+  | { name: 'case'; medCase: MedCase; daily: boolean; key: number }
+  | { name: 'result'; run: CaseRun; result: ScoreResult; newBadges: Badge[]; goalBonus: number; promotion?: string };
 
 /** Wählt passend zur Schwierigkeit bevorzugt ungemeisterte Fälle, nie denselben Fall zweimal hintereinander. */
 function pickCase(progress: Progress, lastId?: string): MedCase {
@@ -61,17 +67,38 @@ export default function App() {
     loadProgress().then(setProgress);
   }, []);
 
-  const startCase = () => {
-    const medCase = pickCase(progress, lastCaseId.current);
+  const startCase = (daily = false) => {
+    const medCase = daily ? dailyCase(progress) : pickCase(progress, lastCaseId.current);
     lastCaseId.current = medCase.id;
-    setScreen({ name: 'case', medCase, key: Date.now() });
+    setScreen({ name: 'case', medCase, daily, key: Date.now() });
   };
 
-  const finishCase = (run: CaseRun) => {
-    const result = scoreRun(run, progress.streak);
+  /** Speichert neuen Fortschritt inkl. Abzeichen; liefert neue Abzeichen und ggf. den neuen Dienstgrad. */
+  const commit = (updated: Progress) => {
+    const { progress: next, newBadges } = awardBadges(updated);
+    const before = rankFor(progress.totalPoints).rank;
+    const after = rankFor(next.totalPoints).rank;
+    setProgress(next);
+    saveProgress(next);
+    return { newBadges, promotion: after.min > before.min ? after.de : undefined };
+  };
+
+  const finishCase = (run: CaseRun, daily: boolean) => {
+    const scored = scoreRun(run, progress.streak);
+    const result: ScoreResult = { ...scored, lines: [...scored.lines] };
+    if (daily) {
+      const extra = Math.round(scored.total * DAILY_CASE_BONUS);
+      result.lines.push({ label: 'Einsatz des Tages (+50 %)', points: extra });
+      result.total += extra;
+    }
+    const day = registerDailyCase(progress, daily);
+    if (day.goalBonus > 0) {
+      result.lines.push({ label: `Tagesziel erreicht (${day.progress.dayStreak}. Tag in Folge)`, points: day.goalBonus });
+      result.total += day.goalBonus;
+    }
     const id = run.medCase.id;
     const updated: Progress = {
-      ...progress,
+      ...day.progress,
       streak: result.stars >= 2 ? progress.streak + 1 : 0,
       totalPoints: progress.totalPoints + result.total,
       casesPlayed: progress.casesPlayed + 1,
@@ -80,21 +107,32 @@ export default function App() {
       perfectRuns: progress.perfectRuns + (result.stars === 3 ? 1 : 0),
       hardWins: progress.hardWins + (run.difficulty === 'schwer' && result.stars >= 2 ? 1 : 0),
     };
-    const { progress: next, newBadges } = awardBadges(updated);
-    setProgress(next);
-    saveProgress(next);
-    setScreen({ name: 'result', run, result, newBadges });
+    const { newBadges, promotion } = commit(updated);
+    setScreen({ name: 'result', run, result, newBadges, goalBonus: day.goalBonus, promotion });
   };
 
   const finishQuiz = (correct: number) => {
-    const updated: Progress = {
+    commit({
       ...progress,
       totalPoints: progress.totalPoints + correct * QUIZ_POINTS,
       quizBest: Math.max(progress.quizBest, correct),
-    };
-    const { progress: next } = awardBadges(updated);
-    setProgress(next);
-    saveProgress(next);
+    });
+  };
+
+  const finishKnowledge = (correct: number) => {
+    commit({
+      ...progress,
+      totalPoints: progress.totalPoints + correct * QUIZ_POINTS,
+      knowBest: Math.max(progress.knowBest, correct),
+    });
+  };
+
+  const finishCpr = (r: CprResult) => {
+    commit({
+      ...progress,
+      totalPoints: progress.totalPoints + r.points,
+      cprBest: Math.max(progress.cprBest, r.accuracy),
+    });
   };
 
   const resetProgress = () => {
@@ -129,11 +167,14 @@ export default function App() {
           {screen.name === 'home' && (
             <HomeScreen
               progress={progress}
-              onStart={startCase}
+              onStart={() => startCase()}
+              onDaily={() => startCase(true)}
               onDifficulty={setDifficulty}
               onLexikon={() => setScreen({ name: 'lexikon' })}
               onGuide={() => setScreen({ name: 'guide' })}
               onQuiz={() => setScreen({ name: 'quiz', key: Date.now() })}
+              onKnowledge={() => setScreen({ name: 'wissen', key: Date.now() })}
+              onCpr={() => setScreen({ name: 'cpr', key: Date.now() })}
             />
           )}
           {screen.name === 'lexikon' && <LexikonScreen progress={progress} onBack={home} />}
@@ -141,12 +182,17 @@ export default function App() {
           {screen.name === 'quiz' && (
             <QuizScreen key={screen.key} best={progress.quizBest} onFinish={finishQuiz} onBack={home} />
           )}
+          {screen.name === 'wissen' && (
+            <KnowledgeScreen key={screen.key} best={progress.knowBest} onFinish={finishKnowledge} onBack={home} />
+          )}
+          {screen.name === 'cpr' && <CprScreen key={screen.key} best={progress.cprBest} onFinish={finishCpr} onBack={home} />}
           {screen.name === 'case' && (
             <CaseScreen
               key={screen.key}
               medCase={screen.medCase}
               difficulty={DIFFICULTY_BY_ID[progress.difficulty]}
-              onFinish={finishCase}
+              daily={screen.daily}
+              onFinish={(run) => finishCase(run, screen.daily)}
               onAbort={home}
             />
           )}
@@ -155,8 +201,10 @@ export default function App() {
               run={screen.run}
               result={screen.result}
               newBadges={screen.newBadges}
+              goalBonus={screen.goalBonus}
+              promotion={screen.promotion}
               streak={progress.streak}
-              onNext={startCase}
+              onNext={() => startCase()}
               onHome={home}
             />
           )}

@@ -4,6 +4,7 @@ import { EcgStrip, MonitorScene, StarOfLife, WarnStripes } from '../components/E
 import { Button, Eyebrow } from '../components/UI';
 import { CASES } from '../data/cases';
 import { BADGES } from '../game/achievements';
+import { DAILY_GOAL, dailyCase, dailyGoalBonus, dayState } from '../game/daily';
 import { DIFFICULTIES, Difficulty } from '../game/difficulty';
 import { rankFor } from '../game/scoring';
 import { Progress } from '../game/storage';
@@ -30,18 +31,26 @@ function StatusLight() {
 export function HomeScreen({
   progress,
   onStart,
+  onDaily,
   onDifficulty,
   onLexikon,
   onGuide,
   onQuiz,
+  onKnowledge,
+  onCpr,
 }: {
   progress: Progress;
   onStart: () => void;
+  onDaily: () => void;
   onDifficulty: (d: Difficulty) => void;
   onLexikon: () => void;
   onGuide: () => void;
   onQuiz: () => void;
+  onKnowledge: () => void;
+  onCpr: () => void;
 }) {
+  const day = dayState(progress);
+  const todays = dailyCase(progress);
   const { rank, next } = rankFor(progress.totalPoints);
   const span = next ? next.min - rank.min : 1;
   const pct = next ? Math.min(1, (progress.totalPoints - rank.min) / span) : 1;
@@ -141,15 +150,62 @@ export function HomeScreen({
         </View>
 
         <Button label="Schicht beginnen" variant="alarm" onPress={onStart} />
-        <Pressable onPress={onQuiz} accessibilityRole="button" style={({ pressed }) => [styles.quiz, pressed && { opacity: 0.85 }]}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.quizTitle}>Schnelltraining Normwerte</Text>
-            <Text style={styles.quizSub}>
-              10 Werte, schnell einschätzen{progress.quizBest > 0 ? ` · Bestwert ${progress.quizBest}/10` : ''}
+
+        <View style={styles.daily}>
+          <View style={styles.dailyHead}>
+            <Text style={styles.dailyEyebrow}>Heutiger Dienst</Text>
+            <Text style={styles.dailyStreak}>
+              📅 {day.streak > 0 ? `${day.streak} ${day.streak === 1 ? 'Tag' : 'Tage'} in Folge` : 'Serie starten'}
             </Text>
           </View>
-          <Text style={styles.quizArrow}>›</Text>
-        </Pressable>
+          <View style={styles.segments}>
+            {Array.from({ length: DAILY_GOAL }, (_, i) => (
+              <View key={i} style={[styles.segment, i < day.cases && styles.segmentOn]} />
+            ))}
+          </View>
+          <Text style={styles.dailyText}>
+            {day.goalDone
+              ? `Tagesziel erreicht ✓ · ${day.cases} Einsätze heute`
+              : `${Math.min(day.cases, DAILY_GOAL)} von ${DAILY_GOAL} Einsätzen · Tagesbonus +${dailyGoalBonus(day.streak + 1)}`}
+          </Text>
+          <Pressable
+            onPress={onDaily}
+            disabled={day.dailyCaseDone}
+            accessibilityRole="button"
+            style={({ pressed }) => [styles.dailyCase, day.dailyCaseDone && styles.dailyCaseDone, pressed && { opacity: 0.85 }]}
+          >
+            <Text style={styles.dailyCaseIcon}>{day.dailyCaseDone ? '✓' : '⭐'}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.dailyCaseTitle, day.dailyCaseDone && { color: colors.grau300 }]}>Einsatz des Tages</Text>
+              <Text style={styles.dailyCaseSub}>
+                {day.dailyCaseDone ? 'Erledigt – morgen wartet ein neuer' : `${todays.location.split(',')[0]} · +50 % Punkte`}
+              </Text>
+            </View>
+            {!day.dailyCaseDone && <Text style={styles.quizArrow}>›</Text>}
+          </Pressable>
+        </View>
+
+        <View style={{ gap: spacing.sm }}>
+          <Eyebrow title="Training" />
+          <Training
+            title="Herzdruckmassage"
+            sub={`Im Takt drücken – 100 bis 120 pro Minute${progress.cprBest > 0 ? ` · Bestwert ${progress.cprBest} %` : ''}`}
+            color={monitor.rr}
+            onPress={onCpr}
+          />
+          <Training
+            title="Wissensfragen"
+            sub={`10 Fragen aus dem Einsatzalltag${progress.knowBest > 0 ? ` · Bestwert ${progress.knowBest}/10` : ''}`}
+            color={monitor.spo2}
+            onPress={onKnowledge}
+          />
+          <Training
+            title="Normwerte"
+            sub={`10 Werte schnell einschätzen${progress.quizBest > 0 ? ` · Bestwert ${progress.quizBest}/10` : ''}`}
+            color={colors.monitorGruen}
+            onPress={onQuiz}
+          />
+        </View>
         <View style={{ flexDirection: 'row', gap: spacing.sm }}>
           <Button label="Lexikon" variant="dark" onPress={onLexikon} style={{ flex: 1 }} />
           <Button label="Anleitung" variant="outline" onPress={onGuide} style={{ flex: 1 }} />
@@ -181,6 +237,19 @@ export function HomeScreen({
         </Text>
       </View>
     </ScrollView>
+  );
+}
+
+function Training({ title, sub, color, onPress }: { title: string; sub: string; color: string; onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" style={({ pressed }) => [styles.quiz, pressed && { opacity: 0.85 }]}>
+      <View style={[styles.trainingDot, { backgroundColor: color }]} />
+      <View style={{ flex: 1 }}>
+        <Text style={[styles.quizTitle, { color }]}>{title}</Text>
+        <Text style={styles.quizSub}>{sub}</Text>
+      </View>
+      <Text style={[styles.quizArrow, { color }]}>›</Text>
+    </Pressable>
   );
 }
 
@@ -268,6 +337,30 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     borderLeftWidth: 0,
   },
+  trainingDot: { width: 10, height: 10, borderRadius: 5 },
+  daily: { backgroundColor: colors.graphit, borderRadius: 6, padding: spacing.lg, gap: spacing.sm },
+  dailyHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  dailyEyebrow: { fontFamily: fonts.extrabold, fontSize: 11, letterSpacing: 1.8, color: colors.warngelb, textTransform: 'uppercase' },
+  dailyStreak: { fontFamily: fonts.bold, fontSize: 13, color: colors.weiss },
+  segments: { flexDirection: 'row', gap: 6 },
+  segment: { flex: 1, height: 8, borderRadius: 2, backgroundColor: colors.graphitSoft },
+  segmentOn: { backgroundColor: colors.warngelb },
+  dailyText: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau300 },
+  dailyCase: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.graphitSoft,
+    borderRadius: 6,
+    padding: spacing.md,
+    marginTop: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.warngelb,
+  },
+  dailyCaseDone: { borderColor: colors.graphitSoft },
+  dailyCaseIcon: { fontSize: 22, fontFamily: fonts.regular, color: colors.monitorGruen },
+  dailyCaseTitle: { fontFamily: fonts.displayBlack, fontSize: 20, color: colors.warngelb, textTransform: 'uppercase' },
+  dailyCaseSub: { fontFamily: fonts.semibold, fontSize: 12, color: colors.grau300 },
   quizTitle: { fontFamily: fonts.displayBlack, fontSize: 20, color: colors.monitorGruen, textTransform: 'uppercase' },
   quizSub: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau300, marginTop: 2 },
   quizArrow: { fontFamily: fonts.regular, fontSize: 34, color: colors.monitorGruen },

@@ -22,6 +22,8 @@ export function QuizScreen({
   onFinish: (correct: number) => void;
   onBack: () => void;
 }) {
+  // Bestwert vor dieser Runde – der Prop `best` ist nach onFinish schon aktualisiert.
+  const [prevBest, setPrevBest] = useState(best);
   const [round, setRound] = useState(0);
   const [quizKey, setQuizKey] = useState(0);
   const questions = useMemo(() => makeQuiz(), [quizKey]);
@@ -51,6 +53,7 @@ export function QuizScreen({
   };
 
   const restart = () => {
+    setPrevBest(best);
     setQuizKey((k) => k + 1);
     setRound(0);
     setAnswers([]);
@@ -79,7 +82,7 @@ export function QuizScreen({
             </View>
           </View>
           <Text style={[type.small, { textAlign: 'center' }]}>
-            {correctCount > best ? 'Neuer Bestwert!' : `Dein Bestwert: ${Math.max(best, correctCount)} / ${QUIZ_ROUNDS}`}
+            {correctCount > prevBest ? 'Neuer Bestwert!' : `Mein Bestwert: ${Math.max(prevBest, correctCount)} / ${QUIZ_ROUNDS}`}
           </Text>
           <Card>
             <Eyebrow title="Auflösung" />

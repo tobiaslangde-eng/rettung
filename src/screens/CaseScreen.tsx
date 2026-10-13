@@ -40,11 +40,13 @@ function conditionColor(condition: number) {
 export function CaseScreen({
   medCase,
   difficulty,
+  daily = false,
   onFinish,
   onAbort,
 }: {
   medCase: MedCase;
   difficulty: DifficultyDef;
+  daily?: boolean;
   onFinish: (run: CaseRun) => void;
   onAbort: () => void;
 }) {
@@ -187,6 +189,7 @@ export function CaseScreen({
             <View style={styles.alarm}>
               <ReflexStripes height={6} />
               <View style={styles.alarmBody}>
+              {daily && <Text style={styles.dailyTag}>⭐ Einsatz des Tages · +50 % Punkte</Text>}
               <Text style={styles.alarmEyebrow}>📟 Alarm · Mein Melder piept!</Text>
               <Text style={styles.alarmText}>Leitstelle: „{medCase.dispatch}“</Text>
               <Text style={styles.alarmLoc}>{medCase.location}</Text>
@@ -453,6 +456,19 @@ const styles = StyleSheet.create({
   conditionValue: { fontFamily: fonts.extrabold, fontSize: 15, color: colors.graphit, width: 44, textAlign: 'right' },
   alarm: { backgroundColor: colors.signalrot, borderRadius: 6, overflow: 'hidden' },
   alarmBody: { padding: spacing.lg },
+  dailyTag: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.warngelb,
+    color: colors.graphit,
+    fontFamily: fonts.extrabold,
+    fontSize: 12,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    marginBottom: spacing.sm,
+    overflow: 'hidden',
+  },
   alarmEyebrow: { color: colors.weiss, fontFamily: fonts.extrabold, letterSpacing: 2, fontSize: 11, textTransform: 'uppercase' },
   alarmText: { color: colors.weiss, fontSize: 22, fontFamily: fonts.display, marginTop: spacing.sm, lineHeight: 27 },
   alarmLoc: { color: colors.weiss, marginTop: spacing.sm, opacity: 0.9, fontFamily: fonts.italic, fontSize: 14 },

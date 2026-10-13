@@ -1,4 +1,6 @@
+import { KnowledgeQuestion, QUESTIONS } from '../data/questions';
 import { Rating, VitalId, VitalValue, rateVital } from '../data/vitals';
+import { shuffle } from './scoring';
 
 /** Punkte je richtig eingeschätztem Wert im Schnelltraining */
 export const QUIZ_POINTS = 5;
@@ -58,4 +60,22 @@ export function makeQuiz(): QuizQuestion[] {
     qs.push(q);
   }
   return qs;
+}
+
+export interface KnowledgeRound {
+  question: KnowledgeQuestion;
+  /** Gemischte Antworten */
+  options: string[];
+  /** Index der richtigen Antwort in `options` */
+  answer: number;
+}
+
+/** 10 zufällige Wissensfragen mit gemischten Antworten. */
+export function makeKnowledgeQuiz(): KnowledgeRound[] {
+  return shuffle(QUESTIONS)
+    .slice(0, QUIZ_ROUNDS)
+    .map((q) => {
+      const options = shuffle(q.answers);
+      return { question: q, options, answer: options.indexOf(q.answers[0]) };
+    });
 }

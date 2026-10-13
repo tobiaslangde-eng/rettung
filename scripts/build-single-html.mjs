@@ -40,6 +40,8 @@ const html = `<title>Einsatz 112</title>
     color-scheme: light;
   }
   html, body { height: 100%; }
+  /* Schnelles Tippen (z. B. Herzdruckmassage) soll nicht zoomen. */
+  html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
   body {
     overflow: hidden;
     background: var(--must);

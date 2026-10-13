@@ -1,8 +1,9 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
-import { EcgStrip, MonitorScene, RatingStar } from '../components/Ems';
+import { EcgStrip, MonitorScene, RatingStar, StarOfLife } from '../components/Ems';
 import { VITAL_BY_ID, formatVital, rateVital } from '../data/vitals';
 import { BADGE_BONUS, Badge } from '../game/achievements';
+import { DAILY_GOAL } from '../game/daily';
 import { DIFFICULTY_BY_ID } from '../game/difficulty';
 import { CaseRun, ScoreResult, conditionOutcome } from '../game/scoring';
 import { colors, spacing, type, fonts } from '../theme';
@@ -13,6 +14,8 @@ export function ResultScreen({
   run,
   result,
   newBadges,
+  goalBonus,
+  promotion,
   streak,
   onNext,
   onHome,
@@ -20,6 +23,8 @@ export function ResultScreen({
   run: CaseRun;
   result: ScoreResult;
   newBadges: Badge[];
+  goalBonus: number;
+  promotion?: string;
   streak: number;
   onNext: () => void;
   onHome: () => void;
@@ -53,6 +58,28 @@ export function ResultScreen({
             <EcgStrip height={56} beats={4} />
           </View>
         </View>
+        {promotion && (
+          <View style={styles.promo}>
+            <StarOfLife size={56} outline={colors.graphit} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.promoHead}>Befördert!</Text>
+              <Text style={styles.promoText}>Mein neuer Dienstgrad:</Text>
+              <Text style={styles.promoRank}>{promotion}</Text>
+            </View>
+          </View>
+        )}
+        {goalBonus > 0 && (
+          <View style={styles.badgeBox}>
+            <View style={styles.badgeRow}>
+              <Text style={styles.badgeIcon}>📅</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.badgeTitle}>Tagesziel erreicht!</Text>
+                <Text style={styles.badgeDesc}>{DAILY_GOAL} Einsätze heute – morgen wieder, dann wächst die Dienst-Serie.</Text>
+              </View>
+              <Text style={styles.badgePts}>+{goalBonus}</Text>
+            </View>
+          </View>
+        )}
         {newBadges.length > 0 && (
           <View style={styles.badgeBox}>
             <Text style={styles.badgeHead}>Neues Abzeichen!</Text>
@@ -157,6 +184,17 @@ export function ResultScreen({
 }
 
 const styles = StyleSheet.create({
+  promo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+    backgroundColor: colors.warngelb,
+    borderRadius: 6,
+    padding: spacing.lg,
+  },
+  promoHead: { fontFamily: fonts.displayBlack, fontSize: 30, color: colors.graphit, textTransform: 'uppercase' },
+  promoText: { fontFamily: fonts.semibold, fontSize: 13, color: colors.graphit },
+  promoRank: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.graphit, textTransform: 'uppercase' },
   badgeBox: { backgroundColor: colors.graphit, borderRadius: 6, padding: spacing.lg, gap: spacing.sm },
   badgeHead: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.warngelb, textTransform: 'uppercase' },
   badgeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },

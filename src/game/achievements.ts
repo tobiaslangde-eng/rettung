@@ -25,6 +25,10 @@ export const BADGES: Badge[] = [
   { id: 'nerven', icon: '🧊', title: 'Nervenstark', description: 'Einen Einsatz auf „Schwer“ mit 2+ Sternen', earned: (p) => p.hardWins >= 1 },
   { id: 'normwerte', icon: '📈', title: 'Normwerte-Profi', description: '10 von 10 im Schnelltraining', earned: (p) => p.quizBest >= 10 },
   { id: 'gesehen', icon: '🗺️', title: 'Alles gesehen', description: 'Jeden Fall mindestens einmal gespielt', earned: (p) => CASES.every((c) => c.id in p.bestStars) },
+  { id: 'dienst', icon: '📅', title: 'Zuverlässig', description: '3 Tage in Folge das Tagesziel erreicht', earned: (p) => p.bestDayStreak >= 3 },
+  { id: 'woche', icon: '🗓️', title: 'Dienstwoche', description: '7 Tage in Folge das Tagesziel erreicht', earned: (p) => p.bestDayStreak >= 7 },
+  { id: 'takt', icon: '❤️', title: 'Taktgefühl', description: 'Herzdruckmassage mit 90 % im Zielbereich', earned: (p) => p.cprBest >= 90 },
+  { id: 'wissen', icon: '🧠', title: 'Wandelndes Lexikon', description: '10 von 10 bei den Wissensfragen', earned: (p) => p.knowBest >= 10 },
   { id: 'meister', icon: '🏆', title: 'Meister/in', description: 'Alle Fälle mit 3 Sternen gemeistert', earned: (p) => mastered(p) === CASES.length },
 ];
 

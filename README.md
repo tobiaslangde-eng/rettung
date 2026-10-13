@@ -9,22 +9,28 @@ Krankheit und entscheide, was zu tun ist.
 
 | Stufe | Fälle | Hilfen | Druck | Punkte |
 |---|---|---|---|---|
-| ◆◇◇ **Leicht** (*kerge*) | einfache Fälle | Normwerte sichtbar, Kati gibt Tipps und 50:50 gratis | gering | ×1 |
-| ◆◆◇ **Mittel** (*keskmine*) | mittlere Fälle | Normwerte muss ich kennen, Katis Tipps kosten 10 Punkte | mittel | ×1,5 |
-| ◆◆◆ **Schwer** (*raske*) | komplexe Fälle | keine Hilfe, Feedback erst im Bericht | Patient verschlechtert sich in Echtzeit | ×2 |
+| ◆◇◇ **Leicht** | einfache Fälle | Normwerte sichtbar, Kati gibt Tipps und 50:50 gratis | gering | ×1 |
+| ◆◆◇ **Mittel** | mittlere Fälle | Normwerte muss ich kennen, Katis Tipps kosten 10 Punkte | mittel | ×1,5 |
+| ◆◆◆ **Schwer** | komplexe Fälle | keine Hilfe, Feedback erst im Bericht | Patient verschlechtert sich in Echtzeit | ×2 |
 
 ## Spielelemente
 
-- **Schnelltraining Normwerte:** 10 zufällige Messwerte in Folge als niedrig, normal oder hoch einstufen
-- **10 Abzeichen** (z. B. „Lehrbuchreif“, „Heiße Serie“, „Nervenstark“) mit je 50 Bonuspunkten
-- **Bonuspunkte** für perfekte Einsätze und Serien, 8 Ränge bis zur „Rettungsdienst-Legende“
+- **Tagesdienst:** jeden Tag ein „Einsatz des Tages“ (+50 % Punkte) und ein Tagesziel von 3 Einsätzen;
+  wer es mehrere Tage hintereinander schafft, baut eine Dienst-Serie mit steigendem Bonus auf
+- **Training Herzdruckmassage:** im Takt von 100–120/min auf den Brustkorb tippen, 2 Runden 30:2,
+  mit Live-Anzeige, Taktgeber (abschaltbar für doppelte Punkte) und Auswertung der Beatmungspause
+- **Training Wissensfragen:** 44 Fragen aus dem Einsatzalltag, je 10 pro Runde, mit Erklärung
+- **Training Normwerte:** 10 zufällige Messwerte in Folge als niedrig, normal oder hoch einstufen
+- **14 Abzeichen** (z. B. „Lehrbuchreif“, „Taktgefühl“, „Dienstwoche“) mit je 50 Bonuspunkten
+- **Bonuspunkte** für perfekte Einsätze und Serien, 8 Ränge bis zur „Rettungsdienst-Legende“ –
+  jede Beförderung wird im Einsatzbericht gefeiert
 - **Rettungswissen im Lexikon:** Notruf (5 W), Rettungskette, ABCDE, Wiederbelebung, Seitenlage, BE-FAST, SAMPLER, GCS, Schockzeichen
 
 - **Blaulichtfahrt** mit animiertem Rettungswagen zwischen Alarm und Eintreffen
 - **Zustandsbalken** des Patienten: Jede Messung kostet Kraft, Fehler schaden, richtige Maßnahmen helfen.
   Am Ende erfahre ich, wie der Patient in der Klinik ankommt.
 - **Kati**, meine Kollegin, gibt Tipps und kann zwei falsche Diagnosen ausschließen (50:50)
-- **Serien** 🔥 für mehrere gute Einsätze in Folge, Ränge vom Praktikanten bis zur Teamleitung
+- **Serien** 🔥 für mehrere gute Einsätze in Folge
 
 ## Spielablauf
 
@@ -107,10 +113,16 @@ src/components/Ems.tsx  Star of Life, Warnmarkierung, Reflexstreifen, Monitor, E
 src/components/         Buttons, Karten, Kati, Blaulichtfahrt
 src/data/vitals.ts      Vitalwerte, Normbereiche, Einstufung
 src/data/cases.ts       Einsatzfälle
+src/data/questions.ts   Wissensfragen
+src/data/basics.ts      Rettungswissen fürs Lexikon
 src/game/scoring.ts     Punkte, Sterne, Ränge, Patientenzustand
 src/game/difficulty.ts  Schwierigkeitsstufen
+src/game/daily.ts       Tagesdienst: Einsatz des Tages, Tagesziel, Dienst-Serie
+src/game/cpr.ts         Herzdruckmassage-Training: Takt messen und bewerten
+src/game/quiz.ts        Normwerte- und Wissensfragen-Training
+src/game/achievements.ts Abzeichen
 src/game/storage.ts     Speicherung (AsyncStorage)
-src/screens/            Start, Einsatz, Ergebnis, Lexikon, Anleitung
+src/screens/            Start, Einsatz, Ergebnis, Training, Lexikon, Anleitung
 ```
 
 Neue Fälle lassen sich einfach in `src/data/cases.ts` ergänzen.
