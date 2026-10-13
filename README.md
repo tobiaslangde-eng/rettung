@@ -25,7 +25,8 @@ Krankheit und entscheide, was zu tun ist.
 - **Mein Rettungswagen (Fahrzeughalle):** Jeder Punkt bringt 1 € Budget. Damit rüste ich Fahrzeug,
   Patientenmonitor, Notfallrucksack, Beatmung, Trage, Funk und Einsatzkleidung in vier Stufen auf
   (vom Krankenwagen Baujahr 1999 bis zum Elektro-RTW 2026). Jede Stufe hilft im Einsatz; höhere Stufen
-  werden mit dem Dienstgrad freigeschaltet. Von außen ansehen oder einsteigen und den Patientenraum erkunden.
+  werden mit dem Dienstgrad freigeschaltet. Von außen ansehen oder einsteigen: In der Ich-Perspektive stehe ich
+  im Patientenraum, tippe Geräte an und sehe ihren Steckbrief mit Großansicht, Infos und Vorschau auf die nächste Stufe.
 - **Meine Woche:** Wochenpunkte mit Verlauf der letzten 6 Wochen und Wochenrekord
 - **Training Herzdruckmassage:** im Takt von 100–120/min auf den Brustkorb tippen, 2 Runden 30:2,
   mit Live-Anzeige, Taktgeber (abschaltbar für doppelte Punkte) und Auswertung der Beatmungspause
