@@ -4,6 +4,8 @@ import { EcgStrip, MonitorScene, RankBadge, WarnStripes } from '../components/Em
 import { Button, Eyebrow } from '../components/UI';
 import { CASES } from '../data/cases';
 import { BADGES } from '../game/achievements';
+import { Ambulance } from '../components/Ambulance';
+import { EQUIPMENT, MAX_LEVEL, euro, levelOf, totalLevel, upgradeBlock } from '../game/equipment';
 import { DAILY_GOAL, dailyCase, dailyGoalBonus, dayState } from '../game/daily';
 import { DIFFICULTIES, Difficulty } from '../game/difficulty';
 import { RANKS, rankFor } from '../game/scoring';
@@ -40,6 +42,7 @@ export function HomeScreen({
   onKnowledge,
   onCpr,
   onManv,
+  onGarage,
 }: {
   progress: Progress;
   onStart: () => void;
@@ -51,7 +54,9 @@ export function HomeScreen({
   onKnowledge: () => void;
   onCpr: () => void;
   onManv: () => void;
+  onGarage: () => void;
 }) {
+  const canUpgrade = EQUIPMENT.some((e) => upgradeBlock(progress, e.id) === null);
   const week = weekView(progress);
   const barMax = Math.max(1, week.best, ...week.bars.map((b) => b.points));
   const day = dayState(progress);
@@ -224,6 +229,25 @@ export function HomeScreen({
             {!day.dailyCaseDone && <Text style={styles.quizArrow}>›</Text>}
           </Pressable>
         </View>
+
+        <Pressable onPress={onGarage} accessibilityRole="button" style={({ pressed }) => [styles.garage, pressed && { opacity: 0.9 }]}>
+          <View style={styles.garageHead}>
+            <Text style={styles.garageEyebrow}>Fahrzeughalle</Text>
+            {canUpgrade && <Text style={styles.garageNew}>Aufrüsten möglich!</Text>}
+          </View>
+          <View style={{ alignItems: 'center' }}>
+            <Ambulance level={levelOf(progress, 'rtw')} width={250} />
+          </View>
+          <View style={styles.garageRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.garageTitle}>Mein Rettungswagen</Text>
+              <Text style={styles.garageSub}>
+                Ausbau {totalLevel(progress)}/{EQUIPMENT.length * MAX_LEVEL} · Budget {euro(progress.budget)}
+              </Text>
+            </View>
+            <Text style={[styles.quizArrow, { color: colors.warngelb }]}>›</Text>
+          </View>
+        </Pressable>
 
         <View style={{ gap: spacing.sm }}>
           <Eyebrow title="Training" />
@@ -403,6 +427,13 @@ const styles = StyleSheet.create({
   manvIcon: { fontSize: 26, fontFamily: fonts.regular },
   manvTitle: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.graphit, textTransform: 'uppercase' },
   manvSub: { fontFamily: fonts.semibold, fontSize: 13, color: colors.graphit },
+  garage: { backgroundColor: '#1A1F26', borderRadius: 6, padding: spacing.lg, gap: spacing.sm, borderBottomWidth: 4, borderBottomColor: colors.warngelb },
+  garageHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  garageEyebrow: { fontFamily: fonts.extrabold, fontSize: 11, letterSpacing: 1.8, color: colors.warngelb, textTransform: 'uppercase' },
+  garageNew: { fontFamily: fonts.extrabold, fontSize: 11, color: colors.graphit, backgroundColor: colors.monitorGruen, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, overflow: 'hidden' },
+  garageRow: { flexDirection: 'row', alignItems: 'center' },
+  garageTitle: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.weiss, textTransform: 'uppercase' },
+  garageSub: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau300 },
   trainingDot: { width: 10, height: 10, borderRadius: 5 },
   daily: { backgroundColor: colors.graphit, borderRadius: 6, padding: spacing.lg, gap: spacing.sm },
   dailyHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

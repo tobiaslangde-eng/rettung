@@ -47,6 +47,15 @@ export function GuideScreen({ onBack, onReset }: { onBack: () => void; onReset: 
             erreicht das Tagesziel. Schaffe ich das mehrere Tage hintereinander, wächst meine Dienst-Serie – und der Bonus mit.
           </Text>
         </Card>
+        <Card style={{ borderLeftColor: colors.warngelb }}>
+          <Eyebrow title="Mein Rettungswagen" />
+          <Text style={[type.body, { marginTop: spacing.xs }]}>
+            Für jeden Punkt bekommt meine Wache 1 € Budget. In der Fahrzeughalle rüste ich damit Fahrzeug, Monitor,
+            Rucksack, Beatmung, Trage, Funk und Einsatzkleidung in vier Stufen auf – jede Stufe ist neuer und moderner
+            und hilft im Einsatz. Die höheren Stufen schalte ich mit meinem Dienstgrad frei. Einkaufen kostet nur
+            Budget, keine Punkte – mein Rang bleibt.
+          </Text>
+        </Card>
         <Card style={{ borderLeftColor: colors.signalrot }}>
           <Eyebrow title="Zwischenfälle & Kinder" />
           <Text style={[type.body, { marginTop: spacing.xs }]}>

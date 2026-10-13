@@ -22,12 +22,16 @@ Krankheit und entscheide, was zu tun ist.
 - **Kinder-Einsätze:** 4 Fälle mit kleinen Patienten (Fieberkrampf, Pseudokrupp, verschluckte Erdnuss,
   Exsikkose); bewertet wird mit Kinder-Normwerten für Puls, Atmung und Blutdruck
 - **Großeinsatz (MANV):** 8 Verletzte nach einem vereinfachten mSTaRT-Schema sichten (Rot, Gelb, Grün, Schwarz)
+- **Mein Rettungswagen (Fahrzeughalle):** Jeder Punkt bringt 1 € Budget. Damit rüste ich Fahrzeug,
+  Patientenmonitor, Notfallrucksack, Beatmung, Trage, Funk und Einsatzkleidung in vier Stufen auf
+  (vom Krankenwagen Baujahr 1999 bis zum Elektro-RTW 2026). Jede Stufe hilft im Einsatz; höhere Stufen
+  werden mit dem Dienstgrad freigeschaltet. Von außen ansehen oder einsteigen und den Patientenraum erkunden.
 - **Meine Woche:** Wochenpunkte mit Verlauf der letzten 6 Wochen und Wochenrekord
 - **Training Herzdruckmassage:** im Takt von 100–120/min auf den Brustkorb tippen, 2 Runden 30:2,
   mit Live-Anzeige, Taktgeber (abschaltbar für doppelte Punkte) und Auswertung der Beatmungspause
 - **Training Wissensfragen:** 48 Fragen aus dem Einsatzalltag, je 10 pro Runde, mit Erklärung
 - **Training Normwerte:** 10 zufällige Messwerte in Folge als niedrig, normal oder hoch einstufen
-- **16 Abzeichen** (z. B. „Lehrbuchreif“, „Taktgefühl“, „Dienstwoche“) mit je 50 Bonuspunkten
+- **18 Abzeichen** (z. B. „Lehrbuchreif“, „Taktgefühl“, „Dienstwoche“) mit je 50 Bonuspunkten
 - **Bonuspunkte** für perfekte Einsätze und Serien, 8 Ränge bis zur „Rettungsdienst-Legende“ –
   jede Beförderung wird im Einsatzbericht gefeiert
 - **Rettungswissen im Lexikon:** Notruf (5 W), Rettungskette, ABCDE, Wiederbelebung, Seitenlage, BE-FAST, SAMPLER, GCS, Schockzeichen
@@ -131,6 +135,7 @@ src/game/quiz.ts        Normwerte- und Wissensfragen-Training
 src/game/achievements.ts Abzeichen
 src/game/manv.ts        Großeinsatz-Runden und Punkte
 src/game/weekly.ts      Wochenpunkte und Wochenrekord
+src/game/equipment.ts   Fahrzeughalle: Ausrüstungsstufen, Kosten und Wirkung
 src/game/storage.ts     Speicherung (AsyncStorage)
 src/screens/            Start, Einsatz, Ergebnis, Training, Lexikon, Anleitung
 ```

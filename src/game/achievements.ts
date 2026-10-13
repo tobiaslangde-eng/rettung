@@ -33,6 +33,8 @@ export const BADGES: Badge[] = [
   { id: 'wissen', icon: '🧠', title: 'Wandelndes Lexikon', description: '10 von 10 bei den Wissensfragen', earned: (p) => p.knowBest >= 10 },
   { id: 'sichtung', icon: '🚨', title: 'Großeinsatz-Profi', description: 'Beim Großeinsatz alle 8 Verletzten richtig gesichtet', earned: (p) => p.manvBest >= 8 },
   { id: 'kinder', icon: '🧸', title: 'Kinderretter/in', description: 'Alle Kinder-Einsätze mit mindestens 2 Sternen', earned: (p) => KIDS.every((c) => (p.bestStars[c.id] ?? 0) >= 2) },
+  { id: 'werkstatt', icon: '🔧', title: 'Erste Aufrüstung', description: 'Den Rettungswagen zum ersten Mal aufgerüstet', earned: (p) => Object.values(p.equipment).some((l) => l >= 2) },
+  { id: 'hightech', icon: '⚡', title: 'Hightech-Wache', description: 'Alle Ausrüstung auf der höchsten Stufe', earned: (p) => Object.values(p.equipment).filter((l) => l >= 4).length >= 7 },
   { id: 'meister', icon: '🏆', title: 'Meister/in', description: 'Alle Fälle mit 3 Sternen gemeistert', earned: (p) => mastered(p) === CASES.length },
 ];
 

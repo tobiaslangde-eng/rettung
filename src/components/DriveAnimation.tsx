@@ -1,16 +1,22 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { colors, fonts, spacing } from '../theme';
+import { Ambulance } from './Ambulance';
 import { CityScene, WarnStripes } from './Ems';
 
 const useNativeDriver = Platform.OS !== 'web';
 const SCENE_HEIGHT = 260;
 
 /** Kurze Blaulichtfahrt durch die Stadt bei Nacht zwischen Alarm und Eintreffen. */
-export function DriveAnimation({ location, onDone }: { location: string; onDone: () => void }) {
+export function DriveAnimation({ location, rtwLevel = 1, onDone }: { location: string; rtwLevel?: number; onDone: () => void }) {
   const { width } = useWindowDimensions();
   const x = useRef(new Animated.Value(0)).current;
   const blink = useRef(new Animated.Value(0)).current;
+  const [lightOn, setLightOn] = useState(false);
+  useEffect(() => {
+    const t = setInterval(() => setLightOn((b) => !b), 170);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
     const drive = Animated.timing(x, {
@@ -33,8 +39,7 @@ export function DriveAnimation({ location, onDone }: { location: string; onDone:
     };
   }, [x, blink, onDone]);
 
-  const translateX = x.interpolate({ inputRange: [0, 1], outputRange: [-110, Math.min(width, 480) + 20] });
-  const red = blink.interpolate({ inputRange: [0, 1], outputRange: [1, 0] });
+  const translateX = x.interpolate({ inputRange: [0, 1], outputRange: [-150, Math.min(width, 480) + 20] });
   const glow = blink.interpolate({ inputRange: [0, 1], outputRange: [0, 0.16] });
 
   return (
@@ -50,11 +55,8 @@ export function DriveAnimation({ location, onDone }: { location: string; onDone:
         {/* Das Blaulicht färbt die Szene */}
         <Animated.View style={[StyleSheet.absoluteFill, styles.glow, { opacity: glow }]} pointerEvents="none" />
         <Animated.View style={[styles.car, { transform: [{ translateX }] }]}>
-          <View style={styles.lights}>
-            <Animated.View style={[styles.light, { backgroundColor: colors.blaulicht, opacity: blink }]} />
-            <Animated.View style={[styles.light, { backgroundColor: colors.signalrot, opacity: red }]} />
-          </View>
-          <Text style={styles.ambulance}>🚑</Text>
+          {/* Mein eigener Rettungswagen aus der Fahrzeughalle */}
+          <Ambulance level={rtwLevel} width={140} blink={lightOn} />
         </Animated.View>
       </View>
       <WarnStripes height={14} />
@@ -72,8 +74,5 @@ const styles = StyleSheet.create({
   scene: { height: SCENE_HEIGHT, overflow: 'hidden' },
   glow: { backgroundColor: colors.blaulicht },
   car: { position: 'absolute', bottom: 18, alignItems: 'center' },
-  lights: { flexDirection: 'row', gap: 4, marginBottom: -6 },
-  light: { width: 14, height: 7, borderRadius: 4 },
-  ambulance: { fontFamily: fonts.regular, fontSize: 52, transform: [{ scaleX: -1 }] },
   skip: { fontFamily: fonts.semibold, color: colors.grau500, fontSize: 12, textAlign: 'center', marginTop: spacing.lg, letterSpacing: 1 },
 });

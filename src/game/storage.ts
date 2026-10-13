@@ -43,6 +43,10 @@ export interface Progress {
   weekPoints: number;
   /** Punkte vergangener Wochen (nur Wochen, in denen gespielt wurde) */
   weekHistory: { week: string; points: number }[];
+  /** Budget der Wache für Ausrüstung – jeder verdiente Punkt bringt 1 € */
+  budget: number;
+  /** Ausrüstungsstufen (1–4) je Ausrüstung */
+  equipment: Record<string, number>;
 }
 
 export const EMPTY_PROGRESS: Progress = {
@@ -68,12 +72,18 @@ export const EMPTY_PROGRESS: Progress = {
   weekKey: '',
   weekPoints: 0,
   weekHistory: [],
+  budget: 0,
+  equipment: {},
 };
 
 export async function loadProgress(): Promise<Progress> {
   try {
     const raw = await AsyncStorage.getItem(KEY);
-    return raw ? { ...EMPTY_PROGRESS, ...JSON.parse(raw) } : EMPTY_PROGRESS;
+    if (!raw) return EMPTY_PROGRESS;
+    const saved = JSON.parse(raw);
+    // Ältere Spielstände kannten noch kein Budget: Startbudget = bisher gesammelte Punkte.
+    if (saved.budget === undefined) saved.budget = saved.totalPoints ?? 0;
+    return { ...EMPTY_PROGRESS, ...saved };
   } catch {
     return EMPTY_PROGRESS;
   }

@@ -8,10 +8,13 @@ import { MedCase } from '../data/cases';
 import { INCIDENTS, INCIDENT_CONDITION } from '../data/incidents';
 import { Rating, VITALS, VITAL_BY_ID, VitalId, formatVital, normalText, rateVital } from '../data/vitals';
 import { DifficultyDef, HINT_COST } from '../game/difficulty';
+import { EquipmentEffects } from '../game/equipment';
 import { CONDITION, CaseRun, MINUTES_PER_MEASUREMENT, clampCondition, shuffle } from '../game/scoring';
 import { colors, fonts, monitor, spacing, type } from '../theme';
 
 type Phase = 'alarm' | 'drive' | 'exam' | 'diagnosis' | 'treatment';
+
+const NO_EQUIPMENT: EquipmentEffects = { startBonus: 0, measureFactor: 1, drainFactor: 1, endBonus: 0, pointsPct: 0 };
 
 const STEPS: { phase: Phase; de: string }[] = [
   { phase: 'alarm', de: 'Alarm' },
@@ -42,12 +45,17 @@ export function CaseScreen({
   medCase,
   difficulty,
   daily = false,
+  equipment = NO_EQUIPMENT,
+  rtwLevel = 1,
   onFinish,
   onAbort,
 }: {
   medCase: MedCase;
   difficulty: DifficultyDef;
   daily?: boolean;
+  /** Wirkung meiner Ausrüstung aus der Fahrzeughalle */
+  equipment?: EquipmentEffects;
+  rtwLevel?: number;
   onFinish: (run: CaseRun) => void;
   onAbort: () => void;
 }) {
@@ -58,7 +66,7 @@ export function CaseScreen({
   const [diagnosisGuess, setDiagnosisGuess] = useState<string | null>(null);
   const [diagnosisLocked, setDiagnosisLocked] = useState(false);
   const [treatmentGuess, setTreatmentGuess] = useState<number[]>([]);
-  const [condition, setCondition] = useState<number>(CONDITION.start);
+  const [condition, setCondition] = useState<number>(clampCondition(CONDITION.start + equipment.startBonus));
   const [hintsUsed, setHintsUsed] = useState(0);
   const [examHint, setExamHint] = useState(difficulty.hints === 'gratis');
   const [fiftyFifty, setFiftyFifty] = useState(false);
@@ -82,9 +90,10 @@ export function CaseScreen({
   const draining = difficulty.drainPerSecond > 0 && (phase === 'exam' || (phase === 'diagnosis' && !diagnosisLocked));
   useEffect(() => {
     if (!draining) return;
-    const t = setInterval(() => setCondition((c) => clampCondition(c - difficulty.drainPerSecond)), 1000);
+    const drain = difficulty.drainPerSecond * equipment.drainFactor;
+    const t = setInterval(() => setCondition((c) => clampCondition(c - drain)), 1000);
     return () => clearInterval(t);
-  }, [draining, difficulty.drainPerSecond]);
+  }, [draining, difficulty.drainPerSecond, equipment.drainFactor]);
 
   const goto = useCallback((p: Phase) => {
     setPhase(p);
@@ -98,7 +107,7 @@ export function CaseScreen({
 
   const measure = (id: VitalId) => {
     if (pending || measured.some((m) => m.id === id)) return;
-    setCondition((c) => clampCondition(c - difficulty.measureCost));
+    setCondition((c) => clampCondition(c - difficulty.measureCost * equipment.measureFactor));
     if (VITAL_BY_ID[id].textOnly) {
       setMeasured((m) => [...m, { id, guess: null }]);
     } else {
@@ -158,14 +167,14 @@ export function CaseScreen({
       diagnosisGuess: diagnosisGuess ?? '',
       treatmentGuess,
       difficulty: difficulty.id,
-      condition: clampCondition(c),
+      condition: clampCondition(c + equipment.endBonus),
       hintsUsed,
       incidentCorrect,
     });
   };
 
   if (phase === 'drive') {
-    return <DriveAnimation location={medCase.location} onDone={arrive} />;
+    return <DriveAnimation location={medCase.location} rtwLevel={rtwLevel} onDone={arrive} />;
   }
 
   const minutes = 4 + measured.length * MINUTES_PER_MEASUREMENT + (pending ? MINUTES_PER_MEASUREMENT : 0);

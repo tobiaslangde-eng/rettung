@@ -17,6 +17,7 @@ import { Badge, awardBadges } from './src/game/achievements';
 import { CprResult } from './src/game/cpr';
 import { DAILY_CASE_BONUS, dailyCase, registerDailyCase } from './src/game/daily';
 import { DIFFICULTY_BY_ID, Difficulty } from './src/game/difficulty';
+import { EquipmentId, buyUpgrade, equipmentEffects, levelOf } from './src/game/equipment';
 import { manvPoints } from './src/game/manv';
 import { QUIZ_POINTS } from './src/game/quiz';
 import { CaseRun, ScoreResult, rankFor, scoreRun } from './src/game/scoring';
@@ -24,6 +25,7 @@ import { EMPTY_PROGRESS, Progress, loadProgress, saveProgress } from './src/game
 import { addWeekPoints } from './src/game/weekly';
 import { CaseScreen } from './src/screens/CaseScreen';
 import { CprScreen } from './src/screens/CprScreen';
+import { GarageScreen } from './src/screens/GarageScreen';
 import { GuideScreen } from './src/screens/GuideScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { KnowledgeScreen } from './src/screens/KnowledgeScreen';
@@ -41,6 +43,7 @@ type Screen =
   | { name: 'wissen'; key: number }
   | { name: 'cpr'; key: number }
   | { name: 'manv'; key: number }
+  | { name: 'garage' }
   | { name: 'case'; medCase: MedCase; daily: boolean; key: number }
   | { name: 'result'; run: CaseRun; result: ScoreResult; newBadges: Badge[]; goalBonus: number; promotion?: string; weekRecord: boolean };
 
@@ -81,8 +84,9 @@ export default function App() {
   const commit = (updated: Progress) => {
     const awarded = awardBadges(updated);
     const newBadges = awarded.newBadges;
-    const week = addWeekPoints(awarded.progress, awarded.progress.totalPoints - progress.totalPoints);
-    const next = week.progress;
+    const earned = Math.max(0, awarded.progress.totalPoints - progress.totalPoints);
+    const week = addWeekPoints(awarded.progress, earned);
+    const next = { ...week.progress, budget: week.progress.budget + earned };
     const before = rankFor(progress.totalPoints).rank;
     const after = rankFor(next.totalPoints).rank;
     setProgress(next);
@@ -93,6 +97,12 @@ export default function App() {
   const finishCase = (run: CaseRun, daily: boolean) => {
     const scored = scoreRun(run, progress.streak);
     const result: ScoreResult = { ...scored, lines: [...scored.lines] };
+    const { pointsPct } = equipmentEffects(progress);
+    if (pointsPct > 0) {
+      const extra = Math.round((scored.total * pointsPct) / 100);
+      result.lines.push({ label: `Ausrüstung (+${pointsPct} %)`, points: extra });
+      result.total += extra;
+    }
     if (daily) {
       const extra = Math.round(scored.total * DAILY_CASE_BONUS);
       result.lines.push({ label: 'Einsatz des Tages (+50 %)', points: extra });
@@ -140,6 +150,13 @@ export default function App() {
       totalPoints: progress.totalPoints + manvPoints(correct),
       manvBest: Math.max(progress.manvBest, correct),
     });
+  };
+
+  /** Ausrüstung kaufen: kostet Budget, keine Punkte – der Dienstgrad bleibt. */
+  const upgrade = (id: EquipmentId) => {
+    const bought = buyUpgrade(progress, id);
+    if (bought === progress) return;
+    commit(bought);
   };
 
   const finishCpr = (r: CprResult) => {
@@ -191,6 +208,7 @@ export default function App() {
               onKnowledge={() => setScreen({ name: 'wissen', key: Date.now() })}
               onCpr={() => setScreen({ name: 'cpr', key: Date.now() })}
               onManv={() => setScreen({ name: 'manv', key: Date.now() })}
+              onGarage={() => setScreen({ name: 'garage' })}
             />
           )}
           {screen.name === 'lexikon' && <LexikonScreen progress={progress} onBack={home} />}
@@ -201,6 +219,7 @@ export default function App() {
           {screen.name === 'wissen' && (
             <KnowledgeScreen key={screen.key} best={progress.knowBest} onFinish={finishKnowledge} onBack={home} />
           )}
+          {screen.name === 'garage' && <GarageScreen progress={progress} onUpgrade={upgrade} onBack={home} />}
           {screen.name === 'manv' && <ManvScreen key={screen.key} best={progress.manvBest} onFinish={finishManv} onBack={home} />}
           {screen.name === 'cpr' && <CprScreen key={screen.key} best={progress.cprBest} onFinish={finishCpr} onBack={home} />}
           {screen.name === 'case' && (
@@ -209,6 +228,8 @@ export default function App() {
               medCase={screen.medCase}
               difficulty={DIFFICULTY_BY_ID[progress.difficulty]}
               daily={screen.daily}
+              equipment={equipmentEffects(progress)}
+              rtwLevel={levelOf(progress, 'rtw')}
               onFinish={(run) => finishCase(run, screen.daily)}
               onAbort={home}
             />
