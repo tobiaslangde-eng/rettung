@@ -1,12 +1,12 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
-import { EcgStrip, MonitorScene, RatingStar, StarOfLife } from '../components/Ems';
+import { EcgStrip, MonitorScene, RankBadge, RatingStar } from '../components/Ems';
 import { INCIDENTS } from '../data/incidents';
 import { VITAL_BY_ID, formatVital, rateVital } from '../data/vitals';
 import { BADGE_BONUS, Badge } from '../game/achievements';
 import { DAILY_GOAL } from '../game/daily';
 import { DIFFICULTY_BY_ID } from '../game/difficulty';
-import { CaseRun, ScoreResult, conditionOutcome } from '../game/scoring';
+import { CaseRun, RANKS, ScoreResult, conditionOutcome } from '../game/scoring';
 import { colors, spacing, type, fonts } from '../theme';
 
 const PRAISE = ['Da geht noch was', 'Guter Versuch', 'Gut gemacht!', 'Ausgezeichnet!'];
@@ -63,7 +63,7 @@ export function ResultScreen({
         </View>
         {promotion && (
           <View style={styles.promo}>
-            <StarOfLife size={56} outline={colors.graphit} />
+            <RankBadge size={72} level={RANKS.findIndex((r) => r.de === promotion)} />
             <View style={{ flex: 1 }}>
               <Text style={styles.promoHead}>Befördert!</Text>
               <Text style={styles.promoText}>Mein neuer Dienstgrad:</Text>

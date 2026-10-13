@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { EcgStrip, MonitorScene, StarOfLife, WarnStripes } from '../components/Ems';
+import { EcgStrip, MonitorScene, RankBadge, WarnStripes } from '../components/Ems';
 import { Button, Eyebrow } from '../components/UI';
 import { CASES } from '../data/cases';
 import { BADGES } from '../game/achievements';
 import { DAILY_GOAL, dailyCase, dailyGoalBonus, dayState } from '../game/daily';
 import { DIFFICULTIES, Difficulty } from '../game/difficulty';
-import { rankFor } from '../game/scoring';
+import { RANKS, rankFor } from '../game/scoring';
 import { Progress } from '../game/storage';
 import { weekView } from '../game/weekly';
 import { colors, fonts, monitor, spacing, type } from '../theme';
@@ -91,9 +91,7 @@ export function HomeScreen({
 
       <View style={styles.body}>
         <View style={styles.rank}>
-          <View style={styles.medal}>
-            <StarOfLife size={44} outline={colors.graphit} />
-          </View>
+          <RankBadge size={76} level={RANKS.indexOf(rank)} />
           <View style={{ flex: 1, minWidth: 0 }}>
             <Eyebrow title="Mein Dienstgrad" />
             <Text style={styles.rankName}>{rank.de}</Text>
@@ -364,15 +362,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.grau200,
   },
-  medal: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: colors.graphit,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  rankName: { fontFamily: fonts.displayBlack, fontSize: 26, color: colors.graphit, textTransform: 'uppercase', marginTop: 2 },
+  rankName: { fontFamily: fonts.displayBlack, fontSize: 22, lineHeight: 25, color: colors.graphit, textTransform: 'uppercase', marginTop: 2 },
   bar: { height: 6, backgroundColor: colors.grau200, marginVertical: spacing.sm, borderRadius: 3, overflow: 'hidden' },
   barFill: { height: 6, backgroundColor: colors.signalrot },
   stats: { flexDirection: 'row', alignItems: 'stretch' },

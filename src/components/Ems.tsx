@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { LayoutChangeEvent, View } from 'react-native';
-import Svg, { Defs, G, LinearGradient, Line, Path, Polygon, Rect, Stop } from 'react-native-svg';
+import Svg, { Circle, ClipPath, Defs, G, LinearGradient, Line, Path, Polygon, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { colors } from '../theme';
 
 function useWidth(initial = 360) {
@@ -223,6 +223,116 @@ export function RatingStar({ size = 32, filled }: { size?: number; filled: boole
         strokeWidth={1.5}
         strokeLinejoin="round"
       />
+    </Svg>
+  );
+}
+
+/** Metallfarben der Dienstgrad-Abzeichen: Bronze, Silber, Gold, Blaulicht-Platin. */
+const BADGE_METALS = [
+  ['#F6C28B', '#B8733A', '#6E3D18'],
+  ['#FFFFFF', '#AEB6C1', '#5E6672'],
+  ['#FFF3A6', '#FFC21A', '#A87400'],
+  ['#E6F0FF', '#5C9DFF', '#1A47B8'],
+];
+
+function starPoints(cx: number, cy: number, r: number) {
+  return Array.from({ length: 10 })
+    .map((_, i) => {
+      const rr = i % 2 === 0 ? r : r / 2.4;
+      const a = (Math.PI / 5) * i - Math.PI / 2;
+      return `${(cx + rr * Math.cos(a)).toFixed(2)},${(cy + rr * Math.sin(a)).toFixed(2)}`;
+    })
+    .join(' ');
+}
+
+/**
+ * Dienstgrad-Abzeichen als „Profilbild“: Metallring je Stufe (Bronze → Silber → Gold → Blaulicht),
+ * Star of Life auf Nachtblau, Sterne am unteren Rand zeigen den Rang.
+ */
+export function RankBadge({ size = 72, level, maxLevel = 7 }: { size?: number; level: number; maxLevel?: number }) {
+  const id = useId().replace(/[^a-zA-Z0-9]/g, '');
+  const metal = BADGE_METALS[Math.min(BADGE_METALS.length - 1, Math.floor(level / 2))];
+  const c = size / 2;
+  const inner = size * 0.39;
+  // Star of Life (sechs Arme) mit Verlauf
+  const s = size * 0.5;
+  const w = s * 0.3;
+  const len = s * 0.92;
+  const arms = (fill: string, grow = 0) =>
+    [0, 60, 120].map((deg) => (
+      <Rect
+        key={`${fill}-${deg}`}
+        x={c - w / 2 - grow}
+        y={c - len / 2 - grow}
+        width={w + grow * 2}
+        height={len + grow * 2}
+        rx={s * 0.03}
+        fill={fill}
+        transform={`rotate(${deg} ${c} ${c})`}
+      />
+    ));
+  const top = c - len * 0.36;
+  const bottom = c + len * 0.36;
+  const sw = Math.max(1, s * 0.05);
+  // Rangsterne auf dem unteren Ringbogen
+  const ringR = size * 0.445;
+  const starR = size * 0.055;
+  const slots = Array.from({ length: maxLevel }, (_, i) => {
+    const a = ((150 - (120 / (maxLevel - 1)) * i) * Math.PI) / 180;
+    return { x: c + ringR * Math.cos(a), y: c + ringR * Math.sin(a), on: i < level };
+  });
+  return (
+    <Svg width={size} height={size}>
+      <Defs>
+        <LinearGradient id={`m${id}`} x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor={metal[0]} />
+          <Stop offset="0.5" stopColor={metal[1]} />
+          <Stop offset="1" stopColor={metal[2]} />
+        </LinearGradient>
+        <RadialGradient id={`d${id}`} cx="50%" cy="40%" r="60%">
+          <Stop offset="0" stopColor="#1F3E78" />
+          <Stop offset="1" stopColor="#07090D" />
+        </RadialGradient>
+        <LinearGradient id={`s${id}`} x1="0" y1={c - len / 2} x2="0" y2={c + len / 2} gradientUnits="userSpaceOnUse">
+          <Stop offset="0" stopColor="#5AA0FF" />
+          <Stop offset="1" stopColor="#123F9E" />
+        </LinearGradient>
+        <ClipPath id={`c${id}`}>{arms('#000')}</ClipPath>
+      </Defs>
+      <Circle cx={c} cy={c} r={c} fill={`url(#m${id})`} />
+      <Circle cx={c} cy={c} r={c - size * 0.025} fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth={size * 0.012} />
+      <Circle cx={c} cy={c} r={inner} fill={`url(#d${id})`} />
+      <Circle cx={c} cy={c} r={inner} fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth={size * 0.02} />
+      <Path
+        d={`M ${c - inner * 0.95} ${c} h ${inner * 0.35} l ${inner * 0.08} ${-inner * 0.08} l ${inner * 0.1} ${inner * 0.14} l ${inner * 0.12} ${-inner * 0.5} l ${inner * 0.1} ${inner * 0.62} l ${inner * 0.08} ${-inner * 0.18} h ${inner * 1.07}`}
+        stroke={colors.monitorGruen}
+        strokeWidth={size * 0.02}
+        fill="none"
+        strokeLinejoin="round"
+        opacity={0.8}
+      />
+      {arms(colors.weiss, size * 0.022)}
+      <Rect x={0} y={0} width={size} height={size} fill={`url(#s${id})`} clipPath={`url(#c${id})`} />
+      {size >= 32 && (
+        <G stroke={colors.weiss} strokeLinecap="round" fill="none">
+          <Line x1={c} y1={top} x2={c} y2={bottom} strokeWidth={sw} />
+          <Path
+            d={`M ${c - s * 0.065} ${bottom - len * 0.08} C ${c + s * 0.13} ${bottom - len * 0.2}, ${c - s * 0.13} ${c - len * 0.02}, ${
+              c + s * 0.065
+            } ${c - len * 0.16} S ${c - s * 0.02} ${top + len * 0.04}, ${c - s * 0.055} ${top + len * 0.06}`}
+            strokeWidth={sw * 0.85}
+          />
+        </G>
+      )}
+      {slots.map((p, i) => (
+        <Polygon
+          key={i}
+          points={starPoints(p.x, p.y, starR)}
+          fill={p.on ? colors.weiss : 'rgba(0,0,0,0.35)'}
+          stroke={p.on ? metal[2] : 'none'}
+          strokeWidth={size * 0.006}
+        />
+      ))}
     </Svg>
   );
 }
