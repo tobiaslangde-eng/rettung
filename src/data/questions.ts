@@ -272,4 +272,28 @@ export const QUESTIONS: KnowledgeQuestion[] = [
     answers: ['Abnehmen – sonst ist keine Wiederbelebung möglich', 'Auf keinen Fall abnehmen', 'Nur das Visier öffnen und warten', 'Den Kopf mit Helm schütteln'],
     explanation: 'Am besten zu zweit: Einer stabilisiert Kopf und Hals, der andere zieht den Helm vorsichtig ab.',
   },
+  {
+    id: 'kind-puls',
+    question: 'Ein dreijähriges Kind hat in Ruhe einen Puls von 120. Wie ist das einzuschätzen?',
+    answers: ['Normal für ein Kleinkind', 'Viel zu hoch', 'Viel zu niedrig', 'Nur im Schlaf normal'],
+    explanation: 'Kleinkinder haben einen Ruhepuls von etwa 80–140 pro Minute. Je jünger, desto schneller.',
+  },
+  {
+    id: 'kind-rea',
+    question: 'Womit beginnt der Rettungsdienst die Wiederbelebung eines Kindes?',
+    answers: ['Mit 5 Beatmungen', 'Mit 30 Kompressionen', 'Mit dem Defibrillator', 'Mit Rückenschlägen'],
+    explanation: 'Bei Kindern ist meist Sauerstoffmangel die Ursache. Deshalb zuerst 5 Beatmungen, dann 15:2.',
+  },
+  {
+    id: 'manv-gruen',
+    question: 'Beim Großeinsatz kann ein Verletzter selbst gehen. Wie wird er gesichtet?',
+    answers: ['Grün – leicht verletzt', 'Rot – sofort', 'Gelb – dringend', 'Gar nicht, er kann ja gehen'],
+    explanation: 'Gehfähige sind zunächst Grün. Sie werden später erneut gesichtet, weil sich ihr Zustand ändern kann.',
+  },
+  {
+    id: 'manv-af',
+    question: 'Ein liegender Verletzter atmet 36-mal pro Minute. Welche Sichtungskategorie?',
+    answers: ['Rot', 'Gelb', 'Grün', 'Schwarz'],
+    explanation: 'Eine Atemfrequenz über 30 ist ein Zeichen akuter Lebensgefahr – Kategorie Rot.',
+  },
 ];

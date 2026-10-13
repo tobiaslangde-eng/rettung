@@ -35,13 +35,47 @@ export const VITALS: VitalDef[] = [
 
 export const VITAL_BY_ID = Object.fromEntries(VITALS.map((v) => [v.id, v])) as Record<VitalId, VitalDef>;
 
-/** Liefert die korrekte Einstufung eines Messwerts. */
-export function rateVital(id: VitalId, value: VitalValue): Rating | null {
+/** Altersgruppen mit eigenen Normalbereichen; ab 13 Jahren gelten die Werte für Erwachsene. */
+export interface ChildNorms {
+  label: string;
+  /** Gilt bis einschließlich dieses Alters (Jahre) */
+  maxAge: number;
+  limits: Partial<Record<VitalId, { low: number; high: number }>>;
+}
+
+/** Vereinfachte Richtwerte für Kinder in Ruhe (Puls, Atemfrequenz, systolischer Blutdruck). */
+export const CHILD_NORMS: ChildNorms[] = [
+  { label: 'Säugling (unter 1 Jahr)', maxAge: 0, limits: { puls: { low: 100, high: 160 }, af: { low: 30, high: 60 }, rr: { low: 70, high: 110 } } },
+  { label: 'Kleinkind (1–5 Jahre)', maxAge: 5, limits: { puls: { low: 80, high: 140 }, af: { low: 20, high: 40 }, rr: { low: 80, high: 115 } } },
+  { label: 'Schulkind (6–12 Jahre)', maxAge: 12, limits: { puls: { low: 70, high: 120 }, af: { low: 16, high: 30 }, rr: { low: 90, high: 125 } } },
+];
+
+export const ADULT_AGE = 30;
+
+export function childNormsFor(age: number): ChildNorms | undefined {
+  return CHILD_NORMS.find((g) => age <= g.maxAge);
+}
+
+function limitsFor(id: VitalId, age: number): { low?: number; high?: number } {
+  return childNormsFor(age)?.limits[id] ?? VITAL_BY_ID[id];
+}
+
+/** Normalbereich als Text, passend zum Alter des Patienten. */
+export function normalText(id: VitalId, age = ADULT_AGE): string {
+  const def = VITAL_BY_ID[id];
+  const child = childNormsFor(age)?.limits[id];
+  if (!child) return def.normal;
+  return `${id === 'rr' ? 'systolisch ' : ''}${child.low}–${child.high} ${def.unit} (Kind)`;
+}
+
+/** Liefert die korrekte Einstufung eines Messwerts – bei Kindern mit Kinder-Normwerten. */
+export function rateVital(id: VitalId, value: VitalValue, age = ADULT_AGE): Rating | null {
   const def = VITAL_BY_ID[id];
   if (def.textOnly || typeof value === 'string') return null;
+  const { low, high } = limitsFor(id, age);
   const n = Array.isArray(value) ? value[0] : value; // Blutdruck: systolisch
-  if (def.low !== undefined && n < def.low) return 'niedrig';
-  if (def.high !== undefined && n > def.high) return 'hoch';
+  if (low !== undefined && n < low) return 'niedrig';
+  if (high !== undefined && n > high) return 'hoch';
   return 'normal';
 }
 

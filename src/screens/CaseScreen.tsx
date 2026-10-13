@@ -5,7 +5,8 @@ import { Button, Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
 import { ReflexStripes } from '../components/Ems';
 import { AskKati, Kati } from '../components/Kati';
 import { MedCase } from '../data/cases';
-import { Rating, VITALS, VITAL_BY_ID, VitalId, formatVital, rateVital } from '../data/vitals';
+import { INCIDENTS, INCIDENT_CONDITION } from '../data/incidents';
+import { Rating, VITALS, VITAL_BY_ID, VitalId, formatVital, normalText, rateVital } from '../data/vitals';
 import { DifficultyDef, HINT_COST } from '../game/difficulty';
 import { CONDITION, CaseRun, MINUTES_PER_MEASUREMENT, clampCondition, shuffle } from '../game/scoring';
 import { colors, fonts, monitor, spacing, type } from '../theme';
@@ -61,6 +62,12 @@ export function CaseScreen({
   const [hintsUsed, setHintsUsed] = useState(0);
   const [examHint, setExamHint] = useState(difficulty.hints === 'gratis');
   const [fiftyFifty, setFiftyFifty] = useState(false);
+  const incident = INCIDENTS[medCase.id];
+  const incidentOptions = useMemo(() => (incident ? shuffle(incident.options) : []), [incident]);
+  const [incidentChoice, setIncidentChoice] = useState<string | null>(null);
+  const [incidentClosed, setIncidentClosed] = useState(false);
+  /** Ich wollte schon zur Diagnose, bevor der Zwischenfall kam – danach geht es direkt weiter. */
+  const [wantsDiagnosis, setWantsDiagnosis] = useState(false);
 
   const diagnosisOptions = useMemo(() => shuffle([medCase.diagnosis, ...medCase.distractors]), [medCase]);
   /** Bei 50:50 fallen diese beiden falschen Antworten weg */
@@ -70,6 +77,8 @@ export function CaseScreen({
   const firstName = medCase.patient.name.split(' ')[0];
 
   // Schwer: Der Patient verschlechtert sich in Echtzeit, solange ich untersuche und überlege.
+  const incidentActive =
+    !!incident && phase === 'exam' && !pending && !incidentClosed && (measured.length >= incident.afterMeasurements || wantsDiagnosis);
   const draining = difficulty.drainPerSecond > 0 && (phase === 'exam' || (phase === 'diagnosis' && !diagnosisLocked));
   useEffect(() => {
     if (!draining) return;
@@ -103,6 +112,26 @@ export function CaseScreen({
     setPending(null);
   };
 
+  const chooseIncident = (option: string) => {
+    if (incidentChoice) return;
+    setIncidentChoice(option);
+    // Auf „Schwer“ ohne Sofort-Feedback wirkt die Entscheidung erst am Ende.
+    if (difficulty.instantFeedback) {
+      const ok = option === incident!.options[0];
+      setCondition((c) => clampCondition(c + (ok ? INCIDENT_CONDITION.correct : INCIDENT_CONDITION.wrong)));
+    }
+  };
+
+  const closeIncident = () => {
+    setIncidentClosed(true);
+    if (wantsDiagnosis) goto('diagnosis');
+  };
+
+  const toDiagnosis = () => {
+    if (incident && !incidentClosed) setWantsDiagnosis(true);
+    else goto('diagnosis');
+  };
+
   const lockDiagnosis = () => {
     setDiagnosisLocked(true);
     if (diagnosisGuess !== medCase.diagnosis) setCondition((c) => clampCondition(c + CONDITION.wrongDiagnosis));
@@ -113,11 +142,15 @@ export function CaseScreen({
     // damit auf „Schwer“ kein Feedback vorab durchsickert.
     let c = condition;
     for (const m of measured) {
-      const truth = rateVital(m.id, medCase.vitals[m.id]);
+      const truth = rateVital(m.id, medCase.vitals[m.id], medCase.patient.age);
       if (truth !== null && truth !== m.guess) c += CONDITION.wrongRating;
     }
     for (const i of treatmentGuess) {
       c += medCase.treatments[i].correct ? CONDITION.treatmentCorrect : CONDITION.treatmentWrong;
+    }
+    const incidentCorrect = incident && incidentChoice ? incidentChoice === incident.options[0] : undefined;
+    if (incidentCorrect !== undefined && !difficulty.instantFeedback) {
+      c += incidentCorrect ? INCIDENT_CONDITION.correct : INCIDENT_CONDITION.wrong;
     }
     onFinish({
       medCase,
@@ -127,6 +160,7 @@ export function CaseScreen({
       difficulty: difficulty.id,
       condition: clampCondition(c),
       hintsUsed,
+      incidentCorrect,
     });
   };
 
@@ -239,7 +273,7 @@ export function CaseScreen({
                 const done = measured.find((m) => m.id === v.id);
                 const isPending = pending === v.id;
                 const value = medCase.vitals[v.id];
-                const truth = rateVital(v.id, value);
+                const truth = rateVital(v.id, value, medCase.patient.age);
                 const right = done && truth !== null && difficulty.instantFeedback ? done.guess === truth : null;
                 return (
                   <Pressable
@@ -266,7 +300,7 @@ export function CaseScreen({
                     )}
                     {done && truth !== null && right !== null && (
                       <Text style={[styles.tileFeedback, { color: right ? colors.gruen : colors.signalrot }]}>
-                        {right ? `✓ ${truth}` : `✗ eigentlich ${truth}`} · Norm {v.normal}
+                        {right ? `✓ ${truth}` : `✗ eigentlich ${truth}`} · Norm {normalText(v.id, medCase.patient.age)}
                       </Text>
                     )}
                     {done && truth !== null && right === null && (
@@ -294,8 +328,8 @@ export function CaseScreen({
             <Button
               label="Ich habe einen Verdacht"
              
-              disabled={!!pending || measured.length === 0}
-              onPress={() => goto('diagnosis')}
+              disabled={!!pending || measured.length === 0 || incidentActive}
+              onPress={toDiagnosis}
             />
           </>
         )}
@@ -407,12 +441,52 @@ export function CaseScreen({
         )}
         <WarnStripes />
       </ScrollView>
+        {incidentActive && incident && (
+          <View style={styles.incident}>
+            <ReflexStripes height={6} />
+            <View style={styles.incidentBody}>
+              <Text style={styles.incidentEyebrow}>⚠️ Zwischenfall!</Text>
+              <Text style={styles.incidentText}>{incident.text}</Text>
+              {incidentOptions.map((o) => {
+                const chosen = incidentChoice === o;
+                const reveal = !!incidentChoice && difficulty.instantFeedback;
+                const isRight = o === incident.options[0];
+                return (
+                  <Pressable
+                    key={o}
+                    disabled={!!incidentChoice}
+                    onPress={() => chooseIncident(o)}
+                    style={[
+                      styles.incidentOption,
+                      chosen && styles.incidentChosen,
+                      reveal && isRight && styles.incidentRight,
+                      reveal && chosen && !isRight && styles.incidentWrong,
+                      !!incidentChoice && !chosen && !(reveal && isRight) && { opacity: 0.45 },
+                    ]}
+                  >
+                    <Text style={[styles.incidentOptionText, (chosen || (reveal && isRight)) && { color: colors.weiss }]}>{o}</Text>
+                  </Pressable>
+                );
+              })}
+              {incidentChoice && (
+                <>
+                  <Text style={styles.incidentFeedback}>
+                    {difficulty.instantFeedback
+                      ? `${incidentChoice === incident.options[0] ? '✓ Richtig reagiert! ' : '✗ Leider falsch. '}${incident.explanation}`
+                      : 'Entscheidung getroffen – die Auswertung gibt es im Bericht.'}
+                  </Text>
+                  <Button label="Weiter" variant="dark" onPress={closeIncident} />
+                </>
+              )}
+            </View>
+          </View>
+        )}
         {phase === 'exam' && pending && (
           <View style={styles.ratePanel}>
             <Text style={styles.rateAction}>{VITAL_BY_ID[pending].action}</Text>
             <Text style={[styles.rateValue, { color: monitor[pending] }]}>{formatVital(pending, medCase.vitals[pending])}</Text>
             {difficulty.showNormBeforeRating && (
-              <Text style={styles.rateNorm}>Norm: {VITAL_BY_ID[pending].normal}</Text>
+              <Text style={styles.rateNorm}>Norm: {normalText(pending, medCase.patient.age)}</Text>
             )}
             <Text style={styles.rateQ}>Wie schätze ich den Wert ein?</Text>
             <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm }}>
@@ -494,6 +568,16 @@ const styles = StyleSheet.create({
   tileTap: { marginTop: spacing.sm, color: colors.blaulicht, fontFamily: fonts.bold },
   tileValue: { marginTop: spacing.sm, fontSize: 22, fontFamily: fonts.display, color: colors.graphit },
   tileFeedback: { fontSize: 11, marginTop: 4, fontFamily: fonts.semibold },
+  incident: { backgroundColor: colors.signalrot },
+  incidentBody: { padding: spacing.lg, gap: spacing.sm },
+  incidentEyebrow: { fontFamily: fonts.displayBlack, fontSize: 26, color: colors.weiss, textTransform: 'uppercase', letterSpacing: 1 },
+  incidentText: { fontFamily: fonts.bold, fontSize: 16, lineHeight: 22, color: colors.weiss, marginBottom: spacing.xs },
+  incidentOption: { backgroundColor: colors.weiss, borderRadius: 6, padding: spacing.md, borderWidth: 2, borderColor: colors.weiss },
+  incidentChosen: { backgroundColor: colors.graphit, borderColor: colors.graphit },
+  incidentRight: { backgroundColor: colors.gruen, borderColor: colors.weiss },
+  incidentWrong: { backgroundColor: colors.graphit, borderColor: colors.warngelb },
+  incidentOptionText: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 20, color: colors.graphit },
+  incidentFeedback: { fontFamily: fonts.semibold, fontSize: 14, lineHeight: 20, color: colors.weiss, marginTop: spacing.xs },
   ratePanel: { backgroundColor: colors.nacht, padding: spacing.lg, borderTopWidth: 3, borderTopColor: colors.signalrot },
   rateAction: { color: colors.grau300, fontFamily: fonts.italic, fontSize: 14 },
   rateValue: { color: colors.weiss, fontSize: 40, fontFamily: fonts.displayBlack, marginTop: 2, letterSpacing: 0.5 },

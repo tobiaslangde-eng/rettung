@@ -36,6 +36,13 @@ export interface Progress {
   knowBest: number;
   /** Beste Trefferquote bei der Herzdruckmassage in Prozent */
   cprBest: number;
+  /** Großeinsatz: bestes Sichtungsergebnis (von 8) */
+  manvBest: number;
+  /** Kalenderwoche (z. B. 2026-W42), auf die sich `weekPoints` bezieht */
+  weekKey: string;
+  weekPoints: number;
+  /** Punkte vergangener Wochen (nur Wochen, in denen gespielt wurde) */
+  weekHistory: { week: string; points: number }[];
 }
 
 export const EMPTY_PROGRESS: Progress = {
@@ -57,6 +64,10 @@ export const EMPTY_PROGRESS: Progress = {
   bestDayStreak: 0,
   knowBest: 0,
   cprBest: 0,
+  manvBest: 0,
+  weekKey: '',
+  weekPoints: 0,
+  weekHistory: [],
 };
 
 export async function loadProgress(): Promise<Progress> {

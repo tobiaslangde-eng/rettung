@@ -8,6 +8,7 @@ import { DAILY_GOAL, dailyCase, dailyGoalBonus, dayState } from '../game/daily';
 import { DIFFICULTIES, Difficulty } from '../game/difficulty';
 import { rankFor } from '../game/scoring';
 import { Progress } from '../game/storage';
+import { weekView } from '../game/weekly';
 import { colors, fonts, monitor, spacing, type } from '../theme';
 
 const LEVEL: Record<Difficulty, number> = { leicht: 1, mittel: 2, schwer: 3 };
@@ -38,6 +39,7 @@ export function HomeScreen({
   onQuiz,
   onKnowledge,
   onCpr,
+  onManv,
 }: {
   progress: Progress;
   onStart: () => void;
@@ -48,7 +50,10 @@ export function HomeScreen({
   onQuiz: () => void;
   onKnowledge: () => void;
   onCpr: () => void;
+  onManv: () => void;
 }) {
+  const week = weekView(progress);
+  const barMax = Math.max(1, week.best, ...week.bars.map((b) => b.points));
   const day = dayState(progress);
   const todays = dailyCase(progress);
   const { rank, next } = rankFor(progress.totalPoints);
@@ -108,6 +113,43 @@ export function HomeScreen({
           <Stat value={progress.correctDiagnoses} label="Diagnosen" />
           <View style={styles.statRule} />
           <Stat value={`${mastered}/${CASES.length}`} label="Gemeistert" />
+        </View>
+
+        <View style={styles.week}>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Eyebrow title="Meine Woche" />
+            <Text style={styles.weekValue}>
+              {week.current} <Text style={styles.weekUnit}>Punkte</Text>
+            </Text>
+            <Text style={type.small}>
+              {week.best === 0
+                ? 'Erste Woche – stell deinen Rekord auf!'
+                : week.current > week.best
+                  ? `🏆 Neuer Wochenrekord! (vorher ${week.best})`
+                  : `Rekord ${week.best} · noch ${week.best - week.current + 1} bis zum neuen Rekord`}
+            </Text>
+            <Text style={type.small}>Letzte Woche: {week.last}</Text>
+          </View>
+          <View style={styles.bars}>
+            {week.bars.map((b, i) => {
+              const now = i === week.bars.length - 1;
+              return (
+                <View key={b.week} style={styles.barCol}>
+                  <View style={styles.barTrack}>
+                    <View
+                      style={[
+                        styles.weekBar,
+                        { height: `${Math.max(4, (b.points / barMax) * 100)}%` },
+                        now && { backgroundColor: colors.signalrot },
+                        b.points === 0 && { backgroundColor: colors.grau200 },
+                      ]}
+                    />
+                  </View>
+                  <Text style={[styles.barLabel, now && { color: colors.signalrot }]}>{b.week.slice(6)}</Text>
+                </View>
+              );
+            })}
+          </View>
         </View>
 
         {progress.streak >= 2 && (
@@ -187,6 +229,19 @@ export function HomeScreen({
 
         <View style={{ gap: spacing.sm }}>
           <Eyebrow title="Training" />
+          <Pressable onPress={onManv} accessibilityRole="button" style={({ pressed }) => [styles.manv, pressed && { opacity: 0.9 }]}>
+            <WarnStripes height={8} />
+            <View style={styles.manvBody}>
+              <Text style={styles.manvIcon}>🚨</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.manvTitle}>Großeinsatz</Text>
+                <Text style={styles.manvSub}>
+                  8 Verletzte richtig sichten{progress.manvBest > 0 ? ` · Bestwert ${progress.manvBest}/8` : ''}
+                </Text>
+              </View>
+              <Text style={[styles.quizArrow, { color: colors.graphit }]}>›</Text>
+            </View>
+          </Pressable>
           <Training
             title="Herzdruckmassage"
             sub={`Im Takt drücken – 100 bis 120 pro Minute${progress.cprBest > 0 ? ` · Bestwert ${progress.cprBest} %` : ''}`}
@@ -337,6 +392,27 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     borderLeftWidth: 0,
   },
+  week: {
+    flexDirection: 'row',
+    gap: spacing.lg,
+    backgroundColor: colors.weiss,
+    padding: spacing.lg,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.grau200,
+  },
+  weekValue: { fontFamily: fonts.displayBlack, fontSize: 30, color: colors.graphit },
+  weekUnit: { fontSize: 14, fontFamily: fonts.semibold, color: colors.grau500 },
+  bars: { flexDirection: 'row', alignItems: 'flex-end', gap: 4, width: 120 },
+  barCol: { flex: 1, alignItems: 'center', gap: 2 },
+  barTrack: { height: 70, width: '100%', justifyContent: 'flex-end' },
+  weekBar: { width: '100%', backgroundColor: colors.grau500, borderRadius: 2 },
+  barLabel: { fontFamily: fonts.semibold, fontSize: 9, color: colors.grau500 },
+  manv: { backgroundColor: colors.warngelb, borderRadius: 6, overflow: 'hidden' },
+  manvBody: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg },
+  manvIcon: { fontSize: 26, fontFamily: fonts.regular },
+  manvTitle: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.graphit, textTransform: 'uppercase' },
+  manvSub: { fontFamily: fonts.semibold, fontSize: 13, color: colors.graphit },
   trainingDot: { width: 10, height: 10, borderRadius: 5 },
   daily: { backgroundColor: colors.graphit, borderRadius: 6, padding: spacing.lg, gap: spacing.sm },
   dailyHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

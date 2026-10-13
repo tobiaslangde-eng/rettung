@@ -10,7 +10,7 @@ In dieser Reihenfolge hochladen – Apple skaliert sie für kleinere iPhones sel
 | | Datei | Überschrift |
 |---|---|---|
 | 1 | [`appstore/01.png`](appstore/01.png) | Rette Leben – von Köln bis Sylt |
-| 2 | [`appstore/02.png`](appstore/02.png) | Der Melder piept: 24 Einsätze, drei Schwierigkeitsstufen |
+| 2 | [`appstore/02.png`](appstore/02.png) | Der Melder piept: 28 Einsätze, drei Schwierigkeitsstufen |
 | 3 | [`appstore/03.png`](appstore/03.png) | Mit Blaulicht zum Einsatzort |
 | 4 | [`appstore/04.png`](appstore/04.png) | Puls, Blutdruck, SpO2, EKG: messen und einschätzen |
 | 5 | [`appstore/05.png`](appstore/05.png) | Diagnose stellen, richtig handeln, Ränge aufsteigen |
@@ -34,11 +34,13 @@ In dieser Reihenfolge hochladen – Apple skaliert sie für kleinere iPhones sel
 >
 > Dann stelle ich meine Verdachtsdiagnose und entscheide, was zu tun ist. Jede Messung kostet Zeit, jede falsche Maßnahme schadet meinem Patienten. Am Ende zeigt der Einsatzbericht, wie mein Patient in der Klinik ankommt.
 >
-> • 24 Einsätze: Herzinfarkt, Schlaganfall, Unterzuckerung, Anaphylaxie, Sepsis, Kohlenmonoxid, Spannungspneumothorax, Opioid-Überdosis und mehr
+> • 28 Einsätze: Herzinfarkt, Schlaganfall, Unterzuckerung, Anaphylaxie, Sepsis, Kohlenmonoxid, Spannungspneumothorax, Opioid-Überdosis und mehr
 > • Drei Schwierigkeitsstufen – Leicht mit Hilfe meiner Kollegin Kati, Schwer mit Zeitdruck in Echtzeit
 > • Tagesdienst: jeden Tag ein „Einsatz des Tages“, Tagesziel und Dienst-Serie
-> • Training: Herzdruckmassage im richtigen Takt, 44 Wissensfragen, Normwerte-Schnelltraining
-> • 14 Abzeichen zum Freispielen und Beförderungen bis zur Rettungsdienst-Legende
+> • Zwischenfälle mitten im Einsatz und Kinder-Einsätze mit Kinder-Normwerten
+> • Großeinsatz: viele Verletzte richtig sichten (Rot, Gelb, Grün)
+> • Training: Herzdruckmassage im richtigen Takt, 48 Wissensfragen, Normwerte-Schnelltraining
+> • 16 Abzeichen zum Freispielen und Beförderungen bis zur Rettungsdienst-Legende
 > • Lexikon mit Normwerten, Krankheitsbildern und Rettungswissen (ABCDE, Wiederbelebung, Notruf)
 > • Look wie im echten Rettungsdienst: Patientenmonitor mit EKG, Warnmarkierung, Reflexstreifen
 > • Ohne Werbung, ohne Konto, ohne Datenerfassung

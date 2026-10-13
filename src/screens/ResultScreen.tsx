@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
 import { EcgStrip, MonitorScene, RatingStar, StarOfLife } from '../components/Ems';
+import { INCIDENTS } from '../data/incidents';
 import { VITAL_BY_ID, formatVital, rateVital } from '../data/vitals';
 import { BADGE_BONUS, Badge } from '../game/achievements';
 import { DAILY_GOAL } from '../game/daily';
@@ -16,6 +17,7 @@ export function ResultScreen({
   newBadges,
   goalBonus,
   promotion,
+  weekRecord,
   streak,
   onNext,
   onHome,
@@ -25,6 +27,7 @@ export function ResultScreen({
   newBadges: Badge[];
   goalBonus: number;
   promotion?: string;
+  weekRecord: boolean;
   streak: number;
   onNext: () => void;
   onHome: () => void;
@@ -65,6 +68,17 @@ export function ResultScreen({
               <Text style={styles.promoHead}>Befördert!</Text>
               <Text style={styles.promoText}>Mein neuer Dienstgrad:</Text>
               <Text style={styles.promoRank}>{promotion}</Text>
+            </View>
+          </View>
+        )}
+        {weekRecord && (
+          <View style={styles.badgeBox}>
+            <View style={styles.badgeRow}>
+              <Text style={styles.badgeIcon}>📈</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.badgeTitle}>Neuer Wochenrekord!</Text>
+                <Text style={styles.badgeDesc}>So viele Punkte habe ich noch in keiner Woche gesammelt.</Text>
+              </View>
             </View>
           </View>
         )}
@@ -134,10 +148,22 @@ export function ResultScreen({
           ))}
         </Card>
 
+        {INCIDENTS[c.id] && run.incidentCorrect !== undefined && (
+          <Card style={{ borderLeftColor: run.incidentCorrect ? colors.gruen : colors.signalrot }}>
+            <Eyebrow title="Zwischenfall" />
+            <Text style={[type.body, { marginTop: spacing.xs, fontFamily: fonts.italic }]}>{INCIDENTS[c.id].text}</Text>
+            <Text style={[type.body, { marginTop: spacing.sm, fontFamily: fonts.bold }]}>
+              {run.incidentCorrect ? '✓ ' : '✗ Richtig wäre: '}
+              {INCIDENTS[c.id].options[0]}
+            </Text>
+            <Text style={[type.small, { marginTop: spacing.xs }]}>{INCIDENTS[c.id].explanation}</Text>
+          </Card>
+        )}
+
         <Card style={{ borderLeftColor: colors.graphit }}>
           <Eyebrow title="Meine Messwerte" />
           {run.measured.map((m) => {
-            const truth = rateVital(m.id, c.vitals[m.id]);
+            const truth = rateVital(m.id, c.vitals[m.id], c.patient.age);
             const ok = truth === null || truth === m.guess;
             return (
               <View key={m.id} style={styles.line}>

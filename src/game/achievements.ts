@@ -15,6 +15,8 @@ export const BADGE_BONUS = 50;
 const mastered = (p: Progress, level?: 1 | 2 | 3) =>
   CASES.filter((c) => (level === undefined || c.difficulty === level) && (p.bestStars[c.id] ?? 0) >= 3).length;
 
+const KIDS = CASES.filter((c) => c.patient.age <= 12);
+
 export const BADGES: Badge[] = [
   { id: 'erster', icon: '🚑', title: 'Erster Einsatz', description: 'Den ersten Einsatz abgeschlossen', earned: (p) => p.casesPlayed >= 1 },
   { id: 'perfekt', icon: '⭐', title: 'Lehrbuchreif', description: 'Einen Einsatz mit 3 Sternen gemeistert', earned: (p) => p.perfectRuns >= 1 },
@@ -29,6 +31,8 @@ export const BADGES: Badge[] = [
   { id: 'woche', icon: '🗓️', title: 'Dienstwoche', description: '7 Tage in Folge das Tagesziel erreicht', earned: (p) => p.bestDayStreak >= 7 },
   { id: 'takt', icon: '❤️', title: 'Taktgefühl', description: 'Herzdruckmassage mit 90 % im Zielbereich', earned: (p) => p.cprBest >= 90 },
   { id: 'wissen', icon: '🧠', title: 'Wandelndes Lexikon', description: '10 von 10 bei den Wissensfragen', earned: (p) => p.knowBest >= 10 },
+  { id: 'sichtung', icon: '🚨', title: 'Großeinsatz-Profi', description: 'Beim Großeinsatz alle 8 Verletzten richtig gesichtet', earned: (p) => p.manvBest >= 8 },
+  { id: 'kinder', icon: '🧸', title: 'Kinderretter/in', description: 'Alle Kinder-Einsätze mit mindestens 2 Sternen', earned: (p) => KIDS.every((c) => (p.bestStars[c.id] ?? 0) >= 2) },
   { id: 'meister', icon: '🏆', title: 'Meister/in', description: 'Alle Fälle mit 3 Sternen gemeistert', earned: (p) => mastered(p) === CASES.length },
 ];
 

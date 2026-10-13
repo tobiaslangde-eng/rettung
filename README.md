@@ -17,11 +17,17 @@ Krankheit und entscheide, was zu tun ist.
 
 - **Tagesdienst:** jeden Tag ein „Einsatz des Tages“ (+50 % Punkte) und ein Tagesziel von 3 Einsätzen;
   wer es mehrere Tage hintereinander schafft, baut eine Dienst-Serie mit steigendem Bonus auf
+- **Zwischenfälle:** In 17 Einsätzen passiert mitten in der Untersuchung etwas Unerwartetes
+  (z. B. Kammerflimmern, Erbrechen, Status epilepticus) – ich muss sofort richtig reagieren
+- **Kinder-Einsätze:** 4 Fälle mit kleinen Patienten (Fieberkrampf, Pseudokrupp, verschluckte Erdnuss,
+  Exsikkose); bewertet wird mit Kinder-Normwerten für Puls, Atmung und Blutdruck
+- **Großeinsatz (MANV):** 8 Verletzte nach einem vereinfachten mSTaRT-Schema sichten (Rot, Gelb, Grün, Schwarz)
+- **Meine Woche:** Wochenpunkte mit Verlauf der letzten 6 Wochen und Wochenrekord
 - **Training Herzdruckmassage:** im Takt von 100–120/min auf den Brustkorb tippen, 2 Runden 30:2,
   mit Live-Anzeige, Taktgeber (abschaltbar für doppelte Punkte) und Auswertung der Beatmungspause
-- **Training Wissensfragen:** 44 Fragen aus dem Einsatzalltag, je 10 pro Runde, mit Erklärung
+- **Training Wissensfragen:** 48 Fragen aus dem Einsatzalltag, je 10 pro Runde, mit Erklärung
 - **Training Normwerte:** 10 zufällige Messwerte in Folge als niedrig, normal oder hoch einstufen
-- **14 Abzeichen** (z. B. „Lehrbuchreif“, „Taktgefühl“, „Dienstwoche“) mit je 50 Bonuspunkten
+- **16 Abzeichen** (z. B. „Lehrbuchreif“, „Taktgefühl“, „Dienstwoche“) mit je 50 Bonuspunkten
 - **Bonuspunkte** für perfekte Einsätze und Serien, 8 Ränge bis zur „Rettungsdienst-Legende“ –
   jede Beförderung wird im Einsatzbericht gefeiert
 - **Rettungswissen im Lexikon:** Notruf (5 W), Rettungskette, ABCDE, Wiederbelebung, Seitenlage, BE-FAST, SAMPLER, GCS, Schockzeichen
@@ -45,10 +51,10 @@ Krankheit und entscheide, was zu tun ist.
 Punkte bringen dich im Rang nach oben – vom *Praktikanten* bis zur *Teamleitung*.
 Der Fortschritt wird lokal gespeichert. Im **Lexikon** findest du Normwerte und alle Krankheitsbilder.
 
-### Enthaltene Fälle (24)
+### Enthaltene Fälle (28)
 
-- **Leicht (9):** Herzinfarkt, Hypoglykämie, Schlaganfall, Asthmaanfall, Kreislaufkollaps, Unterarmbruch, Verbrennung, Nierenkolik, Alkoholvergiftung
-- **Mittel (9):** Anaphylaxie, Hypothermie, Hitzschlag, Hyperventilation, Krampfanfall, hypertensiver Notfall, Opioid-Überdosis, Gehirnerschütterung, COPD
+- **Leicht (11):** Herzinfarkt, Hypoglykämie, Schlaganfall, Asthmaanfall, Kreislaufkollaps, Unterarmbruch, Verbrennung, Nierenkolik, Alkoholvergiftung, Fieberkrampf (Kind), Pseudokrupp (Kind)
+- **Mittel (11):** Anaphylaxie, Hypothermie, Hitzschlag, Hyperventilation, Krampfanfall, hypertensiver Notfall, Opioid-Überdosis, Gehirnerschütterung, COPD, verschluckte Erdnuss (Kind), Exsikkose (Kind)
 - **Schwer (6):** Sepsis, Lungenembolie, Lungenödem, Kohlenmonoxidvergiftung, diabetische Ketoazidose, Spannungspneumothorax (plus die mittleren Fälle)
 
 ## Design: Rettungsdienst
@@ -114,6 +120,8 @@ src/components/         Buttons, Karten, Kati, Blaulichtfahrt
 src/data/vitals.ts      Vitalwerte, Normbereiche, Einstufung
 src/data/cases.ts       Einsatzfälle
 src/data/questions.ts   Wissensfragen
+src/data/incidents.ts   Zwischenfälle in Einsätzen
+src/data/manv.ts        Großeinsatz: Verletzte und Sichtungsschema
 src/data/basics.ts      Rettungswissen fürs Lexikon
 src/game/scoring.ts     Punkte, Sterne, Ränge, Patientenzustand
 src/game/difficulty.ts  Schwierigkeitsstufen
@@ -121,6 +129,8 @@ src/game/daily.ts       Tagesdienst: Einsatz des Tages, Tagesziel, Dienst-Serie
 src/game/cpr.ts         Herzdruckmassage-Training: Takt messen und bewerten
 src/game/quiz.ts        Normwerte- und Wissensfragen-Training
 src/game/achievements.ts Abzeichen
+src/game/manv.ts        Großeinsatz-Runden und Punkte
+src/game/weekly.ts      Wochenpunkte und Wochenrekord
 src/game/storage.ts     Speicherung (AsyncStorage)
 src/screens/            Start, Einsatz, Ergebnis, Training, Lexikon, Anleitung
 ```

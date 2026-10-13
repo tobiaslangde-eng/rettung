@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
 import { BASICS } from '../data/basics';
 import { CASES } from '../data/cases';
-import { VITALS } from '../data/vitals';
+import { CHILD_NORMS, VITALS } from '../data/vitals';
 import { Progress } from '../game/storage';
 import { colors, spacing, type, fonts } from '../theme';
 
@@ -36,6 +36,23 @@ export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack
         {tab === 'wissen' ? null : tab === 'werte' ? (
           <>
             <Text style={type.small}>Richtwerte für Erwachsene in Ruhe. Bei Kindern gelten andere Normalbereiche.</Text>
+            <Card style={{ borderLeftColor: colors.warngelb }}>
+              <Eyebrow title="Kinder" />
+              <Text style={[type.h2, { marginTop: 2 }]}>Normwerte bei Kindern</Text>
+              <Text style={[type.small, { marginTop: spacing.xs }]}>
+                Je jünger, desto schneller schlagen Herz und Atmung – und desto niedriger ist der Blutdruck. SpO₂,
+                Temperatur, Blutzucker und GCS wie bei Erwachsenen. Ab etwa 13 Jahren gelten die Erwachsenenwerte.
+              </Text>
+              {CHILD_NORMS.map((g) => (
+                <View key={g.label} style={{ marginTop: spacing.sm }}>
+                  <Text style={[type.body, { fontFamily: fonts.bold }]}>{g.label}</Text>
+                  <Text style={type.small}>
+                    Puls {g.limits.puls?.low}–{g.limits.puls?.high} /min · AF {g.limits.af?.low}–{g.limits.af?.high} /min · RR syst.{' '}
+                    {g.limits.rr?.low}–{g.limits.rr?.high} mmHg
+                  </Text>
+                </View>
+              ))}
+            </Card>
             {VITALS.map((v) => (
               <Card key={v.id}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>

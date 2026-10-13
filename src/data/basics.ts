@@ -111,4 +111,27 @@ export const BASICS: BasicTopic[] = [
       'Maßnahmen: Ursache behandeln, Wärmeerhalt, Beine hoch (nicht bei Atemnot oder Kopf-/Brustverletzung), Notruf',
     ],
   },
+  {
+    id: 'sichtung',
+    title: 'Sichtung beim Großeinsatz (MANV)',
+    intro: 'Bei vielen Verletzten wird zuerst gesichtet, nicht behandelt – so bekommen die Schwerstverletzten zuerst Hilfe. Vereinfachtes mSTaRT-Schema für Erwachsene:',
+    points: [
+      'Gehfähig → Grün (leicht verletzt)',
+      'Spritzende Blutung → Rot, sofort stoppen',
+      'Keine Atmung trotz freier Atemwege → Schwarz',
+      'Atemfrequenz über 30, kein Radialispuls, Rekapillarisierung über 2 s oder befolgt keine Aufforderungen → Rot',
+      'Alle anderen → Gelb',
+    ],
+  },
+  {
+    id: 'kinder',
+    title: 'Notfälle bei Kindern',
+    points: [
+      'Kinder sind keine kleinen Erwachsenen: Puls und Atmung sind schneller, der Blutdruck niedriger',
+      'Ein niedriger Blutdruck ist bei Kindern ein spätes Schockzeichen – auf Puls, Haut und Verhalten achten',
+      'Eltern als Helfer einbinden – auf dem Schoß ist das Kind ruhiger',
+      'Wiederbelebung: zuerst 5 Beatmungen, dann 15 Kompressionen : 2 Beatmungen (Laien dürfen 30:2)',
+      'Kleine Teile wie Nüsse, Trauben und Spielzeug sind eine häufige Ursache für Erstickungsnotfälle',
+    ],
+  },
 ];

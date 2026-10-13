@@ -3,6 +3,8 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
 import { BADGE_BONUS } from '../game/achievements';
 import { CPR_POINTS } from '../game/cpr';
+import { INCIDENT_POINTS } from '../data/incidents';
+import { MANV_PERFECT_BONUS, MANV_POINTS } from '../data/manv';
 import { DAILY_GOAL, dailyGoalBonus } from '../game/daily';
 import { QUIZ_POINTS } from '../game/quiz';
 import { DIFFICULTIES } from '../game/difficulty';
@@ -43,6 +45,13 @@ export function GuideScreen({ onBack, onReset }: { onBack: () => void; onReset: 
             erreicht das Tagesziel. Schaffe ich das mehrere Tage hintereinander, wächst meine Dienst-Serie – und der Bonus mit.
           </Text>
         </Card>
+        <Card style={{ borderLeftColor: colors.signalrot }}>
+          <Eyebrow title="Zwischenfälle & Kinder" />
+          <Text style={[type.body, { marginTop: spacing.xs }]}>
+            Bei vielen Einsätzen passiert mitten in der Untersuchung etwas Unerwartetes – dann muss ich sofort richtig
+            reagieren. Bei Kinder-Einsätzen gelten andere Normwerte für Puls, Atmung und Blutdruck (siehe Lexikon).
+          </Text>
+        </Card>
         <Card style={{ borderLeftColor: colors.blaulicht }}>
           <Eyebrow title="Schwierigkeit" />
           {DIFFICULTIES.map((d) => (
@@ -64,6 +73,8 @@ export function GuideScreen({ onBack, onReset }: { onBack: () => void; onReset: 
           <Row label="Richtige Maßnahme" pts={POINTS.treatmentCorrect} />
           <Row label="Falsche Maßnahme" pts={POINTS.treatmentWrong} />
           <Row label="Zustand des Patienten am Ende (max.)" pts={POINTS.conditionMax} />
+          <Row label="Zwischenfall richtig gemeistert" pts={INCIDENT_POINTS.correct} />
+          <Row label="Zwischenfall falsch behandelt" pts={INCIDENT_POINTS.wrong} />
           <Row label="Tipp von Kati (nur auf Mittel)" pts={-10} />
           <Row label="Perfekter Einsatz (3 Sterne)" pts={POINTS.perfectBonus} />
           <Row label={`Serienbonus je gutem Einsatz in Folge (max. ${POINTS.streakMax})`} pts={POINTS.streakPerLevel} />
@@ -71,6 +82,7 @@ export function GuideScreen({ onBack, onReset }: { onBack: () => void; onReset: 
           <Row label="Einsatz des Tages" pts={0} text="+50 %" />
           <Row label={`Tagesziel (${DAILY_GOAL} Einsätze), steigt mit der Dienst-Serie`} pts={dailyGoalBonus(1)} text={`+${dailyGoalBonus(1)}–${dailyGoalBonus(6)}`} />
           <Row label="Normwerte & Wissensfragen: je richtiger Antwort" pts={QUIZ_POINTS} />
+          <Row label={`Großeinsatz: je richtig gesichteter Person (alle richtig: +${MANV_PERFECT_BONUS})`} pts={MANV_POINTS} />
           <Row label="Herzdruckmassage (ohne Taktgeber doppelt)" pts={CPR_POINTS} text={`bis +${CPR_POINTS * 2}`} />
           <Text style={[type.small, { marginTop: spacing.sm }]}>
             Auf „Mittel“ zählen alle Punkte eines Einsatzes ×1,5, auf „Schwer“ ×2.

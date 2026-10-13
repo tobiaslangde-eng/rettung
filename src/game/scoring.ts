@@ -1,4 +1,5 @@
 import { MedCase } from '../data/cases';
+import { INCIDENTS, INCIDENT_POINTS } from '../data/incidents';
 import { Rating, VitalId, rateVital } from '../data/vitals';
 import { DIFFICULTY_BY_ID, Difficulty, HINT_COST } from './difficulty';
 
@@ -53,6 +54,8 @@ export interface CaseRun {
   condition: number;
   /** Bezahlte Tipps von Kati */
   hintsUsed: number;
+  /** Reaktion auf den Zwischenfall (undefined, wenn es keinen gab) */
+  incidentCorrect?: boolean;
 }
 
 export interface ScoreLine {
@@ -78,7 +81,7 @@ export function scoreRun(run: CaseRun, streakBefore = 0): ScoreResult {
   let correctRatings = 0;
   let ratable = 0;
   for (const m of measured) {
-    const truth = rateVital(m.id, medCase.vitals[m.id]);
+    const truth = rateVital(m.id, medCase.vitals[m.id], medCase.patient.age);
     if (truth === null) continue;
     ratable++;
     if (truth === m.guess) {
@@ -125,6 +128,13 @@ export function scoreRun(run: CaseRun, streakBefore = 0): ScoreResult {
     points: tPts,
   });
 
+  if (run.incidentCorrect !== undefined) {
+    lines.push({
+      label: run.incidentCorrect ? 'Zwischenfall richtig gemeistert' : 'Zwischenfall falsch behandelt',
+      points: run.incidentCorrect ? INCIDENT_POINTS.correct : INCIDENT_POINTS.wrong,
+    });
+  }
+
   lines.push({ label: `Zustand des Patienten (${Math.round(run.condition)} %)`, points: Math.round(run.condition / 5) });
 
   if (run.hintsUsed > 0) {
@@ -155,14 +165,15 @@ export function scoreRun(run: CaseRun, streakBefore = 0): ScoreResult {
 
 /** Bestmögliche Punktzahl: nur die wichtigen Werte messen und alles richtig machen. */
 export function maxScore(medCase: MedCase): number {
-  const ratableKeys = medCase.keyVitals.filter((id) => rateVital(id, medCase.vitals[id]) !== null).length;
+  const ratableKeys = medCase.keyVitals.filter((id) => rateVital(id, medCase.vitals[id], medCase.patient.age) !== null).length;
   const correctTreatments = medCase.treatments.filter((t) => t.correct).length;
   return (
     ratableKeys * POINTS.ratingCorrect +
     POINTS.efficiencyMax +
     POINTS.conditionMax +
     POINTS.diagnosisCorrect +
-    correctTreatments * POINTS.treatmentCorrect
+    correctTreatments * POINTS.treatmentCorrect +
+    (INCIDENTS[medCase.id] ? INCIDENT_POINTS.correct : 0)
   );
 }
 

@@ -74,7 +74,7 @@ Du brauchst:
 - **Beschreibung** – Vorschlag:
 
 > Einsatz 112: Als Sanitäter/in erkenne ich Krankheiten, messe Vitalwerte und
-> entscheide, was zu tun ist. 24 Einsätze von Köln bis Sylt, drei Schwierigkeitsstufen,
+> entscheide, was zu tun ist. 28 Einsätze von Köln bis Sylt, drei Schwierigkeitsstufen,
 > Lexikon mit Normwerten.
 > Lernspiel – ersetzt keine medizinische Ausbildung oder ärztliche Beratung.
 
