@@ -42,3 +42,7 @@ yarn-error.*
 
 # Web-App-Build
 dist-pwa/
+
+# Store-Zugangsdaten – niemals einchecken
+google-service-account.json
+asc-api-key.p8

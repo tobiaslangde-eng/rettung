@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
 import { BADGE_BONUS } from '../game/achievements';
 import { CPR_POINTS } from '../game/cpr';
@@ -10,6 +10,8 @@ import { QUIZ_POINTS } from '../game/quiz';
 import { DIFFICULTIES } from '../game/difficulty';
 import { POINTS } from '../game/scoring';
 import { colors, spacing, type, fonts } from '../theme';
+
+const PRIVACY_URL = 'https://tobiaslangde-eng.github.io/retung/datenschutz.html';
 
 const STEPS = [
   { de: 'Alarm', text: 'Mein Melder piept: Die Leitstelle schickt mich zum nächsten Notfall. Mit Blaulicht geht es los.' },
@@ -94,6 +96,18 @@ export function GuideScreen({ onBack, onReset }: { onBack: () => void; onReset: 
             Dieses Spiel dient dem Lernen und Üben. Die Inhalte sind vereinfacht und ersetzen keine Ausbildung, keine
             ärztliche Beratung und keine regionalen Leitlinien/SOPs. Im Notfall immer 112 wählen.
           </Text>
+        </Card>
+        <Card style={{ borderLeftColor: colors.blaulicht }}>
+          <Eyebrow title="Datenschutz" />
+          <Text style={[type.small, { marginTop: spacing.xs }]}>
+            Einsatz 112 sammelt keine persönlichen Daten. Der Spielstand bleibt auf diesem Gerät.
+          </Text>
+          <Button
+            label="Datenschutzerklärung"
+            variant="outline"
+            onPress={() => Linking.openURL(PRIVACY_URL)}
+            style={{ marginTop: spacing.md }}
+          />
         </Card>
         <Card style={{ borderLeftColor: colors.grau500 }}>
           <Eyebrow title="Neu anfangen" />

@@ -1,14 +1,14 @@
 # Datenschutzerklärung – Einsatz 112
 
-**Einsatz 112** ist ein Lernspiel.
+Veröffentlicht unter **https://tobiaslangde-eng.github.io/retung/datenschutz.html**
+(Quelle: [`web/datenschutz.html`](../web/datenschutz.html)) – diese Adresse in App Store Connect und
+der Google Play Console als Datenschutz-URL eintragen.
 
 - Die App erhebt **keine personenbezogenen Daten** und überträgt keine Daten an Server.
-- Es gibt kein Benutzerkonto, keine Werbung, keine Analyse- oder Tracking-Dienste.
-- Spielstand (Punkte, Rang, gewählte Schwierigkeit) wird **nur lokal auf dem Gerät**
-  gespeichert und beim Löschen der App entfernt.
-- Die App benötigt keine Berechtigungen (keine Kamera, kein Standort, keine Kontakte).
+- Kein Benutzerkonto, keine Werbung, keine Analyse- oder Tracking-Dienste, keine In-App-Käufe.
+- Der Spielstand wird **nur lokal auf dem Gerät** gespeichert.
+- Keine Berechtigungen (keine Kamera, kein Standort, keine Kontakte).
+- Die Web-Version wird über GitHub Pages ausgeliefert; GitHub verarbeitet dabei technisch notwendige
+  Verbindungsdaten (IP-Adresse).
 
-Die Inhalte dienen dem Lernen und ersetzen keine medizinische Ausbildung oder ärztliche
-Beratung. Im Notfall: 112.
-
-Kontakt: _bitte eigene Kontaktadresse eintragen_
+Kontakt: https://github.com/tobiaslangde-eng/retung/issues

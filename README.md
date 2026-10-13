@@ -92,7 +92,7 @@ Der Workflow „Web-App veröffentlichen“ legt sie unter <https://tobiaslangde
 Auf dem iPhone den Link in **Safari** öffnen → Teilen-Symbol → **„Zum Home-Bildschirm“**.
 Einmalig nötig: Repository öffentlich und unter *Settings → Pages* den Branch `gh-pages` als Quelle wählen.
 
-**iPhone / App Store:** Schritt-für-Schritt-Anleitung in [`docs/APPLE-RELEASE.md`](docs/APPLE-RELEASE.md) (Apple-Entwicklerkonto nötig, kein Mac nötig). Updates danach über den Workflow „iOS Release“.
+**App Store, Google Play und Microsoft Store:** Schritt-für-Schritt-Anleitung in [`docs/STORES.md`](docs/STORES.md) – kein eigener Computer nötig. Gebaut wird über den Workflow „Store-Veröffentlichung“ (Expo EAS); Texte und Bilder: [`docs/APPSTORE-EINTRAG.md`](docs/APPSTORE-EINTRAG.md), [`docs/PLAYSTORE-EINTRAG.md`](docs/PLAYSTORE-EINTRAG.md).
 
 ## Starten
 

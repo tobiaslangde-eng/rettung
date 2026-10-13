@@ -9,13 +9,13 @@
     "backgroundColor": "#F2F3F5",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "ee.kiirabi.rettung",
+      "bundleIdentifier": "io.github.tobiaslangde.einsatz112",
       "config": {
         "usesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "ee.kiirabi.rettung",
+      "package": "io.github.tobiaslangde.einsatz112",
       "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#15181C",

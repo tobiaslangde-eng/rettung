@@ -10,7 +10,7 @@
   "scripts": {
     "prepare-app": "cd .. && node -e \"require('fs').mkdirSync('desktop/app',{recursive:true})\" && npx expo export --platform web --output-dir dist && node scripts/build-single-html.mjs dist desktop/app/index.html",
     "start": "electron .",
-    "dist:win": "electron-builder --win portable --x64 --publish never",
+    "dist:win": "electron-builder --win portable nsis --x64 --publish never",
     "dist:mac": "electron-builder --mac dmg --x64 --arm64 --publish never",
     "dist:linux": "electron-builder --linux AppImage --x64 --publish never"
   },
@@ -19,7 +19,7 @@
     "electron-builder": "26.15.3"
   },
   "build": {
-    "appId": "ee.kiirabi.rettung",
+    "appId": "io.github.tobiaslangde.einsatz112",
     "productName": "Einsatz 112",
     "copyright": "Einsatz 112 – Lernspiel",
     "files": [
@@ -44,6 +44,12 @@
       "category": "Education",
       "artifactName": "Einsatz112-Linux.AppImage"
     },
-    "publish": null
+    "publish": null,
+    "nsis": {
+      "artifactName": "Einsatz112-Windows-Setup.exe",
+      "oneClick": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false
+    }
   }
 }

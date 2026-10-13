@@ -111,7 +111,7 @@ jobs:
         include:
           - os: windows-latest
             target: dist:win
-            files: desktop/release/Einsatz112-Windows.exe
+            files: desktop/release/Einsatz112-Windows*.exe
           - os: macos-latest
             target: dist:mac
             files: desktop/release/Einsatz112-Mac-*.dmg
@@ -174,7 +174,8 @@ jobs:
 
             | Gerät | Datei | So startest du es |
             |---|---|---|
-            | Windows | **Einsatz112-Windows.exe** | Doppelklick. Bei „Der Computer wurde durch Windows geschützt“: *Weitere Informationen* → *Trotzdem ausführen*. |
+            | Windows | **Einsatz112-Windows.exe** | Doppelklick, ohne Installation. Bei „Der Computer wurde durch Windows geschützt“: *Weitere Informationen* → *Trotzdem ausführen*. |
+            | Windows (Installer) | **Einsatz112-Windows-Setup.exe** | Installiert Einsatz 112 mit Startmenü-Eintrag (auch für den Microsoft Store geeignet). |
             | Mac (Apple-Chip M1–M4) | **Einsatz112-Mac-arm64.dmg** | Öffnen, Einsatz 112 in „Programme“ ziehen. Beim ersten Start: Rechtsklick auf Einsatz 112 → *Öffnen* (oder Systemeinstellungen → Datenschutz & Sicherheit → *Trotzdem öffnen*). |
             | Mac (Intel) | **Einsatz112-Mac-x64.dmg** | wie oben |
             | Linux | **Einsatz112-Linux.AppImage** | Ausführbar machen (`chmod +x`), dann starten. |
