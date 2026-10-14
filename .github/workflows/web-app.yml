@@ -85,6 +85,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      # Nur „vorschau“ oder „vorschau/<name>“ ist erlaubt – so kann ein Tippfehler die Live-Seite nie überschreiben.
+      - name: Vorschau-Adresse prüfen
+        if: inputs.ordner != ''
+        env:
+          ORDNER: ${{ inputs.ordner }}
+        run: |
+          if ! [[ "$ORDNER" =~ ^vorschau(/[a-z0-9-]+)?$ ]]; then
+            echo "::error::„ordner“ muss so aussehen: vorschau/apple (danach nur Kleinbuchstaben, Zahlen und Bindestrich)"
+            exit 1
+          fi
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref || github.sha }}
@@ -101,6 +112,19 @@ jobs:
         run: npm run build:pwa
         env:
           VORSCHAU: '1'
+
+      # Das gelbe Schild im Bild und der Name auf dem Home-Bildschirm zeigen sonst den Stand des Arbeits-Branches
+      # statt der gewählten Vorschau (z. B. „VORSCHAU APPLE“ statt einer Versionsnummer).
+      - name: Vorschau beschriften
+        if: inputs.ordner != '' && inputs.ordner != 'vorschau'
+        env:
+          ORDNER: ${{ inputs.ordner }}
+        run: |
+          NAME="${ORDNER##*/}"
+          sed -i "s/VORSCHAU [0-9a-f]\{7\}</VORSCHAU ${NAME^^}</" dist-pwa/index.html
+          sed -i "s/content=\"E112 Vorschau\">/content=\"E112 ${NAME}\">/" dist-pwa/index.html
+          sed -i "s/E112 Vorschau/E112 ${NAME}/; s/(Vorschau)/(${NAME})/" dist-pwa/manifest.webmanifest
+          grep -c "VORSCHAU ${NAME^^}<" dist-pwa/index.html
 
       - name: Nach gh-pages/vorschau veröffentlichen
         uses: peaceiris/actions-gh-pages@v4
