@@ -1,6 +1,6 @@
 # Veröffentlicht Einsatz 112 als Web-App (für iPhone: in Safari „Zum Home-Bildschirm“).
 # Die fertige Seite landet im Branch gh-pages, den GitHub Pages ausliefert:
-# https://tobiaslangde-eng.github.io/rettung/
+# https://rettung.tankard.de (bzw. https://tobiaslangde-eng.github.io/rettung/)
 #
 # Einmalig nötig: Repository öffentlich, und unter Settings → Pages als Quelle
 # „Deploy from a branch“ → Branch „gh-pages“ / „(root)“ wählen.
@@ -35,6 +35,21 @@ jobs:
 
       - name: Web-App bauen
         run: npm run build:pwa
+
+      # Eigene Adresse: nur eintragen, wenn der DNS-Eintrag (CNAME) wirklich auf GitHub zeigt –
+      # sonst würde GitHub auf eine Adresse umleiten, die noch nicht funktioniert.
+      - name: Eigene Adresse prüfen
+        env:
+          DOMAIN: rettung.tankard.de
+        run: |
+          ZIEL=$(dig +short CNAME "$DOMAIN" | head -n1)
+          echo "CNAME von $DOMAIN: ${ZIEL:-(keiner)}"
+          if [ "${ZIEL%.}" = "tobiaslangde-eng.github.io" ]; then
+            echo "$DOMAIN" > dist-pwa/CNAME
+            echo "✅ $DOMAIN wird als Adresse eingetragen"
+          else
+            echo "::warning::$DOMAIN zeigt noch nicht auf tobiaslangde-eng.github.io – Web-App bleibt unter github.io"
+          fi
 
       - name: Nach gh-pages veröffentlichen
         uses: peaceiris/actions-gh-pages@v4
