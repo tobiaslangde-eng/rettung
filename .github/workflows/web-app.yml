@@ -6,9 +6,11 @@
 # „Deploy from a branch“ → Branch „gh-pages“ / „(root)“ wählen.
 name: Web-App veröffentlichen
 
+# Live geht nur, was in main liegt. Neue Funktionen entstehen in einem eigenen Branch und
+# kommen erst per Pull Request (Merge) in main – und damit auf die Webseite.
 on:
   push:
-    branches: [main, claude/medical-game-app-expo-nru897]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -20,6 +22,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
