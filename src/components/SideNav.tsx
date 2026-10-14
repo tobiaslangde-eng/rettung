@@ -7,12 +7,13 @@ import { SIDEBAR_WIDTH } from '../layout';
 import { colors, fonts, shadow, spacing } from '../theme';
 import { RankBadge, StarOfLife } from './Ems';
 
-export type NavTarget = 'home' | 'start' | 'garage' | 'manv' | 'cpr' | 'wissen' | 'quiz' | 'lexikon' | 'guide';
+export type NavTarget = 'home' | 'start' | 'garage' | 'detektiv' | 'manv' | 'cpr' | 'wissen' | 'quiz' | 'lexikon' | 'guide';
 
 const ITEMS: { id: NavTarget; icon: string; label: string; group?: string }[] = [
   { id: 'home', icon: '🏠', label: 'Heute' },
   { id: 'garage', icon: '🚑', label: 'Mein Rettungswagen' },
-  { id: 'manv', icon: '🚨', label: 'Großeinsatz', group: 'Training' },
+  { id: 'detektiv', icon: '🔍', label: 'Detektiv-Akten', group: 'Training' },
+  { id: 'manv', icon: '🚨', label: 'Großeinsatz' },
   { id: 'cpr', icon: '❤️', label: 'Herzdruckmassage' },
   { id: 'wissen', icon: '🧠', label: 'Wissensfragen' },
   { id: 'quiz', icon: '📈', label: 'Normwerte' },

@@ -8,6 +8,7 @@ import { BADGES } from '../game/achievements';
 import { DAILY_GOAL, dailyCase, dailyGoalBonus, dayState } from '../game/daily';
 import { DIFFICULTIES, Difficulty } from '../game/difficulty';
 import { EQUIPMENT, MAX_LEVEL, euro, levelOf, totalLevel, upgradeBlock } from '../game/equipment';
+import { archiveCount, detectiveGrade } from '../game/detective';
 import { RANKS, rankFor } from '../game/scoring';
 import { Progress } from '../game/storage';
 import { weekView } from '../game/weekly';
@@ -30,11 +31,19 @@ const MONTHS = [
   'Dezember',
 ];
 
-export type TrainingId = 'manv' | 'cpr' | 'wissen' | 'quiz';
+export type TrainingId = 'detektiv' | 'manv' | 'cpr' | 'wissen' | 'quiz';
 
 /** Die vier Trainings – gemeinsam genutzt von Startseite und Training-Tab */
 export function trainings(progress: Progress) {
   return [
+    {
+      id: 'detektiv' as TrainingId,
+      icon: '🔍',
+      color: colors.indigo,
+      title: 'Detektiv-Akten',
+      sub: 'Der Diagnose-Krimi: Hinweise aufdecken, Fall lösen',
+      best: progress.detectiveBest > 0 ? `Bestwert ${progress.detectiveBest}` : undefined,
+    },
     {
       id: 'manv' as TrainingId,
       icon: '🚨',
@@ -54,7 +63,7 @@ export function trainings(progress: Progress) {
     {
       id: 'wissen' as TrainingId,
       icon: '🧠',
-      color: colors.indigo,
+      color: colors.tuerkis,
       title: 'Wissensfragen',
       sub: '10 Fragen aus dem Einsatzalltag',
       best: progress.knowBest > 0 ? `Bestwert ${progress.knowBest}/10` : undefined,
@@ -273,23 +282,26 @@ export function HomeScreen({
   const trainingGrid = (
     <View style={{ gap: spacing.md }}>
       <SectionTitle title="Training" />
+      <DetectiveTeaser progress={progress} onPress={() => onTraining('detektiv')} />
       <View style={styles.grid}>
-        {trainings(progress).map((t) => (
-          <Pressable
-            key={t.id}
-            onPress={() => onTraining(t.id)}
-            accessibilityRole="button"
-            style={({ pressed }) => [styles.tile, pressed && { transform: [{ scale: 0.97 }], opacity: 0.9 }]}
-          >
-            <IconTile icon={t.icon} color={t.color} size={44} />
-            <Text style={[type.headline, { marginTop: spacing.sm }]} numberOfLines={2}>
-              {t.title.replace('Herzdruckmassage', 'Herzdruck\u00ADmassage')}
-            </Text>
-            <Text style={type.small} numberOfLines={2}>
-              {t.best ?? t.sub}
-            </Text>
-          </Pressable>
-        ))}
+        {trainings(progress)
+          .filter((t) => t.id !== 'detektiv')
+          .map((t) => (
+            <Pressable
+              key={t.id}
+              onPress={() => onTraining(t.id)}
+              accessibilityRole="button"
+              style={({ pressed }) => [styles.tile, pressed && { transform: [{ scale: 0.97 }], opacity: 0.9 }]}
+            >
+              <IconTile icon={t.icon} color={t.color} size={44} />
+              <Text style={[type.headline, { marginTop: spacing.sm }]} numberOfLines={2}>
+                {t.title.replace('Herzdruckmassage', 'Herzdruck\u00ADmassage')}
+              </Text>
+              <Text style={type.small} numberOfLines={2}>
+                {t.best ?? t.sub}
+              </Text>
+            </Pressable>
+          ))}
       </View>
     </View>
   );
@@ -423,6 +435,48 @@ export function HomeScreen({
   );
 }
 
+/** Hervorgehobene Karte für die Detektiv-Akten (Startseite und Training) */
+export function DetectiveTeaser({ progress, onPress }: { progress: Progress; onPress: () => void }) {
+  const arch = archiveCount(progress);
+  const { grade } = detectiveGrade(progress);
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel="Detektiv-Akten"
+      style={({ pressed }) => [styles.detective, pressed && { transform: [{ scale: 0.98 }], opacity: 0.95 }]}
+    >
+      <Svg style={StyleSheet.absoluteFill as object} width="100%" height="100%" preserveAspectRatio="none">
+        <Defs>
+          <LinearGradient id="detBg" x1="0" y1="0" x2="1" y2="1">
+            <Stop offset="0" stopColor="#1E2A55" />
+            <Stop offset="1" stopColor="#3A1F5C" />
+          </LinearGradient>
+        </Defs>
+        <Rect width="100%" height="100%" fill="url(#detBg)" />
+      </Svg>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+        <Text style={{ fontSize: 40, lineHeight: 48 }}>🔍</Text>
+        <View style={{ flex: 1, gap: 2 }}>
+          <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
+            <Text style={styles.detTitle}>Detektiv-Akten</Text>
+            {arch.solved === 0 && <Pill label="Neu" color={colors.signalrot} />}
+          </View>
+          <Text style={styles.detSub}>Der Diagnose-Krimi – je weniger Hinweise, desto mehr Punkte</Text>
+        </View>
+      </View>
+      <View style={styles.detFoot}>
+        <Text style={styles.detMeta}>
+          {grade.icon} {grade.title} · Archiv {arch.solved}/{arch.total}
+        </Text>
+        <View style={styles.detBtn}>
+          <Text style={styles.detBtnText}>Ermitteln</Text>
+        </View>
+      </View>
+    </Pressable>
+  );
+}
+
 function Legend({ color, title, value }: { color: string; title: string; value: string }) {
   return (
     <View>
@@ -506,6 +560,13 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     ...shadow,
   },
+  detective: { borderRadius: radius.lg, overflow: 'hidden', padding: spacing.lg, gap: spacing.md, ...shadow },
+  detTitle: { color: colors.weiss, fontFamily: fonts.extrabold, fontSize: 20, letterSpacing: -0.4 },
+  detSub: { color: 'rgba(255,255,255,0.82)', fontFamily: fonts.medium, fontSize: 13, lineHeight: 18 },
+  detFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
+  detMeta: { color: '#C9CCF5', fontFamily: fonts.semibold, fontSize: 13, flex: 1 },
+  detBtn: { backgroundColor: colors.weiss, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 7 },
+  detBtnText: { color: '#1E2A55', fontFamily: fonts.bold, fontSize: 14 },
   garage: { backgroundColor: '#1C1C1E', borderRadius: radius.lg, padding: spacing.lg, gap: spacing.md, ...shadow },
   badges: { gap: spacing.md, paddingRight: spacing.lg },
   badge: { width: 112, alignItems: 'center', gap: 4 },

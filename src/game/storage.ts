@@ -49,6 +49,12 @@ export interface Progress {
   budget: number;
   /** Ausrüstungsstufen (1–4) je Ausrüstung */
   equipment: Record<string, number>;
+  /** Detektiv-Akten: Stempel im Archiv je Fall (1 = gelöst, 2 = Meisterlösung) */
+  detectiveSolved: Record<string, 1 | 2>;
+  /** Detektiv-Akten: beste Punktzahl einer Ermittlung */
+  detectiveBest: number;
+  /** Detektiv-Akten: Anzahl Ermittlungen */
+  detectiveRounds: number;
 }
 
 export const EMPTY_PROGRESS: Progress = {
@@ -76,6 +82,9 @@ export const EMPTY_PROGRESS: Progress = {
   weekHistory: [],
   budget: 0,
   equipment: {},
+  detectiveSolved: {},
+  detectiveBest: 0,
+  detectiveRounds: 0,
 };
 
 export async function loadProgress(): Promise<Progress> {

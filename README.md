@@ -89,6 +89,11 @@ zu Einsätzen quer durch Deutschland.
   (z. B. Kammerflimmern, Erbrechen, Status epilepticus) – ich muss sofort richtig reagieren
 - **Kinder-Einsätze:** 4 Fälle mit kleinen Patienten (Fieberkrampf, Pseudokrupp, verschluckte Erdnuss,
   Exsikkose); bewertet wird mit Kinder-Normwerten für Puls, Atmung und Blutdruck
+- **Detektiv-Akten – der Diagnose-Krimi:** Jede Akte ist ein Notfall, von dem anfangs nur die Meldung der Leitstelle
+  bekannt ist. Ich decke Hinweise auf (Person, Fundort, Aussagen, Befund, Messwerte) und stelle meinen Verdacht.
+  Je weniger Hinweise ich brauche, desto mehr Punkte: Combo bis ×2, „Geniestreich“ mit goldenem Stempel, ein Archiv
+  mit allen 28 Akten zum Sammeln und eigene Detektiv-Ränge bis „Meisterdetektiv/in“. Nach jeder Akte gibt es die
+  Auflösung mit den Leitsymptomen – und alle Punkte landen als Budget beim Rettungswagen
 - **Großeinsatz (MANV):** 8 Verletzte nach einem vereinfachten mSTaRT-Schema sichten (Rot, Gelb, Grün, Schwarz)
 - **Mein Rettungswagen (Fahrzeughalle):** Jeder Punkt bringt 1 € Budget. Damit rüste ich Fahrzeug,
   Patientenmonitor, Notfallrucksack, Beatmung, Trage, Funk und Einsatzkleidung in vier Stufen auf
@@ -103,7 +108,7 @@ zu Einsätzen quer durch Deutschland.
 - **Training Normwerte:** 10 zufällige Messwerte in Folge als niedrig, normal oder hoch einstufen
 - **Zustandsbalken** des Patienten: Jede Messung kostet Kraft, Fehler schaden, richtige Maßnahmen helfen
 - **Kati**, meine Kollegin, gibt Tipps und kann zwei falsche Diagnosen ausschließen (50:50)
-- **18 Abzeichen** (z. B. „Lehrbuchreif“, „Taktgefühl“, „Dienstwoche“) mit je 50 Bonuspunkten
+- **21 Abzeichen** (z. B. „Lehrbuchreif“, „Taktgefühl“, „Dienstwoche“) mit je 50 Bonuspunkten
 - **Bonuspunkte** für perfekte Einsätze und Serien 🔥, **8 Dienstgrade** von *Praktikant/in* bis zur
   *Rettungsdienst-Legende* – jede Beförderung wird im Einsatzbericht gefeiert
 - **Lexikon:** Normwerte, alle Krankheitsbilder und Rettungswissen – Notruf (5 W), Rettungskette, ABCDE,
@@ -212,6 +217,7 @@ src/game/achievements.ts Abzeichen
 src/game/manv.ts        Großeinsatz-Runden und Punkte
 src/game/weekly.ts      Wochenpunkte und Wochenrekord
 src/game/equipment.ts   Fahrzeughalle: Ausrüstungsstufen, Kosten und Wirkung
+src/game/detective.ts   Detektiv-Akten: Hinweise, Punkte, Combo, Archiv, Ränge
 src/game/storage.ts     Speicherung (AsyncStorage) und Spielstand-Übertragung
 src/screens/            Start, Einsatz, Ergebnis, Training, Fahrzeughalle, Lexikon, Anleitung
 ```

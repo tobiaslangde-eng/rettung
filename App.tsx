@@ -13,6 +13,7 @@ import { CprResult } from './src/game/cpr';
 import { DAILY_CASE_BONUS, dailyCase, registerDailyCase } from './src/game/daily';
 import { DIFFICULTY_BY_ID, Difficulty } from './src/game/difficulty';
 import { EQUIPMENT, EquipmentId, buyUpgrade, equipmentEffects, levelOf, upgradeBlock } from './src/game/equipment';
+import { ArchiveStamp, mergeArchive } from './src/game/detective';
 import { manvPoints } from './src/game/manv';
 import { QUIZ_POINTS } from './src/game/quiz';
 import { CaseRun, ScoreResult, rankFor, scoreRun } from './src/game/scoring';
@@ -27,6 +28,7 @@ import { KnowledgeScreen } from './src/screens/KnowledgeScreen';
 import { LexikonScreen } from './src/screens/LexikonScreen';
 import { ManvScreen } from './src/screens/ManvScreen';
 import { QuizScreen } from './src/screens/QuizScreen';
+import { DetectiveScreen } from './src/screens/DetectiveScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
 import { TrainingScreen } from './src/screens/TrainingScreen';
 import { FrameWidthProvider, SIDEBAR_FROM, SIDEBAR_WIDTH, desktopShell } from './src/layout';
@@ -41,6 +43,7 @@ type Screen =
   | { name: 'wissen'; key: number }
   | { name: 'cpr'; key: number }
   | { name: 'manv'; key: number }
+  | { name: 'detektiv'; key: number }
   | { name: 'garage' }
   | { name: 'case'; medCase: MedCase; daily: boolean; key: number }
   | {
@@ -62,6 +65,7 @@ const FRAME_MAX: Partial<Record<Screen['name'], number>> = {
   wissen: 760,
   cpr: 760,
   manv: 860,
+  detektiv: 980,
 };
 
 /** Auf dem Handy und iPad hoch: Tab-Leiste unten für diese Bildschirme */
@@ -78,6 +82,7 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   training: 'home',
   garage: 'garage',
   manv: 'manv',
+  detektiv: 'detektiv',
   cpr: 'cpr',
   wissen: 'wissen',
   quiz: 'quiz',
@@ -214,6 +219,17 @@ export default function App() {
     });
   };
 
+  /** Detektiv-Akten: Punkte (= Budget), Stempel ins Archiv, Bestwert */
+  const finishDetective = (points: number, stamps: Record<string, ArchiveStamp | 0>) => {
+    commit({
+      ...progress,
+      totalPoints: progress.totalPoints + points,
+      detectiveSolved: mergeArchive(progress.detectiveSolved, stamps),
+      detectiveBest: Math.max(progress.detectiveBest, points),
+      detectiveRounds: progress.detectiveRounds + 1,
+    });
+  };
+
   /** Ausrüstung kaufen: kostet Budget, keine Punkte – der Dienstgrad bleibt. */
   const upgrade = (id: EquipmentId) => {
     const bought = buyUpgrade(progress, id);
@@ -259,7 +275,8 @@ export default function App() {
 
   const navigate = (t: NavTarget) => {
     if (t === 'start') return startCase();
-    if (t === 'quiz' || t === 'wissen' || t === 'cpr' || t === 'manv') return setScreen({ name: t, key: Date.now() } as Screen);
+    if (t === 'quiz' || t === 'wissen' || t === 'cpr' || t === 'manv' || t === 'detektiv')
+      return setScreen({ name: t, key: Date.now() } as Screen);
     setScreen({ name: t } as Screen);
   };
 
@@ -316,6 +333,15 @@ export default function App() {
                 {screen.name === 'garage' && <GarageScreen progress={progress} onUpgrade={upgrade} />}
                 {screen.name === 'manv' && (
                   <ManvScreen key={screen.key} best={progress.manvBest} onFinish={finishManv} onBack={back} />
+                )}
+                {screen.name === 'detektiv' && (
+                  <DetectiveScreen
+                    key={screen.key}
+                    progress={progress}
+                    onFinish={finishDetective}
+                    onBack={back}
+                    onGarage={() => setScreen({ name: 'garage' })}
+                  />
                 )}
                 {screen.name === 'cpr' && (
                   <CprScreen key={screen.key} best={progress.cprBest} onFinish={finishCpr} onBack={back} />

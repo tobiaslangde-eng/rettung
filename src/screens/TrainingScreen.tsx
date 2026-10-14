@@ -3,9 +3,10 @@ import { IconTile, Pill } from '../components/UI';
 import { Progress } from '../game/storage';
 import { useLayout } from '../layout';
 import { colors, fonts, radius, shadow, spacing, type } from '../theme';
-import { TrainingId, trainings } from './HomeScreen';
+import { DetectiveTeaser, TrainingId, trainings } from './HomeScreen';
 
 const MORE: Record<TrainingId, string> = {
+  detektiv: 'Decke Hinweise auf wie ein Detektiv und finde die Diagnose. Combo, Geniestreich und ein Archiv mit allen 28 Akten.',
   manv: 'Viele Verletzte, wenig Zeit: Teile alle nach dem Sichtungsschema in Rot, Gelb, Grün oder Schwarz ein.',
   cpr: 'Tippe im richtigen Takt auf den Brustkorb – 2 Runden 30:2 mit Live-Anzeige.',
   wissen: 'Notruf, ABCDE, Krankheitsbilder und mehr – mit Erklärung nach jeder Antwort.',
@@ -21,38 +22,41 @@ export function TrainingScreen({ progress, onTraining }: { progress: Progress; o
         <Text style={type.eyebrow}>Üben zwischendurch</Text>
         <Text style={type.largeTitle}>Training</Text>
       </View>
+      <DetectiveTeaser progress={progress} onPress={() => onTraining('detektiv')} />
       <View style={[styles.list, L.wide && styles.grid]}>
-        {trainings(progress).map((t) => (
-          <Pressable
-            key={t.id}
-            onPress={() => onTraining(t.id)}
-            accessibilityRole="button"
-            style={({ pressed }) => [
-              styles.card,
-              L.wide && styles.cardWide,
-              pressed && { transform: [{ scale: 0.98 }], opacity: 0.92 },
-            ]}
-          >
-            <View style={styles.head}>
-              <IconTile icon={t.icon} color={t.color} size={52} />
-              <View style={{ flex: 1 }}>
-                <Text style={type.h2}>{t.title}</Text>
-                <Text style={type.small}>{t.sub}</Text>
+        {trainings(progress)
+          .filter((t) => t.id !== 'detektiv')
+          .map((t) => (
+            <Pressable
+              key={t.id}
+              onPress={() => onTraining(t.id)}
+              accessibilityRole="button"
+              style={({ pressed }) => [
+                styles.card,
+                L.wide && styles.cardWide,
+                pressed && { transform: [{ scale: 0.98 }], opacity: 0.92 },
+              ]}
+            >
+              <View style={styles.head}>
+                <IconTile icon={t.icon} color={t.color} size={52} />
+                <View style={{ flex: 1 }}>
+                  <Text style={type.h2}>{t.title}</Text>
+                  <Text style={type.small}>{t.sub}</Text>
+                </View>
               </View>
-            </View>
-            <Text style={type.body}>{MORE[t.id]}</Text>
-            <View style={styles.foot}>
-              {t.best ? (
-                <Pill label={t.best} color={t.color} light />
-              ) : (
-                <Pill label="Noch nicht gespielt" color={colors.grau500} light />
-              )}
-              <View style={[styles.start, { backgroundColor: t.color }]}>
-                <Text style={styles.startText}>Starten</Text>
+              <Text style={type.body}>{MORE[t.id]}</Text>
+              <View style={styles.foot}>
+                {t.best ? (
+                  <Pill label={t.best} color={t.color} light />
+                ) : (
+                  <Pill label="Noch nicht gespielt" color={colors.grau500} light />
+                )}
+                <View style={[styles.start, { backgroundColor: t.color }]}>
+                  <Text style={styles.startText}>Starten</Text>
+                </View>
               </View>
-            </View>
-          </Pressable>
-        ))}
+            </Pressable>
+          ))}
       </View>
     </ScrollView>
   );
