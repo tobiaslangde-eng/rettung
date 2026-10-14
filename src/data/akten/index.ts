@@ -50,9 +50,15 @@ const BASIS_KATEGORIE: Record<string, Kategorie> = {
   exsikkose: 'kinder',
 };
 
+/** Neutralere Namen für die Akten (die Einsatz-Fälle behalten ihre Bezeichnung) */
+const DIAGNOSE: Record<string, string> = {
+  sepsis: 'Sepsis (Blutvergiftung)',
+  krampf: 'Epileptischer Krampfanfall',
+};
+
 const BASIS_BILDER: AktenBild[] = CASES.map((c) => ({
   id: c.id,
-  diagnosis: c.diagnosis,
+  diagnosis: DIAGNOSE[c.id] ?? c.diagnosis,
   kategorie: BASIS_KATEGORIE[c.id],
   leitsymptome: c.leitsymptome,
 }));
@@ -92,7 +98,7 @@ function ausEinsatzFall(c: MedCase): DetektivFall {
     id: c.id,
     bild: c.id,
     kategorie: BASIS_KATEGORIE[c.id],
-    diagnosis: c.diagnosis,
+    diagnosis: DIAGNOSE[c.id] ?? c.diagnosis,
     difficulty: c.difficulty,
     patient: c.patient,
     location: c.location,

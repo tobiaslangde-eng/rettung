@@ -184,7 +184,11 @@ export const AKTEN_HERZ: AktenFall[] = [
       'Nach einer Pause war es besser, nach zehn Minuten Gehen kam es wieder – jetzt im Sitzen wieder.',
       'Seit drei Wochen Druck bergauf, früher ging die Strecke problemlos. Bluthochdruck und Diabetes bekannt.',
     ],
-    befund: ['Blass, Haut trocken – kein kalter Schweiß', 'Kein Husten, Atmung unauffällig', 'Beine ohne Schwellung, keine Wadenschmerzen'],
+    befund: [
+      'Blass, Haut trocken – kein kalter Schweiß',
+      'Kein Husten, Atmung unauffällig',
+      'Beine ohne Schwellung, keine Wadenschmerzen',
+    ],
     vitals: {
       puls: 78,
       rr: [162, 94],
@@ -214,7 +218,11 @@ export const AKTEN_HERZ: AktenFall[] = [
       'Kopfschmerz seit dem Morgen im Hinterkopf, heute dreimal Nasenbluten. Kein Sturz, nichts auf den Kopf bekommen.',
       'Bluthochdruck bekannt, die Tabletten hat er seit Tagen nicht genommen: „Ich spür das ja nicht.“',
     ],
-    befund: ['Gesicht gerötet, Nase blutet leicht', 'Sprache klar, Gesicht symmetrisch, Arme gleich kräftig', 'Pupillen seitengleich'],
+    befund: [
+      'Gesicht gerötet, Nase blutet leicht',
+      'Sprache klar, Gesicht symmetrisch, Arme gleich kräftig',
+      'Pupillen seitengleich',
+    ],
     vitals: {
       puls: 88,
       rr: [226, 122],
@@ -244,7 +252,11 @@ export const AKTEN_HERZ: AktenFall[] = [
       'Seit dem Vormittag zunehmend verwirrt, fand das Telefon nicht mehr. Kein Sturz.',
       'Die Blutdrucktabletten hat sie vor zwei Wochen selbst abgesetzt: „Es ging mir ja gut.“',
     ],
-    befund: ['Zeitlich unsicher, antwortet aber auf Ansprache', 'Gesicht symmetrisch, Sprache deutlich', 'Pupillen seitengleich, kein Erbrechen'],
+    befund: [
+      'Zeitlich unsicher, antwortet aber auf Ansprache',
+      'Gesicht symmetrisch, Sprache deutlich',
+      'Pupillen seitengleich, kein Erbrechen',
+    ],
     vitals: {
       puls: 92,
       rr: [235, 125],
@@ -364,7 +376,11 @@ export const AKTEN_HERZ: AktenFall[] = [
       'Im Liegen wurde es sofort besser, nur wenige Sekunden weg. Trinkt wenig, bei der Hitze kaum Appetit.',
       'Seit einer Woche neue Entwässerungstabletten vom Hausarzt wegen geschwollener Knöchel.',
     ],
-    befund: ['Blass, Zunge trocken, Hautfalten bleiben stehen', 'Wach und orientiert, Sprache klar, keine Lähmung', 'Keine Schmerzen in der Hüfte'],
+    befund: [
+      'Blass, Zunge trocken, Hautfalten bleiben stehen',
+      'Wach und orientiert, Sprache klar, keine Lähmung',
+      'Keine Schmerzen in der Hüfte',
+    ],
     vitals: {
       puls: 104,
       rr: [84, 50],
@@ -394,7 +410,11 @@ export const AKTEN_HERZ: AktenFall[] = [
       'Leichte Luftnot beim Aufstehen, aber kein Schmerz in der Brust.',
       'Bluthochdruck bekannt, nimmt Blutverdünner – solche Anfälle hatte sie schon zweimal.',
     ],
-    befund: ['Unruhig, leicht blass', 'Puls am Handgelenk tastbar, aber ohne gleichmäßigen Takt', 'Keine Beinschwellung, keine Schmerzen'],
+    befund: [
+      'Unruhig, leicht blass',
+      'Puls am Handgelenk tastbar, aber ohne gleichmäßigen Takt',
+      'Keine Beinschwellung, keine Schmerzen',
+    ],
     vitals: {
       puls: 148,
       rr: [118, 74],
@@ -424,7 +444,11 @@ export const AKTEN_HERZ: AktenFall[] = [
       '„Mein Herz stolpert und rast, so etwas hatte ich noch nie.“ Beginn vor 40 Minuten, kein Schmerz.',
       'Seine Frau hat den Puls gefühlt: „Der schlägt völlig ohne Takt.“ Keine Vorerkrankungen, keine Medikamente.',
     ],
-    befund: ['Blass, schwitzt leicht, wirkt ängstlich', 'Keine Luftnot in Ruhe, keine Kribbelgefühle in den Händen', 'Puls schnell und ohne Takt'],
+    befund: [
+      'Blass, schwitzt leicht, wirkt ängstlich',
+      'Keine Luftnot in Ruhe, keine Kribbelgefühle in den Händen',
+      'Puls schnell und ohne Takt',
+    ],
     vitals: {
       puls: 152,
       rr: [128, 80],
@@ -454,7 +478,11 @@ export const AKTEN_HERZ: AktenFall[] = [
       'Seit Tagen müde und schlapp, schon zwei Beinahe-Stürze. Keine Schmerzen in der Brust, keine Herztabletten.',
       'Die Tochter: „Ihr Puls ist seit Tagen so langsam, der Hausarzt wollte ein EKG machen.“',
     ],
-    befund: ['Blass, wach und orientiert', 'Puls sehr langsam, aber gut tastbar', 'Prellung am Ellbogen, Kopf nicht aufgeschlagen'],
+    befund: [
+      'Blass, wach und orientiert',
+      'Puls sehr langsam, aber gut tastbar',
+      'Prellung am Ellbogen, Kopf nicht aufgeschlagen',
+    ],
     vitals: {
       puls: 32,
       rr: [108, 62],
@@ -514,8 +542,21 @@ export const AKTEN_HERZ: AktenFall[] = [
       'Der Schmerz kam schlagartig beim Heben einer schweren Palette und war von Anfang an am stärksten.',
       'Bluthochdruck seit Jahren, die Tabletten nimmt er „nach Gefühl“.',
     ],
-    befund: ['Blass, kaltschweißig, sehr ängstlich', 'Blutdruck am rechten Arm deutlich höher als am linken', 'Kein Husten, Atmung ruhig'],
-    vitals: { puls: 112, rr: [188, 104], spo2: 96, af: 22, temp: 36.6, bz: 128, gcs: 15, ekg: 'Sinustachykardie, keine ST-Hebungen' },
+    befund: [
+      'Blass, kaltschweißig, sehr ängstlich',
+      'Blutdruck am rechten Arm deutlich höher als am linken',
+      'Kein Husten, Atmung ruhig',
+    ],
+    vitals: {
+      puls: 112,
+      rr: [188, 104],
+      spo2: 96,
+      af: 22,
+      temp: 36.6,
+      bz: 128,
+      gcs: 15,
+      ekg: 'Sinustachykardie, keine ST-Hebungen',
+    },
     keyVitals: ['rr', 'puls', 'ekg'],
     distractors: ['Akuter Herzinfarkt (STEMI)', 'Lungenembolie', 'Muskelzerrung im Rücken'],
     explanation:
@@ -565,7 +606,11 @@ export const AKTEN_HERZ: AktenFall[] = [
       'Seit zwei Stunden zunehmend schwach, dazu ein Stolpern im Herzen. Keine Brustschmerzen.',
       'Dialysepatient, letzter Termin war am Freitag. Am Wochenende viel Obst und Trockenfrüchte gegessen.',
     ],
-    befund: ['Blass, hebt die Arme nur mühsam', 'Gesicht symmetrisch, Sprache klar', 'Dialyse-Shunt am linken Unterarm, kein Fieber'],
+    befund: [
+      'Blass, hebt die Arme nur mühsam',
+      'Gesicht symmetrisch, Sprache klar',
+      'Dialyse-Shunt am linken Unterarm, kein Fieber',
+    ],
     vitals: {
       puls: 42,
       rr: [104, 64],

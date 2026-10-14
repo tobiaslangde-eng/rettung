@@ -126,7 +126,11 @@ export const AKTEN_TRAUMA2: AktenFall[] = [
     ],
     vitals: { puls: 118, rr: [100, 62], spo2: 97, af: 22, temp: 36.4, bz: 96, gcs: 15, ekg: 'Sinustachykardie' },
     keyVitals: ['puls', 'rr'],
-    distractors: ['Oberflächliche Schnittwunde (Bagatellverletzung)', 'Kreislaufkollaps nach Schreck (Synkope)', 'Unterzuckerung (Hypoglykämie)'],
+    distractors: [
+      'Oberflächliche Schnittwunde (Bagatellverletzung)',
+      'Kreislaufkollaps nach Schreck (Synkope)',
+      'Unterzuckerung (Hypoglykämie)',
+    ],
     explanation:
       'Hellrotes, im Takt des Pulses spritzendes Blut zeigt eine verletzte Arterie. Schnell steigender Puls und kalte Fingerspitzen sind erste Schockzeichen. Direkten Druck aufrechterhalten, Druckverband anlegen, nicht mehr lösen und bei Schock den Notarzt nachfordern.',
   },
@@ -280,7 +284,11 @@ export const AKTEN_TRAUMA2: AktenFall[] = [
     ],
     vitals: { puls: 126, rr: [88, 52], spo2: 93, af: 28, temp: 36.2, bz: 112, gcs: 14, ekg: 'Sinustachykardie' },
     keyVitals: ['rr', 'puls', 'af'],
-    distractors: ['Isolierter Oberschenkelbruch', 'Gehirnerschütterung (leichtes Schädel-Hirn-Trauma)', 'Panikreaktion nach dem Unfall'],
+    distractors: [
+      'Isolierter Oberschenkelbruch',
+      'Gehirnerschütterung (leichtes Schädel-Hirn-Trauma)',
+      'Panikreaktion nach dem Unfall',
+    ],
     explanation:
       'Hoher Unfallmechanismus plus Schock plus mehrere Verletzungen: Das ist ein Polytrauma. Das fehlgestellte Bein lenkt ab, der Schock deutet auf innere Blutung im Bauch hin. Notarzt oder Hubschrauber, Wärmeerhalt, Kopf achsengerecht halten und rasch ins Traumazentrum.',
   },

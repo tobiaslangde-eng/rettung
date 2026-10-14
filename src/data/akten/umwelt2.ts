@@ -79,7 +79,11 @@ export const AKTEN_UMWELT2: AktenFall[] = [
       '„Mir ist so heiß, alles juckt und mir wird schwarz vor Augen.“',
       'Allergien sind nicht bekannt, dieses Mittel hat sie zum ersten Mal bekommen.',
     ],
-    befund: ['Flächige Rötung, juckende Quaddeln', 'Kaltschweißig, blass um die Nase, schwindelig', 'Atmung schnell, kein Stridor'],
+    befund: [
+      'Flächige Rötung, juckende Quaddeln',
+      'Kaltschweißig, blass um die Nase, schwindelig',
+      'Atmung schnell, kein Stridor',
+    ],
     vitals: { puls: 130, rr: [70, 40], spo2: 94, af: 24, temp: 36.8, bz: 96, gcs: 15, ekg: 'Sinustachykardie' },
     keyVitals: ['rr', 'puls', 'af'],
     distractors: ['Kreislaufkollaps (Synkope)', 'Hypoglykämie', 'Panikattacke'],
@@ -153,7 +157,11 @@ export const AKTEN_UMWELT2: AktenFall[] = [
     ],
     vitals: { puls: 104, rr: [128, 80], spo2: 97, af: 22, temp: 36.8, bz: 90, gcs: 15, ekg: 'Sinustachykardie' },
     keyVitals: ['puls', 'af', 'spo2'],
-    distractors: ['Anaphylaktischer Schock', 'Zahnabszess mit Gesichtsschwellung', 'Wassereinlagerungen bei Herz- oder Nierenschwäche'],
+    distractors: [
+      'Anaphylaktischer Schock',
+      'Zahnabszess mit Gesichtsschwellung',
+      'Wassereinlagerungen bei Herz- oder Nierenschwäche',
+    ],
     explanation:
       'Kein Juckreiz, keine Quaddeln, kein Allergen, Kreislauf stabil, Antihistaminikum wirkt nie, Mutter betroffen, Zahnarztbesuch als Auslöser: Das spricht für eine erbliche Form. Heisere Stimme heißt Atemwegsgefahr. Notarzt nachfordern, Rachenraum beobachten.',
   },
@@ -236,8 +244,7 @@ export const AKTEN_UMWELT2: AktenFall[] = [
     patient: { name: 'Svenja Tietz', age: 38, sex: 'w' },
     location: 'Chemnitz, Wohnung im Stadtteil Kaßberg',
     dispatch: 'Frau seit Tagen schwach und müde, Augen sind gelb.',
-    scene:
-      'Svenja sitzt eingehüllt in eine Decke auf dem Sofa. Das Licht ist gedämpft, sie wirkt erschöpft und spricht leise.',
+    scene: 'Svenja sitzt eingehüllt in eine Decke auf dem Sofa. Das Licht ist gedämpft, sie wirkt erschöpft und spricht leise.',
     anamnese: [
       '„Seit gestern bin ich völlig ausgelaugt, mir fehlt jede Kraft.“',
       '„Vor zwei Tagen hatte ich nachts Brechdurchfall, am nächsten Tag war alles wieder gut.“',

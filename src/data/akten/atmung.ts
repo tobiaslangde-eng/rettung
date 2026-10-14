@@ -69,7 +69,11 @@ export const AKTEN_ATMUNG: AktenFall[] = [
       'Die Mutter: „Gerade ist Gräserpollenzeit, da hat sie es oft schwerer.“',
       'Clara hat ein Notfallspray, aber „das liegt zu Hause in der Schultasche“. Sie spricht nur in Halbsätzen.',
     ],
-    befund: ['Pfeifendes Atemgeräusch beim Ausatmen', 'Sitzt aufrecht, stützt die Hände auf die Knie', 'Keine Quaddeln, keine Schwellung im Gesicht'],
+    befund: [
+      'Pfeifendes Atemgeräusch beim Ausatmen',
+      'Sitzt aufrecht, stützt die Hände auf die Knie',
+      'Keine Quaddeln, keine Schwellung im Gesicht',
+    ],
     vitals: { puls: 130, rr: [108, 66], spo2: 93, af: 32, temp: 36.7, bz: 98, gcs: 15, ekg: 'Sinustachykardie' },
     keyVitals: ['af', 'puls', 'spo2'],
     distractors: ['Anaphylaktische Reaktion', 'Fremdkörperaspiration', 'Hyperventilationssyndrom'],

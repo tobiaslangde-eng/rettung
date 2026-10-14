@@ -92,8 +92,12 @@ zu Einsätzen quer durch Deutschland.
 - **Detektiv-Akten – der Diagnose-Krimi:** Jede Akte ist ein Notfall, von dem anfangs nur die Meldung der Leitstelle
   bekannt ist. Ich decke Hinweise auf (Person, Fundort, Aussagen, Befund, Messwerte) und stelle meinen Verdacht.
   Je weniger Hinweise ich brauche, desto mehr Punkte: Combo bis ×2, „Geniestreich“ mit goldenem Stempel, ein Archiv
-  mit allen 28 Akten zum Sammeln und eigene Detektiv-Ränge bis „Meisterdetektiv/in“. Nach jeder Akte gibt es die
-  Auflösung mit den Leitsymptomen – und alle Punkte landen als Budget beim Rettungswagen
+  mit 196 Akten zum Sammeln und eigene Detektiv-Ränge bis „Meisterdetektiv/in“. Die Akten decken 82 Krankheits- und
+  Verletzungsbilder in acht Kategorien ab (Herz & Kreislauf, Atmung, Nerven & Psyche, Stoffwechsel & Bauch,
+  Verletzungen, Umwelt & Vergiftung, Kinder, Schwangerschaft & Geburt) – jedes Bild in mehreren Situationen:
+  anderer Ort, anderes Alter, typischer, untypischer oder irreführender Verlauf. Pro Ermittlung kommt jedes Bild nur
+  einmal vor und die Kategorien sind gemischt. Nach jeder Akte gibt es die Auflösung mit den Leitsymptomen – und alle
+  Punkte landen als Budget beim Rettungswagen
 - **Großeinsatz (MANV):** 8 Verletzte nach einem vereinfachten mSTaRT-Schema sichten (Rot, Gelb, Grün, Schwarz)
 - **Mein Rettungswagen (Fahrzeughalle):** Jeder Punkt bringt 1 € Budget. Damit rüste ich Fahrzeug,
   Patientenmonitor, Notfallrucksack, Beatmung, Trage, Funk und Einsatzkleidung in vier Stufen auf
@@ -218,7 +222,8 @@ src/game/achievements.ts Abzeichen
 src/game/manv.ts        Großeinsatz-Runden und Punkte
 src/game/weekly.ts      Wochenpunkte und Wochenrekord
 src/game/equipment.ts   Fahrzeughalle: Ausrüstungsstufen, Kosten und Wirkung
-src/game/detective.ts   Detektiv-Akten: Hinweise, Punkte, Combo, Archiv, Ränge
+src/game/detective.ts   Detektiv-Akten: Auswahl, Hinweise, Punkte, Combo, Archiv, Ränge
+src/data/akten/         Detektiv-Akten: Krankheitsbilder und Situationen (je Kategorie eine Datei)
 src/game/storage.ts     Speicherung (AsyncStorage) und Spielstand-Übertragung
 src/screens/            Start, Einsatz, Ergebnis, Training, Fahrzeughalle, Lexikon, Mehr (Anleitung)
 ```
