@@ -1,7 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Difficulty } from './difficulty';
 
-const KEY = 'kiirabi.progress.v1';
+// Die Vorschau-Version (rettung.tankard.de/vorschau/) hat einen eigenen Spielstand, damit Tests den echten nicht verändern.
+const PREVIEW = (globalThis as { E112_VORSCHAU?: boolean }).E112_VORSCHAU === true;
+const KEY = PREVIEW ? 'kiirabi.vorschau.progress.v1' : 'kiirabi.progress.v1';
 
 export interface Progress {
   totalPoints: number;

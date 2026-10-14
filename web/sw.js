@@ -1,6 +1,8 @@
 // Offline-Speicher: Beim ersten Öffnen wird das Spiel gespeichert, danach läuft es ohne Internet.
 // Bei einer neuen Version (anderer CACHE-Name) wird der alte Speicher ersetzt.
-const CACHE = 'kiirabi-__BUILD__';
+// Live-Version und Vorschau (/vorschau/) liegen auf derselben Adresse: jede löscht nur ihre eigenen alten Speicher.
+const PREFIX = 'kiirabi-';
+const CACHE = PREFIX + '__BUILD__';
 const FILES = ['./', './index.html', './manifest.webmanifest', './apple-touch-icon.png', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -11,7 +13,7 @@ self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith(PREFIX) && k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
 });
