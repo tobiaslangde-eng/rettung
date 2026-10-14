@@ -1,4 +1,6 @@
+import { AKTEN, KATEGORIEN } from '../data/akten';
 import { CASES } from '../data/cases';
+import { DETECTIVE_GRADES, archiveCount, archivNachKategorie } from './detective';
 import { Progress } from './storage';
 
 export interface Badge {
@@ -142,15 +144,36 @@ export const BADGES: Badge[] = [
     id: 'kommissar',
     icon: '🎖️',
     title: 'Kommissar/in',
-    description: '15 Detektiv-Akten im Archiv gelöst',
-    earned: (p) => Object.keys(p.detectiveSolved).length >= 15,
+    description: `${DETECTIVE_GRADES[3].min} Detektiv-Akten im Archiv gelöst`,
+    earned: (p) => archiveCount(p).solved >= DETECTIVE_GRADES[3].min,
+  },
+  {
+    id: 'allrounder',
+    icon: '🧭',
+    title: 'Allrounder',
+    description: 'In jeder Kategorie des Archivs eine Detektiv-Akte gelöst',
+    earned: (p) => KATEGORIEN.every((k) => AKTEN.some((a) => a.kategorie === k.id && p.detectiveSolved[a.id])),
+  },
+  {
+    id: 'gesichter',
+    icon: '🧩',
+    title: 'Viele Gesichter',
+    description: 'Alle Situationen eines Krankheitsbilds im Archiv gelöst',
+    earned: (p) => archivNachKategorie(p).some((k) => k.bilder.some((b) => b.total >= 3 && b.solved === b.total)),
+  },
+  {
+    id: 'archivar',
+    icon: '📚',
+    title: 'Archivar/in',
+    description: '50 Detektiv-Akten im Archiv gelöst',
+    earned: (p) => archiveCount(p).solved >= 50,
   },
   {
     id: 'archiv',
     icon: '🗄️',
     title: 'Akte geschlossen',
     description: 'Alle Detektiv-Akten im Archiv gelöst',
-    earned: (p) => CASES.every((c) => p.detectiveSolved[c.id]),
+    earned: (p) => AKTEN.every((a) => p.detectiveSolved[a.id]),
   },
   {
     id: 'meister',

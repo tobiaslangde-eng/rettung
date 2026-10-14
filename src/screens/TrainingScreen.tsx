@@ -1,12 +1,13 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { IconTile, Pill, Tap } from '../components/UI';
+import { AKTEN } from '../data/akten';
 import { Progress } from '../game/storage';
 import { useLayout } from '../layout';
 import { colors, fonts, spacing, type } from '../theme';
 import { DetectiveTeaser, TrainingId, trainings } from './HomeScreen';
 
 const MORE: Record<TrainingId, string> = {
-  detektiv: 'Decke Hinweise auf wie ein Detektiv und finde die Diagnose. Combo, Geniestreich und ein Archiv mit allen 28 Akten.',
+  detektiv: `Decke Hinweise auf wie ein Detektiv und finde die Diagnose. Combo, Geniestreich und ein Archiv mit ${AKTEN.length} Akten in vielen Situationen.`,
   manv: 'Viele Verletzte, wenig Zeit: Teile alle nach dem Sichtungsschema in Rot, Gelb, Grün oder Schwarz ein.',
   cpr: 'Tippe im richtigen Takt auf den Brustkorb – 2 Runden 30:2 mit Live-Anzeige.',
   wissen: 'Notruf, ABCDE, Krankheitsbilder und mehr – mit Erklärung nach jeder Antwort.',

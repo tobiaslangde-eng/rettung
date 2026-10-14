@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AnswerOption, Confetti } from '../components/Training';
 import { Bar, Button, Card, IconTile, Pill, StatChip, Tap, TopBar } from '../components/UI';
-import { CASES } from '../data/cases';
+import { Kategorie } from '../data/akten';
 import {
   AKTE_MIN,
   AKTE_START,
@@ -14,7 +14,11 @@ import {
   MAX_GUESSES,
   NEW_AKTE_BONUS,
   WRONG_COST,
+  akteNr,
+  archivNachKategorie,
   archiveCount,
+  bildStand,
+  bilderGeloest,
   comboFactor,
   detectiveGrade,
   makeInvestigation,
@@ -81,6 +85,7 @@ export function DetectiveScreen({
   const [wrong, setWrong] = useState<string[]>([]);
   const [results, setResults] = useState<AkteResult[]>([]);
   const [combo, setCombo] = useState(0);
+  const [openKat, setOpenKat] = useState<Kategorie | null>(null);
 
   const scroll = useRef<ScrollView>(null);
   // Nach dem Lösen und bei jeder neuen Akte nach oben – dort knallt der Stempel auf die Akte
@@ -114,7 +119,7 @@ export function DetectiveScreen({
       cluesUsed: revealed.length,
       wrong: wrongCount,
       combo: nextCombo,
-      newInArchive: !start.detectiveSolved[akte.medCase.id],
+      newInArchive: !start.detectiveSolved[akte.fall.id],
     });
     setCombo(nextCombo);
     setResults([...results, r]);
@@ -123,7 +128,7 @@ export function DetectiveScreen({
 
   const guess = (option: string) => {
     if (wrong.includes(option)) return;
-    if (option === akte.medCase.diagnosis) return finishAkte(true, wrong.length);
+    if (option === akte.fall.diagnosis) return finishAkte(true, wrong.length);
     const w = [...wrong, option];
     setWrong(w);
     if (w.length >= MAX_GUESSES) finishAkte(false, w.length);
@@ -136,7 +141,7 @@ export function DetectiveScreen({
       setWrong([]);
       setPhase('akte');
     } else {
-      const stamps = Object.fromEntries(akten.map((a, i) => [a.medCase.id, stampFor(results[i])]));
+      const stamps = Object.fromEntries(akten.map((a, i) => [a.fall.id, stampFor(results[i])]));
       onFinish(total, stamps);
       setPhase('ende');
     }
@@ -145,6 +150,8 @@ export function DetectiveScreen({
   // ---------- Start: Rang, Regeln, Archiv ----------
   if (phase === 'intro') {
     const arch = archiveCount(progress);
+    const bilder = bilderGeloest(progress);
+    const kategorien = archivNachKategorie(progress);
     const { grade, next } = detectiveGrade(progress);
     const pct = next ? (arch.solved - grade.min) / (next.min - grade.min) : 1;
     return (
@@ -193,35 +200,70 @@ export function DetectiveScreen({
             />
             <Rule icon="🔥" text="Mehrere Akten in Folge gelöst: Combo bis ×2." />
             <Rule icon="⭐" text={`Geniestreich: mit höchstens einem Hinweis gelöst = +${GENIUS_BONUS} und goldener Stempel.`} />
+            <Rule icon="🧩" text="Jedes Krankheitsbild gibt es in vielen Situationen – typisch, untypisch, irreführend. Kein Fall gleicht dem anderen." />
             <Rule icon="🗄️" text={`Jede neue Akte im Archiv: +${NEW_AKTE_BONUS} Punkte.`} />
             <Rule icon="🚑" text="Alle Punkte landen als € im Budget für deinen Rettungswagen." />
           </Card>
 
-          <View style={{ gap: spacing.sm }}>
-            <Text style={type.eyebrow}>
-              Archiv · {arch.solved} von {arch.total}
-            </Text>
-            <View style={styles.archive}>
-              {CASES.map((c, i) => {
-                const st = progress.detectiveSolved[c.id];
-                return (
-                  <View
-                    key={c.id}
-                    style={[
-                      styles.folder,
-                      L.wide && { width: L.desktop ? '13.4%' : '18.6%' },
-                      !st && styles.folderLocked,
-                      st === 2 && styles.folderGold,
-                    ]}
-                  >
-                    <Text style={styles.folderIcon}>{st === 2 ? '🏅' : st === 1 ? '📂' : '🔒'}</Text>
-                    <Text style={[styles.folderText, !st && { color: colors.muted }]} numberOfLines={2}>
-                      {st ? c.diagnosis.replace(/ \(.*\)/, '') : `Akte ${String(i + 1).padStart(2, '0')}`}
-                    </Text>
-                  </View>
-                );
-              })}
+          <View style={{ gap: spacing.md }}>
+            <View style={{ gap: 2 }}>
+              <Text style={type.eyebrow}>
+                Archiv · {arch.solved} von {arch.total} Akten
+              </Text>
+              <Text style={type.small}>
+                {bilder.solved} von {bilder.total} Krankheitsbildern entdeckt – jedes gibt es in mehreren Situationen.
+              </Text>
             </View>
+            {kategorien.map((k) => {
+              const open = openKat === k.id;
+              return (
+                <View key={k.id} style={{ gap: spacing.sm }}>
+                  <Tap
+                    onPress={() => setOpenKat(open ? null : k.id)}
+                    offset={3}
+                    accessibilityLabel={`${k.title}: ${k.solved} von ${k.total} Akten gelöst`}
+                    accessibilityState={{ expanded: open }}
+                    style={styles.katHead}
+                  >
+                    <Text style={styles.katIcon}>{k.icon}</Text>
+                    <View style={{ flex: 1, gap: 5 }}>
+                      <Text style={styles.katTitle}>{k.title}</Text>
+                      <Bar pct={k.solved / k.total} color={colors.violet} height={8} />
+                    </View>
+                    <Text style={styles.katCount}>
+                      {k.solved}/{k.total}
+                    </Text>
+                    <Text style={styles.katChevron}>{open ? '▲' : '▼'}</Text>
+                  </Tap>
+                  {open && (
+                    <View style={styles.archive}>
+                      {k.bilder.map((b) => {
+                        const gold = b.solved === b.total && b.master === b.total;
+                        return (
+                          <View
+                            key={b.bild.id}
+                            style={[
+                              styles.folder,
+                              L.wide && { width: L.desktop ? '13.4%' : '18.6%' },
+                              b.solved === 0 && styles.folderLocked,
+                              gold && styles.folderGold,
+                            ]}
+                          >
+                            <Text style={styles.folderIcon}>{gold ? '🏅' : b.solved === b.total ? '🗂️' : b.solved > 0 ? '📂' : '🔒'}</Text>
+                            <Text style={[styles.folderText, b.solved === 0 && { color: colors.muted }]} numberOfLines={2}>
+                              {b.solved > 0 ? b.bild.diagnosis.replace(/ \(.*\)/, '') : '???'}
+                            </Text>
+                            <Text style={styles.folderCount}>
+                              {b.solved}/{b.total}
+                            </Text>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  )}
+                </View>
+              );
+            })}
           </View>
         </ScrollView>
       </View>
@@ -237,7 +279,7 @@ export function DetectiveScreen({
       ...start,
       detectiveSolved: mergeArchive(
         start.detectiveSolved,
-        Object.fromEntries(akten.map((a, i) => [a.medCase.id, stampFor(results[i])])),
+        Object.fromEntries(akten.map((a, i) => [a.fall.id, stampFor(results[i])])),
       ),
     });
     const maxCombo = results.reduce((m, r) => Math.max(m, r.combo), 0);
@@ -280,10 +322,10 @@ export function DetectiveScreen({
             {akten.map((a, i) => {
               const r = results[i];
               return (
-                <View key={a.medCase.id} style={styles.line}>
+                <View key={a.fall.id} style={styles.line}>
                   <Text style={{ fontSize: 22, fontFamily: fonts.regular }}>{!r.solved ? '❌' : r.genius ? '🏅' : '📂'}</Text>
                   <View style={{ flex: 1 }}>
-                    <Text style={type.headline}>{a.medCase.diagnosis}</Text>
+                    <Text style={type.headline}>{a.fall.diagnosis}</Text>
                     <Text style={type.small}>
                       {r.solved
                         ? `${r.cluesUsed} ${r.cluesUsed === 1 ? 'Hinweis' : 'Hinweise'}${r.wrong ? ` · ${r.wrong} Fehlversuch` : ''}${r.factor > 1 ? ` · Combo ${fmt(r.factor)}` : ''}`
@@ -306,7 +348,20 @@ export function DetectiveScreen({
   // ---------- Akte & Auflösung ----------
   const done = phase === 'aufloesung';
   const nextFactor = comboFactor(combo + 1);
-  const c = akte.medCase;
+  const c = akte.fall;
+  // Stand im Krankheitsbild einschließlich der Akten dieser Ermittlung
+  const bildNow = done
+    ? bildStand(
+        {
+          ...start,
+          detectiveSolved: mergeArchive(
+            start.detectiveSolved,
+            Object.fromEntries(results.map((r, i) => [akten[i].fall.id, stampFor(r)])),
+          ),
+        },
+        c.bild,
+      )
+    : undefined;
   return (
     <View style={{ flex: 1 }}>
       <TopBar
@@ -346,7 +401,7 @@ export function DetectiveScreen({
 
         <View style={styles.dossier}>
           <View style={styles.dossierTab}>
-            <Text style={styles.dossierTabText}>Vertraulich · Akte {String(CASES.indexOf(c) + 1).padStart(2, '0')}</Text>
+            <Text style={styles.dossierTabText}>Vertraulich · Akte {String(akteNr(c.id)).padStart(3, '0')}</Text>
           </View>
           <Text style={styles.dossierLabel}>📟 Meldung der Leitstelle</Text>
           <Text style={styles.dossierText}>„{c.dispatch}“</Text>
@@ -415,6 +470,15 @@ export function DetectiveScreen({
               <Text style={[type.eyebrow, { marginTop: spacing.sm }]}>Auflösung</Text>
               <Text style={type.h2}>{c.diagnosis}</Text>
               <Text style={type.body}>{c.explanation}</Text>
+              {bildNow && (
+                <View style={styles.bildLine}>
+                  <Text style={styles.bildLineText}>
+                    {bildNow.solved === bildNow.total
+                      ? `🗂️ Krankheitsbild komplett – alle ${bildNow.total} Situationen gelöst!`
+                      : `🧩 Dieses Krankheitsbild: ${bildNow.solved} von ${bildNow.total} Situationen im Archiv`}
+                  </Text>
+                </View>
+              )}
               <Text style={[type.headline, { marginTop: spacing.xs }]}>Die Beweise (Leitsymptome)</Text>
               {c.leitsymptome.map((l) => (
                 <Text key={l} style={type.body}>
@@ -529,6 +593,31 @@ const styles = StyleSheet.create({
     ...hardShadow(3),
   },
   kpiValue: { fontFamily: fonts.displayBlack, fontSize: 24, lineHeight: 27, color: colors.ink, letterSpacing: -0.7 },
+  katHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.white,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 18,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+  },
+  katIcon: { fontSize: 24, lineHeight: 30, fontFamily: fonts.regular },
+  katTitle: { fontFamily: fonts.displayBlack, fontSize: 16, color: colors.ink, letterSpacing: -0.3 },
+  katCount: { fontFamily: fonts.mono, fontSize: 13, color: colors.ink },
+  katChevron: { fontFamily: fonts.regular, fontSize: 11, color: colors.muted },
+  bildLine: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.lilac,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 999,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+  },
+  bildLineText: { fontFamily: fonts.semibold, fontSize: 13, color: colors.ink },
   archive: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   folder: {
     width: '31.5%',
@@ -553,6 +642,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: -0.2,
   },
+  folderCount: { fontFamily: fonts.mono, fontSize: 10, color: colors.muted },
   progress: { flexDirection: 'row', gap: 6, paddingHorizontal: spacing.lg, paddingBottom: spacing.sm },
   progressDot: { flex: 1, height: 12, borderRadius: 6, backgroundColor: colors.white, borderWidth: 2, borderColor: colors.ink },
   meter: {

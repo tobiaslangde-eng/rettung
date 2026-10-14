@@ -44,7 +44,7 @@ export function Tap({
   disabled?: boolean;
   accessibilityLabel?: string;
   accessibilityRole?: 'button' | 'radio' | 'tab' | 'checkbox';
-  accessibilityState?: { selected?: boolean; checked?: boolean; disabled?: boolean };
+  accessibilityState?: { selected?: boolean; checked?: boolean; disabled?: boolean; expanded?: boolean };
 }) {
   return (
     <Pressable

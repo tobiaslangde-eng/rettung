@@ -1,4 +1,4 @@
-import { CASES, MedCase } from '../data/cases';
+import { AKTEN, AktenBild, BILDER, DetektivFall, KATEGORIEN, Kategorie } from '../data/akten';
 import { VITAL_BY_ID, VitalId, rateVital } from '../data/vitals';
 import { Progress } from './storage';
 
@@ -6,6 +6,7 @@ import { Progress } from './storage';
  * „Detektiv-Akten“ – der Diagnose-Krimi.
  * Jede Akte ist ein Fall, von dem anfangs nur die Meldung der Leitstelle bekannt ist. Hinweise aufdecken kostet
  * Punkte – wer die Diagnose mit wenigen Hinweisen erkennt, bekommt am meisten.
+ * Zu jedem Krankheitsbild gibt es mehrere Akten in ganz verschiedenen Situationen (Ort, Alter, typisch oder untypisch).
  */
 
 /** Akten pro Ermittlung */
@@ -35,7 +36,7 @@ export interface Clue {
 }
 
 export interface Akte {
-  medCase: MedCase;
+  fall: DetektivFall;
   clues: Clue[];
   /** Vier Verdachtsdiagnosen in zufälliger Reihenfolge */
   options: string[];
@@ -53,7 +54,7 @@ function shuffle<T>(arr: T[], rnd: () => number): T[] {
   return a;
 }
 
-function vitalText(id: VitalId, c: MedCase): string {
+function vitalText(id: VitalId, c: DetektivFall): string {
   const def = VITAL_BY_ID[id];
   const v = c.vitals[id];
   if (typeof v === 'string') return `${def.name}: ${v}`;
@@ -64,7 +65,7 @@ function vitalText(id: VitalId, c: MedCase): string {
 }
 
 /** Hinweise einer Akte – vom allgemeinen zum verräterischen. */
-export function cluesFor(c: MedCase): Clue[] {
+export function cluesFor(c: DetektivFall): Clue[] {
   const sex = c.patient.sex === 'm' ? 'männlich' : 'weiblich';
   const age = c.patient.age === 0 ? 'unter 1 Jahr' : `${c.patient.age} ${c.patient.age === 1 ? 'Jahr' : 'Jahre'}`;
   const clues: Clue[] = [
@@ -86,18 +87,53 @@ export function cluesFor(c: MedCase): Clue[] {
   return clues;
 }
 
-/** Wählt Akten für eine Ermittlung – bevorzugt solche, die noch nicht im Archiv sind. */
+/** Höchstens so viele Akten derselben Kategorie in einer Ermittlung (damit Erkrankungen und Verletzungen gemischt kommen) */
+const MAX_PRO_KATEGORIE = 2;
+/** Schwere Akten (Stufe 3): erst ab so vielen gelösten Akten im Archiv, und höchstens so viele pro Ermittlung */
+const SCHWER_AB = 8;
+const MAX_SCHWER = 2;
+
+/**
+ * Wählt Akten für eine Ermittlung:
+ * - jedes Krankheitsbild höchstens einmal (sonst wäre die zweite Akte geschenkt),
+ * - bevorzugt Akten, die noch nicht im Archiv sind (bei einem bekannten Krankheitsbild eine neue Situation),
+ * - gemischt aus verschiedenen Kategorien, schwere Akten erst mit etwas Erfahrung.
+ */
 export function makeInvestigation(p: Progress, rnd: () => number = Math.random): Akte[] {
-  const open = shuffle(
-    CASES.filter((c) => !p.detectiveSolved[c.id]),
-    rnd,
-  );
-  const rest = shuffle(
-    CASES.filter((c) => p.detectiveSolved[c.id]),
-    rnd,
-  );
-  return [...open, ...rest].slice(0, DETECTIVE_ROUNDS).map((c) => ({
-    medCase: c,
+  const solvedCount = archiveCount(p).solved;
+  const byBild = new Map<string, DetektivFall[]>();
+  for (const a of AKTEN) {
+    if (a.difficulty === 3 && solvedCount < SCHWER_AB) continue;
+    byBild.set(a.bild, [...(byBild.get(a.bild) ?? []), a]);
+  }
+  // Je Krankheitsbild eine Akte: eine neue, wenn es noch eine gibt
+  const candidates = [...byBild.values()].map((list) => {
+    const open = list.filter((a) => !p.detectiveSolved[a.id]);
+    return { akte: shuffle(open.length > 0 ? open : list, rnd)[0], fresh: open.length > 0 };
+  });
+  const ordered = [...shuffle(candidates.filter((c) => c.fresh), rnd), ...shuffle(candidates.filter((c) => !c.fresh), rnd)];
+
+  const chosen: DetektivFall[] = [];
+  const perKategorie: Partial<Record<Kategorie, number>> = {};
+  let schwer = 0;
+  const take = (a: DetektivFall) => {
+    chosen.push(a);
+    perKategorie[a.kategorie] = (perKategorie[a.kategorie] ?? 0) + 1;
+    if (a.difficulty === 3) schwer++;
+  };
+  for (const c of ordered) {
+    if (chosen.length >= DETECTIVE_ROUNDS) break;
+    if ((perKategorie[c.akte.kategorie] ?? 0) >= MAX_PRO_KATEGORIE) continue;
+    if (c.akte.difficulty === 3 && schwer >= MAX_SCHWER) continue;
+    take(c.akte);
+  }
+  // Zu wenig Auswahl (z. B. kleine Datenbestände): Regeln lockern
+  for (const c of ordered) {
+    if (chosen.length >= DETECTIVE_ROUNDS) break;
+    if (!chosen.includes(c.akte)) take(c.akte);
+  }
+  return shuffle(chosen, rnd).map((c) => ({
+    fall: c,
     clues: cluesFor(c),
     options: shuffle([c.diagnosis, ...c.distractors], rnd),
   }));
@@ -149,16 +185,19 @@ export function stampFor(r: AkteResult): ArchiveStamp | 0 {
 /** Detektiv-Ränge nach Anzahl gelöster Akten im Archiv */
 export const DETECTIVE_GRADES = [
   { min: 0, title: 'Anwärter/in', icon: '🕵️' },
-  { min: 3, title: 'Spürnase', icon: '👃' },
-  { min: 8, title: 'Ermittler/in', icon: '🔎' },
-  { min: 15, title: 'Kommissar/in', icon: '🎖️' },
-  { min: 22, title: 'Hauptkommissar/in', icon: '🏅' },
-  { min: CASES.length, title: 'Meisterdetektiv/in', icon: '👑' },
+  { min: 5, title: 'Spürnase', icon: '👃' },
+  { min: 15, title: 'Ermittler/in', icon: '🔎' },
+  { min: 35, title: 'Kommissar/in', icon: '🎖️' },
+  { min: 70, title: 'Hauptkommissar/in', icon: '🏅' },
+  { min: Math.round(AKTEN.length * 0.6), title: 'Meisterdetektiv/in', icon: '👑' },
 ];
 
+const AKTE_IDS = new Set(AKTEN.map((a) => a.id));
+
+/** Gelöste Akten (nur Akten, die es noch gibt), Meisterlösungen und alle Akten */
 export function archiveCount(p: Progress) {
-  const values = Object.values(p.detectiveSolved);
-  return { solved: values.length, master: values.filter((v) => v === 2).length, total: CASES.length };
+  const entries = Object.entries(p.detectiveSolved).filter(([id]) => AKTE_IDS.has(id));
+  return { solved: entries.length, master: entries.filter(([, v]) => v === 2).length, total: AKTEN.length };
 }
 
 export function detectiveGrade(p: Progress) {
@@ -168,6 +207,57 @@ export function detectiveGrade(p: Progress) {
     if (solved >= g.min) i = k;
   });
   return { grade: DETECTIVE_GRADES[i], next: DETECTIVE_GRADES[i + 1], index: i };
+}
+
+/** Aktennummer im Archiv (1 = erste Akte) */
+const AKTE_NR = new Map(AKTEN.map((a, i) => [a.id, i + 1]));
+export const akteNr = (id: string) => AKTE_NR.get(id) ?? 0;
+
+/** Stand eines Krankheitsbilds im Archiv: wie viele seiner Situationen sind gelöst? */
+export interface BildStand {
+  bild: AktenBild;
+  total: number;
+  solved: number;
+  master: number;
+}
+
+const AKTEN_JE_BILD = new Map<string, DetektivFall[]>();
+for (const a of AKTEN) AKTEN_JE_BILD.set(a.bild, [...(AKTEN_JE_BILD.get(a.bild) ?? []), a]);
+
+export function bildStand(p: Progress, bildId: string): BildStand | undefined {
+  const bild = BILDER.find((b) => b.id === bildId);
+  const list = AKTEN_JE_BILD.get(bildId);
+  if (!bild || !list) return undefined;
+  const stamps = list.map((a) => p.detectiveSolved[a.id] ?? 0);
+  return { bild, total: list.length, solved: stamps.filter((s) => s > 0).length, master: stamps.filter((s) => s === 2).length };
+}
+
+export interface KategorieStand {
+  id: Kategorie;
+  icon: string;
+  title: string;
+  bilder: BildStand[];
+  total: number;
+  solved: number;
+}
+
+/** Archiv nach Kategorien und Krankheitsbildern – für die Archiv-Ansicht */
+export function archivNachKategorie(p: Progress): KategorieStand[] {
+  return KATEGORIEN.map((k) => {
+    const bilder = BILDER.filter((b) => b.kategorie === k.id && AKTEN_JE_BILD.has(b.id)).map((b) => bildStand(p, b.id)!);
+    return {
+      ...k,
+      bilder,
+      total: bilder.reduce((n, b) => n + b.total, 0),
+      solved: bilder.reduce((n, b) => n + b.solved, 0),
+    };
+  }).filter((k) => k.bilder.length > 0);
+}
+
+/** Anzahl verschiedener Krankheitsbilder, von denen mindestens eine Akte gelöst ist */
+export function bilderGeloest(p: Progress) {
+  const alle = [...AKTEN_JE_BILD.keys()];
+  return { solved: alle.filter((id) => (bildStand(p, id)?.solved ?? 0) > 0).length, total: alle.length };
 }
 
 /** Trägt Stempel ins Archiv ein (ein besserer Stempel ersetzt einen schlechteren). */
