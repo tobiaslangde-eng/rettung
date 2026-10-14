@@ -4,13 +4,13 @@ import { dayState } from '../game/daily';
 import { RANKS, rankFor } from '../game/scoring';
 import { Progress } from '../game/storage';
 import { SIDEBAR_WIDTH } from '../layout';
-import { colors, fonts, spacing } from '../theme';
-import { RankBadge, ReflexStripes, StarOfLife } from './Ems';
+import { colors, fonts, shadow, spacing } from '../theme';
+import { RankBadge, StarOfLife } from './Ems';
 
 export type NavTarget = 'home' | 'start' | 'garage' | 'manv' | 'cpr' | 'wissen' | 'quiz' | 'lexikon' | 'guide';
 
 const ITEMS: { id: NavTarget; icon: string; label: string; group?: string }[] = [
-  { id: 'home', icon: '🏠', label: 'Startseite' },
+  { id: 'home', icon: '🏠', label: 'Heute' },
   { id: 'garage', icon: '🚑', label: 'Mein Rettungswagen' },
   { id: 'manv', icon: '🚨', label: 'Großeinsatz', group: 'Training' },
   { id: 'cpr', icon: '❤️', label: 'Herzdruckmassage' },
@@ -68,7 +68,6 @@ export function SideNav({
           style={({ pressed }) => [styles.start, pressed && { opacity: 0.85 }]}
         >
           <Text style={styles.startText}>Schicht beginnen</Text>
-          <ReflexStripes height={5} />
         </Pressable>
 
         <View style={{ gap: 2 }}>
@@ -85,7 +84,9 @@ export function SideNav({
                 ]}
               >
                 <Text style={styles.itemIcon}>{it.icon}</Text>
-                <Text style={[styles.itemLabel, active === it.id && { color: colors.weiss }]}>{it.label}</Text>
+                <Text style={[styles.itemLabel, active === it.id && { color: colors.weiss, fontFamily: fonts.semibold }]}>
+                  {it.label}
+                </Text>
               </Pressable>
             </View>
           ))}
@@ -108,51 +109,61 @@ function Kpi({ value, label }: { value: string; label: string }) {
 }
 
 const styles = StyleSheet.create({
-  root: { width: SIDEBAR_WIDTH, backgroundColor: colors.graphit, borderRightWidth: 1, borderRightColor: '#262B31' },
+  // Seitenleiste im Stil von iPadOS/macOS: helles Grau, ausgewähltes Element als farbige Fläche
+  root: {
+    width: SIDEBAR_WIDTH,
+    backgroundColor: '#F7F7FA',
+    borderRightWidth: StyleSheet.hairlineWidth,
+    borderRightColor: colors.grau300,
+  },
   content: { padding: spacing.lg, gap: spacing.lg },
   brand: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingTop: spacing.xs },
-  brandTitle: { fontFamily: fonts.displayBlack, fontSize: 26, lineHeight: 28, color: colors.weiss, textTransform: 'uppercase' },
-  brandSub: { fontFamily: fonts.semibold, fontSize: 11, color: colors.grau300, letterSpacing: 0.5 },
+  brandTitle: { fontFamily: fonts.extrabold, fontSize: 22, lineHeight: 26, color: colors.graphit, letterSpacing: -0.4 },
+  brandSub: { fontFamily: fonts.medium, fontSize: 12, color: colors.grau500 },
   profile: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: '#1D2228',
-    borderRadius: 8,
+    backgroundColor: colors.weiss,
+    borderRadius: 16,
     padding: spacing.md,
+    ...shadow,
   },
-  profileKicker: { fontFamily: fonts.extrabold, fontSize: 9, letterSpacing: 1.4, color: colors.signalrot, textTransform: 'uppercase' },
-  profileRank: { fontFamily: fonts.displayBlack, fontSize: 15, lineHeight: 17, color: colors.weiss, textTransform: 'uppercase' },
-  bar: { height: 4, backgroundColor: '#3A4048', borderRadius: 2, marginTop: 6, overflow: 'hidden' },
-  barFill: { height: 4, backgroundColor: colors.signalrot },
+  profileKicker: { fontFamily: fonts.medium, fontSize: 12, color: colors.grau500 },
+  profileRank: { fontFamily: fonts.bold, fontSize: 15, lineHeight: 19, color: colors.graphit, letterSpacing: -0.2 },
+  bar: { height: 5, backgroundColor: colors.grau200, borderRadius: 3, marginTop: 6, overflow: 'hidden' },
+  barFill: { height: 5, backgroundColor: colors.blaulicht, borderRadius: 3 },
   kpis: { flexDirection: 'row', gap: spacing.xs },
-  kpi: { flex: 1, backgroundColor: '#1D2228', borderRadius: 6, paddingVertical: spacing.sm, alignItems: 'center' },
-  kpiValue: { fontFamily: fonts.displayBlack, fontSize: 16, color: colors.warngelb },
-  kpiLabel: { fontFamily: fonts.semibold, fontSize: 10, color: colors.grau300, letterSpacing: 0.8, textTransform: 'uppercase' },
-  start: { backgroundColor: colors.signalrot, borderRadius: 6, overflow: 'hidden' },
+  kpi: { flex: 1, backgroundColor: colors.weiss, borderRadius: 12, paddingVertical: spacing.sm, alignItems: 'center', ...shadow },
+  kpiValue: { fontFamily: fonts.bold, fontSize: 15, color: colors.graphit, letterSpacing: -0.3 },
+  kpiLabel: { fontFamily: fonts.medium, fontSize: 11, color: colors.grau500 },
+  start: { backgroundColor: colors.signalrot, borderRadius: 14, overflow: 'hidden' },
   startText: {
-    fontFamily: fonts.display,
-    fontSize: 19,
+    fontFamily: fonts.semibold,
+    fontSize: 16,
     color: colors.weiss,
     textAlign: 'center',
-    paddingVertical: 12,
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
+    paddingVertical: 13,
   },
   group: {
-    fontFamily: fonts.extrabold,
-    fontSize: 10,
-    letterSpacing: 1.6,
+    fontFamily: fonts.semibold,
+    fontSize: 12,
     color: colors.grau500,
-    textTransform: 'uppercase',
     marginTop: spacing.md,
     marginBottom: 4,
     marginLeft: spacing.sm,
   },
-  item: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: 9, paddingHorizontal: spacing.sm, borderRadius: 6 },
-  itemHover: { backgroundColor: '#1D2228' },
-  itemActive: { backgroundColor: '#262B31', borderLeftWidth: 3, borderLeftColor: colors.signalrot },
+  item: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: 9,
+    paddingHorizontal: spacing.sm,
+    borderRadius: 10,
+  },
+  itemHover: { backgroundColor: colors.grau200 },
+  itemActive: { backgroundColor: colors.signalrot },
   itemIcon: { fontFamily: fonts.regular, fontSize: 16, width: 22, textAlign: 'center' },
-  itemLabel: { fontFamily: fonts.semibold, fontSize: 15, color: colors.grau200 },
+  itemLabel: { fontFamily: fonts.medium, fontSize: 15, color: colors.graphit },
   footer: { fontFamily: fonts.regular, fontSize: 11, color: colors.grau500, padding: spacing.lg, paddingTop: spacing.sm },
 });

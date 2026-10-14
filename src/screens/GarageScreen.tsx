@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Ambulance } from '../components/Ambulance';
 import { DeviceArt, Sparkles } from '../components/Devices';
-import { ReflexStripes, WarnStripes } from '../components/Ems';
 import { FirstPersonInterior } from '../components/FirstPersonInterior';
 import { Button, Eyebrow, TopBar } from '../components/UI';
 import {
@@ -104,7 +103,6 @@ function Steckbrief({
               </Text>
             </View>
           </View>
-          <ReflexStripes height={5} />
 
           <View style={styles.sheetBody}>
             <Text style={type.body}>{tier.text}</Text>
@@ -164,15 +162,7 @@ function Steckbrief({
 }
 
 /** Fahrzeughalle: meinen Rettungswagen von außen ansehen, einsteigen und Geräte aufrüsten. */
-export function GarageScreen({
-  progress,
-  onUpgrade,
-  onBack,
-}: {
-  progress: Progress;
-  onUpgrade: (id: EquipmentId) => void;
-  onBack: () => void;
-}) {
+export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUpgrade: (id: EquipmentId) => void }) {
   const L = useLayout();
   const sceneWidth = L.wide ? Math.floor(((L.width - spacing.xl * 2 - spacing.lg) * 6) / 11) : L.width;
   const [inside, setInside] = useState(false);
@@ -215,7 +205,6 @@ export function GarageScreen({
       <TopBar
         kicker="Fahrzeughalle"
         title="Mein Rettungswagen"
-        onBack={onBack}
         right={
           <View style={styles.budget}>
             <Text style={styles.budgetValue}>{euro(progress.budget)}</Text>
@@ -262,7 +251,6 @@ export function GarageScreen({
                   </View>
                 </View>
               </View>
-              <ReflexStripes height={6} />
             </View>,
             <View key="body" style={[styles.body, L.wide && { padding: 0 }]}>
               <View style={styles.summary}>
@@ -301,7 +289,6 @@ export function GarageScreen({
                   </Pressable>
                 );
               })}
-              <WarnStripes />
             </View>,
           ]}
         />
@@ -323,16 +310,9 @@ export function GarageScreen({
 }
 
 const styles = StyleSheet.create({
-  budget: {
-    alignItems: 'flex-end',
-    borderWidth: 1,
-    borderColor: colors.warngelb,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  budgetValue: { color: colors.warngelb, fontFamily: fonts.extrabold, fontSize: 15 },
-  budgetLabel: { color: colors.grau300, fontFamily: fonts.regular, fontSize: 9, letterSpacing: 1 },
+  budget: { alignItems: 'flex-end', backgroundColor: '#FFF4D6', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 3 },
+  budgetValue: { color: '#A05A00', fontFamily: fonts.bold, fontSize: 16 },
+  budgetLabel: { color: '#A05A00', fontFamily: fonts.medium, fontSize: 10 },
   hallWide: { borderRadius: 10, overflow: 'hidden' },
   hall: { backgroundColor: '#1A1F26' },
   outside: { alignItems: 'center', paddingTop: spacing.xl, paddingHorizontal: spacing.lg, overflow: 'hidden' },
@@ -354,18 +334,18 @@ const styles = StyleSheet.create({
     marginHorizontal: -spacing.lg,
   },
   hallInfo: { padding: spacing.lg, paddingTop: spacing.md },
-  rtwName: { fontFamily: fonts.displayBlack, fontSize: 26, color: colors.weiss, textTransform: 'uppercase' },
+  rtwName: { fontFamily: fonts.displayBlack, fontSize: 26, color: colors.weiss },
   rtwYear: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau300 },
-  toggle: { flexDirection: 'row', backgroundColor: '#2A3038', borderRadius: 8, padding: 3, marginTop: spacing.md },
-  toggleBtn: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: 6 },
+  toggle: { flexDirection: 'row', backgroundColor: '#2A3038', borderRadius: 16, padding: 3, marginTop: spacing.md },
+  toggleBtn: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: 14 },
   toggleActive: { backgroundColor: colors.warngelb },
-  toggleText: { fontFamily: fonts.displayBlack, fontSize: 17, color: colors.grau300, textTransform: 'uppercase' },
+  toggleText: { fontFamily: fonts.displayBlack, fontSize: 17, color: colors.grau300 },
   body: { padding: spacing.lg, gap: spacing.md },
   summary: {
     backgroundColor: colors.weiss,
     borderWidth: 1,
     borderColor: colors.grau200,
-    borderRadius: 6,
+    borderRadius: 14,
     padding: spacing.lg,
     gap: 4,
   },
@@ -378,18 +358,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.weiss,
     borderWidth: 1,
     borderColor: colors.grau200,
-    borderRadius: 6,
+    borderRadius: 14,
     padding: spacing.md,
   },
-  rowArt: { width: 58, height: 46, alignItems: 'center', justifyContent: 'center', backgroundColor: '#1A1F26', borderRadius: 6 },
+  rowArt: { width: 58, height: 46, alignItems: 'center', justifyContent: 'center', backgroundColor: '#1A1F26', borderRadius: 14 },
   rowKicker: {
     fontFamily: fonts.extrabold,
     fontSize: 10,
-    letterSpacing: 1.4,
+    letterSpacing: 0.4,
     color: colors.signalrot,
     textTransform: 'uppercase',
   },
-  rowName: { fontFamily: fonts.displayBlack, fontSize: 17, color: colors.graphit, textTransform: 'uppercase', marginBottom: 3 },
+  rowName: { fontFamily: fonts.displayBlack, fontSize: 17, color: colors.graphit, marginBottom: 3 },
   rowUp: {
     fontFamily: fonts.extrabold,
     fontSize: 11,
@@ -397,7 +377,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.monitorGruen,
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 8,
+    borderRadius: 16,
     overflow: 'hidden',
   },
   rowArrow: { fontFamily: fonts.regular, fontSize: 26, color: colors.grau300 },
@@ -429,7 +409,7 @@ const styles = StyleSheet.create({
   sheetKicker: {
     fontFamily: fonts.extrabold,
     fontSize: 11,
-    letterSpacing: 1.6,
+    letterSpacing: 0.4,
     color: colors.warngelb,
     textTransform: 'uppercase',
   },
@@ -446,14 +426,12 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 10,
     overflow: 'hidden',
-    textTransform: 'uppercase',
   },
   sheetName: {
     fontFamily: fonts.displayBlack,
     fontSize: 28,
     lineHeight: 30,
     color: colors.weiss,
-    textTransform: 'uppercase',
     marginTop: spacing.sm,
   },
   sheetMeta: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: 4 },
@@ -461,28 +439,41 @@ const styles = StyleSheet.create({
   sheetBody: { padding: spacing.lg, gap: spacing.md },
   facts: { gap: 4 },
   fact: { fontFamily: fonts.bold, fontSize: 14, color: colors.graphit },
-  effectBox: { backgroundColor: colors.weiss, borderRadius: 6, borderWidth: 1, borderColor: colors.grau200, padding: spacing.md },
+  effectBox: {
+    backgroundColor: colors.weiss,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.grau200,
+    padding: spacing.md,
+  },
   effectLabel: {
     fontFamily: fonts.extrabold,
     fontSize: 10,
-    letterSpacing: 1.4,
+    letterSpacing: 0.4,
     color: colors.grau500,
     textTransform: 'uppercase',
   },
   effectText: { fontFamily: fonts.bold, fontSize: 14, color: colors.gruen, marginTop: 2 },
-  wissen: { backgroundColor: colors.blaulichtLight, borderRadius: 6, padding: spacing.md, gap: 4 },
+  wissen: { backgroundColor: colors.blaulichtLight, borderRadius: 14, padding: spacing.md, gap: 4 },
   wissenLabel: { fontFamily: fonts.extrabold, fontSize: 12, color: colors.blaulichtDark },
   next: {
     backgroundColor: colors.weiss,
-    borderRadius: 6,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: colors.grau200,
     padding: spacing.md,
     gap: spacing.sm,
   },
   nextRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  nextArt: { width: 86, height: 80, borderRadius: 6, backgroundColor: '#1A1F26', alignItems: 'center', justifyContent: 'center' },
-  nextName: { fontFamily: fonts.displayBlack, fontSize: 18, color: colors.graphit, textTransform: 'uppercase' },
+  nextArt: {
+    width: 86,
+    height: 80,
+    borderRadius: 14,
+    backgroundColor: '#1A1F26',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  nextName: { fontFamily: fonts.displayBlack, fontSize: 18, color: colors.graphit },
   nextEffect: { fontFamily: fonts.bold, fontSize: 13, color: colors.gruen, marginTop: 2 },
   locked: { fontFamily: fonts.bold, fontSize: 13, color: colors.grau500 },
   missing: { fontFamily: fonts.semibold, fontSize: 12, color: colors.grau500, textAlign: 'center' },

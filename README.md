@@ -134,16 +134,13 @@ Die Oberfläche passt sich an die Bildschirmgröße an:
 | **iPad quer** | **iPad hoch** |
 | ![iPad quer](docs/geraete/ipad-quer.png) | ![iPad hoch](docs/geraete/ipad-hoch.png) |
 
-## Design: Rettungsdienst
+## Design
 
-- **Patientenmonitor** als Startbild und im Einsatzbericht: dunkles Raster, grüne EKG-Kurve,
-  Vitalwerte in den typischen Monitorfarben (HF grün, SpO₂ cyan, RR rot …)
-- **Star of Life** – das internationale Rettungsdienst-Symbol – als Rangabzeichen und App-Icon
-- **Rot-weiße Warnmarkierung** wie am Heck eines Rettungswagens, **Reflexstreifen** (Gelb–Silber–Gelb)
-  wie an der Einsatzkleidung
-- Graphit, Signalrot und Blaulicht-Blau auf neutralem Grau; Schriften *Barlow Condensed* und *Barlow*
-
-Die Grafiken sind Vektorgrafiken (`react-native-svg`) in `src/components/`.
+Die Oberfläche folgt den **Human Interface Guidelines von Apple**: helle, ruhige Flächen, große Titel, weiße Karten mit
+weichen Schatten, iOS-Systemfarben als Akzent und eine **Tab-Leiste** unten (Heute, Training, Fahrzeug, Lexikon, Mehr).
+Fortschritt zeigen **Ringe wie bei Apple Fitness** (Tagesziel, Woche, Dienstgrad), die Trainings farbige Symbol-Kacheln.
+Schrift ist *Inter*, sehr nah an Apples SF Pro. Der Patientenmonitor bleibt dunkel wie im echten Rettungswagen.
+Details: [`docs/DESIGN.md`](docs/DESIGN.md).
 
 ## Spielen und herunterladen
 

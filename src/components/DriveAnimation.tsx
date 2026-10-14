@@ -3,7 +3,7 @@ import { Animated, Easing, Platform, Pressable, StyleSheet, Text, View } from 'r
 import { useLayout } from '../layout';
 import { colors, fonts, spacing } from '../theme';
 import { Ambulance } from './Ambulance';
-import { CityScene, WarnStripes } from './Ems';
+import { CityScene } from './Ems';
 
 const useNativeDriver = Platform.OS !== 'web';
 const SCENE_HEIGHT = 260;
@@ -60,7 +60,6 @@ export function DriveAnimation({ location, rtwLevel = 1, onDone }: { location: s
           <Ambulance level={rtwLevel} width={140} blink={lightOn} />
         </Animated.View>
       </View>
-      <WarnStripes height={14} />
       <Text style={styles.skip}>Tippen zum Überspringen</Text>
     </Pressable>
   );
@@ -69,8 +68,8 @@ export function DriveAnimation({ location, rtwLevel = 1, onDone }: { location: s
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.nacht, justifyContent: 'center' },
   text: { paddingHorizontal: spacing.xl, paddingBottom: spacing.xl, gap: spacing.xs },
-  et: { color: colors.signalrot, fontFamily: fonts.extrabold, letterSpacing: 3, fontSize: 12, textTransform: 'uppercase' },
-  title: { color: colors.weiss, fontSize: 34, fontFamily: fonts.displayBlack, lineHeight: 36, textTransform: 'uppercase' },
+  et: { color: colors.signalrot, fontFamily: fonts.extrabold, letterSpacing: 0.4, fontSize: 12, textTransform: 'uppercase' },
+  title: { color: colors.weiss, fontSize: 34, fontFamily: fonts.displayBlack, lineHeight: 36 },
   loc: { fontFamily: fonts.italic, color: colors.grau300, fontSize: 14 },
   scene: { height: SCENE_HEIGHT, overflow: 'hidden' },
   glow: { backgroundColor: colors.blaulicht },

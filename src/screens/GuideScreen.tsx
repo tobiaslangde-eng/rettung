@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Linking, Platform, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Button, Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
+import { Button, Card, Eyebrow, TopBar } from '../components/UI';
 import { BADGE_BONUS } from '../game/achievements';
 import { CPR_POINTS } from '../game/cpr';
 import { INCIDENT_POINTS } from '../data/incidents';
@@ -50,12 +50,17 @@ function Transfer({ progress, onImport }: { progress: Progress; onImport: (p: Pr
     <Card style={{ borderLeftColor: colors.blaulicht }}>
       <Eyebrow title="Spielstand übertragen" />
       <Text style={[type.small, { marginTop: spacing.xs }]}>
-        Neues Gerät oder neue Adresse? Hier den Code kopieren und auf dem anderen Gerät unter „Anleitung“ wieder
-        einfügen – Punkte, Rang, Abzeichen und Ausrüstung kommen mit.
+        Neues Gerät oder neue Adresse? Hier den Code kopieren und auf dem anderen Gerät unter „Anleitung“ wieder einfügen –
+        Punkte, Rang, Abzeichen und Ausrüstung kommen mit.
       </Text>
       <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md }}>
         <Button label={copied ? 'Kopiert ✓' : 'Code kopieren'} variant="dark" onPress={copy} style={{ flex: 1 }} />
-        <Button label={shown ? 'Ausblenden' : 'Code zeigen'} variant="outline" onPress={() => setShown(!shown)} style={{ flex: 1 }} />
+        <Button
+          label={shown ? 'Ausblenden' : 'Code zeigen'}
+          variant="outline"
+          onPress={() => setShown(!shown)}
+          style={{ flex: 1 }}
+        />
       </View>
       {shown && (
         <Text selectable style={styles.code}>
@@ -77,7 +82,9 @@ function Transfer({ progress, onImport }: { progress: Progress; onImport: (p: Pr
       />
       {input.trim() !== '' && (
         <Text style={[type.small, { color: parsed ? colors.gruen : colors.signalrot, marginTop: spacing.xs }]}>
-          {parsed ? `Gültiger Code: ${parsed.totalPoints} Punkte, ${parsed.badges.length} Abzeichen` : 'Das ist kein gültiger Spielstand-Code.'}
+          {parsed
+            ? `Gültiger Code: ${parsed.totalPoints} Punkte, ${parsed.badges.length} Abzeichen`
+            : 'Das ist kein gültiger Spielstand-Code.'}
         </Text>
       )}
       <Button
@@ -98,24 +105,21 @@ function Transfer({ progress, onImport }: { progress: Progress; onImport: (p: Pr
 
 export function GuideScreen({
   progress,
-  onBack,
   onReset,
   onImport,
 }: {
   progress: Progress;
-  onBack: () => void;
   onReset: () => void;
   onImport: (p: Progress) => void;
 }) {
   const [confirmReset, setConfirmReset] = useState(false);
   return (
     <View style={{ flex: 1 }}>
-      <TopBar kicker="Hilfe" title="Anleitung" onBack={onBack} />
+      <TopBar kicker="Hilfe" title="Anleitung" />
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={type.body}>
-          Ich bin Sanitäter/in im Rettungsdienst. Zusammen mit meiner Kollegin Kati erkenne ich
-          Krankheiten an Symptomen und Messwerten und treffe die richtigen Entscheidungen. Der Zustandsbalken zeigt, wie es
-          meinem Patienten gerade geht.
+          Ich bin Sanitäter/in im Rettungsdienst. Zusammen mit meiner Kollegin Kati erkenne ich Krankheiten an Symptomen und
+          Messwerten und treffe die richtigen Entscheidungen. Der Zustandsbalken zeigt, wie es meinem Patienten gerade geht.
         </Text>
         {STEPS.map((s, i) => (
           <Card key={s.de}>
@@ -133,17 +137,17 @@ export function GuideScreen({
         <Card style={{ borderLeftColor: colors.warngelb }}>
           <Eyebrow title="Mein Rettungswagen" />
           <Text style={[type.body, { marginTop: spacing.xs }]}>
-            Für jeden Punkt bekommt meine Wache 1 € Budget. In der Fahrzeughalle rüste ich damit Fahrzeug, Monitor,
-            Rucksack, Beatmung, Trage, Funk und Einsatzkleidung in vier Stufen auf – jede Stufe ist neuer und moderner
-            und hilft im Einsatz. Die höheren Stufen schalte ich mit meinem Dienstgrad frei. Einkaufen kostet nur
-            Budget, keine Punkte – mein Rang bleibt.
+            Für jeden Punkt bekommt meine Wache 1 € Budget. In der Fahrzeughalle rüste ich damit Fahrzeug, Monitor, Rucksack,
+            Beatmung, Trage, Funk und Einsatzkleidung in vier Stufen auf – jede Stufe ist neuer und moderner und hilft im Einsatz.
+            Die höheren Stufen schalte ich mit meinem Dienstgrad frei. Einkaufen kostet nur Budget, keine Punkte – mein Rang
+            bleibt.
           </Text>
         </Card>
         <Card style={{ borderLeftColor: colors.signalrot }}>
           <Eyebrow title="Zwischenfälle & Kinder" />
           <Text style={[type.body, { marginTop: spacing.xs }]}>
-            Bei vielen Einsätzen passiert mitten in der Untersuchung etwas Unerwartetes – dann muss ich sofort richtig
-            reagieren. Bei Kinder-Einsätzen gelten andere Normwerte für Puls, Atmung und Blutdruck (siehe Lexikon).
+            Bei vielen Einsätzen passiert mitten in der Untersuchung etwas Unerwartetes – dann muss ich sofort richtig reagieren.
+            Bei Kinder-Einsätzen gelten andere Normwerte für Puls, Atmung und Blutdruck (siehe Lexikon).
           </Text>
         </Card>
         <Card style={{ borderLeftColor: colors.blaulicht }}>
@@ -174,7 +178,11 @@ export function GuideScreen({
           <Row label={`Serienbonus je gutem Einsatz in Folge (max. ${POINTS.streakMax})`} pts={POINTS.streakPerLevel} />
           <Row label="Neues Abzeichen" pts={BADGE_BONUS} />
           <Row label="Einsatz des Tages" pts={0} text="+50 %" />
-          <Row label={`Tagesziel (${DAILY_GOAL} Einsätze), steigt mit der Dienst-Serie`} pts={dailyGoalBonus(1)} text={`+${dailyGoalBonus(1)}–${dailyGoalBonus(6)}`} />
+          <Row
+            label={`Tagesziel (${DAILY_GOAL} Einsätze), steigt mit der Dienst-Serie`}
+            pts={dailyGoalBonus(1)}
+            text={`+${dailyGoalBonus(1)}–${dailyGoalBonus(6)}`}
+          />
           <Row label="Normwerte & Wissensfragen: je richtiger Antwort" pts={QUIZ_POINTS} />
           <Row label={`Großeinsatz: je richtig gesichteter Person (alle richtig: +${MANV_PERFECT_BONUS})`} pts={MANV_POINTS} />
           <Row label="Herzdruckmassage (ohne Taktgeber doppelt)" pts={CPR_POINTS} text={`bis +${CPR_POINTS * 2}`} />
@@ -185,8 +193,8 @@ export function GuideScreen({
         <Card style={{ borderLeftColor: colors.signalrot }}>
           <Eyebrow title="Hinweis" />
           <Text style={[type.small, { marginTop: spacing.xs }]}>
-            Dieses Spiel dient dem Lernen und Üben. Die Inhalte sind vereinfacht und ersetzen keine Ausbildung, keine
-            ärztliche Beratung und keine regionalen Leitlinien/SOPs. Im Notfall immer 112 wählen.
+            Dieses Spiel dient dem Lernen und Üben. Die Inhalte sind vereinfacht und ersetzen keine Ausbildung, keine ärztliche
+            Beratung und keine regionalen Leitlinien/SOPs. Im Notfall immer 112 wählen.
           </Text>
         </Card>
         <Card style={{ borderLeftColor: colors.blaulicht }}>
@@ -214,10 +222,14 @@ export function GuideScreen({
               <Button label="Abbrechen" variant="outline" onPress={() => setConfirmReset(false)} />
             </View>
           ) : (
-            <Button label="Fortschritt zurücksetzen" variant="outline" onPress={() => setConfirmReset(true)} style={{ marginTop: spacing.md }} />
+            <Button
+              label="Fortschritt zurücksetzen"
+              variant="outline"
+              onPress={() => setConfirmReset(true)}
+              style={{ marginTop: spacing.md }}
+            />
           )}
         </Card>
-        <WarnStripes />
       </ScrollView>
     </View>
   );
@@ -249,7 +261,7 @@ const styles = StyleSheet.create({
     minHeight: 64,
     borderWidth: 1,
     borderColor: colors.grau200,
-    borderRadius: 6,
+    borderRadius: 14,
     padding: spacing.sm,
     marginTop: spacing.md,
     fontFamily: fonts.regular,

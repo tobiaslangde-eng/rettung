@@ -25,7 +25,7 @@ function Monitor({ l }: { l: number }) {
         <Rect x={28} y={26} width={44} height={30} rx={6} fill="#FFE57A" />
         <Path d="M50 36 C44 28 34 33 39 42 L50 52 L61 42 C66 33 56 28 50 36 Z" fill={colors.signalrot} />
         <Path d="M51 37 L47 45 L52 45 L49 52" stroke="#fff" strokeWidth={2} fill="none" />
-        <SvgText x={50} y={72} fontSize={12} fontFamily={fonts.displayBlack} fill="#15181C" textAnchor="middle">
+        <SvgText x={50} y={72} fontSize={12} fontFamily={fonts.artBlack} fill="#15181C" textAnchor="middle">
           AED
         </SvgText>
         <Circle cx={36} cy={66} r={4} fill="#1F9D55" />
@@ -62,12 +62,12 @@ function Monitor({ l }: { l: number }) {
       ))}
       {l >= 3 &&
         lines.slice(0, 3).map((c, i) => (
-          <SvgText key={c} x={x + w - 14} y={y + 16 + i * 14} fontSize={10} fontFamily={fonts.displayBlack} fill={c} textAnchor="middle">
+          <SvgText key={c} x={x + w - 14} y={y + 16 + i * 14} fontSize={10} fontFamily={fonts.artBlack} fill={c} textAnchor="middle">
             {['72', '98', '120'][i]}
           </SvgText>
         ))}
       {l === 2 && (
-        <SvgText x={x + w - 3} y={y + 18} fontSize={9} fontFamily={fonts.displayBlack} fill={colors.monitorGruen} textAnchor="end">
+        <SvgText x={x + w - 3} y={y + 18} fontSize={9} fontFamily={fonts.artBlack} fill={colors.monitorGruen} textAnchor="end">
           72
         </SvgText>
       )}
@@ -109,7 +109,7 @@ function Beatmung({ l }: { l: number }) {
         <Rect x={34} y={20} width={32} height={20} rx={12} fill="#FFFFFF" stroke="#A7ADB5" strokeWidth={2} />
         <Rect x={44} y={8} width={12} height={14} rx={2} fill="#5F6670" />
         <Circle cx={50} cy={13} r={4} fill="#DADDE2" />
-        <SvgText x={50} y={66} fontSize={10} fontFamily={fonts.displayBlack} fill="#5F6670" textAnchor="middle">
+        <SvgText x={50} y={66} fontSize={10} fontFamily={fonts.artBlack} fill="#5F6670" textAnchor="middle">
           O₂
         </SvgText>
         <Path d="M56 12 Q82 8 80 40 Q78 62 84 70" stroke="#A7DDF0" strokeWidth={3} fill="none" />
@@ -170,7 +170,7 @@ function Rucksack({ l }: { l: number }) {
         ))}
       {l >= 4 &&
         ['A', 'B', 'C', 'D', 'E'].map((t, i) => (
-          <SvgText key={t} x={29.2 + i * 10.4} y={60} fontSize={8} fontFamily={fonts.displayBlack} fill="#15181C" textAnchor="middle">
+          <SvgText key={t} x={29.2 + i * 10.4} y={60} fontSize={8} fontFamily={fonts.artBlack} fill="#15181C" textAnchor="middle">
             {t}
           </SvgText>
         ))}
@@ -219,7 +219,7 @@ function Funk({ l }: { l: number }) {
         {[0, 1, 2].map((i) => (
           <Circle key={i} cx={81} cy={60 + i * 8} r={2.5} fill="#5F6670" />
         ))}
-        <SvgText x={81} y={48} fontSize={7} fontFamily={fonts.displayBlack} fill="#15181C" textAnchor="middle">
+        <SvgText x={81} y={48} fontSize={7} fontFamily={fonts.artBlack} fill="#15181C" textAnchor="middle">
           DIGI
         </SvgText>
       </G>
@@ -230,7 +230,7 @@ function Funk({ l }: { l: number }) {
       <Rect x={6} y={12} width={88} height={64} rx={7} fill="#15181C" />
       <Rect x={10} y={16} width={80} height={56} rx={4} fill="#0E2140" />
       <Rect x={14} y={20} width={72} height={9} rx={2} fill={colors.signalrot} />
-      <SvgText x={50} y={27} fontSize={7} fontFamily={fonts.displayBlack} fill="#fff" textAnchor="middle">
+      <SvgText x={50} y={27} fontSize={7} fontFamily={fonts.artBlack} fill="#fff" textAnchor="middle">
         EINSATZ 112 · RD 1
       </SvgText>
       <Rect x={14} y={32} width={44} height={36} rx={2} fill="#1F3E78" />
@@ -260,7 +260,7 @@ function Psa({ l }: { l: number }) {
       {l >= 2 && <Rect x={18} y={77} width={64} height={4} fill="#C9CED6" />}
       {l >= 3 && <Rect x={24} y={46} width={52} height={4} fill={colors.signalrot} />}
       {l >= 3 && (
-        <SvgText x={50} y={58} fontSize={8} fontFamily={fonts.displayBlack} fill="#fff" textAnchor="middle">
+        <SvgText x={50} y={58} fontSize={8} fontFamily={fonts.artBlack} fill="#fff" textAnchor="middle">
           RETTUNGSDIENST
         </SvgText>
       )}

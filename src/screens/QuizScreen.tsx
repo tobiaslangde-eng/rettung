@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { EcgStrip, RatingStar, WarnStripes } from '../components/Ems';
+import { EcgStrip, RatingStar } from '../components/Ems';
 import { Button, Card, Eyebrow, TopBar } from '../components/UI';
 import { Rating, VITAL_BY_ID, formatVital } from '../data/vitals';
 import { QUIZ_POINTS, QUIZ_ROUNDS, makeQuiz } from '../game/quiz';
@@ -167,14 +167,9 @@ export function QuizScreen({
               </Text>
               <Text style={type.small}>Normalbereich: {def.normal}</Text>
             </Card>
-            <Button
-              label={round + 1 < QUIZ_ROUNDS ? 'Nächster Wert' : 'Auswertung'}
-              variant="dark"
-              onPress={next}
-            />
+            <Button label={round + 1 < QUIZ_ROUNDS ? 'Nächster Wert' : 'Auswertung'} variant="dark" onPress={next} />
           </>
         )}
-        <WarnStripes />
       </ScrollView>
     </View>
   );
@@ -184,12 +179,18 @@ const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   progress: { height: 6, backgroundColor: colors.grau200 },
   progressFill: { height: 6, backgroundColor: colors.signalrot },
-  counter: { alignItems: 'center', borderWidth: 1, borderColor: colors.blaulicht, paddingHorizontal: 8, paddingVertical: 2 },
-  counterValue: { color: colors.weiss, fontFamily: fonts.extrabold, fontSize: 16 },
-  counterLabel: { color: colors.grau300, fontFamily: fonts.regular, fontSize: 9, letterSpacing: 1 },
+  counter: {
+    alignItems: 'center',
+    backgroundColor: colors.blaulichtLight,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  counterValue: { color: colors.blaulicht, fontFamily: fonts.bold, fontSize: 17 },
+  counterLabel: { color: colors.blaulicht, fontFamily: fonts.medium, fontSize: 10 },
   monitor: {
     backgroundColor: colors.nacht,
-    borderRadius: 8,
+    borderRadius: 16,
     paddingTop: spacing.lg,
     alignItems: 'center',
     overflow: 'hidden',
@@ -202,7 +203,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.blaulicht,
     paddingVertical: spacing.lg,
     alignItems: 'center',
-    borderRadius: 6,
+    borderRadius: 14,
   },
   rateSymbol: { color: colors.weiss, fontSize: 24, fontFamily: fonts.extrabold },
   rateLabel: { color: colors.weiss, fontSize: 13, fontFamily: fonts.semibold },

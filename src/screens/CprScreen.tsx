@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { EcgStrip, RatingStar, WarnStripes } from '../components/Ems';
+import { EcgStrip, RatingStar } from '../components/Ems';
 import { Button, Card, Eyebrow, TopBar } from '../components/UI';
 import {
   CPR_BREATHS,
@@ -162,9 +162,9 @@ export function CprScreen({
           <Card>
             <Eyebrow title="So geht’s" />
             <Text style={[type.body, { marginTop: spacing.xs }]}>
-              Mein Patient hat keinen Kreislauf. Ich tippe {CPR_COMPRESSIONS}× im richtigen Takt auf den Brustkorb, dann
-              beatme ich {CPR_BREATHS}× – und das {CPR_CYCLES} Runden lang. Die Pause zum Beatmen soll kürzer als{' '}
-              {CPR_MAX_PAUSE} Sekunden sein.
+              Mein Patient hat keinen Kreislauf. Ich tippe {CPR_COMPRESSIONS}× im richtigen Takt auf den Brustkorb, dann beatme
+              ich {CPR_BREATHS}× – und das {CPR_CYCLES} Runden lang. Die Pause zum Beatmen soll kürzer als {CPR_MAX_PAUSE}{' '}
+              Sekunden sein.
             </Text>
             <Text style={[type.small, { marginTop: spacing.sm }]}>
               Merkhilfe: etwa zwei Mal pro Sekunde – im Takt von „Stayin’ Alive“.
@@ -182,7 +182,7 @@ export function CprScreen({
                   style={[styles.toggle, withGuide === on && styles.toggleActive]}
                 >
                   <Text style={[styles.toggleLabel, withGuide === on && { color: colors.weiss }]}>{on ? 'An' : 'Aus'}</Text>
-                  <Text style={[styles.toggleSub, withGuide === on && { color: colors.grau300 }]}>
+                  <Text style={[styles.toggleSub, withGuide === on && { color: colors.blaulichtLight }]}>
                     {on ? `bis ${CPR_POINTS} Punkte` : `bis ${CPR_POINTS * 2} Punkte`}
                   </Text>
                 </Pressable>
@@ -192,7 +192,6 @@ export function CprScreen({
           </View>
           {best > 0 && <Text style={[type.small, { textAlign: 'center' }]}>Mein Bestwert: {best} % im Zielbereich</Text>}
           <Button label="Wiederbelebung starten" variant="alarm" onPress={start} />
-          <WarnStripes />
         </ScrollView>
       </View>
     );
@@ -202,7 +201,10 @@ export function CprScreen({
     const tips: string[] = [];
     if (result.avgRate < CPR_MIN_RATE) tips.push('Etwas schneller drücken – Ziel sind 100–120 pro Minute.');
     if (result.avgRate > CPR_MAX_RATE) tips.push('Etwas langsamer – sonst füllt sich das Herz zwischen den Kompressionen nicht.');
-    if (result.longestPause > CPR_MAX_PAUSE) tips.push(`Die Beatmungspause war zu lang (−${CPR_PAUSE_PENALTY} Punkte). Jede Sekunde ohne Druck senkt den Blutdruck im Gehirn.`);
+    if (result.longestPause > CPR_MAX_PAUSE)
+      tips.push(
+        `Die Beatmungspause war zu lang (−${CPR_PAUSE_PENALTY} Punkte). Jede Sekunde ohne Druck senkt den Blutdruck im Gehirn.`,
+      );
     if (tips.length === 0) tips.push('Gleichmäßiger Takt und kurze Pausen – so überlebt das Gehirn bis der Defi kommt.');
     return (
       <View style={{ flex: 1 }}>
@@ -230,7 +232,11 @@ export function CprScreen({
           <Card>
             <Eyebrow title="Meine Werte" />
             <Line label="Durchschnittlicher Takt" value={`${result.avgRate} /min`} ok={zoneFor(result.avgRate) === 'gut'} />
-            <Line label="Längste Beatmungspause" value={`${String(result.longestPause).replace('.', ',')} s`} ok={result.longestPause <= CPR_MAX_PAUSE} />
+            <Line
+              label="Längste Beatmungspause"
+              value={`${String(result.longestPause).replace('.', ',')} s`}
+              ok={result.longestPause <= CPR_MAX_PAUSE}
+            />
             <Line label="Taktgeber" value={withGuide ? 'an' : 'aus (×2)'} ok />
           </Card>
           <Card style={{ borderLeftColor: colors.blaulicht }}>
@@ -267,7 +273,12 @@ export function CprScreen({
         }
       />
       <View style={styles.progress}>
-        <View style={[styles.progressFill, { width: `${((phase === 'press' ? taps.length : CPR_COMPRESSIONS) / CPR_COMPRESSIONS) * 100}%` }]} />
+        <View
+          style={[
+            styles.progressFill,
+            { width: `${((phase === 'press' ? taps.length : CPR_COMPRESSIONS) / CPR_COMPRESSIONS) * 100}%` },
+          ]}
+        />
       </View>
       <View style={styles.play}>
         <View style={styles.readout}>
@@ -276,13 +287,16 @@ export function CprScreen({
             <Text style={styles.rateUnit}> /min</Text>
           </Text>
           <Text style={[styles.zone, { color: zone?.color ?? colors.grau300 }]}>
-            {phase === 'breathe' ? 'Jetzt 2× beatmen' : zone?.label ?? 'Los geht’s – drücken!'}
+            {phase === 'breathe' ? 'Jetzt 2× beatmen' : (zone?.label ?? 'Los geht’s – drücken!')}
           </Text>
           <View style={styles.gauge}>
             <View
               style={[
                 styles.gaugeZone,
-                { left: `${gaugePos(CPR_MIN_RATE) * 100}%`, width: `${(gaugePos(CPR_MAX_RATE) - gaugePos(CPR_MIN_RATE)) * 100}%` },
+                {
+                  left: `${gaugePos(CPR_MIN_RATE) * 100}%`,
+                  width: `${(gaugePos(CPR_MAX_RATE) - gaugePos(CPR_MIN_RATE)) * 100}%`,
+                },
               ]}
             />
             {rate !== null && phase === 'press' && (
@@ -301,7 +315,13 @@ export function CprScreen({
         {phase === 'press' ? (
           <View style={styles.chestWrap}>
             {withGuide && <Metronome size={250} />}
-            <Pressable onPressIn={compress} {...NO_PRESS_DELAY} accessibilityRole="button" accessibilityLabel="Drücken" style={styles.chestHit}>
+            <Pressable
+              onPressIn={compress}
+              {...NO_PRESS_DELAY}
+              accessibilityRole="button"
+              accessibilityLabel="Drücken"
+              style={styles.chestHit}
+            >
               <Animated.View style={[styles.chest, { transform: [{ scale: chestScale }] }]}>
                 <Text style={styles.hands}>❤️</Text>
                 <Text style={styles.chestLabel}>Drücken</Text>
@@ -339,9 +359,9 @@ function Line({ label, value, ok }: { label: string; value: string; ok: boolean 
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
-  monitor: { backgroundColor: colors.nacht, borderRadius: 8, paddingTop: spacing.lg, alignItems: 'center', overflow: 'hidden' },
+  monitor: { backgroundColor: colors.nacht, borderRadius: 16, paddingTop: spacing.lg, alignItems: 'center', overflow: 'hidden' },
   introBig: { fontFamily: fonts.displayBlack, fontSize: 64, lineHeight: 68, color: colors.monitorGruen },
-  introSub: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau300, letterSpacing: 1, textTransform: 'uppercase' },
+  introSub: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau300, letterSpacing: 0.4, textTransform: 'uppercase' },
   toggle: {
     flex: 1,
     alignItems: 'center',
@@ -349,22 +369,35 @@ const styles = StyleSheet.create({
     backgroundColor: colors.weiss,
     borderWidth: 1,
     borderColor: colors.grau200,
-    borderRadius: 6,
+    borderRadius: 14,
   },
-  toggleActive: { backgroundColor: colors.graphit, borderColor: colors.graphit },
-  toggleLabel: { fontFamily: fonts.displayBlack, fontSize: 20, color: colors.graphit, textTransform: 'uppercase' },
+  toggleActive: { backgroundColor: colors.blaulicht, borderColor: colors.blaulicht },
+  toggleLabel: { fontFamily: fonts.displayBlack, fontSize: 20, color: colors.graphit },
   toggleSub: { fontFamily: fonts.semibold, fontSize: 11, color: colors.grau500 },
   progress: { height: 6, backgroundColor: colors.grau200 },
   progressFill: { height: 6, backgroundColor: colors.signalrot },
-  counter: { alignItems: 'center', borderWidth: 1, borderColor: colors.blaulicht, paddingHorizontal: 8, paddingVertical: 2 },
-  counterValue: { color: colors.weiss, fontFamily: fonts.extrabold, fontSize: 16 },
-  counterLabel: { color: colors.grau300, fontFamily: fonts.regular, fontSize: 9, letterSpacing: 1 },
+  counter: {
+    alignItems: 'center',
+    backgroundColor: colors.blaulichtLight,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  counterValue: { color: colors.blaulicht, fontFamily: fonts.bold, fontSize: 17 },
+  counterLabel: { color: colors.blaulicht, fontFamily: fonts.medium, fontSize: 10 },
   play: { flex: 1, backgroundColor: colors.nacht },
   readout: { padding: spacing.lg, alignItems: 'center' },
   rate: { fontFamily: fonts.displayBlack, fontSize: 64, lineHeight: 68 },
   rateUnit: { fontSize: 20, color: colors.grau300 },
-  zone: { fontFamily: fonts.extrabold, fontSize: 16, textTransform: 'uppercase', letterSpacing: 1 },
-  gauge: { alignSelf: 'stretch', height: 12, backgroundColor: colors.graphitSoft, borderRadius: 6, marginTop: spacing.md, overflow: 'hidden' },
+  zone: { fontFamily: fonts.extrabold, fontSize: 16, letterSpacing: -0.3 },
+  gauge: {
+    alignSelf: 'stretch',
+    height: 12,
+    backgroundColor: colors.graphitSoft,
+    borderRadius: 14,
+    marginTop: spacing.md,
+    overflow: 'hidden',
+  },
   gaugeZone: { position: 'absolute', top: 0, bottom: 0, backgroundColor: 'rgba(43,227,139,0.35)' },
   needle: { position: 'absolute', top: 0, bottom: 0, width: 4, marginLeft: -2 },
   gaugeLabels: { alignSelf: 'stretch', flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
@@ -391,7 +424,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   hands: { fontSize: 44, fontFamily: fonts.regular },
-  chestLabel: { fontFamily: fonts.displayBlack, fontSize: 30, color: colors.weiss, textTransform: 'uppercase' },
+  chestLabel: { fontFamily: fonts.displayBlack, fontSize: 30, color: colors.weiss },
   chestSub: { fontFamily: fonts.semibold, fontSize: 12, color: 'rgba(255,255,255,0.8)' },
   pause: { fontFamily: fonts.bold, fontSize: 15 },
   stars: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },

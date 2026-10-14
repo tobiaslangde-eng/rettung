@@ -16,9 +16,9 @@ const index = readFileSync(join(exportDir, 'index.html'), 'utf8');
 const scriptSrc = index.match(/<script src="\/?([^"]+\.js)"/)?.[1];
 if (!scriptSrc) throw new Error('Kein Bundle-Script in index.html gefunden');
 
-// Nur die Schriftschnitte einbetten, die das Theme wirklich nutzt (z. B. 'Barlow_700Bold').
+// Nur die Schriftschnitte einbetten, die das Theme wirklich nutzt (z. B. 'Inter_700Bold').
 const usedFonts = new Set(
-  [...readFileSync('src/theme.ts', 'utf8').matchAll(/'((?:BarlowCondensed|Barlow)_\w+)'/g)].map((m) => m[1]),
+  [...readFileSync('src/theme.ts', 'utf8').matchAll(/'((?:BarlowCondensed|Barlow|Inter)_\w+)'/g)].map((m) => m[1]),
 );
 
 let js = readFileSync(join(exportDir, scriptSrc), 'utf8');

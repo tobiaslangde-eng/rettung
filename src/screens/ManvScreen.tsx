@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { RatingStar, ReflexStripes, WarnStripes } from '../components/Ems';
+import { RatingStar } from '../components/Ems';
 import { Button, Card, Eyebrow, TopBar } from '../components/UI';
 import { MANV_ROUND, ManvPatient, TRIAGE, TRIAGE_ORDER, Triage, triage } from '../data/manv';
 import { makeManvRound, manvPoints } from '../game/manv';
@@ -23,7 +23,10 @@ function findings(p: ManvPatient): [string, string][] {
   const f: [string, string][] = [['Gehfähig', p.walks ? 'ja' : 'nein']];
   if (p.walks) return f;
   if (p.bleeding) return [...f, ['Spritzende Blutung', 'ja']];
-  f.push(['Atmung', p.breathing === 'ja' ? 'ja' : p.breathing === 'nein' ? 'nein – auch nach Freimachen' : 'erst nach Freimachen der Atemwege']);
+  f.push([
+    'Atmung',
+    p.breathing === 'ja' ? 'ja' : p.breathing === 'nein' ? 'nein – auch nach Freimachen' : 'erst nach Freimachen der Atemwege',
+  ]);
   if (p.breathing !== 'ja') return f;
   f.push(['Atemfrequenz', `${p.af} /min`]);
   f.push(['Radialispuls', p.radial ? 'tastbar' : 'nicht tastbar']);
@@ -84,13 +87,12 @@ export function ManvScreen({
         <TopBar kicker="Großeinsatz" title="MANV-Alarm" onBack={onBack} />
         <ScrollView contentContainerStyle={styles.content}>
           <View style={styles.alarm}>
-            <ReflexStripes height={6} />
             <View style={{ padding: spacing.lg, gap: spacing.xs }}>
               <Text style={styles.alarmEyebrow}>📟 Massenanfall von Verletzten</Text>
               <Text style={styles.alarmTitle}>{round.scenario}</Text>
               <Text style={styles.alarmText}>
-                {MANV_ROUND} Verletzte. Wir sind das erste Team vor Ort. Bevor ich jemanden behandle, sichte ich alle –
-                damit die Schwerstverletzten zuerst Hilfe bekommen.
+                {MANV_ROUND} Verletzte. Wir sind das erste Team vor Ort. Bevor ich jemanden behandle, sichte ich alle – damit die
+                Schwerstverletzten zuerst Hilfe bekommen.
               </Text>
             </View>
           </View>
@@ -112,9 +114,12 @@ export function ManvScreen({
               </View>
             ))}
           </View>
-          {best > 0 && <Text style={[type.small, { textAlign: 'center' }]}>Mein Bestwert: {best} / {MANV_ROUND} richtig gesichtet</Text>}
+          {best > 0 && (
+            <Text style={[type.small, { textAlign: 'center' }]}>
+              Mein Bestwert: {best} / {MANV_ROUND} richtig gesichtet
+            </Text>
+          )}
           <Button label="Sichtung starten" variant="alarm" onPress={start} />
-          <WarnStripes />
         </ScrollView>
       </View>
     );
@@ -136,7 +141,9 @@ export function ManvScreen({
               {correctCount}
               <Text style={styles.bigScoreOf}> / {MANV_ROUND}</Text>
             </Text>
-            <Text style={styles.monitorSub}>richtig gesichtet · {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, '0')} min</Text>
+            <Text style={styles.monitorSub}>
+              richtig gesichtet · {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, '0')} min
+            </Text>
             <Text style={styles.gain}>+{manvPoints(correctCount)} Punkte</Text>
           </View>
           <Text style={[type.small, { textAlign: 'center' }]}>
@@ -155,7 +162,9 @@ export function ManvScreen({
                   <View style={{ flex: 1 }}>
                     <Text style={[type.small, { fontFamily: fonts.bold, color: colors.graphit }]}>{p.who}</Text>
                     <Text style={type.small}>{t.reason}</Text>
-                    {!ok && <Text style={[type.small, { color: colors.signalrot }]}>Meine Sichtung: {TRIAGE[answers[i]].label}</Text>}
+                    {!ok && (
+                      <Text style={[type.small, { color: colors.signalrot }]}>Meine Sichtung: {TRIAGE[answers[i]].label}</Text>
+                    )}
                   </View>
                   <Text style={{ fontFamily: fonts.bold, color: ok ? colors.gruen : colors.signalrot }}>{ok ? '✓' : '✗'}</Text>
                 </View>
@@ -230,14 +239,19 @@ export function ManvScreen({
           <>
             <Card style={{ borderLeftColor: given === truth.cat ? colors.gruen : colors.signalrot }}>
               <Text style={[type.body, { fontFamily: fonts.bold }]}>
-                {given === truth.cat ? `Richtig – ${TRIAGE[truth.cat].label}!` : `Falsch – richtig ist ${TRIAGE[truth.cat].label}.`}
+                {given === truth.cat
+                  ? `Richtig – ${TRIAGE[truth.cat].label}!`
+                  : `Falsch – richtig ist ${TRIAGE[truth.cat].label}.`}
               </Text>
               <Text style={[type.body, { marginTop: spacing.xs }]}>{truth.reason}</Text>
             </Card>
-            <Button label={index + 1 < round.patients.length ? 'Nächste Person' : 'Sichtung abschließen'} variant="dark" onPress={next} />
+            <Button
+              label={index + 1 < round.patients.length ? 'Nächste Person' : 'Sichtung abschließen'}
+              variant="dark"
+              onPress={next}
+            />
           </>
         )}
-        <WarnStripes />
       </ScrollView>
     </View>
   );
@@ -245,31 +259,58 @@ export function ManvScreen({
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
-  alarm: { backgroundColor: colors.graphit, borderRadius: 6, overflow: 'hidden' },
-  alarmEyebrow: { color: colors.warngelb, fontFamily: fonts.extrabold, letterSpacing: 2, fontSize: 11, textTransform: 'uppercase' },
-  alarmTitle: { color: colors.weiss, fontFamily: fonts.displayBlack, fontSize: 28, lineHeight: 31, textTransform: 'uppercase' },
+  alarm: { backgroundColor: colors.graphit, borderRadius: 14, overflow: 'hidden' },
+  alarmEyebrow: {
+    color: colors.warngelb,
+    fontFamily: fonts.extrabold,
+    letterSpacing: 0.4,
+    fontSize: 11,
+    textTransform: 'uppercase',
+  },
+  alarmTitle: { color: colors.weiss, fontFamily: fonts.displayBlack, fontSize: 28, lineHeight: 31 },
   alarmText: { color: colors.grau300, fontFamily: fonts.regular, fontSize: 15, lineHeight: 21 },
   legend: { gap: 6 },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   legendDot: { width: 14, height: 14, borderRadius: 3, borderWidth: 1, borderColor: colors.grau300 },
   progress: { height: 6, backgroundColor: colors.grau200 },
   progressFill: { height: 6, backgroundColor: colors.signalrot },
-  counter: { alignItems: 'center', borderWidth: 1, borderColor: colors.blaulicht, paddingHorizontal: 8, paddingVertical: 2 },
-  counterValue: { color: colors.weiss, fontFamily: fonts.extrabold, fontSize: 16 },
-  counterLabel: { color: colors.grau300, fontFamily: fonts.regular, fontSize: 9, letterSpacing: 1 },
-  patient: { backgroundColor: colors.nacht, borderRadius: 8, padding: spacing.lg },
-  who: { fontFamily: fonts.displayBlack, fontSize: 26, color: colors.weiss, textTransform: 'uppercase' },
+  counter: {
+    alignItems: 'center',
+    backgroundColor: colors.blaulichtLight,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  counterValue: { color: colors.blaulicht, fontFamily: fonts.bold, fontSize: 17 },
+  counterLabel: { color: colors.blaulicht, fontFamily: fonts.medium, fontSize: 10 },
+  patient: { backgroundColor: colors.nacht, borderRadius: 16, padding: spacing.lg },
+  who: { fontFamily: fonts.displayBlack, fontSize: 26, color: colors.weiss },
   patientText: { fontFamily: fonts.italic, fontSize: 15, lineHeight: 21, color: colors.grau200, marginTop: spacing.xs },
-  finding: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.md, borderTopWidth: 1, borderTopColor: colors.graphitSoft, paddingTop: 6 },
+  finding: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.graphitSoft,
+    paddingTop: 6,
+  },
   findingKey: { fontFamily: fonts.semibold, fontSize: 14, color: colors.grau300 },
   findingValue: { fontFamily: fonts.extrabold, fontSize: 14, color: colors.monitorGruen, flexShrink: 1, textAlign: 'right' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  triageBtn: { width: '48%', flexGrow: 1, paddingVertical: spacing.lg, borderRadius: 6, alignItems: 'center', borderWidth: 3, borderColor: 'transparent' },
+  triageBtn: {
+    width: '48%',
+    flexGrow: 1,
+    paddingVertical: spacing.lg,
+    borderRadius: 14,
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: 'transparent',
+  },
   triageAnswer: { borderColor: colors.blaulicht },
-  triageLabel: { fontFamily: fonts.displayBlack, fontSize: 26, color: colors.weiss, textTransform: 'uppercase' },
+  triageLabel: { fontFamily: fonts.displayBlack, fontSize: 26, color: colors.weiss },
   triageShort: { fontFamily: fonts.bold, fontSize: 12, color: 'rgba(255,255,255,0.8)', letterSpacing: 1 },
-  monitor: { backgroundColor: colors.nacht, borderRadius: 8, padding: spacing.lg, alignItems: 'center' },
-  monitorSub: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau300, letterSpacing: 1, textTransform: 'uppercase' },
+  monitor: { backgroundColor: colors.nacht, borderRadius: 16, padding: spacing.lg, alignItems: 'center' },
+  monitorSub: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau300, letterSpacing: 0.4, textTransform: 'uppercase' },
   stars: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   bigScore: { fontFamily: fonts.displayBlack, fontSize: 64, color: colors.weiss, marginTop: spacing.sm },
   bigScoreOf: { fontSize: 28, color: colors.grau300 },

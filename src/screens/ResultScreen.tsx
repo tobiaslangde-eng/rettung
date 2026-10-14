@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Button, Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
+import { Button, Card, Eyebrow, TopBar } from '../components/UI';
 import { EcgStrip, MonitorScene, RankBadge, RatingStar } from '../components/Ems';
 import { INCIDENTS } from '../data/incidents';
 import { VITAL_BY_ID, formatVital, rateVital } from '../data/vitals';
@@ -128,7 +128,6 @@ export function ResultScreen({
                   {outcome.text}
                 </Text>
               </Card>
-              <WarnStripes />
 
               <Card>
                 <Eyebrow title="Meine Wertung" />
@@ -234,14 +233,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.lg,
     backgroundColor: colors.warngelb,
-    borderRadius: 6,
+    borderRadius: 14,
     padding: spacing.lg,
   },
-  promoHead: { fontFamily: fonts.displayBlack, fontSize: 30, color: colors.graphit, textTransform: 'uppercase' },
+  promoHead: { fontFamily: fonts.displayBlack, fontSize: 30, color: colors.graphit },
   promoText: { fontFamily: fonts.semibold, fontSize: 13, color: colors.graphit },
-  promoRank: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.graphit, textTransform: 'uppercase' },
-  badgeBox: { backgroundColor: colors.graphit, borderRadius: 6, padding: spacing.lg, gap: spacing.sm },
-  badgeHead: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.warngelb, textTransform: 'uppercase' },
+  promoRank: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.graphit },
+  badgeBox: { backgroundColor: colors.graphit, borderRadius: 14, padding: spacing.lg, gap: spacing.sm },
+  badgeHead: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.warngelb },
   badgeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   badgeIcon: { fontFamily: fonts.regular, fontSize: 30 },
   badgeTitle: { fontFamily: fonts.bold, fontSize: 15, color: colors.weiss },
@@ -268,9 +267,8 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontFamily: fonts.displayBlack,
     marginTop: spacing.md,
-    textTransform: 'uppercase',
   },
-  praiseDe: { color: colors.grau300, fontSize: 13, fontFamily: fonts.semibold, letterSpacing: 1.5, textTransform: 'uppercase' },
+  praiseDe: { color: colors.grau300, fontSize: 13, fontFamily: fonts.semibold, letterSpacing: 0.4, textTransform: 'uppercase' },
   points: { color: colors.monitorGruen, fontSize: 44, fontFamily: fonts.displayBlack, marginTop: spacing.xs },
   pointsMax: { fontSize: 16, color: colors.grau300, fontFamily: fonts.semibold },
   diff: { color: colors.blaulichtLight, marginTop: spacing.xs, fontFamily: fonts.bold, fontSize: 13 },

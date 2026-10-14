@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
+import { Card, Eyebrow, Segmented, TopBar } from '../components/UI';
 import { BASICS } from '../data/basics';
 import { CASES } from '../data/cases';
 import { CHILD_NORMS, VITALS } from '../data/vitals';
@@ -10,22 +10,23 @@ import { colors, spacing, type, fonts } from '../theme';
 
 type Tab = 'wissen' | 'werte' | 'krankheiten';
 
-export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack: () => void }) {
+export function LexikonScreen({ progress }: { progress: Progress }) {
   const [tab, setTab] = useState<Tab>('werte');
   const L = useLayout();
   const cardW = L.desktop ? { width: '32.3%' as const } : L.wide ? { width: '48.9%' as const } : undefined;
   return (
     <View style={{ flex: 1 }}>
-      <TopBar kicker="Nachschlagen" title="Lexikon" onBack={onBack} />
+      <TopBar kicker="Nachschlagen" title="Lexikon" />
       <View style={styles.tabs}>
-        <TabBtn active={tab === 'werte'} label="Normwerte" sub="Vitalwerte" onPress={() => setTab('werte')} />
-        <TabBtn
-          active={tab === 'krankheiten'}
-          label="Krankheiten"
-          sub={`${CASES.length} Fälle`}
-          onPress={() => setTab('krankheiten')}
+        <Segmented
+          options={[
+            { id: 'werte', label: 'Normwerte' },
+            { id: 'krankheiten', label: `Krankheiten (${CASES.length})` },
+            { id: 'wissen', label: 'Wissen' },
+          ]}
+          value={tab}
+          onChange={setTab}
         />
-        <TabBtn active={tab === 'wissen'} label="Wissen" sub="Erste Hilfe" onPress={() => setTab('wissen')} />
       </View>
       <ScrollView contentContainerStyle={[styles.content, L.wide && styles.contentWide]}>
         {tab === 'wissen' &&
@@ -106,30 +107,16 @@ export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack
             );
           })
         )}
-        <View style={{ width: '100%' }}>
-          <WarnStripes />
-        </View>
+        <View style={{ width: '100%' }}></View>
       </ScrollView>
     </View>
-  );
-}
-
-function TabBtn({ active, label, sub, onPress }: { active: boolean; label: string; sub: string; onPress: () => void }) {
-  return (
-    <Pressable onPress={onPress} style={[styles.tab, active && styles.tabActive]}>
-      <Text style={[styles.tabLabel, active && { color: colors.weiss }]}>{label}</Text>
-      <Text style={[styles.tabEt, active && { color: colors.blaulichtLight }]}>{sub}</Text>
-    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
   contentWide: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', padding: spacing.xl },
-  tabs: { flexDirection: 'row', backgroundColor: colors.grau200 },
-  tab: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center' },
-  tabActive: { backgroundColor: colors.blaulicht },
-  tabLabel: { fontFamily: fonts.bold, color: colors.graphit },
+  tabs: { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
   tabEt: { fontFamily: fonts.regular, fontSize: 10, color: colors.grau500, letterSpacing: 1 },
   short: { fontFamily: fonts.extrabold, color: colors.graphit, letterSpacing: 1 },
 });

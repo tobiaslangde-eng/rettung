@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 0,
     borderRadius: 10,
   },
-  name: { fontSize: 11, fontFamily: fonts.extrabold, color: colors.blaulichtDark, letterSpacing: 1, textTransform: 'uppercase' },
+  name: { fontSize: 11, fontFamily: fonts.extrabold, color: colors.blaulichtDark, letterSpacing: 0.4, textTransform: 'uppercase' },
   text: { fontFamily: fonts.regular, fontSize: 15, color: colors.graphit, marginTop: 2, lineHeight: 21 },
   ask: {
     flexDirection: 'row',

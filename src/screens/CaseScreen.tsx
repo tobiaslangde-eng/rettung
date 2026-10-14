@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { DriveAnimation } from '../components/DriveAnimation';
-import { Button, Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
-import { ReflexStripes } from '../components/Ems';
+import { Button, Card, Eyebrow, TopBar } from '../components/UI';
 import { AskKati, Kati } from '../components/Kati';
 import { MedCase } from '../data/cases';
 import { INCIDENTS, INCIDENT_CONDITION } from '../data/incidents';
@@ -240,7 +239,6 @@ export function CaseScreen({
         {phase === 'alarm' && (
           <>
             <View style={styles.alarm}>
-              <ReflexStripes height={6} />
               <View style={styles.alarmBody}>
                 {daily && <Text style={styles.dailyTag}>⭐ Einsatz des Tages · +50 % Punkte</Text>}
                 <Text style={styles.alarmEyebrow}>📟 Alarm · Mein Melder piept!</Text>
@@ -454,11 +452,9 @@ export function CaseScreen({
             <Button label="Los, ich handle!" variant="alarm" disabled={treatmentGuess.length === 0} onPress={finish} />
           </>
         )}
-        <WarnStripes />
       </ScrollView>
       {incidentActive && incident && (
         <View style={styles.incident}>
-          <ReflexStripes height={6} />
           <View style={[styles.incidentBody, { paddingHorizontal: sidePad }]}>
             <Text style={styles.incidentEyebrow}>⚠️ Zwischenfall!</Text>
             <Text style={styles.incidentText}>{incident.text}</Text>
@@ -520,13 +516,25 @@ export function CaseScreen({
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
-  clock: { alignItems: 'center', borderWidth: 1, borderColor: colors.blaulicht, paddingHorizontal: 8, paddingVertical: 2 },
-  clockValue: { color: colors.weiss, fontFamily: fonts.extrabold, fontSize: 16 },
-  clockLabel: { fontFamily: fonts.regular, color: colors.blaulichtLight, fontSize: 9, letterSpacing: 1 },
-  steps: { flexDirection: 'row', backgroundColor: colors.grau200 },
-  step: { flex: 1, paddingVertical: 7, alignItems: 'center', borderRightWidth: 1, borderRightColor: colors.grau50 },
+  clock: {
+    alignItems: 'center',
+    backgroundColor: colors.blaulichtLight,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  clockValue: { color: colors.blaulicht, fontFamily: fonts.bold, fontSize: 17 },
+  clockLabel: { color: colors.blaulicht, fontFamily: fonts.medium, fontSize: 10 },
+  steps: {
+    flexDirection: 'row',
+    gap: 4,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.grau50,
+  },
+  step: { flex: 1, paddingVertical: 5, alignItems: 'center', borderRadius: 16, backgroundColor: colors.grau200 },
   stepActive: { backgroundColor: colors.blaulicht },
-  stepText: { fontSize: 10, fontFamily: fonts.extrabold, color: colors.grau500, letterSpacing: 1, textTransform: 'uppercase' },
+  stepText: { fontSize: 11, fontFamily: fonts.semibold, color: colors.grau500 },
   condition: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -542,7 +550,7 @@ const styles = StyleSheet.create({
   conditionTrack: { height: 8, backgroundColor: colors.grau200, marginTop: 4 },
   conditionFill: { height: 8 },
   conditionValue: { fontFamily: fonts.extrabold, fontSize: 15, color: colors.graphit, width: 44, textAlign: 'right' },
-  alarm: { backgroundColor: colors.signalrot, borderRadius: 6, overflow: 'hidden' },
+  alarm: { backgroundColor: colors.signalrot, borderRadius: 14, overflow: 'hidden' },
   alarmBody: { padding: spacing.lg },
   dailyTag: {
     alignSelf: 'flex-start',
@@ -550,14 +558,20 @@ const styles = StyleSheet.create({
     color: colors.graphit,
     fontFamily: fonts.extrabold,
     fontSize: 12,
-    letterSpacing: 1,
+    letterSpacing: 0.4,
     textTransform: 'uppercase',
     paddingHorizontal: 8,
     paddingVertical: 3,
     marginBottom: spacing.sm,
     overflow: 'hidden',
   },
-  alarmEyebrow: { color: colors.weiss, fontFamily: fonts.extrabold, letterSpacing: 2, fontSize: 11, textTransform: 'uppercase' },
+  alarmEyebrow: {
+    color: colors.weiss,
+    fontFamily: fonts.extrabold,
+    letterSpacing: 0.4,
+    fontSize: 11,
+    textTransform: 'uppercase',
+  },
   alarmText: { color: colors.weiss, fontSize: 22, fontFamily: fonts.display, marginTop: spacing.sm, lineHeight: 27 },
   alarmLoc: { color: colors.weiss, marginTop: spacing.sm, opacity: 0.9, fontFamily: fonts.italic, fontSize: 14 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
@@ -566,10 +580,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: colors.weiss,
     padding: spacing.md,
-    borderWidth: 1.5,
-    borderColor: colors.grau200,
+    borderWidth: 2,
+    borderColor: colors.weiss,
     minHeight: 92,
-    borderRadius: 6,
+    borderRadius: 14,
   },
   tileWide: { width: '100%' },
   tilePending: { borderColor: colors.blaulicht },
@@ -588,13 +602,12 @@ const styles = StyleSheet.create({
     fontFamily: fonts.displayBlack,
     fontSize: 26,
     color: colors.weiss,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: -0.3,
   },
   incidentText: { fontFamily: fonts.bold, fontSize: 16, lineHeight: 22, color: colors.weiss, marginBottom: spacing.xs },
   incidentOption: {
     backgroundColor: colors.weiss,
-    borderRadius: 6,
+    borderRadius: 14,
     padding: spacing.md,
     borderWidth: 2,
     borderColor: colors.weiss,
@@ -609,7 +622,7 @@ const styles = StyleSheet.create({
   rateValue: { color: colors.weiss, fontSize: 40, fontFamily: fonts.displayBlack, marginTop: 2, letterSpacing: 0.5 },
   rateNorm: { fontFamily: fonts.regular, color: colors.blaulichtLight, fontSize: 13, marginTop: 2 },
   rateQ: { color: colors.weiss, fontFamily: fonts.bold, fontSize: 15, marginTop: spacing.sm },
-  rateBtn: { flex: 1, backgroundColor: colors.blaulicht, paddingVertical: spacing.md, alignItems: 'center', borderRadius: 6 },
+  rateBtn: { flex: 1, backgroundColor: colors.blaulicht, paddingVertical: spacing.md, alignItems: 'center', borderRadius: 14 },
   rateSymbol: { color: colors.weiss, fontSize: 20, fontFamily: fonts.extrabold },
   rateLabel: { color: colors.weiss, fontSize: 12, fontFamily: fonts.semibold },
   summaryRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: spacing.sm },
@@ -621,29 +634,29 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: fonts.bold,
   },
-  option: { backgroundColor: colors.weiss, padding: spacing.lg, borderWidth: 1.5, borderColor: colors.graphit, borderRadius: 6 },
+  option: { backgroundColor: colors.weiss, padding: spacing.lg, borderWidth: 2, borderColor: colors.weiss, borderRadius: 14 },
   optionSelected: { backgroundColor: colors.blaulicht, borderColor: colors.blaulicht },
   optionRight: { backgroundColor: colors.gruen, borderColor: colors.gruen },
   optionWrong: { backgroundColor: colors.signalrot, borderColor: colors.signalrot },
   optionRemoved: { borderColor: colors.grau200, backgroundColor: colors.grau50 },
-  optionText: { fontSize: 19, fontFamily: fonts.display, color: colors.graphit, lineHeight: 23 },
+  optionText: { fontSize: 17, fontFamily: fonts.semibold, color: colors.graphit, lineHeight: 22 },
   check: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     backgroundColor: colors.weiss,
     padding: spacing.md,
-    borderWidth: 1.5,
-    borderColor: colors.grau200,
-    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: colors.weiss,
+    borderRadius: 14,
   },
   checkOn: { borderColor: colors.blaulicht },
   box: {
     width: 26,
     height: 26,
-    borderRadius: 4,
+    borderRadius: 13,
     borderWidth: 1.5,
-    borderColor: colors.graphit,
+    borderColor: colors.grau300,
     alignItems: 'center',
     justifyContent: 'center',
   },

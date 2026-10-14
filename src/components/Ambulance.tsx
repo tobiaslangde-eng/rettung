@@ -86,7 +86,7 @@ function Van({ blink }: { blink: boolean }) {
       <Rect x={226} y={70} width={52} height={36} rx={4} fill="#2A3340" />
       <Polygon points="288,68 324,106 288,106" fill="#2A3340" />
       <Rect x={40} y={70} width={60} height={30} rx={3} fill="#2A3340" />
-      <SvgText x={150} y={106} fontSize={26} fontFamily={fonts.displayBlack} fill="#F08A24" textAnchor="middle">
+      <SvgText x={150} y={106} fontSize={26} fontFamily={fonts.artBlack} fill="#F08A24" textAnchor="middle">
         112
       </SvgText>
       <Rect x={248} y={48} width={20} height={12} rx={5} fill={lamp(blink)} />
@@ -107,7 +107,7 @@ function TypeC({ blink }: { blink: boolean }) {
       ))}
       <Rect x={282} y={78} width={30} height={30} rx={3} fill="#253041" />
       <Polygon points="320,76 348,110 320,110" fill="#253041" />
-      <SvgText x={156} y={100} fontSize={24} fontFamily={fonts.displayBlack} fill={colors.signalrot} textAnchor="middle">
+      <SvgText x={156} y={100} fontSize={24} fontFamily={fonts.artBlack} fill={colors.signalrot} textAnchor="middle">
         RETTUNGSDIENST
       </SvgText>
       <Rect x={36} y={30} width={22} height={10} rx={3} fill={lamp(blink)} />
@@ -127,7 +127,7 @@ function Modern({ blink }: { blink: boolean }) {
       <Rect x={284} y={74} width={30} height={32} rx={4} fill="#1E2A3B" />
       <Polygon points="324,72 352,108 324,108" fill="#1E2A3B" />
       <StarOfLifeSmall x={150} y={84} r={18} />
-      <SvgText x={150} y={58} fontSize={13} fontFamily={fonts.displayBlack} fill="#1F3E78" textAnchor="middle">
+      <SvgText x={150} y={58} fontSize={13} fontFamily={fonts.artBlack} fill="#1F3E78" textAnchor="middle">
         NOTFALLRETTUNG
       </SvgText>
       {/* LED-Lichtbalken und Eckleuchten */}
@@ -152,11 +152,11 @@ function Electric({ blink }: { blink: boolean }) {
       <Path d="M300 70 L330 70 L362 108 L300 108 Z" fill="#17304F" />
       <Rect x={232} y={44} width={52} height={40} rx={8} fill="#17304F" />
       <StarOfLifeSmall x={70} y={76} r={22} />
-      <SvgText x={160} y={84} fontSize={18} fontFamily={fonts.displayBlack} fill="#1F3E78" textAnchor="middle">
+      <SvgText x={160} y={84} fontSize={18} fontFamily={fonts.artBlack} fill="#1F3E78" textAnchor="middle">
         RETTUNGSDIENST
       </SvgText>
       <Circle cx={344} cy={146} r={10} fill="#1F9D55" />
-      <SvgText x={344} y={151} fontSize={13} fontFamily={fonts.displayBlack} fill="#fff" textAnchor="middle">
+      <SvgText x={344} y={151} fontSize={13} fontFamily={fonts.artBlack} fill="#fff" textAnchor="middle">
         E
       </SvgText>
       {/* Rundum-LED mit Leuchtschein */}

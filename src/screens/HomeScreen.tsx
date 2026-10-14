@@ -1,35 +1,73 @@
-import { useEffect, useRef } from 'react';
-import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { EcgStrip, MonitorScene, RankBadge, WarnStripes } from '../components/Ems';
-import { Button, Eyebrow } from '../components/UI';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
+import { Ambulance } from '../components/Ambulance';
+import { RankBadge } from '../components/Ems';
+import { Card, IconTile, Pill, Ring, SectionTitle, Segmented } from '../components/UI';
 import { CASES } from '../data/cases';
 import { BADGES } from '../game/achievements';
-import { Ambulance } from '../components/Ambulance';
-import { EQUIPMENT, MAX_LEVEL, euro, levelOf, totalLevel, upgradeBlock } from '../game/equipment';
 import { DAILY_GOAL, dailyCase, dailyGoalBonus, dayState } from '../game/daily';
 import { DIFFICULTIES, Difficulty } from '../game/difficulty';
+import { EQUIPMENT, MAX_LEVEL, euro, levelOf, totalLevel, upgradeBlock } from '../game/equipment';
 import { RANKS, rankFor } from '../game/scoring';
 import { Progress } from '../game/storage';
-import { Columns, useLayout } from '../layout';
 import { weekView } from '../game/weekly';
-import { colors, fonts, monitor, spacing, type } from '../theme';
+import { Columns, useLayout } from '../layout';
+import { colors, fonts, radius, shadow, spacing, type } from '../theme';
 
-const LEVEL: Record<Difficulty, number> = { leicht: 1, mittel: 2, schwer: 3 };
+const WEEKDAYS = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+const MONTHS = [
+  'Januar',
+  'Februar',
+  'März',
+  'April',
+  'Mai',
+  'Juni',
+  'Juli',
+  'August',
+  'September',
+  'Oktober',
+  'November',
+  'Dezember',
+];
 
-/** Blinkende Statusleuchte „einsatzbereit“. */
-function StatusLight() {
-  const a = useRef(new Animated.Value(1)).current;
-  useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(a, { toValue: 0.25, duration: 700, useNativeDriver: Platform.OS !== 'web' }),
-        Animated.timing(a, { toValue: 1, duration: 700, useNativeDriver: Platform.OS !== 'web' }),
-      ]),
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [a]);
-  return <Animated.View style={[styles.statusLight, { opacity: a }]} />;
+export type TrainingId = 'manv' | 'cpr' | 'wissen' | 'quiz';
+
+/** Die vier Trainings – gemeinsam genutzt von Startseite und Training-Tab */
+export function trainings(progress: Progress) {
+  return [
+    {
+      id: 'manv' as TrainingId,
+      icon: '🚨',
+      color: colors.leuchtorange,
+      title: 'Großeinsatz',
+      sub: '8 Verletzte richtig sichten',
+      best: progress.manvBest > 0 ? `Bestwert ${progress.manvBest}/8` : undefined,
+    },
+    {
+      id: 'cpr' as TrainingId,
+      icon: '❤️',
+      color: colors.pink,
+      title: 'Herzdruckmassage',
+      sub: 'Im Takt 100–120 pro Minute',
+      best: progress.cprBest > 0 ? `Bestwert ${progress.cprBest} %` : undefined,
+    },
+    {
+      id: 'wissen' as TrainingId,
+      icon: '🧠',
+      color: colors.indigo,
+      title: 'Wissensfragen',
+      sub: '10 Fragen aus dem Einsatzalltag',
+      best: progress.knowBest > 0 ? `Bestwert ${progress.knowBest}/10` : undefined,
+    },
+    {
+      id: 'quiz' as TrainingId,
+      icon: '📈',
+      color: colors.gruen,
+      title: 'Normwerte',
+      sub: '10 Messwerte schnell einschätzen',
+      best: progress.quizBest > 0 ? `Bestwert ${progress.quizBest}/10` : undefined,
+    },
+  ];
 }
 
 export function HomeScreen({
@@ -37,421 +75,359 @@ export function HomeScreen({
   onStart,
   onDaily,
   onDifficulty,
-  onLexikon,
-  onGuide,
-  onQuiz,
-  onKnowledge,
-  onCpr,
-  onManv,
+  onTraining,
   onGarage,
 }: {
   progress: Progress;
   onStart: () => void;
   onDaily: () => void;
   onDifficulty: (d: Difficulty) => void;
-  onLexikon: () => void;
-  onGuide: () => void;
-  onQuiz: () => void;
-  onKnowledge: () => void;
-  onCpr: () => void;
-  onManv: () => void;
+  onTraining: (t: TrainingId) => void;
   onGarage: () => void;
 }) {
   const L = useLayout();
+  const now = new Date();
   const canUpgrade = EQUIPMENT.some((e) => upgradeBlock(progress, e.id) === null);
   const week = weekView(progress);
-  const barMax = Math.max(1, week.best, ...week.bars.map((b) => b.points));
   const day = dayState(progress);
   const todays = dailyCase(progress);
   const { rank, next } = rankFor(progress.totalPoints);
-  const span = next ? next.min - rank.min : 1;
-  const pct = next ? Math.min(1, (progress.totalPoints - rank.min) / span) : 1;
+  const rankPct = next ? Math.min(1, (progress.totalPoints - rank.min) / (next.min - rank.min)) : 1;
+  const weekGoal = Math.max(300, week.best);
   const mastered = CASES.filter((c) => (progress.bestStars[c.id] ?? 0) >= 3).length;
   const current = DIFFICULTIES.find((d) => d.id === progress.difficulty) ?? DIFFICULTIES[0];
+  const rtwLevel = levelOf(progress, 'rtw');
+  const upgrades = totalLevel(progress);
+  const maxUpgrades = EQUIPMENT.length * MAX_LEVEL;
 
-  const blocks = {
-    rank: (
-      <>
-        <View style={styles.rank}>
-          <RankBadge size={76} level={RANKS.indexOf(rank)} />
-          <View style={{ flex: 1, minWidth: 0 }}>
-            <Eyebrow title="Mein Dienstgrad" />
-            <Text style={styles.rankName}>{rank.de}</Text>
-            <View style={styles.bar}>
-              <View style={[styles.barFill, { width: `${pct * 100}%` }]} />
-            </View>
-            <Text style={type.small}>
-              {progress.totalPoints} Punkte
-              {next ? ` · noch ${next.min - progress.totalPoints} bis „${next.de}“` : ' · Höchster Rang erreicht'}
-            </Text>
+  const header = (
+    <View style={styles.header}>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.date}>
+          {WEEKDAYS[now.getDay()]}, {now.getDate()}. {MONTHS[now.getMonth()]}
+        </Text>
+        <Text style={type.largeTitle}>Einsatz 112</Text>
+      </View>
+      {progress.streak >= 2 && <Pill label={`🔥 ${progress.streak}`} color={colors.leuchtorange} light />}
+      <RankBadge size={44} level={RANKS.indexOf(rank)} />
+    </View>
+  );
+
+  const hero = (
+    <View style={styles.hero}>
+      <Svg style={StyleSheet.absoluteFill as object} width="100%" height="100%" preserveAspectRatio="none">
+        <Defs>
+          <LinearGradient id="heroBg" x1="0" y1="0" x2="1" y2="1">
+            <Stop offset="0" stopColor="#FF5E3A" />
+            <Stop offset="1" stopColor="#E0162B" />
+          </LinearGradient>
+        </Defs>
+        <Rect width="100%" height="100%" fill="url(#heroBg)" />
+      </Svg>
+      <View style={styles.heroTop}>
+        <View style={{ flex: 1, gap: 6 }}>
+          <View style={styles.ready}>
+            <View style={styles.readyDot} />
+            <Text style={styles.readyText}>Einsatzbereit</Text>
+          </View>
+          <Text style={styles.heroTitle}>Bereit für deine Schicht?</Text>
+          <Text style={styles.heroSub}>Patient untersuchen, Werte messen, richtig handeln.</Text>
+        </View>
+      </View>
+      <View style={styles.heroCar}>
+        <Ambulance level={rtwLevel} width={L.wide ? 230 : 200} />
+      </View>
+      <Pressable
+        onPress={onStart}
+        accessibilityRole="button"
+        style={({ pressed }) => [styles.heroBtn, pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] }]}
+      >
+        <Text style={styles.heroBtnText}>Schicht beginnen</Text>
+      </Pressable>
+    </View>
+  );
+
+  const difficulty = (
+    <View style={{ gap: spacing.sm }}>
+      <Segmented
+        options={DIFFICULTIES.map((d) => ({ id: d.id, label: d.label }))}
+        value={progress.difficulty}
+        onChange={onDifficulty}
+      />
+      <Text style={[type.small, { paddingHorizontal: spacing.xs }]}>{current.description}</Text>
+    </View>
+  );
+
+  const rings = (
+    <Card style={{ gap: spacing.lg }}>
+      <View style={styles.ringsRow}>
+        <View style={styles.ringsBox}>
+          <Ring size={124} stroke={14} pct={Math.min(day.cases, DAILY_GOAL) / DAILY_GOAL} color={colors.signalrot} />
+          <View style={{ position: 'absolute', left: 16, top: 16 }}>
+            <Ring size={92} stroke={14} pct={week.current / weekGoal} color={colors.gruen} />
+          </View>
+          <View style={{ position: 'absolute', left: 32, top: 32 }}>
+            <Ring size={60} stroke={14} pct={rankPct} color={colors.blaulicht} />
           </View>
         </View>
-      </>
-    ),
-    stats: (
-      <>
-        <View style={styles.stats}>
-          <Stat value={progress.casesPlayed} label="Einsätze" />
-          <View style={styles.statRule} />
-          <Stat value={progress.correctDiagnoses} label="Diagnosen" />
-          <View style={styles.statRule} />
-          <Stat value={`${mastered}/${CASES.length}`} label="Gemeistert" />
+        <View style={{ flex: 1, gap: spacing.sm }}>
+          <Legend
+            color={colors.signalrot}
+            title="Tagesziel"
+            value={`${Math.min(day.cases, DAILY_GOAL)}/${DAILY_GOAL} Einsätze`}
+          />
+          <Legend color={colors.gruen} title="Diese Woche" value={`${week.current}/${weekGoal} Punkte`} />
+          <Legend
+            color={colors.blaulicht}
+            title="Nächster Dienstgrad"
+            value={next ? `noch ${next.min - progress.totalPoints} Punkte` : 'Höchster Rang!'}
+          />
         </View>
-      </>
-    ),
-    week: (
-      <>
-        <View style={styles.week}>
-          <View style={{ flex: 1, gap: 2 }}>
-            <Eyebrow title="Meine Woche" />
-            <Text style={styles.weekValue}>
-              {week.current} <Text style={styles.weekUnit}>Punkte</Text>
-            </Text>
-            <Text style={type.small}>
-              {week.best === 0
-                ? 'Erste Woche – stell deinen Rekord auf!'
-                : week.current > week.best
-                  ? `🏆 Neuer Wochenrekord! (vorher ${week.best})`
-                  : `Rekord ${week.best} · noch ${week.best - week.current + 1} bis zum neuen Rekord`}
-            </Text>
-            <Text style={type.small}>Letzte Woche: {week.last}</Text>
-          </View>
-          <View style={styles.bars}>
-            {week.bars.map((b, i) => {
-              const now = i === week.bars.length - 1;
-              return (
-                <View key={b.week} style={styles.barCol}>
-                  <View style={styles.barTrack}>
-                    <View
-                      style={[
-                        styles.weekBar,
-                        { height: `${Math.max(4, (b.points / barMax) * 100)}%` },
-                        now && { backgroundColor: colors.signalrot },
-                        b.points === 0 && { backgroundColor: colors.grau200 },
-                      ]}
-                    />
-                  </View>
-                  <Text style={[styles.barLabel, now && { color: colors.signalrot }]}>{b.week.slice(6)}</Text>
-                </View>
-              );
-            })}
-          </View>
-        </View>
-      </>
-    ),
-    streak: (
-      <>
-        {progress.streak >= 2 && (
-          <View style={styles.streak}>
-            <Text style={styles.streakText}>🔥 {progress.streak} gute Einsätze in Folge</Text>
-          </View>
-        )}
-      </>
-    ),
-    difficulty: (
-      <>
-        <View style={{ gap: spacing.sm }}>
-          <Eyebrow title="Schwierigkeit" />
-          <View style={styles.diffRow}>
-            {DIFFICULTIES.map((d) => {
-              const active = progress.difficulty === d.id;
-              return (
-                <Pressable
-                  key={d.id}
-                  onPress={() => onDifficulty(d.id)}
-                  accessibilityRole="radio"
-                  accessibilityState={{ selected: active }}
-                  style={[styles.diff, active && styles.diffActive]}
-                >
-                  <View style={styles.levelBars}>
-                    {[1, 2, 3].map((n) => (
-                      <View
-                        key={n}
-                        style={[
-                          styles.levelBar,
-                          { height: 6 + n * 4 },
-                          n <= LEVEL[d.id] && { backgroundColor: colors.signalrot },
-                        ]}
-                      />
-                    ))}
-                  </View>
-                  <Text style={[styles.diffLabel, active && { color: colors.weiss }]}>{d.label}</Text>
-                </Pressable>
-              );
-            })}
-          </View>
-          <Text style={type.small}>{current.description}</Text>
-        </View>
-      </>
-    ),
-    start: (
-      <>
-        <Button label="Schicht beginnen" variant="alarm" onPress={onStart} />
-      </>
-    ),
-    daily: (
-      <>
-        <View style={styles.daily}>
-          <View style={styles.dailyHead}>
-            <Text style={styles.dailyEyebrow}>Heutiger Dienst</Text>
-            <Text style={styles.dailyStreak}>
-              📅 {day.streak > 0 ? `${day.streak} ${day.streak === 1 ? 'Tag' : 'Tage'} in Folge` : 'Serie starten'}
-            </Text>
-          </View>
-          <View style={styles.segments}>
-            {Array.from({ length: DAILY_GOAL }, (_, i) => (
-              <View key={i} style={[styles.segment, i < day.cases && styles.segmentOn]} />
-            ))}
-          </View>
-          <Text style={styles.dailyText}>
-            {day.goalDone
-              ? `Tagesziel erreicht ✓ · ${day.cases} Einsätze heute`
-              : `${Math.min(day.cases, DAILY_GOAL)} von ${DAILY_GOAL} Einsätzen · Tagesbonus +${dailyGoalBonus(day.streak + 1)}`}
+      </View>
+      <Text style={type.small}>
+        {day.goalDone
+          ? `✓ Tagesziel erreicht${day.streak > 1 ? ` – ${day.streak} Tage in Folge` : ''}. Stark!`
+          : `Schaffe ${DAILY_GOAL} Einsätze für +${dailyGoalBonus(day.streak + 1)} Bonuspunkte${day.streak > 0 ? ` (Serie: ${day.streak} ${day.streak === 1 ? 'Tag' : 'Tage'})` : ''}.`}
+      </Text>
+      <Pressable
+        onPress={onDaily}
+        disabled={day.dailyCaseDone}
+        accessibilityRole="button"
+        style={({ pressed }) => [styles.daily, pressed && { opacity: 0.7 }]}
+      >
+        <IconTile icon={day.dailyCaseDone ? '✅' : '⭐'} color={day.dailyCaseDone ? colors.grau200 : '#FFE9A8'} size={40} />
+        <View style={{ flex: 1 }}>
+          <Text style={[type.headline, day.dailyCaseDone && { color: colors.grau500 }]}>Einsatz des Tages</Text>
+          <Text style={type.small}>
+            {day.dailyCaseDone ? 'Erledigt – morgen wartet ein neuer' : `${todays.location.split(',')[0]} · +50 % Punkte`}
           </Text>
-          <Pressable
-            onPress={onDaily}
-            disabled={day.dailyCaseDone}
-            accessibilityRole="button"
-            style={({ pressed }) => [styles.dailyCase, day.dailyCaseDone && styles.dailyCaseDone, pressed && { opacity: 0.85 }]}
-          >
-            <Text style={styles.dailyCaseIcon}>{day.dailyCaseDone ? '✓' : '⭐'}</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.dailyCaseTitle, day.dailyCaseDone && { color: colors.grau300 }]}>Einsatz des Tages</Text>
-              <Text style={styles.dailyCaseSub}>
-                {day.dailyCaseDone ? 'Erledigt – morgen wartet ein neuer' : `${todays.location.split(',')[0]} · +50 % Punkte`}
-              </Text>
-            </View>
-            {!day.dailyCaseDone && <Text style={styles.quizArrow}>›</Text>}
-          </Pressable>
         </View>
-      </>
-    ),
-    garage: (
-      <>
-        <Pressable
-          onPress={onGarage}
-          accessibilityRole="button"
-          style={({ pressed }) => [styles.garage, pressed && { opacity: 0.9 }]}
-        >
-          <View style={styles.garageHead}>
-            <Text style={styles.garageEyebrow}>Fahrzeughalle</Text>
-            {canUpgrade && <Text style={styles.garageNew}>Aufrüsten möglich!</Text>}
-          </View>
-          <View style={{ alignItems: 'center' }}>
-            <Ambulance level={levelOf(progress, 'rtw')} width={250} />
-          </View>
-          <View style={styles.garageRow}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.garageTitle}>Mein Rettungswagen</Text>
-              <Text style={styles.garageSub}>
-                Ausbau {totalLevel(progress)}/{EQUIPMENT.length * MAX_LEVEL} · Budget {euro(progress.budget)}
-              </Text>
-            </View>
-            <Text style={[styles.quizArrow, { color: colors.warngelb }]}>›</Text>
-          </View>
-        </Pressable>
-      </>
-    ),
-    training: (
-      <>
-        <View style={{ gap: spacing.sm }}>
-          <Eyebrow title="Training" />
+        {!day.dailyCaseDone && <Pill label="Los" color={colors.blaulicht} />}
+      </Pressable>
+    </Card>
+  );
+
+  const rankCard = (
+    <Card style={styles.rankCard}>
+      <RankBadge size={64} level={RANKS.indexOf(rank)} />
+      <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+        <Text style={type.small}>Dein Dienstgrad</Text>
+        <Text style={type.h2}>{rank.de}</Text>
+        <View style={styles.bar}>
+          <View style={[styles.barFill, { width: `${rankPct * 100}%` }]} />
+        </View>
+        <Text style={type.small}>{progress.totalPoints.toLocaleString('de-DE')} Punkte</Text>
+      </View>
+    </Card>
+  );
+
+  const stats = (
+    <View style={styles.stats}>
+      <Stat value={progress.casesPlayed} label="Einsätze" />
+      <Stat value={progress.correctDiagnoses} label="Diagnosen" />
+      <Stat value={`${mastered}/${CASES.length}`} label="Gemeistert" />
+    </View>
+  );
+
+  const weekCard = (
+    <Card style={{ gap: spacing.sm }}>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: spacing.lg }}>
+        <View style={{ flex: 1 }}>
+          <Text style={type.small}>Diese Woche</Text>
+          <Text style={styles.big}>
+            {week.current} <Text style={styles.bigUnit}>Punkte</Text>
+          </Text>
+          <Text style={type.small}>
+            {week.best === 0
+              ? 'Stell deinen ersten Rekord auf!'
+              : week.current > week.best
+                ? `🏆 Neuer Rekord (vorher ${week.best})`
+                : `Rekord: ${week.best}`}
+          </Text>
+        </View>
+        <View style={styles.bars}>
+          {week.bars.map((b, i) => {
+            const isNow = i === week.bars.length - 1;
+            const max = Math.max(1, week.best, ...week.bars.map((x) => x.points));
+            return (
+              <View key={b.week} style={styles.barCol}>
+                <View style={styles.barTrack}>
+                  <View
+                    style={[
+                      styles.weekBar,
+                      { height: `${Math.max(6, (b.points / max) * 100)}%` },
+                      isNow && { backgroundColor: colors.gruen },
+                      b.points === 0 && { backgroundColor: colors.grau200 },
+                    ]}
+                  />
+                </View>
+                <Text style={[styles.barLabel, isNow && { color: colors.gruen }]}>{b.week.slice(6)}</Text>
+              </View>
+            );
+          })}
+        </View>
+      </View>
+    </Card>
+  );
+
+  const trainingGrid = (
+    <View style={{ gap: spacing.md }}>
+      <SectionTitle title="Training" />
+      <View style={styles.grid}>
+        {trainings(progress).map((t) => (
           <Pressable
-            onPress={onManv}
+            key={t.id}
+            onPress={() => onTraining(t.id)}
             accessibilityRole="button"
-            style={({ pressed }) => [styles.manv, pressed && { opacity: 0.9 }]}
+            style={({ pressed }) => [styles.tile, pressed && { transform: [{ scale: 0.97 }], opacity: 0.9 }]}
           >
-            <WarnStripes height={8} />
-            <View style={styles.manvBody}>
-              <Text style={styles.manvIcon}>🚨</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.manvTitle}>Großeinsatz</Text>
-                <Text style={styles.manvSub}>
-                  8 Verletzte richtig sichten{progress.manvBest > 0 ? ` · Bestwert ${progress.manvBest}/8` : ''}
+            <IconTile icon={t.icon} color={t.color} size={44} />
+            <Text style={[type.headline, { marginTop: spacing.sm }]} numberOfLines={2}>
+              {t.title.replace('Herzdruckmassage', 'Herzdruck\u00ADmassage')}
+            </Text>
+            <Text style={type.small} numberOfLines={2}>
+              {t.best ?? t.sub}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
+
+  const garage = (
+    <View style={{ gap: spacing.md }}>
+      <SectionTitle title="Mein Rettungswagen" />
+      <Pressable
+        onPress={onGarage}
+        accessibilityRole="button"
+        style={({ pressed }) => [styles.garage, pressed && { opacity: 0.92 }]}
+      >
+        <View style={{ alignItems: 'center', paddingTop: spacing.sm }}>
+          <Ambulance level={rtwLevel} width={240} />
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={[type.headline, { color: colors.weiss }]}>
+              Ausbau {upgrades}/{maxUpgrades}
+            </Text>
+            <View style={[styles.bar, { backgroundColor: 'rgba(255,255,255,0.15)' }]}>
+              <View style={[styles.barFill, { width: `${(upgrades / maxUpgrades) * 100}%`, backgroundColor: colors.warngelb }]} />
+            </View>
+            <Text style={[type.small, { color: '#AEAEB2' }]}>Budget {euro(progress.budget)}</Text>
+          </View>
+          {canUpgrade ? <Pill label="Aufrüsten" color={colors.gruen} /> : <Pill label="Ansehen" color="#3A3A3C" />}
+        </View>
+      </Pressable>
+    </View>
+  );
+
+  const badges = (
+    <View style={{ gap: spacing.md }}>
+      <SectionTitle
+        title="Abzeichen"
+        right={
+          <Text style={type.small}>
+            {progress.badges.length} von {BADGES.length}
+          </Text>
+        }
+      />
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badges}>
+        {[...BADGES]
+          .sort((a, b) => Number(progress.badges.includes(b.id)) - Number(progress.badges.includes(a.id)))
+          .map((b) => {
+            const has = progress.badges.includes(b.id);
+            return (
+              <View key={b.id} style={styles.badge}>
+                <View style={[styles.badgeCircle, !has && styles.badgeLocked]}>
+                  <Text style={[styles.badgeIcon, !has && { opacity: 0.3 }]}>{has ? b.icon : '🔒'}</Text>
+                </View>
+                <Text style={[styles.badgeTitle, !has && { color: colors.grau500 }]} numberOfLines={2}>
+                  {b.title}
+                </Text>
+                <Text style={styles.badgeDesc} numberOfLines={3}>
+                  {b.description}
                 </Text>
               </View>
-              <Text style={[styles.quizArrow, { color: colors.graphit }]}>›</Text>
-            </View>
-          </Pressable>
-          <Training
-            title="Herzdruckmassage"
-            sub={`Im Takt drücken – 100 bis 120 pro Minute${progress.cprBest > 0 ? ` · Bestwert ${progress.cprBest} %` : ''}`}
-            color={monitor.rr}
-            onPress={onCpr}
-          />
-          <Training
-            title="Wissensfragen"
-            sub={`10 Fragen aus dem Einsatzalltag${progress.knowBest > 0 ? ` · Bestwert ${progress.knowBest}/10` : ''}`}
-            color={monitor.spo2}
-            onPress={onKnowledge}
-          />
-          <Training
-            title="Normwerte"
-            sub={`10 Werte schnell einschätzen${progress.quizBest > 0 ? ` · Bestwert ${progress.quizBest}/10` : ''}`}
-            color={colors.monitorGruen}
-            onPress={onQuiz}
-          />
-        </View>
-      </>
-    ),
-    links: (
-      <>
-        <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-          <Button label="Lexikon" variant="dark" onPress={onLexikon} style={{ flex: 1 }} />
-          <Button label="Anleitung" variant="outline" onPress={onGuide} style={{ flex: 1 }} />
-        </View>
-      </>
-    ),
-    badges: (
-      <>
-        <View style={{ gap: spacing.sm }}>
-          <Eyebrow title={`Abzeichen · ${progress.badges.length} von ${BADGES.length}`} />
-          <View style={styles.badges}>
-            {BADGES.map((b) => {
-              const has = progress.badges.includes(b.id);
-              return (
-                <View
-                  key={b.id}
-                  style={[
-                    styles.badge,
-                    L.desktop ? { width: '12.5%' } : L.wide ? { width: '23%' } : null,
-                    !has && styles.badgeLocked,
-                  ]}
-                >
-                  <Text style={[styles.badgeIcon, !has && { opacity: 0.25 }]}>{b.icon}</Text>
-                  <Text style={[styles.badgeTitle, !has && { color: colors.grau500 }]} numberOfLines={2}>
-                    {b.title}
-                  </Text>
-                  <Text style={styles.badgeDesc} numberOfLines={3}>
-                    {b.description}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-        </View>
-      </>
-    ),
-    note: (
-      <>
-        <Text style={[type.small, { textAlign: 'center' }]}>
-          Lernspiel – ersetzt keine medizinische Ausbildung und keine ärztliche Beratung.{'\n'}
-          Im echten Notfall immer: 112.
-        </Text>
-      </>
-    ),
-  };
+            );
+          })}
+      </ScrollView>
+    </View>
+  );
+
+  const note = (
+    <Text style={[type.small, { textAlign: 'center', marginTop: spacing.sm }]}>
+      Lernspiel – ersetzt keine Ausbildung und keine ärztliche Beratung.{'\n'}Im echten Notfall immer: 112.
+    </Text>
+  );
 
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl }}>
-      <View style={styles.hero}>
-        <View style={StyleSheet.absoluteFill}>
-          <MonitorScene height={330} />
-        </View>
-        <View style={styles.heroTop}>
-          <View style={styles.status}>
-            <StatusLight />
-            <Text style={styles.statusText}>Einsatzbereit</Text>
-          </View>
-        </View>
-        <View style={styles.heroText}>
-          <Text style={[styles.title, L.wide && styles.titleWide]}>Einsatz 112</Text>
-          <Text style={styles.subtitle}>Ich bin Sanitäter/in. Ich erkenne. Ich messe. Ich handle.</Text>
-        </View>
-        <View style={styles.ecg}>
-          <EcgStrip height={64} />
-        </View>
-        <View style={[styles.readouts, L.desktop && styles.readoutsWide]}>
-          <Readout label="HF" value="72" color={monitor.puls} />
-          <Readout label="SpO₂" value="98" color={monitor.spo2} />
-          <Readout label="RR" value="120/80" color={monitor.rr} />
-        </View>
-      </View>
-      <WarnStripes height={14} />
-
-      <View style={[styles.body, L.wide && styles.bodyWide]}>
-        {L.desktop ? (
-          <Columns
-            wide
-            cols={[
-              <>
-                {blocks.rank}
-                {blocks.stats}
-                {blocks.week}
-                {blocks.streak}
-              </>,
-              <>
-                {blocks.difficulty}
-                {blocks.start}
-                {blocks.daily}
-                {blocks.garage}
-              </>,
-              <>
-                {blocks.training}
-                {blocks.links}
-              </>,
-            ]}
-          />
-        ) : L.wide ? (
-          <Columns
-            wide
-            cols={[
-              <>
-                {blocks.rank}
-                {blocks.stats}
-                {blocks.difficulty}
-                {blocks.start}
-                {blocks.daily}
-              </>,
-              <>
-                {blocks.week}
-                {blocks.streak}
-                {blocks.garage}
-                {blocks.training}
-                {blocks.links}
-              </>,
-            ]}
-          />
-        ) : (
-          <>
-            {blocks.rank}
-            {blocks.stats}
-            {blocks.week}
-            {blocks.streak}
-            {blocks.difficulty}
-            {blocks.start}
-            {blocks.daily}
-            {blocks.garage}
-            {blocks.training}
-            {blocks.links}
-          </>
-        )}
-        {blocks.badges}
-        {blocks.note}
-      </View>
+    <ScrollView contentContainerStyle={[styles.body, L.wide && styles.bodyWide]}>
+      {header}
+      {L.desktop ? (
+        <Columns
+          wide
+          weights={[1.1, 1, 1]}
+          cols={[
+            <>
+              {hero}
+              {difficulty}
+            </>,
+            <>
+              {rings}
+              {rankCard}
+              {stats}
+            </>,
+            <>
+              {weekCard}
+              {trainingGrid}
+            </>,
+          ]}
+        />
+      ) : L.wide ? (
+        <Columns
+          wide
+          cols={[
+            <>
+              {hero}
+              {difficulty}
+              {rankCard}
+              {stats}
+            </>,
+            <>
+              {rings}
+              {weekCard}
+            </>,
+          ]}
+        />
+      ) : (
+        <>
+          {hero}
+          {difficulty}
+          {rings}
+          {rankCard}
+          {stats}
+          {weekCard}
+        </>
+      )}
+      {L.desktop ? (
+        <Columns wide weights={[1, 2]} cols={[garage, badges]} />
+      ) : (
+        <>
+          {!L.wide ? trainingGrid : <Columns wide cols={[trainingGrid, garage]} />}
+          {!L.wide && garage}
+          {badges}
+        </>
+      )}
+      {note}
     </ScrollView>
   );
 }
 
-function Training({ title, sub, color, onPress }: { title: string; sub: string; color: string; onPress: () => void }) {
+function Legend({ color, title, value }: { color: string; title: string; value: string }) {
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" style={({ pressed }) => [styles.quiz, pressed && { opacity: 0.85 }]}>
-      <View style={[styles.trainingDot, { backgroundColor: color }]} />
-      <View style={{ flex: 1 }}>
-        <Text style={[styles.quizTitle, { color }]}>{title}</Text>
-        <Text style={styles.quizSub}>{sub}</Text>
-      </View>
-      <Text style={[styles.quizArrow, { color }]}>›</Text>
-    </Pressable>
-  );
-}
-
-function Readout({ label, value, color }: { label: string; value: string; color: string }) {
-  const { desktop } = useLayout();
-  return (
-    <View style={desktop && styles.readoutBox}>
-      <Text style={[styles.readoutLabel, { color }]}>{label}</Text>
-      <Text style={[styles.readoutValue, { color }, desktop && styles.readoutValueWide]}>{value}</Text>
+    <View>
+      <Text style={[styles.legendTitle, { color }]}>{title}</Text>
+      <Text style={styles.legendValue}>{value}</Text>
     </View>
   );
 }
@@ -460,205 +436,91 @@ function Stat({ value, label }: { value: number | string; label: string }) {
   return (
     <View style={styles.stat}>
       <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
+      <Text style={type.small}>{label}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: { height: 330, backgroundColor: colors.nacht, overflow: 'hidden', justifyContent: 'space-between' },
-  heroTop: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.xl, paddingTop: spacing.lg },
-  status: {
+  body: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.lg },
+  bodyWide: { padding: spacing.xl, gap: spacing.xl },
+  header: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm, marginTop: spacing.xs },
+  date: { ...type.eyebrow, marginBottom: 2 },
+  hero: { borderRadius: radius.lg, overflow: 'hidden', padding: spacing.xl, gap: spacing.md, ...shadow },
+  heroTop: { flexDirection: 'row' },
+  ready: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 20,
-  },
-  statusLight: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.monitorGruen },
-  statusText: { color: colors.grau200, fontFamily: fonts.bold, fontSize: 11, letterSpacing: 1.5, textTransform: 'uppercase' },
-  heroText: { paddingHorizontal: spacing.xl },
-  title: {
-    color: colors.weiss,
-    fontSize: 76,
-    lineHeight: 78,
-    fontFamily: fonts.displayBlack,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  titleWide: { fontSize: 104, lineHeight: 106 },
-  subtitle: { color: colors.grau300, fontSize: 15, fontFamily: fonts.semibold },
-  ecg: { alignSelf: 'stretch', height: 64 },
-  readouts: { flexDirection: 'row', gap: spacing.xl, paddingHorizontal: spacing.xl, paddingBottom: spacing.lg },
-  readoutsWide: { position: 'absolute', right: spacing.xl, top: 64, flexDirection: 'column', gap: spacing.sm, paddingBottom: 0 },
-  readoutBox: {
-    minWidth: 190,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-    backgroundColor: 'rgba(11,14,18,0.75)',
-    borderRadius: 6,
-    paddingHorizontal: spacing.md,
     paddingVertical: 4,
+    borderRadius: radius.pill,
   },
-  readoutValueWide: { fontSize: 40, lineHeight: 42, textAlign: 'right' },
-  readoutLabel: { fontFamily: fonts.bold, fontSize: 11, letterSpacing: 1 },
-  readoutValue: { fontFamily: fonts.displayBlack, fontSize: 28, lineHeight: 30 },
-  body: { padding: spacing.lg, gap: spacing.xl },
-  bodyWide: { padding: spacing.xl },
-  rank: {
-    flexDirection: 'row',
-    gap: spacing.lg,
-    backgroundColor: colors.weiss,
-    padding: spacing.lg,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: colors.grau200,
-  },
-  rankName: {
-    fontFamily: fonts.displayBlack,
-    fontSize: 22,
-    lineHeight: 25,
-    color: colors.graphit,
-    textTransform: 'uppercase',
-    marginTop: 2,
-  },
-  bar: { height: 6, backgroundColor: colors.grau200, marginVertical: spacing.sm, borderRadius: 3, overflow: 'hidden' },
-  barFill: { height: 6, backgroundColor: colors.signalrot },
-  stats: { flexDirection: 'row', alignItems: 'stretch' },
-  statRule: { width: 1, backgroundColor: colors.grau200 },
-  stat: { flex: 1, alignItems: 'center', paddingVertical: spacing.xs },
-  statValue: { fontSize: 34, lineHeight: 36, fontFamily: fonts.displayBlack, color: colors.graphit },
-  statLabel: { fontFamily: fonts.bold, fontSize: 11, color: colors.grau500, letterSpacing: 1.2, textTransform: 'uppercase' },
-  streak: {
-    alignSelf: 'center',
-    backgroundColor: colors.graphit,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  streakText: { color: colors.warngelb, fontFamily: fonts.extrabold, fontSize: 13 },
-  diffRow: { flexDirection: 'row', gap: spacing.sm },
-  quiz: {
+  readyDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#B6FFC9' },
+  readyText: { color: colors.weiss, fontFamily: fonts.semibold, fontSize: 12 },
+  heroTitle: { color: colors.weiss, fontFamily: fonts.extrabold, fontSize: 28, lineHeight: 33, letterSpacing: -0.6 },
+  heroSub: { color: 'rgba(255,255,255,0.88)', fontFamily: fonts.medium, fontSize: 15, lineHeight: 21 },
+  heroCar: { alignItems: 'center', marginVertical: -spacing.xs },
+  heroBtn: { backgroundColor: colors.weiss, borderRadius: 14, minHeight: 52, alignItems: 'center', justifyContent: 'center' },
+  heroBtnText: { color: '#E0162B', fontFamily: fonts.bold, fontSize: 17, letterSpacing: -0.2 },
+  ringsRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xl },
+  ringsBox: { width: 124, height: 124 },
+  legendTitle: { fontFamily: fonts.semibold, fontSize: 13 },
+  legendValue: { fontFamily: fonts.bold, fontSize: 17, color: colors.graphit, letterSpacing: -0.3 },
+  daily: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.nacht,
-    borderRadius: 6,
-    padding: spacing.lg,
-    borderLeftWidth: 0,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.grau300,
+    paddingTop: spacing.md,
   },
-  week: {
-    flexDirection: 'row',
-    gap: spacing.lg,
+  rankCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
+  bar: { height: 6, backgroundColor: colors.grau200, marginVertical: 6, borderRadius: 3, overflow: 'hidden' },
+  barFill: { height: 6, backgroundColor: colors.blaulicht, borderRadius: 3 },
+  stats: { flexDirection: 'row', gap: spacing.sm },
+  stat: {
+    flex: 1,
     backgroundColor: colors.weiss,
-    padding: spacing.lg,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: colors.grau200,
-  },
-  weekValue: { fontFamily: fonts.displayBlack, fontSize: 30, color: colors.graphit },
-  weekUnit: { fontSize: 14, fontFamily: fonts.semibold, color: colors.grau500 },
-  bars: { flexDirection: 'row', alignItems: 'flex-end', gap: 4, width: 120 },
-  barCol: { flex: 1, alignItems: 'center', gap: 2 },
-  barTrack: { height: 70, width: '100%', justifyContent: 'flex-end' },
-  weekBar: { width: '100%', backgroundColor: colors.grau500, borderRadius: 2 },
-  barLabel: { fontFamily: fonts.semibold, fontSize: 9, color: colors.grau500 },
-  manv: { backgroundColor: colors.warngelb, borderRadius: 6, overflow: 'hidden' },
-  manvBody: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg },
-  manvIcon: { fontSize: 26, fontFamily: fonts.regular },
-  manvTitle: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.graphit, textTransform: 'uppercase' },
-  manvSub: { fontFamily: fonts.semibold, fontSize: 13, color: colors.graphit },
-  garage: {
-    backgroundColor: '#1A1F26',
-    borderRadius: 6,
-    padding: spacing.lg,
-    gap: spacing.sm,
-    borderBottomWidth: 4,
-    borderBottomColor: colors.warngelb,
-  },
-  garageHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  garageEyebrow: {
-    fontFamily: fonts.extrabold,
-    fontSize: 11,
-    letterSpacing: 1.8,
-    color: colors.warngelb,
-    textTransform: 'uppercase',
-  },
-  garageNew: {
-    fontFamily: fonts.extrabold,
-    fontSize: 11,
-    color: colors.graphit,
-    backgroundColor: colors.monitorGruen,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-  garageRow: { flexDirection: 'row', alignItems: 'center' },
-  garageTitle: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.weiss, textTransform: 'uppercase' },
-  garageSub: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau300 },
-  trainingDot: { width: 10, height: 10, borderRadius: 5 },
-  daily: { backgroundColor: colors.graphit, borderRadius: 6, padding: spacing.lg, gap: spacing.sm },
-  dailyHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  dailyEyebrow: {
-    fontFamily: fonts.extrabold,
-    fontSize: 11,
-    letterSpacing: 1.8,
-    color: colors.warngelb,
-    textTransform: 'uppercase',
-  },
-  dailyStreak: { fontFamily: fonts.bold, fontSize: 13, color: colors.weiss },
-  segments: { flexDirection: 'row', gap: 6 },
-  segment: { flex: 1, height: 8, borderRadius: 2, backgroundColor: colors.graphitSoft },
-  segmentOn: { backgroundColor: colors.warngelb },
-  dailyText: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau300 },
-  dailyCase: {
-    flexDirection: 'row',
+    borderRadius: radius.md,
+    paddingVertical: spacing.md,
     alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.graphitSoft,
-    borderRadius: 6,
-    padding: spacing.md,
-    marginTop: spacing.xs,
-    borderWidth: 1,
+    ...shadow,
+  },
+  statValue: { fontFamily: fonts.extrabold, fontSize: 24, color: colors.graphit, letterSpacing: -0.5 },
+  big: { fontFamily: fonts.extrabold, fontSize: 30, color: colors.graphit, letterSpacing: -0.8 },
+  bigUnit: { fontSize: 15, fontFamily: fonts.medium, color: colors.grau500, letterSpacing: 0 },
+  bars: { flexDirection: 'row', alignItems: 'flex-end', gap: 5, width: 128 },
+  barCol: { flex: 1, alignItems: 'center', gap: 3 },
+  barTrack: { height: 64, width: '100%', justifyContent: 'flex-end' },
+  weekBar: { width: '100%', backgroundColor: colors.grau300, borderRadius: 4 },
+  barLabel: { fontFamily: fonts.medium, fontSize: 10, color: colors.grau500 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+  tile: {
+    flexGrow: 1,
+    flexBasis: '45%',
+    backgroundColor: colors.weiss,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    ...shadow,
+  },
+  garage: { backgroundColor: '#1C1C1E', borderRadius: radius.lg, padding: spacing.lg, gap: spacing.md, ...shadow },
+  badges: { gap: spacing.md, paddingRight: spacing.lg },
+  badge: { width: 112, alignItems: 'center', gap: 4 },
+  badgeCircle: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: '#FFF4D6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
     borderColor: colors.warngelb,
   },
-  dailyCaseDone: { borderColor: colors.graphitSoft },
-  dailyCaseIcon: { fontSize: 22, fontFamily: fonts.regular, color: colors.monitorGruen },
-  dailyCaseTitle: { fontFamily: fonts.displayBlack, fontSize: 20, color: colors.warngelb, textTransform: 'uppercase' },
-  dailyCaseSub: { fontFamily: fonts.semibold, fontSize: 12, color: colors.grau300 },
-  quizTitle: { fontFamily: fonts.displayBlack, fontSize: 20, color: colors.monitorGruen, textTransform: 'uppercase' },
-  quizSub: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau300, marginTop: 2 },
-  quizArrow: { fontFamily: fonts.regular, fontSize: 34, color: colors.monitorGruen },
-  badges: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  badge: {
-    width: '31.5%',
-    flexGrow: 1,
-    backgroundColor: colors.weiss,
-    borderWidth: 1,
-    borderColor: colors.grau200,
-    borderRadius: 6,
-    padding: spacing.sm,
-    alignItems: 'center',
-  },
-  badgeLocked: { backgroundColor: colors.grau50 },
-  badgeIcon: { fontSize: 26, fontFamily: fonts.regular },
-  badgeTitle: { fontFamily: fonts.bold, fontSize: 12, color: colors.graphit, textAlign: 'center', marginTop: 2 },
-  badgeDesc: { fontFamily: fonts.regular, fontSize: 10, color: colors.grau500, textAlign: 'center', marginTop: 2 },
-  diff: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    backgroundColor: colors.weiss,
-    borderWidth: 1,
-    borderColor: colors.grau200,
-    borderRadius: 6,
-    gap: 2,
-  },
-  diffActive: { backgroundColor: colors.graphit, borderColor: colors.graphit },
-  levelBars: { flexDirection: 'row', alignItems: 'flex-end', gap: 3, height: 18, marginBottom: 4 },
-  levelBar: { width: 6, borderRadius: 1, backgroundColor: colors.grau300 },
-  diffLabel: { fontFamily: fonts.displayBlack, fontSize: 20, color: colors.graphit, textTransform: 'uppercase' },
+  badgeLocked: { backgroundColor: colors.grau200, borderColor: colors.grau200 },
+  badgeIcon: { fontSize: 34, lineHeight: 42, fontFamily: fonts.regular },
+  badgeTitle: { fontFamily: fonts.semibold, fontSize: 13, color: colors.graphit, textAlign: 'center' },
+  badgeDesc: { fontFamily: fonts.regular, fontSize: 11, lineHeight: 14, color: colors.grau500, textAlign: 'center' },
 });

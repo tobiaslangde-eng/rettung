@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { EcgStrip, RatingStar, WarnStripes } from '../components/Ems';
+import { EcgStrip, RatingStar } from '../components/Ems';
 import { Button, Card, Eyebrow, TopBar } from '../components/UI';
 import { QUIZ_POINTS, QUIZ_ROUNDS, makeKnowledgeQuiz } from '../game/quiz';
-import { colors, fonts, spacing, type } from '../theme';
+import { colors, fonts, spacing, type, shadow } from '../theme';
 
 const LETTERS = ['A', 'B', 'C', 'D'];
 
@@ -158,7 +158,6 @@ export function KnowledgeScreen({
             <Button label={round + 1 < QUIZ_ROUNDS ? 'Nächste Frage' : 'Auswertung'} variant="dark" onPress={next} />
           </>
         )}
-        <WarnStripes />
       </ScrollView>
     </View>
   );
@@ -168,11 +167,17 @@ const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   progress: { height: 6, backgroundColor: colors.grau200 },
   progressFill: { height: 6, backgroundColor: colors.signalrot },
-  counter: { alignItems: 'center', borderWidth: 1, borderColor: colors.blaulicht, paddingHorizontal: 8, paddingVertical: 2 },
-  counterValue: { color: colors.weiss, fontFamily: fonts.extrabold, fontSize: 16 },
-  counterLabel: { color: colors.grau300, fontFamily: fonts.regular, fontSize: 9, letterSpacing: 1 },
-  questionBox: { backgroundColor: colors.nacht, borderRadius: 8, padding: spacing.xl },
-  question: { fontFamily: fonts.display, fontSize: 26, lineHeight: 30, color: colors.weiss },
+  counter: {
+    alignItems: 'center',
+    backgroundColor: colors.blaulichtLight,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  counterValue: { color: colors.blaulicht, fontFamily: fonts.bold, fontSize: 17 },
+  counterLabel: { color: colors.blaulicht, fontFamily: fonts.medium, fontSize: 10 },
+  questionBox: { backgroundColor: colors.weiss, borderRadius: 20, padding: spacing.xl, ...shadow },
+  question: { fontFamily: fonts.extrabold, fontSize: 24, lineHeight: 30, letterSpacing: -0.5, color: colors.graphit },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -180,14 +185,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.weiss,
     borderWidth: 1.5,
     borderColor: colors.grau200,
-    borderRadius: 6,
+    borderRadius: 14,
     padding: spacing.md,
   },
   optionRight: { backgroundColor: colors.gruen, borderColor: colors.gruen },
   optionWrong: { backgroundColor: colors.signalrot, borderColor: colors.signalrot },
   letter: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.blaulicht, width: 20 },
   optionText: { flex: 1, fontFamily: fonts.semibold, fontSize: 15, lineHeight: 20, color: colors.graphit },
-  monitor: { backgroundColor: colors.nacht, borderRadius: 8, paddingTop: spacing.lg, alignItems: 'center', overflow: 'hidden' },
+  monitor: { backgroundColor: colors.nacht, borderRadius: 16, paddingTop: spacing.lg, alignItems: 'center', overflow: 'hidden' },
   stars: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   bigScore: { fontFamily: fonts.displayBlack, fontSize: 64, color: colors.weiss, marginTop: spacing.sm },
   bigScoreOf: { fontSize: 28, color: colors.grau300 },
