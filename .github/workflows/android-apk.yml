@@ -3,11 +3,16 @@
 #   - iOS-App als unsignierte .ipa (zum Sideloaden, z. B. mit Sideloadly oder AltStore)
 #   - Desktop-App für Windows (.exe), macOS (.dmg) und Linux (.AppImage)
 #   - Web-Version als einzelne HTML-Datei
+#
+# STILLGELEGT: Vorerst gibt es Einsatz 112 nur als Web-App (Workflow „Web-App veröffentlichen“).
+# Dieser Workflow läuft deshalb nicht mehr bei jedem Push, sondern nur noch per Hand:
+# Actions → „App bauen“ → Run workflow.
+# Wieder automatisch bauen: unter „on:“ die beiden auskommentierten push-Zeilen wieder einkommentieren.
 name: App bauen
 
 on:
-  push:
-    branches: [main, claude/medical-game-app-expo-nru897]
+  # push:
+  #   branches: [main, claude/medical-game-app-expo-nru897]
   workflow_dispatch:
 
 permissions:
