@@ -10,10 +10,23 @@ name: Web-App veröffentlichen
 # kommen erst per Pull Request (Merge) in main – und damit auf die Webseite.
 # Der Arbeitsstand (claude/…-Branches) landet als Testversion unter https://rettung.tankard.de/vorschau/
 # – mit eigenem Spielstand, die Live-Version bleibt unberührt.
+#
+# Zum Vergleichen lässt sich per Hand auch ein älterer Stand unter einer eigenen Vorschau-Adresse veröffentlichen:
+# Actions → „Web-App veröffentlichen“ → Run workflow → bei „ref“ den Commit/Branch/Tag eintragen,
+# bei „ordner“ z. B. vorschau/apple (→ https://rettung.tankard.de/vorschau/apple/).
 on:
   push:
     branches: [main, 'claude/**']
   workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Älterer Stand für eine Vorschau (Commit, Branch oder Tag) – leer lassen für den aktuellen Stand'
+        required: false
+        default: ''
+      ordner:
+        description: 'Vorschau-Adresse, z. B. vorschau/apple – leer lassen für die normale Veröffentlichung'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -25,7 +38,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && inputs.ordner == ''
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -67,11 +80,14 @@ jobs:
           commit_message: Web-App aus ${{ github.sha }}
 
   vorschau:
-    if: github.ref != 'refs/heads/main'
+    # Arbeitsstände (alles außer main) – oder per Hand ein beliebiger Stand unter eigener Adresse
+    if: github.ref != 'refs/heads/main' || inputs.ordner != ''
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
 
       - uses: actions/setup-node@v4
         with:
@@ -92,6 +108,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: dist-pwa
           publish_branch: gh-pages
-          destination_dir: vorschau
+          destination_dir: ${{ inputs.ordner || 'vorschau' }}
           keep_files: true # die Live-Version im Hauptordner bleibt erhalten
-          commit_message: Vorschau aus ${{ github.ref_name }} ${{ github.sha }}
+          commit_message: Vorschau ${{ inputs.ordner || 'vorschau' }} aus ${{ inputs.ref || github.sha }}

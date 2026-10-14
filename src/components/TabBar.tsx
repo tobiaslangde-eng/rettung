@@ -1,12 +1,12 @@
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { colors, fonts } from '../theme';
 
-/** Hauptbereiche der App – auf dem Handy als Tab-Leiste unten (wie bei iOS-Apps üblich). */
+/** Hauptbereiche der App – auf dem Handy als schwebende Leiste unten */
 export type TabId = 'home' | 'training' | 'garage' | 'lexikon' | 'guide';
 
 const TABS: { id: TabId; label: string }[] = [
-  { id: 'home', label: 'Heute' },
+  { id: 'home', label: 'Start' },
   { id: 'training', label: 'Training' },
   { id: 'garage', label: 'Fahrzeug' },
   { id: 'lexikon', label: 'Lexikon' },
@@ -14,43 +14,44 @@ const TABS: { id: TabId; label: string }[] = [
 ];
 
 export function TabIcon({ id, color, size = 26 }: { id: TabId; color: string; size?: number }) {
-  const p = { stroke: color, strokeWidth: 2, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+  const p = { stroke: color, strokeWidth: 2.6, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
   return (
     <Svg width={size} height={size} viewBox="0 0 28 28">
       {id === 'home' && (
+        // Star of Life
         <>
-          <Path d="M4 13 L14 4.5 L24 13" {...p} />
-          <Path d="M7 11 V23 H21 V11" {...p} />
-          <Path d="M12 23 V17 H16 V23" {...p} />
+          <Path d="M14 3.5 V24.5" {...p} />
+          <Path d="M4.9 8.75 L23.1 19.25" {...p} />
+          <Path d="M4.9 19.25 L23.1 8.75" {...p} />
         </>
       )}
-      {id === 'training' && <Path d="M3 15 H8 L10.5 9 L14 21 L17.5 6 L20 15 H25" {...p} />}
+      {id === 'training' && <Path d="M2.5 15 H8 L10.5 8.5 L14 21 L17.5 5.5 L20 15 H25.5" {...p} />}
       {id === 'garage' && (
         <>
-          <Path d="M3 19 V9 a2 2 0 0 1 2 -2 H16 L21 12 H23 a2 2 0 0 1 2 2 V19 Z" {...p} />
-          <Path d="M10.5 10 V15 M8 12.5 H13" {...p} />
-          <Circle cx={8} cy={20} r={2.4} {...p} fill={colors.weiss} />
-          <Circle cx={20} cy={20} r={2.4} {...p} fill={colors.weiss} />
+          <Path d="M3 19.5 V9.5 a2 2 0 0 1 2 -2 H16 L21 12.5 H23 a2 2 0 0 1 2 2 V19.5 Z" {...p} />
+          <Path d="M10.5 10 V15.5 M7.75 12.75 H13.25" {...p} />
+          <Circle cx={8} cy={20.5} r={2.4} {...p} fill={color === colors.white ? colors.ink : colors.yellow} />
+          <Circle cx={20} cy={20.5} r={2.4} {...p} fill={color === colors.white ? colors.ink : colors.yellow} />
         </>
       )}
       {id === 'lexikon' && (
         <>
-          <Path d="M14 7 C11 5 7 5 4 6 V22 C7 21 11 21 14 23 C17 21 21 21 24 22 V6 C21 5 17 5 14 7 Z" {...p} />
+          <Path d="M14 7 C11 5 7 5 3.5 6 V22 C7 21 11 21 14 23 C17 21 21 21 24.5 22 V6 C21 5 17 5 14 7 Z" {...p} />
           <Path d="M14 7 V23" {...p} />
         </>
       )}
       {id === 'guide' && (
         <>
-          <Rect x={4} y={4} width={20} height={20} rx={6} {...p} />
-          <Circle cx={9.5} cy={14} r={1.4} fill={color} />
-          <Circle cx={14} cy={14} r={1.4} fill={color} />
-          <Circle cx={18.5} cy={14} r={1.4} fill={color} />
+          <Circle cx={6} cy={14} r={2.1} fill={color} />
+          <Circle cx={14} cy={14} r={2.1} fill={color} />
+          <Circle cx={22} cy={14} r={2.1} fill={color} />
         </>
       )}
     </Svg>
   );
 }
 
+/** Schwebende Tinten-Leiste: Der aktive Bereich zeigt sich als gelbe Pille mit Namen. */
 export function TabBar({
   active,
   onSelect,
@@ -61,54 +62,60 @@ export function TabBar({
   badge?: Partial<Record<TabId, boolean>>;
 }) {
   return (
-    <View style={styles.bar} accessibilityRole="tablist">
-      {TABS.map((t) => {
-        const on = active === t.id;
-        const color = on ? colors.signalrot : '#8E8E93';
-        return (
-          <Pressable
-            key={t.id}
-            onPress={() => onSelect(t.id)}
-            accessibilityRole="tab"
-            accessibilityLabel={t.label}
-            accessibilityState={{ selected: on }}
-            style={styles.tab}
-          >
-            <View>
-              <TabIcon id={t.id} color={color} />
-              {badge?.[t.id] && <View style={styles.dot} />}
-            </View>
-            <Text style={[styles.label, { color }]}>{t.label}</Text>
-          </Pressable>
-        );
-      })}
+    <View style={styles.wrap}>
+      <View style={styles.bar} accessibilityRole="tablist">
+        {TABS.map((t) => {
+          const on = active === t.id;
+          return (
+            <Pressable
+              key={t.id}
+              onPress={() => onSelect(t.id)}
+              accessibilityRole="tab"
+              accessibilityLabel={t.label}
+              accessibilityState={{ selected: on }}
+              style={[styles.tab, on ? styles.tabOn : styles.tabOff]}
+            >
+              <View>
+                <TabIcon id={t.id} color={on ? colors.ink : colors.white} />
+                {badge?.[t.id] && !on && <View style={styles.dot} />}
+              </View>
+              {on && (
+                <Text style={styles.label} numberOfLines={1}>
+                  {t.label}
+                </Text>
+              )}
+            </Pressable>
+          );
+        })}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrap: { alignSelf: 'stretch', paddingHorizontal: 14, paddingTop: 6, paddingBottom: 10 },
   bar: {
-    alignSelf: 'stretch',
     flexDirection: 'row',
-    backgroundColor: Platform.OS === 'web' ? 'rgba(249,249,251,0.94)' : '#F9F9FB',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#C6C6C8',
-    paddingTop: 6,
-    paddingBottom: 4,
-    // Milchglas-Effekt (nur Web)
-    ...(Platform.OS === 'web' ? ({ backdropFilter: 'saturate(180%) blur(20px)' } as object) : null),
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.ink,
+    borderRadius: 34,
+    padding: 6,
+    ...(Platform.OS === 'web' ? ({ boxShadow: '0px 4px 0px rgba(20,23,58,0.28)' } as object) : null),
   },
-  tab: { flex: 1, alignItems: 'center', gap: 2, minHeight: 44 },
-  label: { fontFamily: fonts.medium, fontSize: 10.5, letterSpacing: 0.1 },
+  tab: { height: 50, borderRadius: 25, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
+  tabOn: { flexGrow: 2.1, flexShrink: 0, flexBasis: 0, backgroundColor: colors.yellow, paddingHorizontal: 10 },
+  tabOff: { flex: 1 },
+  label: { fontFamily: fonts.displayBlack, fontSize: 15, color: colors.ink, letterSpacing: -0.3 },
   dot: {
     position: 'absolute',
-    top: -1,
+    top: -2,
     right: -4,
-    width: 9,
-    height: 9,
-    borderRadius: 5,
-    backgroundColor: colors.signalrot,
-    borderWidth: 1.5,
-    borderColor: '#F9F9FB',
+    width: 11,
+    height: 11,
+    borderRadius: 6,
+    backgroundColor: colors.red,
+    borderWidth: 2,
+    borderColor: colors.ink,
   },
 });

@@ -6,7 +6,7 @@
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "backgroundColor": "#F2F3F5",
+    "backgroundColor": "#FFF3EE",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "io.github.tobiaslangde.einsatz112",
@@ -18,7 +18,7 @@
       "package": "io.github.tobiaslangde.einsatz112",
       "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#15181C",
+        "backgroundColor": "#E4262F",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"

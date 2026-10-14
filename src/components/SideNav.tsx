@@ -1,16 +1,17 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { euro } from '../game/equipment';
 import { dayState } from '../game/daily';
+import { euro } from '../game/equipment';
 import { RANKS, rankFor } from '../game/scoring';
 import { Progress } from '../game/storage';
 import { SIDEBAR_WIDTH } from '../layout';
-import { colors, fonts, shadow, spacing } from '../theme';
+import { colors, fonts, hardShadow, spacing, type } from '../theme';
 import { RankBadge, StarOfLife } from './Ems';
+import { Bar, Button } from './UI';
 
 export type NavTarget = 'home' | 'start' | 'garage' | 'detektiv' | 'manv' | 'cpr' | 'wissen' | 'quiz' | 'lexikon' | 'guide';
 
 const ITEMS: { id: NavTarget; icon: string; label: string; group?: string }[] = [
-  { id: 'home', icon: '🏠', label: 'Heute' },
+  { id: 'home', icon: '✱', label: 'Start' },
   { id: 'garage', icon: '🚑', label: 'Mein Rettungswagen' },
   { id: 'detektiv', icon: '🔍', label: 'Detektiv-Akten', group: 'Training' },
   { id: 'manv', icon: '🚨', label: 'Großeinsatz' },
@@ -18,7 +19,7 @@ const ITEMS: { id: NavTarget; icon: string; label: string; group?: string }[] = 
   { id: 'wissen', icon: '🧠', label: 'Wissensfragen' },
   { id: 'quiz', icon: '📈', label: 'Normwerte' },
   { id: 'lexikon', icon: '📖', label: 'Lexikon', group: 'Nachschlagen' },
-  { id: 'guide', icon: 'ℹ️', label: 'Anleitung' },
+  { id: 'guide', icon: '⋯', label: 'Mehr & Anleitung' },
 ];
 
 /** Feste Seitenleiste für große Bildschirme (PC, Mac, iPad quer). */
@@ -38,46 +39,39 @@ export function SideNav({
     <View style={styles.root}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.brand}>
-          <StarOfLife size={34} />
+          <StarOfLife size={34} color={colors.red} outline={colors.ink} />
           <View>
             <Text style={styles.brandTitle}>Einsatz 112</Text>
-            <Text style={styles.brandSub}>Rettungsdienst-Lernspiel</Text>
+            <Text style={styles.brandSub}>Das Sanitäter-Lernspiel</Text>
           </View>
         </View>
 
         <View style={styles.profile}>
-          <RankBadge size={64} level={RANKS.indexOf(rank)} />
-          <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={styles.profileKicker}>Mein Dienstgrad</Text>
+          <RankBadge size={54} level={RANKS.indexOf(rank)} />
+          <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
+            <Text style={type.eyebrow}>Dienstausweis</Text>
             <Text style={styles.profileRank} numberOfLines={2}>
               {rank.de}
             </Text>
-            <View style={styles.bar}>
-              <View style={[styles.barFill, { width: `${pct * 100}%` }]} />
-            </View>
+            <Bar pct={pct} color={colors.blue} height={10} />
           </View>
         </View>
         <View style={styles.kpis}>
-          <Kpi value={String(progress.totalPoints)} label="Punkte" />
-          <Kpi value={euro(progress.budget)} label="Budget" />
-          <Kpi value={`${day.streak}`} label="Tage" />
+          <Kpi value={progress.totalPoints.toLocaleString('de-DE')} label="Punkte" color={colors.yellow} />
+          <Kpi value={euro(progress.budget)} label="Budget" color={colors.mintTint} />
+          <Kpi value={`🔥 ${day.streak}`} label="Tage" color={colors.peach} />
         </View>
 
-        <Pressable
-          onPress={() => onNavigate('start')}
-          accessibilityRole="button"
-          style={({ pressed }) => [styles.start, pressed && { opacity: 0.85 }]}
-        >
-          <Text style={styles.startText}>Schicht beginnen</Text>
-        </Pressable>
+        <Button label="Schicht beginnen" variant="alarm" onPress={() => onNavigate('start')} />
 
-        <View style={{ gap: 2 }}>
+        <View style={{ gap: 4 }}>
           {ITEMS.map((it) => (
             <View key={it.id}>
               {it.group && <Text style={styles.group}>{it.group}</Text>}
               <Pressable
                 onPress={() => onNavigate(it.id)}
                 accessibilityRole="button"
+                accessibilityLabel={it.label}
                 style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
                   styles.item,
                   (hovered || pressed) && styles.itemHover,
@@ -85,9 +79,7 @@ export function SideNav({
                 ]}
               >
                 <Text style={styles.itemIcon}>{it.icon}</Text>
-                <Text style={[styles.itemLabel, active === it.id && { color: colors.weiss, fontFamily: fonts.semibold }]}>
-                  {it.label}
-                </Text>
+                <Text style={[styles.itemLabel, active === it.id && { fontFamily: fonts.displayBlack }]}>{it.label}</Text>
               </Pressable>
             </View>
           ))}
@@ -98,10 +90,10 @@ export function SideNav({
   );
 }
 
-function Kpi({ value, label }: { value: string; label: string }) {
+function Kpi({ value, label, color }: { value: string; label: string; color: string }) {
   return (
-    <View style={styles.kpi}>
-      <Text style={styles.kpiValue} numberOfLines={1}>
+    <View style={[styles.kpi, { backgroundColor: color }]}>
+      <Text style={styles.kpiValue} numberOfLines={1} adjustsFontSizeToFit>
         {value}
       </Text>
       <Text style={styles.kpiLabel}>{label}</Text>
@@ -110,61 +102,50 @@ function Kpi({ value, label }: { value: string; label: string }) {
 }
 
 const styles = StyleSheet.create({
-  // Seitenleiste im Stil von iPadOS/macOS: helles Grau, ausgewähltes Element als farbige Fläche
-  root: {
-    width: SIDEBAR_WIDTH,
-    backgroundColor: '#F7F7FA',
-    borderRightWidth: StyleSheet.hairlineWidth,
-    borderRightColor: colors.grau300,
-  },
-  content: { padding: spacing.lg, gap: spacing.lg },
+  // Seitenleiste als weißes Blatt neben dem Millimeterpapier
+  root: { width: SIDEBAR_WIDTH, backgroundColor: colors.white, borderRightWidth: 2, borderRightColor: colors.ink },
+  content: { padding: spacing.lg, gap: spacing.md },
   brand: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingTop: spacing.xs },
-  brandTitle: { fontFamily: fonts.extrabold, fontSize: 22, lineHeight: 26, color: colors.graphit, letterSpacing: -0.4 },
-  brandSub: { fontFamily: fonts.medium, fontSize: 12, color: colors.grau500 },
+  brandTitle: { fontFamily: fonts.displayBlack, fontSize: 23, lineHeight: 26, color: colors.ink, letterSpacing: -0.6 },
+  brandSub: { fontFamily: fonts.mono, fontSize: 10.5, color: colors.muted, letterSpacing: 0.5 },
   profile: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.weiss,
-    borderRadius: 16,
+    backgroundColor: colors.yellowTint,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 18,
     padding: spacing.md,
-    ...shadow,
+    ...hardShadow(3),
   },
-  profileKicker: { fontFamily: fonts.medium, fontSize: 12, color: colors.grau500 },
-  profileRank: { fontFamily: fonts.bold, fontSize: 15, lineHeight: 19, color: colors.graphit, letterSpacing: -0.2 },
-  bar: { height: 5, backgroundColor: colors.grau200, borderRadius: 3, marginTop: 6, overflow: 'hidden' },
-  barFill: { height: 5, backgroundColor: colors.blaulicht, borderRadius: 3 },
-  kpis: { flexDirection: 'row', gap: spacing.xs },
-  kpi: { flex: 1, backgroundColor: colors.weiss, borderRadius: 12, paddingVertical: spacing.sm, alignItems: 'center', ...shadow },
-  kpiValue: { fontFamily: fonts.bold, fontSize: 15, color: colors.graphit, letterSpacing: -0.3 },
-  kpiLabel: { fontFamily: fonts.medium, fontSize: 11, color: colors.grau500 },
-  start: { backgroundColor: colors.signalrot, borderRadius: 14, overflow: 'hidden' },
-  startText: {
-    fontFamily: fonts.semibold,
-    fontSize: 16,
-    color: colors.weiss,
-    textAlign: 'center',
-    paddingVertical: 13,
+  profileRank: { fontFamily: fonts.displayBlack, fontSize: 15, lineHeight: 17, color: colors.ink, letterSpacing: -0.3 },
+  kpis: { flexDirection: 'row', gap: spacing.sm },
+  kpi: {
+    flex: 1,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 12,
+    paddingVertical: 6,
+    alignItems: 'center',
+    ...hardShadow(2),
   },
-  group: {
-    fontFamily: fonts.semibold,
-    fontSize: 12,
-    color: colors.grau500,
-    marginTop: spacing.md,
-    marginBottom: 4,
-    marginLeft: spacing.sm,
-  },
+  kpiValue: { fontFamily: fonts.displayBlack, fontSize: 15, color: colors.ink, letterSpacing: -0.3 },
+  kpiLabel: { fontFamily: fonts.mono, fontSize: 9.5, color: colors.muted, letterSpacing: 0.6, textTransform: 'uppercase' },
+  group: { ...type.eyebrow, marginTop: spacing.sm, marginBottom: 2, marginLeft: spacing.sm },
   item: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    paddingVertical: 9,
+    paddingVertical: 7,
     paddingHorizontal: spacing.sm,
-    borderRadius: 10,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
-  itemHover: { backgroundColor: colors.grau200 },
-  itemActive: { backgroundColor: colors.signalrot },
-  itemIcon: { fontFamily: fonts.regular, fontSize: 16, width: 22, textAlign: 'center' },
-  itemLabel: { fontFamily: fonts.medium, fontSize: 15, color: colors.graphit },
-  footer: { fontFamily: fonts.regular, fontSize: 11, color: colors.grau500, padding: spacing.lg, paddingTop: spacing.sm },
+  itemHover: { backgroundColor: colors.paper },
+  itemActive: { backgroundColor: colors.yellow, borderColor: colors.ink, ...hardShadow(3) },
+  itemIcon: { fontFamily: fonts.displayBlack, fontSize: 17, width: 24, textAlign: 'center', color: colors.ink },
+  itemLabel: { fontFamily: fonts.display, fontSize: 15, color: colors.ink, letterSpacing: -0.2 },
+  footer: { fontFamily: fonts.regular, fontSize: 11, color: colors.muted, padding: spacing.lg, paddingTop: spacing.sm },
 });

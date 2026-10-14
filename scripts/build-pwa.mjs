@@ -24,7 +24,7 @@ if (preview) {
   manifest.short_name = 'E112 Vorschau';
   writeFileSync(`${out}/manifest.webmanifest`, JSON.stringify(manifest, null, 2));
 
-  const badge = `<div style="position:fixed;left:50%;bottom:calc(6px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:9999;pointer-events:none;background:#FFD100;color:#15181C;font:700 11px/1 system-ui,sans-serif;letter-spacing:2px;padding:5px 10px;border-radius:10px;opacity:.9">VORSCHAU ${build}</div>`;
+  const badge = `<div style="position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:9999;pointer-events:none;background:#FFE226;color:#14173A;border:2px solid #14173A;font:700 10px/1 ui-monospace,monospace;letter-spacing:2px;padding:4px 9px;border-radius:99px;opacity:.92">VORSCHAU ${build}</div>`;
   const html = readFileSync(`${out}/index.html`, 'utf8')
     .replace('<title>Einsatz 112</title>', '<title>Einsatz 112 – Vorschau</title>\n<script>window.E112_VORSCHAU = true;</script>')
     .replace('content="Einsatz 112">', 'content="E112 Vorschau">')

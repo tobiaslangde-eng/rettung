@@ -1,10 +1,10 @@
-import { BarlowCondensed_700Bold, BarlowCondensed_800ExtraBold } from '@expo-google-fonts/barlow-condensed';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StarOfLife } from './src/components/Ems';
+import { PaperBackground } from './src/components/Paper';
 import { NavTarget, SideNav } from './src/components/SideNav';
 import { TabBar, TabId } from './src/components/TabBar';
 import { CASES, MedCase } from './src/data/cases';
@@ -31,7 +31,7 @@ import { QuizScreen } from './src/screens/QuizScreen';
 import { DetectiveScreen } from './src/screens/DetectiveScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
 import { TrainingScreen } from './src/screens/TrainingScreen';
-import { FrameWidthProvider, SIDEBAR_FROM, SIDEBAR_WIDTH, desktopShell } from './src/layout';
+import { FrameWidthProvider, SIDEBAR_FROM, SIDEBAR_WIDTH, SidebarProvider, desktopShell } from './src/layout';
 import { colors, fonts } from './src/theme';
 
 type Screen =
@@ -105,9 +105,10 @@ export default function App() {
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
   const lastCaseId = useRef<string | undefined>(undefined);
   const [fontsLoaded, fontError] = useFonts({
-    BarlowCondensed_700Bold,
-    BarlowCondensed_800ExtraBold,
-    // Schrift Inter (SIL Open Font License), auf die benötigten Zeichen verkleinert – siehe assets/fonts/
+    // Schriften (SIL Open Font License), auf die benötigten Zeichen verkleinert – siehe assets/fonts/
+    Bricolage_700Bold: require('./assets/fonts/Bricolage_700Bold.ttf'),
+    Bricolage_800ExtraBold: require('./assets/fonts/Bricolage_800ExtraBold.ttf'),
+    DMMono_500Medium: require('./assets/fonts/DMMono_500Medium.ttf'),
     Inter_400Regular: require('./assets/fonts/Inter_400Regular.ttf'),
     Inter_400Regular_Italic: require('./assets/fonts/Inter_400Regular_Italic.ttf'),
     Inter_500Medium: require('./assets/fonts/Inter_500Medium.ttf'),
@@ -285,126 +286,125 @@ export default function App() {
   const available = win.width - (sidebar ? SIDEBAR_WIDTH : 0);
   const frameMax = FRAME_MAX[screen.name];
   const frameWidth = Math.min(available, frameMax ?? available);
-  const framed = frameWidth < available;
   const tab = sidebar ? undefined : TAB_OF[screen.name];
 
   if (!fontsLoaded && !fontError) {
     return (
       <View style={styles.splash}>
-        <StarOfLife size={72} />
+        <StarOfLife size={72} color={colors.red} outline={colors.ink} />
       </View>
     );
   }
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
-        <StatusBar style="dark" />
-        {desktopShell && (
-          <View nativeID="titlebar" style={[styles.titlebar, desktopShell === 'mac' ? styles.titlebarMac : styles.titlebarWin]}>
-            <StarOfLife size={14} />
-            <Text style={styles.titlebarText}>Einsatz 112</Text>
-          </View>
-        )}
-        <View style={styles.shell}>
-          {sidebar && <SideNav progress={progress} active={NAV_OF[screen.name] ?? null} onNavigate={navigate} />}
-          <View style={[styles.body, framed && styles.bodyFramed]}>
-            <View style={[styles.frame, frameMax !== undefined && { maxWidth: frameMax }, framed && styles.frameBorder]}>
-              <FrameWidthProvider value={frameWidth}>
-                {screen.name === 'home' && (
-                  <HomeScreen
-                    progress={progress}
-                    onStart={() => startCase()}
-                    onDaily={() => startCase(true)}
-                    onDifficulty={setDifficulty}
-                    onTraining={openTraining}
-                    onGarage={() => setScreen({ name: 'garage' })}
-                  />
-                )}
-                {screen.name === 'training' && <TrainingScreen progress={progress} onTraining={openTraining} />}
-                {screen.name === 'lexikon' && <LexikonScreen progress={progress} />}
-                {screen.name === 'guide' && <GuideScreen progress={progress} onReset={resetProgress} onImport={importProgress} />}
-                {screen.name === 'quiz' && (
-                  <QuizScreen key={screen.key} best={progress.quizBest} onFinish={finishQuiz} onBack={back} />
-                )}
-                {screen.name === 'wissen' && (
-                  <KnowledgeScreen key={screen.key} best={progress.knowBest} onFinish={finishKnowledge} onBack={back} />
-                )}
-                {screen.name === 'garage' && <GarageScreen progress={progress} onUpgrade={upgrade} />}
-                {screen.name === 'manv' && (
-                  <ManvScreen key={screen.key} best={progress.manvBest} onFinish={finishManv} onBack={back} />
-                )}
-                {screen.name === 'detektiv' && (
-                  <DetectiveScreen
-                    key={screen.key}
-                    progress={progress}
-                    onFinish={finishDetective}
-                    onBack={back}
-                    onGarage={() => setScreen({ name: 'garage' })}
-                  />
-                )}
-                {screen.name === 'cpr' && (
-                  <CprScreen key={screen.key} best={progress.cprBest} onFinish={finishCpr} onBack={back} />
-                )}
-                {screen.name === 'case' && (
-                  <CaseScreen
-                    key={screen.key}
-                    medCase={screen.medCase}
-                    difficulty={DIFFICULTY_BY_ID[progress.difficulty]}
-                    daily={screen.daily}
-                    equipment={equipmentEffects(progress)}
-                    rtwLevel={levelOf(progress, 'rtw')}
-                    onFinish={(run) => finishCase(run, screen.daily)}
-                    onAbort={home}
-                  />
-                )}
-                {screen.name === 'result' && (
-                  <ResultScreen
-                    run={screen.run}
-                    result={screen.result}
-                    newBadges={screen.newBadges}
-                    goalBonus={screen.goalBonus}
-                    promotion={screen.promotion}
-                    weekRecord={screen.weekRecord}
-                    streak={progress.streak}
-                    onNext={() => startCase()}
-                    onHome={home}
-                  />
-                )}
-              </FrameWidthProvider>
+      <View style={styles.paper}>
+        <PaperBackground />
+        <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
+          <StatusBar style="dark" />
+          {desktopShell && (
+            <View nativeID="titlebar" style={[styles.titlebar, desktopShell === 'mac' ? styles.titlebarMac : styles.titlebarWin]}>
+              <StarOfLife size={14} />
+              <Text style={styles.titlebarText}>Einsatz 112</Text>
             </View>
-            {tab && (
-              <TabBar
-                active={tab}
-                onSelect={(t) => setScreen({ name: t } as Screen)}
-                badge={{ garage: EQUIPMENT.some((e) => upgradeBlock(progress, e.id) === null) }}
-              />
-            )}
+          )}
+          <View style={styles.shell}>
+            {sidebar && <SideNav progress={progress} active={NAV_OF[screen.name] ?? null} onNavigate={navigate} />}
+            <View style={styles.body}>
+              <View style={[styles.frame, frameMax !== undefined && { maxWidth: frameMax }]}>
+                <SidebarProvider value={sidebar}>
+                  <FrameWidthProvider value={frameWidth}>
+                    {screen.name === 'home' && (
+                      <HomeScreen
+                        progress={progress}
+                        onStart={() => startCase()}
+                        onDaily={() => startCase(true)}
+                        onDifficulty={setDifficulty}
+                        onTraining={openTraining}
+                        onGarage={() => setScreen({ name: 'garage' })}
+                      />
+                    )}
+                    {screen.name === 'training' && <TrainingScreen progress={progress} onTraining={openTraining} />}
+                    {screen.name === 'lexikon' && <LexikonScreen progress={progress} />}
+                    {screen.name === 'guide' && (
+                      <GuideScreen progress={progress} onReset={resetProgress} onImport={importProgress} />
+                    )}
+                    {screen.name === 'quiz' && (
+                      <QuizScreen key={screen.key} best={progress.quizBest} onFinish={finishQuiz} onBack={back} />
+                    )}
+                    {screen.name === 'wissen' && (
+                      <KnowledgeScreen key={screen.key} best={progress.knowBest} onFinish={finishKnowledge} onBack={back} />
+                    )}
+                    {screen.name === 'garage' && <GarageScreen progress={progress} onUpgrade={upgrade} />}
+                    {screen.name === 'manv' && (
+                      <ManvScreen key={screen.key} best={progress.manvBest} onFinish={finishManv} onBack={back} />
+                    )}
+                    {screen.name === 'detektiv' && (
+                      <DetectiveScreen
+                        key={screen.key}
+                        progress={progress}
+                        onFinish={finishDetective}
+                        onBack={back}
+                        onGarage={() => setScreen({ name: 'garage' })}
+                      />
+                    )}
+                    {screen.name === 'cpr' && (
+                      <CprScreen key={screen.key} best={progress.cprBest} onFinish={finishCpr} onBack={back} />
+                    )}
+                    {screen.name === 'case' && (
+                      <CaseScreen
+                        key={screen.key}
+                        medCase={screen.medCase}
+                        difficulty={DIFFICULTY_BY_ID[progress.difficulty]}
+                        daily={screen.daily}
+                        equipment={equipmentEffects(progress)}
+                        rtwLevel={levelOf(progress, 'rtw')}
+                        onFinish={(run) => finishCase(run, screen.daily)}
+                        onAbort={home}
+                      />
+                    )}
+                    {screen.name === 'result' && (
+                      <ResultScreen
+                        run={screen.run}
+                        result={screen.result}
+                        newBadges={screen.newBadges}
+                        goalBonus={screen.goalBonus}
+                        promotion={screen.promotion}
+                        weekRecord={screen.weekRecord}
+                        streak={progress.streak}
+                        onNext={() => startCase()}
+                        onHome={home}
+                      />
+                    )}
+                  </FrameWidthProvider>
+                </SidebarProvider>
+              </View>
+              {tab && (
+                <TabBar
+                  active={tab}
+                  onSelect={(t) => setScreen({ name: t } as Screen)}
+                  badge={{ garage: EQUIPMENT.some((e) => upgradeBlock(progress, e.id) === null) }}
+                />
+              )}
+            </View>
           </View>
-        </View>
-      </SafeAreaView>
+        </SafeAreaView>
+      </View>
     </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.grau50 },
+  paper: { flex: 1, backgroundColor: colors.paper },
+  root: { flex: 1 },
   shell: { flex: 1, flexDirection: 'row' },
-  body: { flex: 1, backgroundColor: colors.grau50, alignItems: 'center' },
-  bodyFramed: { backgroundColor: '#ECECF1' },
-  frame: { flex: 1, width: '100%', backgroundColor: colors.grau50 },
-  frameBorder: {
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderColor: colors.grau200,
-  },
+  body: { flex: 1, alignItems: 'center' },
+  frame: { flex: 1, width: '100%' },
   titlebar: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: colors.graphit,
-    borderBottomWidth: 1,
-    borderBottomColor: '#262B31',
+    backgroundColor: colors.ink,
   },
   titlebarMac: { height: 30, justifyContent: 'center' },
   titlebarWin: { height: 32, paddingLeft: 12 },
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
   },
   splash: {
     flex: 1,
-    backgroundColor: colors.graphit,
+    backgroundColor: colors.paper,
     alignItems: 'center',
     justifyContent: 'center',
   },

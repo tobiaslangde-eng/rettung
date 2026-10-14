@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { EcgStrip, RatingStar } from '../components/Ems';
-import { Button, Card, Eyebrow, TopBar } from '../components/UI';
+import { EcgStrip } from '../components/Ems';
+import { MonitorCard, ProgressTop, ScoreHero } from '../components/Training';
+import { Button, Card, Eyebrow, StatChip, Tap, TopBar } from '../components/UI';
 import {
   CPR_BREATHS,
   CPR_COMPRESSIONS,
@@ -17,7 +18,7 @@ import {
   scoreCpr,
   zoneFor,
 } from '../game/cpr';
-import { colors, fonts, spacing, type } from '../theme';
+import { colors, fonts, hardShadow, spacing, type } from '../theme';
 
 type Phase = 'intro' | 'press' | 'breathe' | 'done';
 
@@ -29,9 +30,9 @@ const GAUGE_MAX = 160;
 const gaugePos = (rate: number) => Math.min(1, Math.max(0, (rate - GAUGE_MIN) / (GAUGE_MAX - GAUGE_MIN)));
 
 const ZONE = {
-  langsam: { label: 'Schneller!', color: colors.amber },
+  langsam: { label: 'Schneller!', color: colors.yellow },
   gut: { label: 'Perfekter Takt!', color: colors.monitorGruen },
-  schnell: { label: 'Langsamer!', color: colors.leuchtorange },
+  schnell: { label: 'Langsamer!', color: colors.orange },
 };
 
 /** Pulsierender Ring im Zieltakt (110 pro Minute). */
@@ -152,13 +153,13 @@ export function CprScreen({
       <View style={{ flex: 1 }}>
         <TopBar kicker="Training" title="Herzdruckmassage" onBack={onBack} />
         <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.monitor}>
+          <MonitorCard>
             <Text style={styles.introBig}>100–120</Text>
             <Text style={styles.introSub}>Kompressionen pro Minute</Text>
             <View style={{ alignSelf: 'stretch', marginTop: spacing.md }}>
               <EcgStrip height={44} beats={4} />
             </View>
-          </View>
+          </MonitorCard>
           <Card>
             <Eyebrow title="So geht’s" />
             <Text style={[type.body, { marginTop: spacing.xs }]}>
@@ -174,18 +175,18 @@ export function CprScreen({
             <Eyebrow title="Taktgeber" />
             <View style={{ flexDirection: 'row', gap: spacing.sm }}>
               {[true, false].map((on) => (
-                <Pressable
+                <Tap
                   key={String(on)}
                   onPress={() => setWithGuide(on)}
+                  offset={withGuide === on ? 0 : 4}
                   accessibilityRole="radio"
+                  accessibilityLabel={on ? 'Taktgeber an' : 'Taktgeber aus'}
                   accessibilityState={{ selected: withGuide === on }}
                   style={[styles.toggle, withGuide === on && styles.toggleActive]}
                 >
-                  <Text style={[styles.toggleLabel, withGuide === on && { color: colors.weiss }]}>{on ? 'An' : 'Aus'}</Text>
-                  <Text style={[styles.toggleSub, withGuide === on && { color: colors.blaulichtLight }]}>
-                    {on ? `bis ${CPR_POINTS} Punkte` : `bis ${CPR_POINTS * 2} Punkte`}
-                  </Text>
-                </Pressable>
+                  <Text style={styles.toggleLabel}>{on ? 'An' : 'Aus'}</Text>
+                  <Text style={styles.toggleSub}>{on ? `bis ${CPR_POINTS} Punkte` : `bis ${CPR_POINTS * 2} Punkte`}</Text>
+                </Tap>
               ))}
             </View>
             <Text style={type.small}>Ohne Taktgeber muss ich den Rhythmus selbst halten – dafür gibt es doppelte Punkte.</Text>
@@ -210,25 +211,13 @@ export function CprScreen({
       <View style={{ flex: 1 }}>
         <TopBar kicker="Training" title="Auswertung" onBack={onBack} />
         <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.monitor}>
-            <View style={styles.stars}>
-              {[0, 1, 2].map((i) => (
-                <RatingStar key={i} size={i === 1 ? 48 : 36} filled={i < result.stars} />
-              ))}
-            </View>
-            <Text style={styles.bigScore}>
-              {result.accuracy}
-              <Text style={styles.bigScoreOf}> %</Text>
-            </Text>
-            <Text style={styles.introSub}>im Zielbereich</Text>
-            <Text style={styles.gain}>+{result.points} Punkte</Text>
-            <View style={{ alignSelf: 'stretch' }}>
-              <EcgStrip height={44} beats={4} />
-            </View>
-          </View>
-          <Text style={[type.small, { textAlign: 'center' }]}>
-            {result.accuracy > prevBest ? 'Neuer Bestwert!' : `Mein Bestwert: ${Math.max(prevBest, result.accuracy)} %`}
-          </Text>
+          <ScoreHero
+            stars={result.stars}
+            big={String(result.accuracy)}
+            unit="% im Zielbereich"
+            points={result.points}
+            note={result.accuracy > prevBest ? '🏆 Neuer Bestwert!' : `Mein Bestwert: ${Math.max(prevBest, result.accuracy)} %`}
+          />
           <Card>
             <Eyebrow title="Meine Werte" />
             <Line label="Durchschnittlicher Takt" value={`${result.avgRate} /min`} ok={zoneFor(result.avgRate) === 'gut'} />
@@ -239,7 +228,7 @@ export function CprScreen({
             />
             <Line label="Taktgeber" value={withGuide ? 'an' : 'aus (×2)'} ok />
           </Card>
-          <Card style={{ borderLeftColor: colors.blaulicht }}>
+          <Card style={{ borderLeftColor: colors.blue }}>
             <Eyebrow title="Tipp" />
             {tips.map((t) => (
               <Text key={t} style={[type.body, { marginTop: spacing.xs }]}>
@@ -248,7 +237,7 @@ export function CprScreen({
             ))}
           </Card>
           <Button label="Noch einmal" variant="alarm" onPress={start} />
-          <Button label="Zum Hauptmenü" variant="outline" onPress={onBack} />
+          <Button label="Zurück" variant="outline" onPress={onBack} />
         </ScrollView>
       </View>
     );
@@ -266,20 +255,14 @@ export function CprScreen({
         title={`Runde ${cycle + 1} von ${CPR_CYCLES}`}
         onBack={onBack}
         right={
-          <View style={styles.counter}>
-            <Text style={styles.counterValue}>{phase === 'press' ? taps.length : CPR_COMPRESSIONS}</Text>
-            <Text style={styles.counterLabel}>von {CPR_COMPRESSIONS}</Text>
-          </View>
+          <StatChip
+            value={phase === 'press' ? taps.length : CPR_COMPRESSIONS}
+            label={`von ${CPR_COMPRESSIONS}`}
+            color={colors.pinkTint}
+          />
         }
       />
-      <View style={styles.progress}>
-        <View
-          style={[
-            styles.progressFill,
-            { width: `${((phase === 'press' ? taps.length : CPR_COMPRESSIONS) / CPR_COMPRESSIONS) * 100}%` },
-          ]}
-        />
-      </View>
+      <ProgressTop pct={(phase === 'press' ? taps.length : CPR_COMPRESSIONS) / CPR_COMPRESSIONS} color={colors.pinkStrong} />
       <View style={styles.play}>
         <View style={styles.readout}>
           <Text style={[styles.rate, { color: zone?.color ?? colors.grau300 }]}>
@@ -331,14 +314,14 @@ export function CprScreen({
           </View>
         ) : (
           <View style={styles.chestWrap}>
-            <Pressable onPress={breathe} accessibilityRole="button" style={styles.breathe}>
+            <Pressable onPress={breathe} accessibilityRole="button" accessibilityLabel="Beatmen" style={styles.breathe}>
               <Text style={styles.hands}>💨</Text>
               <Text style={styles.chestLabel}>Beatmen</Text>
               <Text style={styles.chestSub}>
                 {breaths} von {CPR_BREATHS}
               </Text>
             </Pressable>
-            <Text style={[styles.pause, { color: pause > CPR_MAX_PAUSE ? colors.signalrot : colors.grau500 }]}>
+            <Text style={[styles.pause, { color: pause > CPR_MAX_PAUSE ? colors.redTint : colors.grau300 }]}>
               Pause: {pause.toFixed(1).replace('.', ',')} s {pause > CPR_MAX_PAUSE ? '– schnell weiterdrücken!' : ''}
             </Text>
           </View>
@@ -352,56 +335,56 @@ function Line({ label, value, ok }: { label: string; value: string; ok: boolean 
   return (
     <View style={styles.line}>
       <Text style={[type.body, { flex: 1 }]}>{label}</Text>
-      <Text style={{ fontFamily: fonts.bold, color: ok ? colors.gruen : colors.signalrot }}>{value}</Text>
+      <Text style={{ fontFamily: fonts.bold, color: ok ? colors.mintDark : colors.red }}>{value}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
-  monitor: { backgroundColor: colors.nacht, borderRadius: 16, paddingTop: spacing.lg, alignItems: 'center', overflow: 'hidden' },
-  introBig: { fontFamily: fonts.displayBlack, fontSize: 64, lineHeight: 68, color: colors.monitorGruen },
-  introSub: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau300, letterSpacing: 0.4, textTransform: 'uppercase' },
+  introBig: { fontFamily: fonts.displayBlack, fontSize: 68, lineHeight: 72, color: colors.monitorGruen, letterSpacing: -2.5 },
+  introSub: { fontFamily: fonts.mono, fontSize: 12, color: colors.grau300, letterSpacing: 1.2, textTransform: 'uppercase' },
   toggle: {
     flex: 1,
     alignItems: 'center',
     paddingVertical: spacing.md,
-    backgroundColor: colors.weiss,
-    borderWidth: 1,
-    borderColor: colors.grau200,
-    borderRadius: 14,
+    backgroundColor: colors.white,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 18,
   },
-  toggleActive: { backgroundColor: colors.blaulicht, borderColor: colors.blaulicht },
-  toggleLabel: { fontFamily: fonts.displayBlack, fontSize: 20, color: colors.graphit },
-  toggleSub: { fontFamily: fonts.semibold, fontSize: 11, color: colors.grau500 },
-  progress: { height: 6, backgroundColor: colors.grau200 },
-  progressFill: { height: 6, backgroundColor: colors.signalrot },
-  counter: {
-    alignItems: 'center',
-    backgroundColor: colors.blaulichtLight,
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
+  toggleActive: { backgroundColor: colors.yellow, transform: [{ translateY: 3 }] },
+  toggleLabel: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.ink, letterSpacing: -0.5 },
+  toggleSub: { fontFamily: fonts.mono, fontSize: 11, color: colors.inkSoft },
+
+  // Spielfeld: dunkles Gerät mit Umrandung
+  play: {
+    flex: 1,
+    backgroundColor: colors.monitorBg,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    borderRadius: 28,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    overflow: 'hidden',
+    ...hardShadow(5),
   },
-  counterValue: { color: colors.blaulicht, fontFamily: fonts.bold, fontSize: 17 },
-  counterLabel: { color: colors.blaulicht, fontFamily: fonts.medium, fontSize: 10 },
-  play: { flex: 1, backgroundColor: colors.nacht },
   readout: { padding: spacing.lg, alignItems: 'center' },
-  rate: { fontFamily: fonts.displayBlack, fontSize: 64, lineHeight: 68 },
-  rateUnit: { fontSize: 20, color: colors.grau300 },
-  zone: { fontFamily: fonts.extrabold, fontSize: 16, letterSpacing: -0.3 },
+  rate: { fontFamily: fonts.displayBlack, fontSize: 68, lineHeight: 72, letterSpacing: -2.5 },
+  rateUnit: { fontSize: 20, color: colors.grau300, letterSpacing: 0 },
+  zone: { fontFamily: fonts.displayBlack, fontSize: 18, letterSpacing: -0.4 },
   gauge: {
     alignSelf: 'stretch',
-    height: 12,
+    height: 14,
     backgroundColor: colors.graphitSoft,
-    borderRadius: 14,
+    borderRadius: 7,
     marginTop: spacing.md,
     overflow: 'hidden',
   },
-  gaugeZone: { position: 'absolute', top: 0, bottom: 0, backgroundColor: 'rgba(43,227,139,0.35)' },
-  needle: { position: 'absolute', top: 0, bottom: 0, width: 4, marginLeft: -2 },
+  gaugeZone: { position: 'absolute', top: 0, bottom: 0, backgroundColor: 'rgba(43,227,139,0.4)' },
+  needle: { position: 'absolute', top: 0, bottom: 0, width: 5, marginLeft: -2, borderRadius: 2 },
   gaugeLabels: { alignSelf: 'stretch', flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
-  gaugeLabel: { fontFamily: fonts.semibold, fontSize: 11, color: colors.grau500 },
+  gaugeLabel: { fontFamily: fonts.mono, fontSize: 11, color: colors.grau500 },
   chestWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.lg, paddingBottom: spacing.xl },
   metronome: { position: 'absolute', borderWidth: 6, borderColor: colors.monitorGruen },
   chestHit: { width: 230, height: 230, borderRadius: 115 },
@@ -409,34 +392,33 @@ const styles = StyleSheet.create({
     width: 230,
     height: 230,
     borderRadius: 115,
-    backgroundColor: colors.signalrot,
+    backgroundColor: colors.red,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 6,
-    borderColor: 'rgba(255,255,255,0.15)',
+    borderWidth: 4,
+    borderColor: colors.white,
   },
   breathe: {
     width: 200,
     height: 200,
     borderRadius: 100,
-    backgroundColor: colors.blaulicht,
+    backgroundColor: colors.blue,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 4,
+    borderColor: colors.white,
   },
-  hands: { fontSize: 44, fontFamily: fonts.regular },
-  chestLabel: { fontFamily: fonts.displayBlack, fontSize: 30, color: colors.weiss },
-  chestSub: { fontFamily: fonts.semibold, fontSize: 12, color: 'rgba(255,255,255,0.8)' },
-  pause: { fontFamily: fonts.bold, fontSize: 15 },
-  stars: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  bigScore: { fontFamily: fonts.displayBlack, fontSize: 64, color: colors.weiss, marginTop: spacing.sm },
-  bigScoreOf: { fontSize: 28, color: colors.grau300 },
-  gain: { fontFamily: fonts.extrabold, fontSize: 16, color: colors.monitorGruen, marginVertical: spacing.sm },
+  hands: { fontSize: 46, fontFamily: fonts.regular },
+  chestLabel: { fontFamily: fonts.displayBlack, fontSize: 32, color: colors.white, letterSpacing: -0.8 },
+  chestSub: { fontFamily: fonts.mono, fontSize: 11, color: 'rgba(255,255,255,0.85)', letterSpacing: 0.5 },
+  pause: { fontFamily: fonts.mono, fontSize: 14 },
   line: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.grau200,
+    paddingVertical: 7,
+    borderBottomWidth: 1.5,
+    borderBottomColor: colors.line,
+    borderStyle: 'dashed',
   },
 });

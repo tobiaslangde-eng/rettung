@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
-import { Button, Card, Eyebrow, Pill, TopBar } from '../components/UI';
+import { Animated, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AnswerOption, Confetti } from '../components/Training';
+import { Bar, Button, Card, IconTile, Pill, StatChip, Tap, TopBar } from '../components/UI';
 import { CASES } from '../data/cases';
 import {
   AKTE_MIN,
@@ -25,11 +25,10 @@ import {
 import { euro } from '../game/equipment';
 import { Progress } from '../game/storage';
 import { useLayout } from '../layout';
-import { colors, fonts, radius, shadow, spacing, type } from '../theme';
+import { colors, fonts, hardShadow, spacing, type } from '../theme';
 
-const NOIR = ['#1E2A55', '#3A1F5C'];
-const PAPER = '#FBF4E2';
-const GOLD = '#E8A400';
+const GOLD = colors.orange;
+const LETTERS = ['A', 'B', 'C', 'D'];
 
 type Phase = 'intro' | 'akte' | 'aufloesung' | 'ende';
 
@@ -41,7 +40,7 @@ function Stamp({ kind }: { kind: 'gold' | 'ok' | 'fail' }) {
   useEffect(() => {
     Animated.spring(a, { toValue: 1, friction: 5, tension: 120, useNativeDriver: Platform.OS !== 'web' }).start();
   }, [a]);
-  const color = kind === 'gold' ? GOLD : kind === 'ok' ? colors.gruen : colors.signalrot;
+  const color = kind === 'gold' ? GOLD : kind === 'ok' ? colors.mintDark : colors.red;
   const label = kind === 'gold' ? 'Meisterlösung' : kind === 'ok' ? 'Gelöst' : 'Ungelöst';
   return (
     <Animated.View
@@ -56,20 +55,6 @@ function Stamp({ kind }: { kind: 'gold' | 'ok' | 'fail' }) {
     >
       <Text style={[styles.stampText, { color }]}>{label}</Text>
     </Animated.View>
-  );
-}
-
-function NoirBg() {
-  return (
-    <Svg style={StyleSheet.absoluteFill as object} width="100%" height="100%" preserveAspectRatio="none">
-      <Defs>
-        <LinearGradient id="noir" x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor={NOIR[0]} />
-          <Stop offset="1" stopColor={NOIR[1]} />
-        </LinearGradient>
-      </Defs>
-      <Rect width="100%" height="100%" fill="url(#noir)" />
-    </Svg>
   );
 }
 
@@ -167,43 +152,36 @@ export function DetectiveScreen({
         <TopBar kicker="Training" title="Detektiv-Akten" onBack={onBack} />
         <ScrollView contentContainerStyle={[styles.content, L.wide && styles.contentWide]}>
           <View style={styles.hero}>
-            <NoirBg />
-            <Text style={styles.heroIcon}>🔍</Text>
-            <Text style={styles.heroTitle}>Der Diagnose-Krimi</Text>
+            <View style={styles.heroTop}>
+              <IconTile icon="🔍" color={colors.white} size={62} />
+              <Text style={[styles.heroTitle, { flex: 1 }]}>Der Diagnose-Krimi</Text>
+            </View>
             <Text style={styles.heroSub}>
               Jede Akte ist ein echter Notfall. Decke Hinweise auf und finde heraus, was dahintersteckt – je weniger Hinweise du
               brauchst, desto höher die Belohnung.
             </Text>
             <View style={styles.gradeBox}>
               <Text style={styles.gradeIcon}>{grade.icon}</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.gradeKicker}>Dein Detektiv-Rang</Text>
+              <View style={{ flex: 1, gap: 4 }}>
+                <Text style={type.eyebrow}>Dein Detektiv-Rang</Text>
                 <Text style={styles.gradeTitle}>{grade.title}</Text>
-                <View style={styles.gradeBar}>
-                  <View style={[styles.gradeFill, { width: `${pct * 100}%` }]} />
-                </View>
-                <Text style={styles.gradeNext}>
+                <Bar pct={pct} color={colors.violet} height={12} />
+                <Text style={type.small}>
                   {next ? `noch ${next.min - arch.solved} Akten bis „${next.title}“` : 'Höchster Rang – alle Akten gelöst!'}
                 </Text>
               </View>
             </View>
-            <Pressable
-              onPress={begin}
-              accessibilityRole="button"
-              style={({ pressed }) => [styles.heroBtn, pressed && { opacity: 0.85 }]}
-            >
-              <Text style={styles.heroBtnText}>Ermittlung starten</Text>
-            </Pressable>
+            <Button label="Ermittlung starten ▶" variant="outline" onPress={begin} />
           </View>
 
           <View style={styles.kpis}>
-            <Kpi value={`${arch.solved}/${arch.total}`} label="Akten gelöst" />
-            <Kpi value={String(arch.master)} label="Meisterlösungen" />
-            <Kpi value={String(progress.detectiveBest)} label="Bestwert" />
+            <Kpi value={`${arch.solved}/${arch.total}`} label="Akten gelöst" color={colors.lilac} />
+            <Kpi value={String(arch.master)} label="Meisterlösungen" color={colors.yellow} />
+            <Kpi value={String(progress.detectiveBest)} label="Bestwert" color={colors.mintTint} />
           </View>
 
           <Card style={{ gap: spacing.sm }}>
-            <Eyebrow title="So ermittelst du" />
+            <Text style={type.eyebrow}>So ermittelst du</Text>
             <Rule icon="📟" text="Die Meldung der Leitstelle ist gratis." />
             <Rule
               icon="🔍"
@@ -220,18 +198,25 @@ export function DetectiveScreen({
           </Card>
 
           <View style={{ gap: spacing.sm }}>
-            <Eyebrow title={`Archiv · ${arch.solved} von ${arch.total}`} />
+            <Text style={type.eyebrow}>
+              Archiv · {arch.solved} von {arch.total}
+            </Text>
             <View style={styles.archive}>
               {CASES.map((c, i) => {
-                const s = progress.detectiveSolved[c.id];
+                const st = progress.detectiveSolved[c.id];
                 return (
                   <View
                     key={c.id}
-                    style={[styles.folder, L.wide && { width: L.desktop ? '13.4%' : '18.6%' }, !s && styles.folderLocked]}
+                    style={[
+                      styles.folder,
+                      L.wide && { width: L.desktop ? '13.4%' : '18.6%' },
+                      !st && styles.folderLocked,
+                      st === 2 && styles.folderGold,
+                    ]}
                   >
-                    <Text style={styles.folderIcon}>{s === 2 ? '🏅' : s === 1 ? '📂' : '🔒'}</Text>
-                    <Text style={[styles.folderText, !s && { color: colors.grau500 }]} numberOfLines={2}>
-                      {s ? c.diagnosis.replace(/ \(.*\)/, '') : `Akte ${String(i + 1).padStart(2, '0')}`}
+                    <Text style={styles.folderIcon}>{st === 2 ? '🏅' : st === 1 ? '📂' : '🔒'}</Text>
+                    <Text style={[styles.folderText, !st && { color: colors.muted }]} numberOfLines={2}>
+                      {st ? c.diagnosis.replace(/ \(.*\)/, '') : `Akte ${String(i + 1).padStart(2, '0')}`}
                     </Text>
                   </View>
                 );
@@ -261,9 +246,9 @@ export function DetectiveScreen({
         <TopBar kicker="Detektiv-Akten" title="Ermittlung abgeschlossen" onBack={onBack} />
         <ScrollView contentContainerStyle={[styles.content, L.wide && styles.contentWide]}>
           <View style={[styles.hero, { alignItems: 'center' }]}>
-            <NoirBg />
+            {solved >= 3 && <Confetti />}
             <Text style={styles.heroIcon}>{solved === DETECTIVE_ROUNDS ? '🏆' : solved >= 3 ? '🕵️' : '🔍'}</Text>
-            <Text style={styles.heroTitle}>
+            <Text style={[styles.heroTitle, { textAlign: 'center' }]}>
               {solved} von {DETECTIVE_ROUNDS} Akten gelöst
             </Text>
             <Text style={styles.total}>+{total}</Text>
@@ -274,28 +259,29 @@ export function DetectiveScreen({
           </View>
           {after.index > before.index && (
             <Card style={[styles.promo, { borderLeftColor: GOLD }]}>
-              <Text style={{ fontSize: 40 }}>{after.grade.icon}</Text>
+              <Text style={{ fontSize: 40, lineHeight: 48, fontFamily: fonts.regular }}>{after.grade.icon}</Text>
               <View style={{ flex: 1 }}>
-                <Text style={type.small}>Neuer Detektiv-Rang!</Text>
+                <Text style={type.eyebrow}>Neuer Detektiv-Rang!</Text>
                 <Text style={type.h2}>{after.grade.title}</Text>
               </View>
             </Card>
           )}
           <View style={styles.kpis}>
-            <Kpi value={String(newOnes)} label="Neu im Archiv" />
-            <Kpi value={maxCombo > 1 ? fmt(comboFactor(maxCombo)) : '–'} label="Beste Combo" />
+            <Kpi value={String(newOnes)} label="Neu im Archiv" color={colors.lilac} />
+            <Kpi value={maxCombo > 1 ? fmt(comboFactor(maxCombo)) : '–'} label="Beste Combo" color={colors.peach} />
             <Kpi
               value={String(Math.max(start.detectiveBest, total))}
               label={total > start.detectiveBest ? 'Neuer Bestwert!' : 'Bestwert'}
+              color={colors.yellow}
             />
           </View>
           <Card style={{ gap: spacing.sm }}>
-            <Eyebrow title="Meine Akten" />
+            <Text style={type.eyebrow}>Meine Akten</Text>
             {akten.map((a, i) => {
               const r = results[i];
               return (
                 <View key={a.medCase.id} style={styles.line}>
-                  <Text style={{ fontSize: 22 }}>{!r.solved ? '❌' : r.genius ? '🏅' : '📂'}</Text>
+                  <Text style={{ fontSize: 22, fontFamily: fonts.regular }}>{!r.solved ? '❌' : r.genius ? '🏅' : '📂'}</Text>
                   <View style={{ flex: 1 }}>
                     <Text style={type.headline}>{a.medCase.diagnosis}</Text>
                     <Text style={type.small}>
@@ -327,12 +313,7 @@ export function DetectiveScreen({
         kicker={`Akte ${index + 1} von ${DETECTIVE_ROUNDS}`}
         title={done ? (last.solved ? 'Fall gelöst!' : 'Akte ungelöst') : 'Was steckt dahinter?'}
         onBack={onBack}
-        right={
-          <View style={styles.chip}>
-            <Text style={styles.chipValue}>{total}</Text>
-            <Text style={styles.chipLabel}>Punkte</Text>
-          </View>
-        }
+        right={<StatChip value={total} label="Punkte" color={colors.lilac} />}
       />
       <View style={styles.progress}>
         {akten.map((_, i) => (
@@ -341,9 +322,9 @@ export function DetectiveScreen({
             style={[
               styles.progressDot,
               i < results.length && {
-                backgroundColor: results[i].solved ? (results[i].genius ? GOLD : colors.gruen) : colors.signalrot,
+                backgroundColor: results[i].solved ? (results[i].genius ? colors.yellow : colors.mint) : colors.red,
               },
-              i === index && !done && { backgroundColor: colors.indigo },
+              i === index && !done && { backgroundColor: colors.violet },
             ]}
           />
         ))}
@@ -351,17 +332,15 @@ export function DetectiveScreen({
       <ScrollView ref={scroll} contentContainerStyle={[styles.content, L.wide && styles.contentWide]}>
         {!done && (
           <View style={styles.meter}>
-            <View style={{ flex: 1 }}>
-              <Text style={type.small}>Belohnung jetzt</Text>
+            <View style={{ flex: 1, minWidth: 150, gap: 2 }}>
+              <Text style={type.eyebrow}>Belohnung jetzt</Text>
               <Text style={styles.meterValue}>
                 {reward} <Text style={styles.meterUnit}>Punkte</Text>
               </Text>
-              <View style={styles.meterBar}>
-                <View style={[styles.meterFill, { width: `${(reward / AKTE_START) * 100}%` }]} />
-              </View>
+              <Bar pct={reward / AKTE_START} color={colors.violet} height={12} style={{ maxWidth: 260, marginTop: 4 }} />
             </View>
-            {combo > 0 && <Pill label={`🔥 Combo ${fmt(nextFactor)}`} color={colors.leuchtorange} />}
-            {revealed.length <= 1 && wrong.length === 0 && <Pill label="⭐ Geniestreich möglich" color={GOLD} light />}
+            {combo > 0 && <Pill label={`🔥 Combo ${fmt(nextFactor)}`} color={colors.orange} />}
+            {revealed.length <= 1 && wrong.length === 0 && <Pill label="⭐ Geniestreich möglich" color={colors.yellow} />}
           </View>
         )}
 
@@ -371,7 +350,7 @@ export function DetectiveScreen({
           </View>
           <Text style={styles.dossierLabel}>📟 Meldung der Leitstelle</Text>
           <Text style={styles.dossierText}>„{c.dispatch}“</Text>
-          <Text style={styles.dossierPlace}>{c.location}</Text>
+          <Text style={styles.dossierPlace}>📍 {c.location}</Text>
           {done && <Stamp kind={!last.solved ? 'fail' : last.genius ? 'gold' : 'ok'} />}
         </View>
 
@@ -380,67 +359,60 @@ export function DetectiveScreen({
             const open = revealed.includes(i) || done;
             const wasUsed = revealed.includes(i);
             return (
-              <Pressable
+              <Tap
                 key={i}
                 onPress={() => reveal(i)}
                 disabled={open}
-                accessibilityRole="button"
+                offset={3}
                 accessibilityLabel={open ? cl.label : `${cl.label} aufdecken`}
-                style={({ pressed }) => [
+                style={[
                   styles.clue,
                   L.wide && { width: '31.8%' },
                   open ? styles.clueOpen : styles.clueClosed,
                   done && !wasUsed && styles.clueUnused,
-                  pressed && { transform: [{ scale: 0.97 }] },
                 ]}
               >
                 <View style={styles.clueHead}>
                   <Text style={styles.clueIcon}>{cl.icon}</Text>
-                  <Text style={[styles.clueLabel, !open && { color: '#C9CCF5' }]}>{cl.label}</Text>
+                  <Text style={[styles.clueLabel, !open && { color: colors.lilac }]}>{cl.label}</Text>
                 </View>
                 {open ? (
                   <Text style={styles.clueText}>{cl.text}</Text>
                 ) : (
                   <Text style={styles.clueCost}>Aufdecken · −{CLUE_COST}</Text>
                 )}
-              </Pressable>
+              </Tap>
             );
           })}
         </View>
 
         {!done ? (
-          <View style={{ gap: spacing.sm }}>
+          <View style={{ gap: spacing.md }}>
             <View style={styles.suspectHead}>
               <Text style={type.h2}>Mein Verdacht</Text>
-              <Text style={type.small}>
+              <Text style={styles.tries}>
                 Versuche: {'●'.repeat(MAX_GUESSES - wrong.length)}
                 {'○'.repeat(wrong.length)}
               </Text>
             </View>
-            {akte.options.map((o) => {
+            {akte.options.map((o, idx) => {
               const isWrong = wrong.includes(o);
               return (
-                <Pressable
+                <AnswerOption
                   key={o}
-                  onPress={() => guess(o)}
+                  letter={LETTERS[idx]}
+                  text={isWrong ? `${o}  ✗ −${WRONG_COST}` : o}
+                  state={isWrong ? 'wrong' : 'idle'}
                   disabled={isWrong}
-                  accessibilityRole="button"
-                  style={({ pressed }) => [
-                    styles.suspect,
-                    isWrong && styles.suspectWrong,
-                    pressed && { transform: [{ scale: 0.98 }] },
-                  ]}
-                >
-                  <Text style={[styles.suspectText, isWrong && styles.suspectTextWrong]}>{o}</Text>
-                  {isWrong && <Text style={styles.suspectX}>✗ −{WRONG_COST}</Text>}
-                </Pressable>
+                  onPress={() => guess(o)}
+                />
               );
             })}
           </View>
         ) : (
           <>
-            <Card style={[{ gap: spacing.sm }, { borderLeftColor: last.solved ? colors.gruen : colors.signalrot }]}>
-              <Eyebrow title="Auflösung" />
+            <Card style={[{ gap: spacing.sm }, { borderLeftColor: last.solved ? colors.mint : colors.red }]}>
+              <Text style={[type.eyebrow, { marginTop: spacing.sm }]}>Auflösung</Text>
               <Text style={type.h2}>{c.diagnosis}</Text>
               <Text style={type.body}>{c.explanation}</Text>
               <Text style={[type.headline, { marginTop: spacing.xs }]}>Die Beweise (Leitsymptome)</Text>
@@ -451,7 +423,7 @@ export function DetectiveScreen({
               ))}
             </Card>
             <Card style={{ gap: 6 }}>
-              <Eyebrow title="Meine Belohnung" />
+              <Text style={type.eyebrow}>Meine Belohnung</Text>
               {last.solved ? (
                 <>
                   <Row
@@ -477,11 +449,11 @@ export function DetectiveScreen({
   );
 }
 
-function Kpi({ value, label }: { value: string; label: string }) {
+function Kpi({ value, label, color }: { value: string; label: string; color: string }) {
   return (
-    <View style={styles.kpi}>
+    <View style={[styles.kpi, { backgroundColor: color }]}>
       <Text style={styles.kpiValue}>{value}</Text>
-      <Text style={[type.small, { textAlign: 'center' }]}>{label}</Text>
+      <Text style={[type.eyebrow, { textAlign: 'center', fontSize: 9.5 }]}>{label}</Text>
     </View>
   );
 }
@@ -489,7 +461,7 @@ function Kpi({ value, label }: { value: string; label: string }) {
 function Rule({ icon, text }: { icon: string; text: string }) {
   return (
     <View style={{ flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start' }}>
-      <Text style={{ fontSize: 18, width: 24 }}>{icon}</Text>
+      <Text style={{ fontSize: 18, width: 24, fontFamily: fonts.regular }}>{icon}</Text>
       <Text style={[type.body, { flex: 1 }]}>{text}</Text>
     </View>
   );
@@ -499,7 +471,7 @@ function Row({ label, value, strong }: { label: string; value: string; strong?: 
   return (
     <View style={[styles.row, strong && styles.rowStrong]}>
       <Text style={[type.body, { flex: 1 }, strong && { fontFamily: fonts.bold }]}>{label}</Text>
-      <Text style={[type.body, { fontFamily: strong ? fonts.extrabold : fonts.semibold }]}>{value}</Text>
+      <Text style={[type.body, { fontFamily: strong ? fonts.displayBlack : fonts.semibold }]}>{value}</Text>
     </View>
   );
 }
@@ -507,103 +479,122 @@ function Row({ label, value, strong }: { label: string; value: string; strong?: 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   contentWide: { padding: spacing.xl },
-  hero: { borderRadius: radius.lg, overflow: 'hidden', padding: spacing.xl, gap: spacing.sm, ...shadow },
-  heroIcon: { fontSize: 44, lineHeight: 54 },
-  heroTitle: { color: colors.weiss, fontFamily: fonts.extrabold, fontSize: 26, lineHeight: 31, letterSpacing: -0.5 },
-  heroSub: { color: 'rgba(255,255,255,0.85)', fontFamily: fonts.medium, fontSize: 15, lineHeight: 21 },
+  hero: {
+    backgroundColor: colors.violet,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 28,
+    overflow: 'hidden',
+    padding: spacing.lg + 2,
+    gap: spacing.md,
+    ...hardShadow(6),
+  },
+  heroTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  heroIcon: { fontSize: 48, lineHeight: 58, fontFamily: fonts.regular },
+  heroTitle: { color: colors.white, fontFamily: fonts.displayBlack, fontSize: 30, lineHeight: 32, letterSpacing: -1 },
+  heroSub: { color: colors.white, fontFamily: fonts.medium, fontSize: 15, lineHeight: 21 },
   gradeBox: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    borderRadius: radius.md,
+    backgroundColor: colors.white,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 20,
     padding: spacing.md,
-    marginTop: spacing.sm,
   },
-  gradeIcon: { fontSize: 38, lineHeight: 46 },
-  gradeKicker: { color: '#C9CCF5', fontFamily: fonts.medium, fontSize: 12 },
-  gradeTitle: { color: colors.weiss, fontFamily: fonts.bold, fontSize: 19, letterSpacing: -0.3 },
-  gradeBar: { height: 6, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 3, marginVertical: 6, overflow: 'hidden' },
-  gradeFill: { height: 6, backgroundColor: GOLD, borderRadius: 3 },
-  gradeNext: { color: '#C9CCF5', fontFamily: fonts.regular, fontSize: 12 },
-  heroBtn: {
-    backgroundColor: colors.weiss,
-    borderRadius: 14,
-    minHeight: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: spacing.sm,
-    alignSelf: 'stretch',
-  },
-  heroBtnText: { color: NOIR[0], fontFamily: fonts.bold, fontSize: 17 },
-  total: { color: GOLD, fontFamily: fonts.extrabold, fontSize: 56, lineHeight: 62, letterSpacing: -1.5 },
+  gradeIcon: { fontSize: 38, lineHeight: 46, fontFamily: fonts.regular },
+  gradeTitle: { fontFamily: fonts.displayBlack, fontSize: 21, lineHeight: 23, color: colors.ink, letterSpacing: -0.6 },
+  total: { color: colors.yellow, fontFamily: fonts.displayBlack, fontSize: 64, lineHeight: 70, letterSpacing: -2.5 },
   money: {
-    backgroundColor: 'rgba(255,255,255,0.14)',
-    borderRadius: radius.pill,
+    backgroundColor: colors.white,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 999,
     paddingHorizontal: 14,
     paddingVertical: 8,
     marginTop: spacing.sm,
   },
-  moneyText: { color: colors.weiss, fontFamily: fonts.semibold, fontSize: 14, textAlign: 'center' },
+  moneyText: { color: colors.ink, fontFamily: fonts.display, fontSize: 14, textAlign: 'center' },
   promo: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  kpis: { flexDirection: 'row', gap: spacing.sm },
+  kpis: { flexDirection: 'row', gap: spacing.md },
   kpi: {
     flex: 1,
-    backgroundColor: colors.weiss,
-    borderRadius: radius.md,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 18,
     paddingVertical: spacing.md,
     paddingHorizontal: 4,
     alignItems: 'center',
-    ...shadow,
+    ...hardShadow(3),
   },
-  kpiValue: { fontFamily: fonts.extrabold, fontSize: 22, color: colors.graphit, letterSpacing: -0.5 },
+  kpiValue: { fontFamily: fonts.displayBlack, fontSize: 24, lineHeight: 27, color: colors.ink, letterSpacing: -0.7 },
   archive: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   folder: {
     width: '31.5%',
-    backgroundColor: PAPER,
-    borderRadius: 12,
+    backgroundColor: colors.butter,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 14,
     padding: spacing.sm,
     alignItems: 'center',
-    minHeight: 78,
+    minHeight: 82,
     gap: 2,
+    ...hardShadow(2),
   },
-  folderLocked: { backgroundColor: colors.grau200 },
-  folderIcon: { fontSize: 24, lineHeight: 30 },
-  folderText: { fontFamily: fonts.semibold, fontSize: 11, lineHeight: 14, color: colors.graphit, textAlign: 'center' },
-  chip: { alignItems: 'center', backgroundColor: '#ECEBFB', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 3 },
-  chipValue: { color: colors.indigo, fontFamily: fonts.bold, fontSize: 17 },
-  chipLabel: { color: colors.indigo, fontFamily: fonts.medium, fontSize: 10 },
-  progress: { flexDirection: 'row', gap: 6, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
-  progressDot: { flex: 1, height: 6, borderRadius: 3, backgroundColor: colors.grau200 },
+  folderLocked: { backgroundColor: colors.white, borderStyle: 'dashed', borderColor: colors.grau300, boxShadow: 'none' },
+  folderGold: { backgroundColor: colors.yellow },
+  folderIcon: { fontSize: 24, lineHeight: 30, fontFamily: fonts.regular },
+  folderText: {
+    fontFamily: fonts.display,
+    fontSize: 11.5,
+    lineHeight: 14,
+    color: colors.ink,
+    textAlign: 'center',
+    letterSpacing: -0.2,
+  },
+  progress: { flexDirection: 'row', gap: 6, paddingHorizontal: spacing.lg, paddingBottom: spacing.sm },
+  progressDot: { flex: 1, height: 12, borderRadius: 6, backgroundColor: colors.white, borderWidth: 2, borderColor: colors.ink },
   meter: {
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
     gap: spacing.sm,
-    backgroundColor: colors.weiss,
-    borderRadius: radius.md,
+    backgroundColor: colors.white,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 22,
     padding: spacing.lg,
-    ...shadow,
+    ...hardShadow(4),
   },
-  meterValue: { fontFamily: fonts.extrabold, fontSize: 28, color: colors.indigo, letterSpacing: -0.6 },
-  meterUnit: { fontFamily: fonts.medium, fontSize: 14, color: colors.grau500 },
-  meterBar: { height: 6, backgroundColor: colors.grau200, borderRadius: 3, marginTop: 6, overflow: 'hidden', maxWidth: 260 },
-  meterFill: { height: 6, backgroundColor: colors.indigo, borderRadius: 3 },
-  dossier: { backgroundColor: PAPER, borderRadius: radius.md, padding: spacing.lg, paddingTop: spacing.xl, gap: 6, ...shadow },
+  meterValue: { fontFamily: fonts.displayBlack, fontSize: 34, lineHeight: 36, color: colors.violet, letterSpacing: -1.2 },
+  meterUnit: { fontFamily: fonts.mono, fontSize: 13, color: colors.muted, letterSpacing: 0.4 },
+  dossier: {
+    backgroundColor: colors.butter,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 22,
+    padding: spacing.lg,
+    paddingTop: spacing.xl,
+    gap: 6,
+    marginTop: 12,
+    ...hardShadow(4),
+  },
   dossierTab: {
     position: 'absolute',
-    top: 0,
+    top: -14,
     left: spacing.lg,
-    backgroundColor: '#E9D9B0',
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
+    backgroundColor: colors.yellow,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 10,
     paddingHorizontal: 10,
-    paddingVertical: 3,
+    paddingVertical: 2,
   },
-  dossierTabText: { fontFamily: fonts.bold, fontSize: 10, letterSpacing: 1, color: '#7A5B12', textTransform: 'uppercase' },
-  dossierLabel: { fontFamily: fonts.semibold, fontSize: 13, color: '#7A5B12' },
-  dossierText: { fontFamily: fonts.bold, fontSize: 18, lineHeight: 24, color: colors.graphit, letterSpacing: -0.3 },
-  dossierPlace: { fontFamily: fonts.medium, fontSize: 13, color: '#8A7A55' },
+  dossierTabText: { fontFamily: fonts.mono, fontSize: 10.5, letterSpacing: 1, color: colors.ink, textTransform: 'uppercase' },
+  dossierLabel: { fontFamily: fonts.mono, fontSize: 12, color: colors.inkSoft },
+  dossierText: { fontFamily: fonts.displayBlack, fontSize: 21, lineHeight: 25, color: colors.ink, letterSpacing: -0.6 },
+  dossierPlace: { fontFamily: fonts.mono, fontSize: 12, color: colors.inkSoft },
   stamp: {
     position: 'absolute',
     right: spacing.lg,
@@ -612,35 +603,32 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    backgroundColor: 'rgba(251,244,226,0.85)',
+    backgroundColor: 'rgba(255,233,168,0.9)',
   },
-  stampText: { fontFamily: fonts.extrabold, fontSize: 16, letterSpacing: 1.5, textTransform: 'uppercase' },
-  clues: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  clue: { width: '48.5%', flexGrow: 1, borderRadius: 16, padding: spacing.md, minHeight: 96, gap: 6 },
-  clueClosed: { backgroundColor: NOIR[0] },
-  clueOpen: { backgroundColor: colors.weiss, ...shadow },
-  clueUnused: { opacity: 0.55 },
+  stampText: { fontFamily: fonts.displayBlack, fontSize: 16, letterSpacing: 1, textTransform: 'uppercase' },
+  clues: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+  clue: {
+    width: '47%',
+    flexGrow: 1,
+    borderRadius: 18,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    padding: spacing.md,
+    minHeight: 98,
+    gap: 6,
+  },
+  clueClosed: { backgroundColor: colors.ink },
+  clueOpen: { backgroundColor: colors.white, transform: [{ translateY: 3 }] },
+  clueUnused: { opacity: 0.5 },
   clueHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  clueIcon: { fontSize: 18 },
-  clueLabel: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau500 },
-  clueText: { fontFamily: fonts.medium, fontSize: 14, lineHeight: 19, color: colors.graphit },
-  clueCost: { fontFamily: fonts.semibold, fontSize: 14, color: colors.weiss, marginTop: 'auto' },
+  clueIcon: { fontSize: 18, fontFamily: fonts.regular },
+  clueLabel: { fontFamily: fonts.mono, fontSize: 11.5, letterSpacing: 0.5, color: colors.muted, textTransform: 'uppercase' },
+  clueText: { fontFamily: fonts.medium, fontSize: 14, lineHeight: 19, color: colors.ink },
+  clueCost: { fontFamily: fonts.displayBlack, fontSize: 15, color: colors.yellow, marginTop: 'auto', letterSpacing: -0.2 },
   suspectHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
-  suspect: {
-    backgroundColor: colors.weiss,
-    borderRadius: 14,
-    padding: spacing.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    ...shadow,
-  },
-  suspectWrong: { backgroundColor: '#FFE5E3' },
-  suspectText: { flex: 1, fontFamily: fonts.semibold, fontSize: 17, color: colors.graphit },
-  suspectTextWrong: { color: colors.signalrot, textDecorationLine: 'line-through' },
-  suspectX: { fontFamily: fonts.bold, fontSize: 14, color: colors.signalrot },
+  tries: { fontFamily: fonts.mono, fontSize: 13, color: colors.muted },
   line: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: 4 },
-  linePts: { fontFamily: fonts.extrabold, fontSize: 17, color: colors.graphit },
+  linePts: { fontFamily: fonts.displayBlack, fontSize: 18, color: colors.ink, letterSpacing: -0.4 },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  rowStrong: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.grau300, paddingTop: 6, marginTop: 2 },
+  rowStrong: { borderTopWidth: 2, borderTopColor: colors.ink, paddingTop: 6, marginTop: 2 },
 });

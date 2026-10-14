@@ -16,6 +16,11 @@ export const SIDEBAR_FROM = 1000;
 const FrameWidth = createContext<number | null>(null);
 export const FrameWidthProvider = FrameWidth.Provider;
 
+/** Zeigt, ob links gerade die feste Seitenleiste steht (dann braucht die Startseite keine eigene Kopfzeile mit Marke) */
+const Sidebar = createContext(false);
+export const SidebarProvider = Sidebar.Provider;
+export const useSidebar = () => useContext(Sidebar);
+
 export function modeFor(width: number): LayoutMode {
   if (width >= 980) return 'desktop';
   if (width >= 680) return 'tablet';
@@ -40,7 +45,17 @@ export const desktopShell: 'mac' | 'windows' | null = /Electron/.test(ua)
   : null;
 
 /** Mehrere Spalten nebeneinander – auf dem Handy einfach untereinander. */
-export function Columns({ wide, cols, weights, gap = spacing.lg }: { wide: boolean; cols: ReactNode[]; weights?: number[]; gap?: number }) {
+export function Columns({
+  wide,
+  cols,
+  weights,
+  gap = spacing.lg,
+}: {
+  wide: boolean;
+  cols: ReactNode[];
+  weights?: number[];
+  gap?: number;
+}) {
   if (!wide) return <>{cols}</>;
   return (
     <View style={{ flexDirection: 'row', gap, alignItems: 'flex-start' }}>

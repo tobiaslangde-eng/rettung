@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { DriveAnimation } from '../components/DriveAnimation';
-import { Button, Card, Eyebrow, TopBar } from '../components/UI';
+import { Bar, Button, Card, IconTile, Led, Pill, StatChip, Tap, TopBar } from '../components/UI';
 import { AskKati, Kati } from '../components/Kati';
 import { MedCase } from '../data/cases';
 import { INCIDENTS, INCIDENT_CONDITION } from '../data/incidents';
@@ -10,7 +10,7 @@ import { DifficultyDef, HINT_COST } from '../game/difficulty';
 import { EquipmentEffects } from '../game/equipment';
 import { CONDITION, CaseRun, MINUTES_PER_MEASUREMENT, clampCondition, shuffle } from '../game/scoring';
 import { Columns, useLayout } from '../layout';
-import { colors, fonts, monitor, spacing, type } from '../theme';
+import { colors, fonts, hardShadow, monitor, spacing, type } from '../theme';
 
 type Phase = 'alarm' | 'drive' | 'exam' | 'diagnosis' | 'treatment';
 
@@ -36,9 +36,57 @@ function mood(condition: number) {
 }
 
 function conditionColor(condition: number) {
-  if (condition >= 70) return colors.gruen;
-  if (condition >= 40) return colors.amber;
-  return colors.signalrot;
+  if (condition >= 70) return colors.mint;
+  if (condition >= 40) return colors.orange;
+  return colors.red;
+}
+
+/** Farbe der drei Einstufungs-Knöpfe (verrät nicht die richtige Antwort) */
+const RATE_COLOR: Record<Rating, string> = { niedrig: '#9BD8FF', normal: '#8CF0C8', hoch: '#FFB38A' };
+
+const ANSWER_LETTERS = ['A', 'B', 'C', 'D'];
+
+function patientEmoji(age: number, sex: 'm' | 'w') {
+  if (age <= 1) return '👶';
+  if (age <= 12) return sex === 'm' ? '👦' : '👧';
+  if (age >= 70) return sex === 'm' ? '👴' : '👵';
+  return sex === 'm' ? '👨' : '👩';
+}
+
+/** Farbiges Etikett über einem Text-Block (wie ein Karteireiter) */
+function Label({ text, color }: { text: string; color: string }) {
+  return (
+    <View style={[styles.label, { backgroundColor: color }]}>
+      <Text style={styles.labelText}>{text}</Text>
+    </View>
+  );
+}
+
+/** Meldeempfänger („Pager“): Die Meldung der Leitstelle erscheint auf dem Display. */
+function Pager({ dispatch, location }: { dispatch: string; location: string }) {
+  const now = new Date();
+  const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  return (
+    <View style={styles.pager}>
+      <View style={styles.pagerTop}>
+        <Text style={styles.pagerBrand}>MELDEEMPFÄNGER</Text>
+        <Led color={colors.red} size={10} />
+      </View>
+      <View style={styles.lcd}>
+        <View style={styles.lcdHead}>
+          <Text style={styles.lcdMeta}>ALARM · RTW</Text>
+          <Text style={styles.lcdMeta}>{hhmm}</Text>
+        </View>
+        <Text style={styles.lcdText}>{dispatch}</Text>
+        <Text style={styles.lcdLoc}>📍 {location}</Text>
+      </View>
+      <View style={styles.pagerBtns}>
+        {[0, 1, 2].map((i) => (
+          <View key={i} style={styles.pagerBtn} />
+        ))}
+      </View>
+    </View>
+  );
 }
 
 export function CaseScreen({
@@ -199,33 +247,42 @@ export function CaseScreen({
         kicker={`Schritt ${stepIndex + 1} von ${STEPS.length}`}
         title={STEPS[stepIndex].de}
         onBack={onAbort}
-        right={
-          <View style={styles.clock}>
-            <Text style={styles.clockValue}>{minutes}′</Text>
-            <Text style={styles.clockLabel}>Min.</Text>
-          </View>
-        }
+        right={<StatChip value={`${minutes}′`} label="Min." color={colors.blueTint} />}
       />
       <View style={styles.steps}>
         {STEPS.map((s, i) => (
-          <View key={s.phase} style={[styles.step, i <= stepIndex && styles.stepActive]}>
-            <Text style={[styles.stepText, i <= stepIndex && { color: colors.weiss }]}>{s.de}</Text>
+          <View key={s.phase} style={styles.stepItem}>
+            <View style={styles.stepRow}>
+              <View style={[styles.stepLine, i === 0 && { opacity: 0 }, i <= stepIndex && styles.stepLineOn]} />
+              <View style={[styles.stepDot, i < stepIndex && styles.stepDotDone, i === stepIndex && styles.stepDotNow]}>
+                <Text style={[styles.stepNum, i < stepIndex && { color: colors.white }]}>{i < stepIndex ? '✓' : i + 1}</Text>
+              </View>
+              <View style={[styles.stepLine, i === STEPS.length - 1 && { opacity: 0 }, i < stepIndex && styles.stepLineOn]} />
+            </View>
+            <Text
+              style={[styles.stepText, i === stepIndex && { fontFamily: fonts.displayBlack, color: colors.ink }]}
+              numberOfLines={1}
+            >
+              {s.de}
+            </Text>
           </View>
         ))}
       </View>
       {phase !== 'alarm' && (
         <View style={styles.condition}>
-          <Text style={styles.mood}>{mood(condition)}</Text>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.conditionLabel}>
-              Zustand von {firstName}
-              {draining ? '  · verschlechtert sich!' : ''}
-            </Text>
-            <View style={styles.conditionTrack}>
-              <View style={[styles.conditionFill, { width: `${condition}%`, backgroundColor: conditionColor(condition) }]} />
-            </View>
+          <View style={styles.moodCircle}>
+            <Text style={styles.mood}>{mood(condition)}</Text>
           </View>
-          <Text style={styles.conditionValue}>{Math.round(condition)}%</Text>
+          <View style={{ flex: 1, gap: 4 }}>
+            <View style={styles.conditionHead}>
+              <Text style={styles.conditionLabel} numberOfLines={1}>
+                Zustand von {firstName}
+                {draining ? ' · verschlechtert sich!' : ''}
+              </Text>
+              <Text style={styles.conditionValue}>{Math.round(condition)}%</Text>
+            </View>
+            <Bar pct={condition / 100} color={conditionColor(condition)} height={14} />
+          </View>
         </View>
       )}
 
@@ -238,20 +295,17 @@ export function CaseScreen({
       >
         {phase === 'alarm' && (
           <>
-            <View style={styles.alarm}>
-              <View style={styles.alarmBody}>
-                {daily && <Text style={styles.dailyTag}>⭐ Einsatz des Tages · +50 % Punkte</Text>}
-                <Text style={styles.alarmEyebrow}>📟 Alarm · Mein Melder piept!</Text>
-                <Text style={styles.alarmText}>Leitstelle: „{medCase.dispatch}“</Text>
-                <Text style={styles.alarmLoc}>{medCase.location}</Text>
+            {daily && <Pill label="⭐ Einsatz des Tages · +50 % Punkte" color={colors.yellow} />}
+            <Pager dispatch={`Leitstelle: „${medCase.dispatch}“`} location={medCase.location} />
+            <Card style={styles.patientCard}>
+              <IconTile icon={patientEmoji(p.age, p.sex)} color={colors.skyStrong + '55'} size={56} />
+              <View style={{ flex: 1 }}>
+                <Text style={type.eyebrow}>Patient</Text>
+                <Text style={type.h2}>{p.name}</Text>
+                <Text style={type.small}>
+                  {p.sex === 'm' ? 'männlich' : 'weiblich'}, {p.age} Jahre · {difficulty.label} {difficulty.icon}
+                </Text>
               </View>
-            </View>
-            <Card>
-              <Eyebrow title="Patient" />
-              <Text style={[type.h2, { marginTop: spacing.xs }]}>{p.name}</Text>
-              <Text style={type.small}>
-                {p.sex === 'm' ? 'männlich' : 'weiblich'}, {p.age} Jahre · {difficulty.label} {difficulty.icon}
-              </Text>
             </Card>
             <Kati>
               Komm, schnapp dir den Notfallrucksack – wir fahren! Denk dran: Jede Messung kostet Zeit
@@ -268,29 +322,29 @@ export function CaseScreen({
               weights={[5, 6]}
               cols={[
                 <>
-                  <Card style={{ borderLeftColor: colors.signalrot }}>
-                    <Eyebrow title="Ich komme an" />
-                    <Text style={[type.body, { marginTop: spacing.xs, fontFamily: fonts.italic }]}>{medCase.scene}</Text>
+                  <Card>
+                    <Label text="Ich komme an" color={colors.redTint} />
+                    <Text style={[type.body, styles.sceneText]}>{medCase.scene}</Text>
                   </Card>
                   <Card>
-                    <Eyebrow title="Was ich höre" />
+                    <Label text="Was ich höre" color={colors.sky} />
                     {medCase.anamnese.map((a, i) => (
-                      <Text key={i} style={[type.body, { marginTop: spacing.xs }]}>
+                      <Text key={i} style={[type.body, styles.bullet]}>
                         • {a}
                       </Text>
                     ))}
                   </Card>
-                  <Card style={{ borderLeftColor: colors.graphit }}>
-                    <Eyebrow title="Was ich sehe" />
+                  <Card>
+                    <Label text="Was ich sehe" color={colors.mintTint} />
                     {medCase.befund.map((b, i) => (
-                      <Text key={i} style={[type.body, { marginTop: spacing.xs }]}>
+                      <Text key={i} style={[type.body, styles.bullet]}>
                         • {b}
                       </Text>
                     ))}
                   </Card>
                 </>,
                 <>
-                  <Eyebrow title="Was messe ich?" />
+                  <Label text="Was messe ich?" color={colors.yellow} />
                   <View style={styles.grid}>
                     {VITALS.map((v) => {
                       const done = measured.find((m) => m.id === v.id);
@@ -299,13 +353,16 @@ export function CaseScreen({
                       const truth = rateVital(v.id, value, medCase.patient.age);
                       const right = done && truth !== null && difficulty.instantFeedback ? done.guess === truth : null;
                       return (
-                        <Pressable
+                        <Tap
                           key={v.id}
                           onPress={() => measure(v.id)}
                           disabled={!!done || !!pending}
+                          offset={3}
+                          accessibilityLabel={`${v.name} messen`}
                           style={[
                             styles.tile,
                             v.textOnly && styles.tileWide,
+                            !!done && styles.tileDone,
                             isPending && styles.tilePending,
                             right === true && styles.tileRight,
                             right === false && styles.tileWrong,
@@ -317,21 +374,23 @@ export function CaseScreen({
                           </View>
                           <Text style={styles.tileName}>{v.name}</Text>
                           {done || isPending ? (
-                            <Text style={[styles.tileValue, v.textOnly && { fontFamily: fonts.regular, fontSize: 14 }]}>
+                            <Text
+                              style={[styles.tileValue, v.textOnly && { fontFamily: fonts.medium, fontSize: 14, lineHeight: 19 }]}
+                            >
                               {formatVital(v.id, value)}
                             </Text>
                           ) : (
-                            <Text style={styles.tileTap}>Messen ›</Text>
+                            <Text style={styles.tileTap}>Messen ▶</Text>
                           )}
                           {done && truth !== null && right !== null && (
-                            <Text style={[styles.tileFeedback, { color: right ? colors.gruen : colors.signalrot }]}>
+                            <Text style={[styles.tileFeedback, { color: right ? colors.mintDark : colors.redDark }]}>
                               {right ? `✓ ${truth}` : `✗ eigentlich ${truth}`} · Norm {normalText(v.id, medCase.patient.age)}
                             </Text>
                           )}
                           {done && truth !== null && right === null && (
-                            <Text style={[styles.tileFeedback, { color: colors.grau500 }]}>meine Einschätzung: {done.guess}</Text>
+                            <Text style={[styles.tileFeedback, { color: colors.muted }]}>meine Einschätzung: {done.guess}</Text>
                           )}
-                        </Pressable>
+                        </Tap>
                       );
                     })}
                   </View>
@@ -364,8 +423,8 @@ export function CaseScreen({
         {phase === 'diagnosis' && (
           <>
             <Card>
-              <Eyebrow title="Meine Befunde" />
-              <Text style={[type.small, { marginTop: spacing.xs }]}>{medCase.befund.join(' · ')}</Text>
+              <Label text="Meine Befunde" color={colors.yellow} />
+              <Text style={[type.small, { marginTop: spacing.sm }]}>{medCase.befund.join(' · ')}</Text>
               <View style={styles.summaryRow}>
                 {measured.map((m) => (
                   <Text key={m.id} style={styles.summaryChip}>
@@ -375,31 +434,50 @@ export function CaseScreen({
               </View>
             </Card>
             <Text style={type.h2}>Ich überlege … was hat {firstName}?</Text>
-            {diagnosisOptions.map((d) => {
+            {diagnosisOptions.map((d, idx) => {
               const removed = fiftyFifty && removedByFifty.includes(d);
               const selected = diagnosisGuess === d;
               const isCorrect = d === medCase.diagnosis;
               const reveal = diagnosisLocked && difficulty.instantFeedback;
               let style = selected ? styles.optionSelected : null;
-              if (reveal && isCorrect) style = styles.optionRight;
-              else if (reveal && selected) style = styles.optionWrong;
+              let ink = colors.ink;
+              if (selected) ink = colors.white;
+              if (reveal && isCorrect) {
+                style = styles.optionRight;
+                ink = colors.ink;
+              } else if (reveal && selected) {
+                style = styles.optionWrong;
+                ink = colors.white;
+              }
               return (
-                <Pressable
+                <Tap
                   key={d}
                   disabled={diagnosisLocked || removed}
                   onPress={() => setDiagnosisGuess(d)}
-                  style={[styles.option, style, removed && styles.optionRemoved]}
+                  offset={removed || selected ? 0 : 4}
+                  accessibilityLabel={d}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected }}
+                  style={[
+                    styles.option,
+                    style,
+                    removed && styles.optionRemoved,
+                    selected && !removed && { transform: [{ translateY: 3 }] },
+                  ]}
                 >
+                  <View style={[styles.letter, selected && { backgroundColor: colors.white }, removed && { opacity: 0.4 }]}>
+                    <Text style={styles.letterText}>{ANSWER_LETTERS[idx]}</Text>
+                  </View>
                   <Text
                     style={[
                       styles.optionText,
-                      (selected || (reveal && isCorrect)) && { color: colors.weiss },
+                      { color: ink },
                       removed && { textDecorationLine: 'line-through', color: colors.grau300 },
                     ]}
                   >
                     {d}
                   </Text>
-                </Pressable>
+                </Tap>
               );
             })}
             {!diagnosisLocked && !fiftyFifty && difficulty.hints !== 'keine' && (
@@ -439,14 +517,18 @@ export function CaseScreen({
               const t = medCase.treatments[i];
               const on = treatmentGuess.includes(i);
               return (
-                <Pressable
+                <Tap
                   key={i}
                   onPress={() => setTreatmentGuess((g) => (on ? g.filter((x) => x !== i) : [...g, i]))}
+                  offset={on ? 0 : 3}
+                  accessibilityRole="checkbox"
+                  accessibilityLabel={t.text}
+                  accessibilityState={{ checked: on }}
                   style={[styles.check, on && styles.checkOn]}
                 >
                   <View style={[styles.box, on && styles.boxOn]}>{on && <Text style={styles.boxTick}>✓</Text>}</View>
-                  <Text style={[type.body, { flex: 1 }]}>{t.text}</Text>
-                </Pressable>
+                  <Text style={[type.body, { flex: 1, fontFamily: on ? fonts.semibold : fonts.regular }]}>{t.text}</Text>
+                </Tap>
               );
             })}
             <Button label="Los, ich handle!" variant="alarm" disabled={treatmentGuess.length === 0} onPress={finish} />
@@ -463,20 +545,22 @@ export function CaseScreen({
               const reveal = !!incidentChoice && difficulty.instantFeedback;
               const isRight = o === incident.options[0];
               return (
-                <Pressable
+                <Tap
                   key={o}
                   disabled={!!incidentChoice}
                   onPress={() => chooseIncident(o)}
+                  offset={4}
+                  accessibilityLabel={o}
                   style={[
                     styles.incidentOption,
                     chosen && styles.incidentChosen,
                     reveal && isRight && styles.incidentRight,
                     reveal && chosen && !isRight && styles.incidentWrong,
-                    !!incidentChoice && !chosen && !(reveal && isRight) && { opacity: 0.45 },
+                    !!incidentChoice && !chosen && !(reveal && isRight) && { opacity: 0.5 },
                   ]}
                 >
-                  <Text style={[styles.incidentOptionText, (chosen || (reveal && isRight)) && { color: colors.weiss }]}>{o}</Text>
-                </Pressable>
+                  <Text style={[styles.incidentOptionText, chosen && !(reveal && isRight) && { color: colors.white }]}>{o}</Text>
+                </Tap>
               );
             })}
             {incidentChoice && (
@@ -493,7 +577,7 @@ export function CaseScreen({
         </View>
       )}
       {phase === 'exam' && pending && (
-        <View style={[styles.ratePanel, { paddingHorizontal: sidePad }]}>
+        <View style={[styles.ratePanel, { paddingHorizontal: Math.max(spacing.lg, sidePad) }]}>
           <Text style={styles.rateAction}>{VITAL_BY_ID[pending].action}</Text>
           <Text style={[styles.rateValue, { color: monitor[pending] }]}>{formatVital(pending, medCase.vitals[pending])}</Text>
           {difficulty.showNormBeforeRating && (
@@ -502,10 +586,17 @@ export function CaseScreen({
           <Text style={styles.rateQ}>Wie schätze ich den Wert ein?</Text>
           <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm }}>
             {RATINGS.map((r) => (
-              <Pressable key={r.value} style={styles.rateBtn} onPress={() => rate(r.value)}>
+              <Tap
+                key={r.value}
+                onPress={() => rate(r.value)}
+                offset={4}
+                shadowColor="rgba(255,255,255,0.3)"
+                accessibilityLabel={r.label}
+                style={[styles.rateBtn, { backgroundColor: RATE_COLOR[r.value] }]}
+              >
                 <Text style={styles.rateSymbol}>{r.symbol}</Text>
                 <Text style={styles.rateLabel}>{r.label}</Text>
-              </Pressable>
+              </Tap>
             ))}
           </View>
         </View>
@@ -516,150 +607,244 @@ export function CaseScreen({
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
-  clock: {
+
+  // Stationen-Leiste: Alarm → Untersuchung → Diagnose → Maßnahmen
+  steps: { flexDirection: 'row', paddingHorizontal: spacing.md, paddingTop: 2, paddingBottom: spacing.sm },
+  stepItem: { flex: 1, alignItems: 'center', gap: 3 },
+  stepRow: { flexDirection: 'row', alignItems: 'center', alignSelf: 'stretch' },
+  stepLine: { flex: 1, height: 3, backgroundColor: colors.grau300, borderRadius: 2 },
+  stepLineOn: { backgroundColor: colors.ink },
+  stepDot: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderStyle: 'dashed',
+    backgroundColor: colors.white,
     alignItems: 'center',
-    backgroundColor: colors.blaulichtLight,
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
+    justifyContent: 'center',
   },
-  clockValue: { color: colors.blaulicht, fontFamily: fonts.bold, fontSize: 17 },
-  clockLabel: { color: colors.blaulicht, fontFamily: fonts.medium, fontSize: 10 },
-  steps: {
-    flexDirection: 'row',
-    gap: 4,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.grau50,
-  },
-  step: { flex: 1, paddingVertical: 5, alignItems: 'center', borderRadius: 16, backgroundColor: colors.grau200 },
-  stepActive: { backgroundColor: colors.blaulicht },
-  stepText: { fontSize: 11, fontFamily: fonts.semibold, color: colors.grau500 },
+  stepDotDone: { backgroundColor: colors.ink, borderStyle: 'solid' },
+  stepDotNow: { backgroundColor: colors.yellow, borderStyle: 'solid', ...hardShadow(2) },
+  stepNum: { fontFamily: fonts.displayBlack, fontSize: 13, color: colors.ink },
+  stepText: { fontFamily: fonts.mono, fontSize: 10, color: colors.muted, letterSpacing: 0.3 },
+
   condition: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.weiss,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.grau200,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.xs,
+    padding: spacing.sm,
+    backgroundColor: colors.white,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 18,
+    ...hardShadow(3),
   },
-  mood: { fontFamily: fonts.regular, fontSize: 26 },
-  conditionLabel: { fontSize: 11, fontFamily: fonts.bold, color: colors.grau500, letterSpacing: 0.5 },
-  conditionTrack: { height: 8, backgroundColor: colors.grau200, marginTop: 4 },
-  conditionFill: { height: 8 },
-  conditionValue: { fontFamily: fonts.extrabold, fontSize: 15, color: colors.graphit, width: 44, textAlign: 'right' },
-  alarm: { backgroundColor: colors.signalrot, borderRadius: 14, overflow: 'hidden' },
-  alarmBody: { padding: spacing.lg },
-  dailyTag: {
+  moodCircle: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: colors.yellowTint,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mood: { fontFamily: fonts.regular, fontSize: 22, lineHeight: 28 },
+  conditionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: spacing.sm },
+  conditionLabel: { ...type.eyebrow, flex: 1, fontSize: 10.5 },
+  conditionValue: { fontFamily: fonts.displayBlack, fontSize: 16, color: colors.ink, letterSpacing: -0.4 },
+
+  // Etikett (Karteireiter) und Textblöcke
+  label: {
     alignSelf: 'flex-start',
-    backgroundColor: colors.warngelb,
-    color: colors.graphit,
-    fontFamily: fonts.extrabold,
-    fontSize: 12,
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    marginBottom: spacing.sm,
-    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: colors.ink,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 2,
   },
-  alarmEyebrow: {
-    color: colors.weiss,
-    fontFamily: fonts.extrabold,
-    letterSpacing: 0.4,
-    fontSize: 11,
-    textTransform: 'uppercase',
+  labelText: { fontFamily: fonts.mono, fontSize: 10.5, letterSpacing: 1, textTransform: 'uppercase', color: colors.ink },
+  sceneText: { marginTop: spacing.sm, fontFamily: fonts.italic },
+  bullet: { marginTop: spacing.sm - 2 },
+  patientCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+
+  // Meldeempfänger
+  pager: {
+    backgroundColor: colors.inkSoft,
+    borderRadius: 28,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    padding: spacing.md,
+    gap: spacing.sm,
+    ...hardShadow(5),
   },
-  alarmText: { color: colors.weiss, fontSize: 22, fontFamily: fonts.display, marginTop: spacing.sm, lineHeight: 27 },
-  alarmLoc: { color: colors.weiss, marginTop: spacing.sm, opacity: 0.9, fontFamily: fonts.italic, fontSize: 14 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  pagerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: spacing.xs },
+  pagerBrand: { fontFamily: fonts.mono, fontSize: 10.5, letterSpacing: 2, color: colors.grau300 },
+  lcd: {
+    backgroundColor: colors.monitorBg,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
+  lcdHead: { flexDirection: 'row', justifyContent: 'space-between' },
+  lcdMeta: { fontFamily: fonts.mono, fontSize: 11, letterSpacing: 1.2, color: 'rgba(43,227,139,0.65)' },
+  lcdText: { fontFamily: fonts.mono, fontSize: 16, lineHeight: 23, color: colors.monitorGruen },
+  lcdLoc: { fontFamily: fonts.mono, fontSize: 13, lineHeight: 18, color: colors.yellow },
+  pagerBtns: { flexDirection: 'row', justifyContent: 'center', gap: spacing.md },
+  pagerBtn: { width: 34, height: 10, borderRadius: 5, backgroundColor: colors.ink },
+
+  // Messkacheln
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   tile: {
-    width: '48.5%',
+    width: '47%',
     flexGrow: 1,
-    backgroundColor: colors.weiss,
+    backgroundColor: colors.white,
     padding: spacing.md,
     borderWidth: 2,
-    borderColor: colors.weiss,
-    minHeight: 92,
-    borderRadius: 14,
+    borderColor: colors.ink,
+    minHeight: 98,
+    borderRadius: 18,
   },
   tileWide: { width: '100%' },
-  tilePending: { borderColor: colors.blaulicht },
-  tileRight: { borderColor: colors.gruen },
-  tileWrong: { borderColor: colors.signalrot },
-  tileDot: { width: 10, height: 10, borderRadius: 5, marginTop: 3 },
-  tileHead: { flexDirection: 'row', justifyContent: 'space-between' },
-  tileShort: { fontSize: 12, fontFamily: fonts.extrabold, color: colors.graphit, letterSpacing: 1 },
-  tileName: { fontFamily: fonts.regular, fontSize: 12, color: colors.grau500, marginTop: 2 },
-  tileTap: { marginTop: spacing.sm, color: colors.blaulicht, fontFamily: fonts.bold },
-  tileValue: { marginTop: spacing.sm, fontSize: 22, fontFamily: fonts.display, color: colors.graphit },
-  tileFeedback: { fontSize: 11, marginTop: 4, fontFamily: fonts.semibold },
-  incident: { backgroundColor: colors.signalrot },
-  incidentBody: { padding: spacing.lg, gap: spacing.sm },
-  incidentEyebrow: {
+  tileDone: { transform: [{ translateY: 3 }], backgroundColor: colors.paper },
+  tilePending: { backgroundColor: colors.yellow, transform: [{ translateY: 3 }] },
+  tileRight: { backgroundColor: colors.mintTint },
+  tileWrong: { backgroundColor: colors.redTint },
+  tileDot: { width: 14, height: 14, borderRadius: 7, borderWidth: 2, borderColor: colors.ink },
+  tileHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  tileShort: { fontSize: 15, fontFamily: fonts.displayBlack, color: colors.ink, letterSpacing: -0.2 },
+  tileName: { fontFamily: fonts.regular, fontSize: 12, color: colors.muted, marginTop: 2 },
+  tileTap: { marginTop: spacing.sm, color: colors.blue, fontFamily: fonts.displayBlack, fontSize: 15, letterSpacing: -0.2 },
+  tileValue: {
+    marginTop: spacing.sm,
+    fontSize: 24,
+    lineHeight: 27,
     fontFamily: fonts.displayBlack,
-    fontSize: 26,
-    color: colors.weiss,
-    letterSpacing: -0.3,
+    color: colors.ink,
+    letterSpacing: -0.6,
   },
-  incidentText: { fontFamily: fonts.bold, fontSize: 16, lineHeight: 22, color: colors.weiss, marginBottom: spacing.xs },
+  tileFeedback: { fontSize: 11, lineHeight: 15, marginTop: 4, fontFamily: fonts.semibold },
+
+  // Zwischenfall
+  incident: {
+    backgroundColor: colors.red,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    borderWidth: 2,
+    borderBottomWidth: 0,
+    borderColor: colors.ink,
+  },
+  incidentBody: { padding: spacing.lg, gap: spacing.sm },
+  incidentEyebrow: { fontFamily: fonts.displayBlack, fontSize: 28, lineHeight: 30, color: colors.white, letterSpacing: -0.8 },
+  incidentText: { fontFamily: fonts.semibold, fontSize: 16, lineHeight: 22, color: colors.white, marginBottom: spacing.xs },
   incidentOption: {
-    backgroundColor: colors.weiss,
-    borderRadius: 14,
+    backgroundColor: colors.white,
+    borderRadius: 16,
     padding: spacing.md,
     borderWidth: 2,
-    borderColor: colors.weiss,
+    borderColor: colors.ink,
   },
-  incidentChosen: { backgroundColor: colors.graphit, borderColor: colors.graphit },
-  incidentRight: { backgroundColor: colors.gruen, borderColor: colors.weiss },
-  incidentWrong: { backgroundColor: colors.graphit, borderColor: colors.warngelb },
-  incidentOptionText: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 20, color: colors.graphit },
-  incidentFeedback: { fontFamily: fonts.semibold, fontSize: 14, lineHeight: 20, color: colors.weiss, marginTop: spacing.xs },
-  ratePanel: { backgroundColor: colors.nacht, padding: spacing.lg, borderTopWidth: 3, borderTopColor: colors.signalrot },
+  incidentChosen: { backgroundColor: colors.ink },
+  incidentRight: { backgroundColor: colors.mint },
+  incidentWrong: { backgroundColor: colors.ink, borderColor: colors.yellow },
+  incidentOptionText: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 20, color: colors.ink },
+  incidentFeedback: { fontFamily: fonts.semibold, fontSize: 14, lineHeight: 20, color: colors.white, marginTop: spacing.xs },
+
+  // Einstufung am Gerät
+  ratePanel: {
+    backgroundColor: colors.monitorBg,
+    padding: spacing.lg,
+    paddingBottom: spacing.xl,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    borderWidth: 2,
+    borderBottomWidth: 0,
+    borderColor: colors.ink,
+  },
   rateAction: { color: colors.grau300, fontFamily: fonts.italic, fontSize: 14 },
-  rateValue: { color: colors.weiss, fontSize: 40, fontFamily: fonts.displayBlack, marginTop: 2, letterSpacing: 0.5 },
-  rateNorm: { fontFamily: fonts.regular, color: colors.blaulichtLight, fontSize: 13, marginTop: 2 },
-  rateQ: { color: colors.weiss, fontFamily: fonts.bold, fontSize: 15, marginTop: spacing.sm },
-  rateBtn: { flex: 1, backgroundColor: colors.blaulicht, paddingVertical: spacing.md, alignItems: 'center', borderRadius: 14 },
-  rateSymbol: { color: colors.weiss, fontSize: 20, fontFamily: fonts.extrabold },
-  rateLabel: { color: colors.weiss, fontSize: 12, fontFamily: fonts.semibold },
+  rateValue: { fontSize: 46, lineHeight: 50, fontFamily: fonts.displayBlack, marginTop: 2, letterSpacing: -1.2 },
+  rateNorm: { fontFamily: fonts.mono, color: colors.skyStrong, fontSize: 12, marginTop: 2 },
+  rateQ: { color: colors.white, fontFamily: fonts.display, fontSize: 17, marginTop: spacing.sm, letterSpacing: -0.3 },
+  rateBtn: {
+    flex: 1,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: colors.ink,
+  },
+  rateSymbol: { color: colors.ink, fontSize: 22, lineHeight: 26, fontFamily: fonts.displayBlack },
+  rateLabel: { color: colors.ink, fontSize: 14, fontFamily: fonts.display },
+
+  // Diagnose
   summaryRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: spacing.sm },
   summaryChip: {
-    backgroundColor: colors.blaulichtLight,
-    color: colors.blaulichtDark,
-    paddingHorizontal: 8,
+    backgroundColor: colors.blueTint,
+    color: colors.ink,
+    borderWidth: 1.5,
+    borderColor: colors.ink,
+    borderRadius: 999,
+    overflow: 'hidden',
+    paddingHorizontal: 10,
     paddingVertical: 3,
     fontSize: 12,
-    fontFamily: fonts.bold,
+    fontFamily: fonts.mono,
   },
-  option: { backgroundColor: colors.weiss, padding: spacing.lg, borderWidth: 2, borderColor: colors.weiss, borderRadius: 14 },
-  optionSelected: { backgroundColor: colors.blaulicht, borderColor: colors.blaulicht },
-  optionRight: { backgroundColor: colors.gruen, borderColor: colors.gruen },
-  optionWrong: { backgroundColor: colors.signalrot, borderColor: colors.signalrot },
-  optionRemoved: { borderColor: colors.grau200, backgroundColor: colors.grau50 },
-  optionText: { fontSize: 17, fontFamily: fonts.semibold, color: colors.graphit, lineHeight: 22 },
+  option: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.white,
+    padding: spacing.md,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 18,
+  },
+  optionSelected: { backgroundColor: colors.blue },
+  optionRight: { backgroundColor: colors.mint },
+  optionWrong: { backgroundColor: colors.red },
+  optionRemoved: { borderStyle: 'dashed', borderColor: colors.grau300, backgroundColor: 'transparent' },
+  optionText: { flex: 1, fontSize: 17, fontFamily: fonts.display, color: colors.ink, lineHeight: 21, letterSpacing: -0.3 },
+  letter: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: colors.yellow,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  letterText: { fontFamily: fonts.displayBlack, fontSize: 16, color: colors.ink },
+
+  // Maßnahmen
   check: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.weiss,
+    backgroundColor: colors.white,
     padding: spacing.md,
     borderWidth: 2,
-    borderColor: colors.weiss,
-    borderRadius: 14,
+    borderColor: colors.ink,
+    borderRadius: 18,
   },
-  checkOn: { borderColor: colors.blaulicht },
+  checkOn: { backgroundColor: colors.blueTint, transform: [{ translateY: 3 }] },
   box: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    borderWidth: 1.5,
-    borderColor: colors.grau300,
+    width: 28,
+    height: 28,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  boxOn: { backgroundColor: colors.blaulicht, borderColor: colors.blaulicht },
-  boxTick: { color: colors.weiss, fontFamily: fonts.extrabold },
+  boxOn: { backgroundColor: colors.blue },
+  boxTick: { color: colors.white, fontFamily: fonts.displayBlack, fontSize: 16, lineHeight: 20 },
 });

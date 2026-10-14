@@ -81,4 +81,4 @@ Weil Einsatz 112 auch für das iPad freigegeben ist, verlangt Apple zusätzlich 
 
 ## Notizen für die App-Prüfung (Review Notes)
 
-> Einsatz 112 is an educational game (German only) for learning paramedic basics: recognising vital signs, common emergencies, CPR rhythm and mass-casualty triage. All patients and cases are fictional. The app gives no medical advice for real persons, collects no data, needs no login and works offline. A disclaimer is shown on the start screen, in the guide and in the store description. Privacy policy: in-app under "Anleitung → Datenschutzerklärung".
+> Einsatz 112 is an educational game (German only) for learning paramedic basics: recognising vital signs, common emergencies, CPR rhythm and mass-casualty triage. All patients and cases are fictional. The app gives no medical advice for real persons, collects no data, needs no login and works offline. A disclaimer is shown on the start screen, in the guide and in the store description. Privacy policy: in-app under "Mehr → Datenschutzerklärung".

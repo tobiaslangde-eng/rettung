@@ -1,8 +1,8 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { IconTile, Pill } from '../components/UI';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { IconTile, Pill, Tap } from '../components/UI';
 import { Progress } from '../game/storage';
 import { useLayout } from '../layout';
-import { colors, fonts, radius, shadow, spacing, type } from '../theme';
+import { colors, fonts, spacing, type } from '../theme';
 import { DetectiveTeaser, TrainingId, trainings } from './HomeScreen';
 
 const MORE: Record<TrainingId, string> = {
@@ -27,35 +27,27 @@ export function TrainingScreen({ progress, onTraining }: { progress: Progress; o
         {trainings(progress)
           .filter((t) => t.id !== 'detektiv')
           .map((t) => (
-            <Pressable
+            <Tap
               key={t.id}
               onPress={() => onTraining(t.id)}
-              accessibilityRole="button"
-              style={({ pressed }) => [
-                styles.card,
-                L.wide && styles.cardWide,
-                pressed && { transform: [{ scale: 0.98 }], opacity: 0.92 },
-              ]}
+              accessibilityLabel={t.title}
+              style={[styles.card, { backgroundColor: t.tone }, L.wide && styles.cardWide]}
             >
               <View style={styles.head}>
-                <IconTile icon={t.icon} color={t.color} size={52} />
+                <IconTile icon={t.icon} color={colors.white} size={54} />
                 <View style={{ flex: 1 }}>
-                  <Text style={type.h2}>{t.title}</Text>
-                  <Text style={type.small}>{t.sub}</Text>
+                  <Text style={styles.title}>{t.title}</Text>
+                  <Text style={styles.sub}>{t.sub}</Text>
                 </View>
               </View>
               <Text style={type.body}>{MORE[t.id]}</Text>
               <View style={styles.foot}>
-                {t.best ? (
-                  <Pill label={t.best} color={t.color} light />
-                ) : (
-                  <Pill label="Noch nicht gespielt" color={colors.grau500} light />
-                )}
-                <View style={[styles.start, { backgroundColor: t.color }]}>
-                  <Text style={styles.startText}>Starten</Text>
+                <Pill label={t.best ?? 'Noch nicht gespielt'} color={colors.white} light />
+                <View style={[styles.start, { backgroundColor: t.accent }]}>
+                  <Text style={styles.startText}>Starten ▶</Text>
                 </View>
               </View>
-            </Pressable>
+            </Tap>
           ))}
       </View>
     </ScrollView>
@@ -63,13 +55,21 @@ export function TrainingScreen({ progress, onTraining }: { progress: Progress; o
 }
 
 const styles = StyleSheet.create({
-  body: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.lg },
-  list: { gap: spacing.md },
+  body: { padding: spacing.lg, paddingBottom: spacing.xxl + 8, gap: spacing.xl },
+  list: { gap: spacing.lg },
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  card: { backgroundColor: colors.weiss, borderRadius: radius.md, padding: spacing.lg, gap: spacing.md, ...shadow },
+  card: {
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 24,
+    padding: spacing.lg,
+    gap: spacing.md,
+  },
   cardWide: { flexBasis: '45%', flexGrow: 1 },
   head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  title: { fontFamily: fonts.displayBlack, fontSize: 22, lineHeight: 24, color: colors.ink, letterSpacing: -0.6 },
+  sub: { fontFamily: fonts.mono, fontSize: 11, lineHeight: 15, color: colors.inkSoft, marginTop: 2 },
   foot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  start: { borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 8 },
-  startText: { color: colors.weiss, fontFamily: fonts.semibold, fontSize: 15 },
+  start: { borderRadius: 999, borderWidth: 2, borderColor: colors.ink, paddingHorizontal: 18, paddingVertical: 8 },
+  startText: { color: colors.ink, fontFamily: fonts.displayBlack, fontSize: 15, letterSpacing: -0.2 },
 });

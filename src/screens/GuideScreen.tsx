@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Linking, Platform, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Button, Card, Eyebrow, TopBar } from '../components/UI';
+import { Button, Card, IconTile, TopBar } from '../components/UI';
+import { KatiAvatar } from '../components/Kati';
 import { BADGE_BONUS } from '../game/achievements';
 import { CPR_POINTS } from '../game/cpr';
 import { INCIDENT_POINTS } from '../data/incidents';
@@ -10,7 +11,7 @@ import { QUIZ_POINTS } from '../game/quiz';
 import { DIFFICULTIES } from '../game/difficulty';
 import { POINTS } from '../game/scoring';
 import { Progress, exportCode, importCode } from '../game/storage';
-import { colors, spacing, type, fonts } from '../theme';
+import { colors, fonts, spacing, type } from '../theme';
 
 const PRIVACY_URL = 'https://tobiaslangde-eng.github.io/rettung/datenschutz.html';
 
@@ -47,11 +48,11 @@ function Transfer({ progress, onImport }: { progress: Progress; onImport: (p: Pr
   };
 
   return (
-    <Card style={{ borderLeftColor: colors.blaulicht }}>
-      <Eyebrow title="Spielstand übertragen" />
-      <Text style={[type.small, { marginTop: spacing.xs }]}>
-        Neues Gerät oder neue Adresse? Hier den Code kopieren und auf dem anderen Gerät unter „Anleitung“ wieder einfügen –
-        Punkte, Rang, Abzeichen und Ausrüstung kommen mit.
+    <Card>
+      <Head icon="💾" color={colors.skyStrong} title="Spielstand übertragen" />
+      <Text style={[type.small, { marginTop: spacing.sm }]}>
+        Neues Gerät oder neue Adresse? Hier den Code kopieren und auf dem anderen Gerät unter „Mehr“ wieder einfügen – Punkte,
+        Rang, Abzeichen und Ausrüstung kommen mit.
       </Text>
       <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md }}>
         <Button label={copied ? 'Kopiert ✓' : 'Code kopieren'} variant="dark" onPress={copy} style={{ flex: 1 }} />
@@ -74,14 +75,14 @@ function Transfer({ progress, onImport }: { progress: Progress; onImport: (p: Pr
           setStatus('idle');
         }}
         placeholder="Code vom anderen Gerät hier einfügen"
-        placeholderTextColor={colors.grau300}
+        placeholderTextColor={colors.grau500}
         autoCapitalize="none"
         autoCorrect={false}
         multiline
         style={styles.input}
       />
       {input.trim() !== '' && (
-        <Text style={[type.small, { color: parsed ? colors.gruen : colors.signalrot, marginTop: spacing.xs }]}>
+        <Text style={[type.small, { color: parsed ? colors.mintDark : colors.red, marginTop: spacing.xs }]}>
           {parsed
             ? `Gültiger Code: ${parsed.totalPoints} Punkte, ${parsed.badges.length} Abzeichen`
             : 'Das ist kein gültiger Spielstand-Code.'}
@@ -115,91 +116,102 @@ export function GuideScreen({
   const [confirmReset, setConfirmReset] = useState(false);
   return (
     <View style={{ flex: 1 }}>
-      <TopBar kicker="Hilfe" title="Anleitung" />
+      <TopBar kicker="Anleitung & Spielstand" title="Mehr" />
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={type.body}>
-          Ich bin Sanitäter/in im Rettungsdienst. Zusammen mit meiner Kollegin Kati erkenne ich Krankheiten an Symptomen und
-          Messwerten und treffe die richtigen Entscheidungen. Der Zustandsbalken zeigt, wie es meinem Patienten gerade geht.
-        </Text>
+        <View style={styles.intro}>
+          <KatiAvatar size={52} />
+          <Text style={[type.body, { flex: 1 }]}>
+            Hi, ich bin Kati! Zusammen erkennen wir Krankheiten an Symptomen und Messwerten und treffen die richtigen
+            Entscheidungen. Der Zustandsbalken zeigt, wie es unserem Patienten gerade geht.
+          </Text>
+        </View>
+
+        <Text style={type.h2}>So läuft ein Einsatz</Text>
         {STEPS.map((s, i) => (
           <Card key={s.de}>
-            <Eyebrow title={`${i + 1}. ${s.de}`} />
-            <Text style={[type.body, { marginTop: spacing.xs }]}>{s.text}</Text>
+            <View style={styles.stepHead}>
+              <View style={styles.stepNum}>
+                <Text style={styles.stepNumText}>{i + 1}</Text>
+              </View>
+              <Text style={type.h2}>{s.de}</Text>
+            </View>
+            <Text style={[type.body, { marginTop: spacing.sm }]}>{s.text}</Text>
           </Card>
         ))}
-        <Card style={{ borderLeftColor: colors.warngelb }}>
-          <Eyebrow title="Tagesdienst" />
-          <Text style={[type.body, { marginTop: spacing.xs }]}>
+
+        <Text style={[type.h2, { marginTop: spacing.sm }]}>Das Spiel drumherum</Text>
+        <Card>
+          <Head icon="📅" color={colors.yellow} title="Tagesdienst" />
+          <Text style={[type.body, { marginTop: spacing.sm }]}>
             Jeden Tag gibt es einen „Einsatz des Tages“ mit 50 % mehr Punkten. Wer {DAILY_GOAL} Einsätze an einem Tag schafft,
             erreicht das Tagesziel. Schaffe ich das mehrere Tage hintereinander, wächst meine Dienst-Serie – und der Bonus mit.
           </Text>
         </Card>
-        <Card style={{ borderLeftColor: colors.warngelb }}>
-          <Eyebrow title="Mein Rettungswagen" />
-          <Text style={[type.body, { marginTop: spacing.xs }]}>
+        <Card>
+          <Head icon="🚑" color={colors.butter} title="Mein Rettungswagen" />
+          <Text style={[type.body, { marginTop: spacing.sm }]}>
             Für jeden Punkt bekommt meine Wache 1 € Budget. In der Fahrzeughalle rüste ich damit Fahrzeug, Monitor, Rucksack,
             Beatmung, Trage, Funk und Einsatzkleidung in vier Stufen auf – jede Stufe ist neuer und moderner und hilft im Einsatz.
             Die höheren Stufen schalte ich mit meinem Dienstgrad frei. Einkaufen kostet nur Budget, keine Punkte – mein Rang
             bleibt.
           </Text>
         </Card>
-        <Card style={{ borderLeftColor: colors.signalrot }}>
-          <Eyebrow title="Zwischenfälle & Kinder" />
-          <Text style={[type.body, { marginTop: spacing.xs }]}>
+        <Card>
+          <Head icon="⚠️" color={colors.redTint} title="Zwischenfälle & Kinder" />
+          <Text style={[type.body, { marginTop: spacing.sm }]}>
             Bei vielen Einsätzen passiert mitten in der Untersuchung etwas Unerwartetes – dann muss ich sofort richtig reagieren.
             Bei Kinder-Einsätzen gelten andere Normwerte für Puls, Atmung und Blutdruck (siehe Lexikon).
           </Text>
         </Card>
-        <Card style={{ borderLeftColor: colors.blaulicht }}>
-          <Eyebrow title="Schwierigkeit" />
+        <Card>
+          <Head icon="🎚️" color={colors.blueTint} title="Schwierigkeit" />
           {DIFFICULTIES.map((d) => (
-            <View key={d.id} style={{ marginTop: spacing.sm }}>
-              <Text style={[type.body, { fontFamily: fonts.extrabold }]}>
+            <View key={d.id} style={{ marginTop: spacing.md }}>
+              <Text style={type.headline}>
                 {d.icon} {d.label}
               </Text>
               <Text style={type.small}>{d.description}</Text>
             </View>
           ))}
         </Card>
-        <Card style={{ borderLeftColor: colors.graphit }}>
-          <Eyebrow title="Punkte" />
-          <Row label="Wert richtig eingestuft" pts={POINTS.ratingCorrect} />
-          <Row label="Wert falsch eingestuft" pts={POINTS.ratingWrong} />
-          <Row label="Wichtigen Wert vergessen" pts={POINTS.missedKeyVital} />
-          <Row label="Zeitbonus (max., −4 je unnötiger Messung)" pts={POINTS.efficiencyMax} />
-          <Row label="Richtige Diagnose" pts={POINTS.diagnosisCorrect} />
-          <Row label="Richtige Maßnahme" pts={POINTS.treatmentCorrect} />
-          <Row label="Falsche Maßnahme" pts={POINTS.treatmentWrong} />
-          <Row label="Zustand des Patienten am Ende (max.)" pts={POINTS.conditionMax} />
-          <Row label="Zwischenfall richtig gemeistert" pts={INCIDENT_POINTS.correct} />
-          <Row label="Zwischenfall falsch behandelt" pts={INCIDENT_POINTS.wrong} />
-          <Row label="Tipp von Kati (nur auf Mittel)" pts={-10} />
-          <Row label="Perfekter Einsatz (3 Sterne)" pts={POINTS.perfectBonus} />
-          <Row label={`Serienbonus je gutem Einsatz in Folge (max. ${POINTS.streakMax})`} pts={POINTS.streakPerLevel} />
-          <Row label="Neues Abzeichen" pts={BADGE_BONUS} />
-          <Row label="Einsatz des Tages" pts={0} text="+50 %" />
-          <Row
-            label={`Tagesziel (${DAILY_GOAL} Einsätze), steigt mit der Dienst-Serie`}
-            pts={dailyGoalBonus(1)}
-            text={`+${dailyGoalBonus(1)}–${dailyGoalBonus(6)}`}
-          />
-          <Row label="Normwerte & Wissensfragen: je richtiger Antwort" pts={QUIZ_POINTS} />
-          <Row label={`Großeinsatz: je richtig gesichteter Person (alle richtig: +${MANV_PERFECT_BONUS})`} pts={MANV_POINTS} />
-          <Row label="Herzdruckmassage (ohne Taktgeber doppelt)" pts={CPR_POINTS} text={`bis +${CPR_POINTS * 2}`} />
+        <Card>
+          <Head icon="🏅" color={colors.mintTint} title="Punkte" />
+          <View style={{ marginTop: spacing.sm }}>
+            <Row label="Wert richtig eingestuft" pts={POINTS.ratingCorrect} />
+            <Row label="Wert falsch eingestuft" pts={POINTS.ratingWrong} />
+            <Row label="Wichtigen Wert vergessen" pts={POINTS.missedKeyVital} />
+            <Row label="Zeitbonus (max., −4 je unnötiger Messung)" pts={POINTS.efficiencyMax} />
+            <Row label="Richtige Diagnose" pts={POINTS.diagnosisCorrect} />
+            <Row label="Richtige Maßnahme" pts={POINTS.treatmentCorrect} />
+            <Row label="Falsche Maßnahme" pts={POINTS.treatmentWrong} />
+            <Row label="Zustand des Patienten am Ende (max.)" pts={POINTS.conditionMax} />
+            <Row label="Zwischenfall richtig gemeistert" pts={INCIDENT_POINTS.correct} />
+            <Row label="Zwischenfall falsch behandelt" pts={INCIDENT_POINTS.wrong} />
+            <Row label="Tipp von Kati (nur auf Mittel)" pts={-10} />
+            <Row label="Perfekter Einsatz (3 Sterne)" pts={POINTS.perfectBonus} />
+            <Row label={`Serienbonus je gutem Einsatz in Folge (max. ${POINTS.streakMax})`} pts={POINTS.streakPerLevel} />
+            <Row label="Neues Abzeichen" pts={BADGE_BONUS} />
+            <Row label="Einsatz des Tages" pts={0} text="+50 %" />
+            <Row
+              label={`Tagesziel (${DAILY_GOAL} Einsätze), steigt mit der Dienst-Serie`}
+              pts={dailyGoalBonus(1)}
+              text={`+${dailyGoalBonus(1)}–${dailyGoalBonus(6)}`}
+            />
+            <Row label="Normwerte & Wissensfragen: je richtiger Antwort" pts={QUIZ_POINTS} />
+            <Row label={`Großeinsatz: je richtig gesichteter Person (alle richtig: +${MANV_PERFECT_BONUS})`} pts={MANV_POINTS} />
+            <Row label="Herzdruckmassage (ohne Taktgeber doppelt)" pts={CPR_POINTS} text={`bis +${CPR_POINTS * 2}`} />
+          </View>
           <Text style={[type.small, { marginTop: spacing.sm }]}>
-            Auf „Mittel“ zählen alle Punkte eines Einsatzes ×1,5, auf „Schwer“ ×2.
+            Auf „Mittel“ zählen alle Punkte eines Einsatzes ×1,5, auf „Schwer“ ×2. Die Detektiv-Akten haben ein eigenes
+            Punktesystem (siehe dort).
           </Text>
         </Card>
-        <Card style={{ borderLeftColor: colors.signalrot }}>
-          <Eyebrow title="Hinweis" />
-          <Text style={[type.small, { marginTop: spacing.xs }]}>
-            Dieses Spiel dient dem Lernen und Üben. Die Inhalte sind vereinfacht und ersetzen keine Ausbildung, keine ärztliche
-            Beratung und keine regionalen Leitlinien/SOPs. Im Notfall immer 112 wählen.
-          </Text>
-        </Card>
-        <Card style={{ borderLeftColor: colors.blaulicht }}>
-          <Eyebrow title="Datenschutz" />
-          <Text style={[type.small, { marginTop: spacing.xs }]}>
+
+        <Text style={[type.h2, { marginTop: spacing.sm }]}>Spielstand & Sicherheit</Text>
+        <Transfer progress={progress} onImport={onImport} />
+        <Card>
+          <Head icon="🔒" color={colors.lilac} title="Datenschutz" />
+          <Text style={[type.small, { marginTop: spacing.sm }]}>
             Einsatz 112 sammelt keine persönlichen Daten. Der Spielstand bleibt auf diesem Gerät.
           </Text>
           <Button
@@ -209,15 +221,14 @@ export function GuideScreen({
             style={{ marginTop: spacing.md }}
           />
         </Card>
-        <Transfer progress={progress} onImport={onImport} />
-        <Card style={{ borderLeftColor: colors.grau500 }}>
-          <Eyebrow title="Neu anfangen" />
-          <Text style={[type.small, { marginTop: spacing.xs }]}>
+        <Card>
+          <Head icon="🗑️" color={colors.line} title="Neu anfangen" />
+          <Text style={[type.small, { marginTop: spacing.sm }]}>
             Setzt Punkte, Rang, Sterne und Abzeichen auf null. Das lässt sich nicht rückgängig machen.
           </Text>
           {confirmReset ? (
             <View style={{ gap: spacing.sm, marginTop: spacing.md }}>
-              <Text style={[type.body, { fontFamily: fonts.bold }]}>Wirklich alles zurücksetzen?</Text>
+              <Text style={type.headline}>Wirklich alles zurücksetzen?</Text>
               <Button label="Ja, alles löschen" variant="alarm" onPress={onReset} />
               <Button label="Abbrechen" variant="outline" onPress={() => setConfirmReset(false)} />
             </View>
@@ -230,7 +241,24 @@ export function GuideScreen({
             />
           )}
         </Card>
+        <View style={styles.hint}>
+          <Text style={styles.hintHead}>⚕️ Wichtiger Hinweis</Text>
+          <Text style={styles.hintText}>
+            Dieses Spiel dient dem Lernen und Üben. Die Inhalte sind vereinfacht und ersetzen keine Ausbildung, keine ärztliche
+            Beratung und keine regionalen Leitlinien/SOPs. Im Notfall immer 112 wählen.
+          </Text>
+        </View>
       </ScrollView>
+    </View>
+  );
+}
+
+/** Kopfzeile einer Karte: Symbol-Sticker und Titel */
+function Head({ icon, color, title }: { icon: string; color: string; title: string }) {
+  return (
+    <View style={styles.head}>
+      <IconTile icon={icon} color={color} size={40} />
+      <Text style={[type.h2, { flex: 1 }]}>{title}</Text>
     </View>
   );
 }
@@ -238,8 +266,10 @@ export function GuideScreen({
 function Row({ label, pts, text }: { label: string; pts: number; text?: string }) {
   return (
     <View style={styles.row}>
-      <Text style={[type.body, { flex: 1 }]}>{label}</Text>
-      <Text style={{ fontFamily: fonts.extrabold, color: pts < 0 ? colors.signalrot : colors.blaulicht }}>
+      <Text style={[type.body, { flex: 1, fontSize: 15, lineHeight: 21 }]}>{label}</Text>
+      <Text
+        style={{ fontFamily: fonts.displayBlack, fontSize: 16, color: pts < 0 ? colors.red : colors.blue, letterSpacing: -0.3 }}
+      >
         {text ?? `${pts > 0 ? '+' : ''}${pts}`}
       </Text>
     </View>
@@ -247,27 +277,71 @@ function Row({ label, pts, text }: { label: string; pts: number; text?: string }
 }
 
 const styles = StyleSheet.create({
-  content: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
+  content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl + 8 },
+  intro: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.blueTint,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 22,
+    padding: spacing.md,
+  },
+  head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  stepHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  stepNum: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.yellow,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepNumText: { fontFamily: fonts.displayBlack, fontSize: 17, color: colors.ink },
   code: {
-    fontFamily: Platform.OS === 'web' ? 'monospace' : undefined,
+    fontFamily: fonts.mono,
     fontSize: 11,
-    color: colors.graphit,
-    backgroundColor: colors.grau50,
-    borderRadius: 4,
+    color: colors.ink,
+    backgroundColor: colors.paper,
+    borderWidth: 1.5,
+    borderColor: colors.ink,
+    borderStyle: 'dashed',
+    borderRadius: 12,
     padding: spacing.sm,
     marginTop: spacing.sm,
   },
   input: {
     minHeight: 64,
-    borderWidth: 1,
-    borderColor: colors.grau200,
-    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 16,
     padding: spacing.sm,
     marginTop: spacing.md,
     fontFamily: fonts.regular,
     fontSize: 14,
-    color: colors.graphit,
-    backgroundColor: colors.weiss,
+    color: colors.ink,
+    backgroundColor: colors.white,
   },
-  row: { flexDirection: 'row', paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: colors.grau50 },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: 6,
+    borderBottomWidth: 1.5,
+    borderBottomColor: colors.line,
+    borderStyle: 'dashed',
+  },
+  hint: {
+    backgroundColor: colors.redTint,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 22,
+    padding: spacing.lg,
+    gap: 4,
+  },
+  hintHead: { fontFamily: fonts.displayBlack, fontSize: 17, color: colors.ink, letterSpacing: -0.3 },
+  hintText: { fontFamily: fonts.medium, fontSize: 13.5, lineHeight: 19, color: colors.ink },
 });

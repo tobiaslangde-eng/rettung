@@ -114,7 +114,7 @@ zu Einsätzen quer durch Deutschland.
 - **Lexikon:** Normwerte, alle Krankheitsbilder und Rettungswissen – Notruf (5 W), Rettungskette, ABCDE,
   Wiederbelebung, Seitenlage, BE-FAST, SAMPLER, GCS, Schockzeichen, Sichtung, Kindernotfälle
 
-Der Spielstand wird nur lokal gespeichert. Über *Anleitung → Spielstand übertragen* lässt er sich als Code
+Der Spielstand wird nur lokal gespeichert. Über *Mehr → Spielstand übertragen* lässt er sich als Code
 auf ein anderes Gerät mitnehmen.
 
 ### Enthaltene Fälle (28)
@@ -127,7 +127,7 @@ auf ein anderes Gerät mitnehmen.
 
 Die Oberfläche passt sich an die Bildschirmgröße an:
 
-- **iPhone/Handy:** eine Spalte, alles mit dem Daumen erreichbar
+- **iPhone/Handy:** eine Spalte mit schwebender Tab-Leiste, alles mit dem Daumen erreichbar
 - **iPad hoch:** zwei Spalten; **iPad quer, PC und Mac:** feste Seitenleiste mit Dienstgrad, Budget und Menü,
   Startseite in drei Spalten, Untersuchung mit Patient links und Messwerten rechts, Lexikon als Kachel-Raster
 - **Desktop-App:** Fenster 1280 × 820, unter macOS mit Ampel-Knöpfen in der dunklen Titelleiste, unter Windows mit
@@ -139,13 +139,14 @@ Die Oberfläche passt sich an die Bildschirmgröße an:
 | **iPad quer** | **iPad hoch** |
 | ![iPad quer](docs/geraete/ipad-quer.png) | ![iPad hoch](docs/geraete/ipad-hoch.png) |
 
-## Design
+## Design „Warnweste“
 
-Die Oberfläche folgt den **Human Interface Guidelines von Apple**: helle, ruhige Flächen, große Titel, weiße Karten mit
-weichen Schatten, iOS-Systemfarben als Akzent und eine **Tab-Leiste** unten (Heute, Training, Fahrzeug, Lexikon, Mehr).
-Fortschritt zeigen **Ringe wie bei Apple Fitness** (Tagesziel, Woche, Dienstgrad), die Trainings farbige Symbol-Kacheln.
-Schrift ist *Inter*, sehr nah an Apples SF Pro. Der Patientenmonitor bleibt dunkel wie im echten Rettungswagen.
-Details: [`docs/DESIGN.md`](docs/DESIGN.md).
+Ein eigenes Design für junge Leute: **Aufkleber auf EKG-Papier.** Der Hintergrund ist rosa Millimeterpapier, wie es
+ein EKG ausdruckt. Darauf liegen weiße und bunte Karten mit dicker Tinten-Umrandung und hartem Schatten, Knöpfe sinken
+beim Drücken ein. Die Farben haben feste Bedeutungen: **Rot** = Einsatz, **Blau** = Aktion, **Gelb** (wie die Warnweste)
+= Belohnung, **Mint** = richtig. Unten schwebt eine **Tab-Leiste** (Start, Training, Fahrzeug, Lexikon, Mehr); die Alarmmeldung
+erscheint auf einem **Meldeempfänger**, das Tagesziel auf einer **Stechkarte**, der Dienstgrad auf einem **Dienstausweis**.
+Schriften: *Bricolage Grotesque*, *Inter* und *DM Mono*. Details: [`docs/DESIGN.md`](docs/DESIGN.md).
 
 ## Spielen und herunterladen
 
@@ -219,7 +220,7 @@ src/game/weekly.ts      Wochenpunkte und Wochenrekord
 src/game/equipment.ts   Fahrzeughalle: Ausrüstungsstufen, Kosten und Wirkung
 src/game/detective.ts   Detektiv-Akten: Hinweise, Punkte, Combo, Archiv, Ränge
 src/game/storage.ts     Speicherung (AsyncStorage) und Spielstand-Übertragung
-src/screens/            Start, Einsatz, Ergebnis, Training, Fahrzeughalle, Lexikon, Anleitung
+src/screens/            Start, Einsatz, Ergebnis, Training, Fahrzeughalle, Lexikon, Mehr (Anleitung)
 ```
 
 Neue Fälle lassen sich einfach in `src/data/cases.ts` ergänzen.

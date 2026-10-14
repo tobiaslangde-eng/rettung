@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { EcgStrip, RatingStar } from '../components/Ems';
-import { Button, Card, Eyebrow, TopBar } from '../components/UI';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AnswerOption, ProgressTop, ScoreHero } from '../components/Training';
+import { Button, Card, Eyebrow, StatChip, TopBar } from '../components/UI';
 import { QUIZ_POINTS, QUIZ_ROUNDS, makeKnowledgeQuiz } from '../game/quiz';
-import { colors, fonts, spacing, type, shadow } from '../theme';
+import { colors, fonts, hardShadow, spacing, type } from '../theme';
 
 const LETTERS = ['A', 'B', 'C', 'D'];
 
@@ -61,43 +61,38 @@ export function KnowledgeScreen({
       <View style={{ flex: 1 }}>
         <TopBar kicker="Wissensfragen" title="Ergebnis" onBack={onBack} />
         <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.monitor}>
-            <View style={styles.stars}>
-              {[0, 1, 2].map((i) => (
-                <RatingStar key={i} size={i === 1 ? 48 : 36} filled={i < stars} />
-              ))}
-            </View>
-            <Text style={styles.bigScore}>
-              {correctCount}
-              <Text style={styles.bigScoreOf}> / {QUIZ_ROUNDS}</Text>
-            </Text>
-            <Text style={styles.gain}>+{correctCount * QUIZ_POINTS} Punkte</Text>
-            <View style={{ alignSelf: 'stretch' }}>
-              <EcgStrip height={44} beats={4} />
-            </View>
-          </View>
-          <Text style={[type.small, { textAlign: 'center' }]}>
-            {correctCount > prevBest ? 'Neuer Bestwert!' : `Mein Bestwert: ${Math.max(prevBest, correctCount)} / ${QUIZ_ROUNDS}`}
-          </Text>
+          <ScoreHero
+            stars={stars}
+            big={String(correctCount)}
+            unit={`/ ${QUIZ_ROUNDS}`}
+            points={correctCount * QUIZ_POINTS}
+            note={
+              correctCount > prevBest
+                ? '🏆 Neuer Bestwert!'
+                : `Mein Bestwert: ${Math.max(prevBest, correctCount)} / ${QUIZ_ROUNDS}`
+            }
+          />
           <Card>
             <Eyebrow title="Auflösung" />
             {rounds.map((rr, i) => {
               const ok = answers[i] === rr.answer;
               return (
                 <View key={rr.question.id} style={styles.line}>
-                  <Text style={{ fontFamily: fonts.bold, color: ok ? colors.gruen : colors.signalrot, width: 18 }}>
+                  <Text
+                    style={{ fontFamily: fonts.displayBlack, color: ok ? colors.mintDark : colors.red, width: 20, fontSize: 16 }}
+                  >
                     {ok ? '✓' : '✗'}
                   </Text>
                   <View style={{ flex: 1 }}>
-                    <Text style={[type.small, { color: colors.graphit }]}>{rr.question.question}</Text>
-                    <Text style={[type.small, { fontFamily: fonts.bold, color: colors.graphit }]}>{rr.question.answers[0]}</Text>
+                    <Text style={[type.small, { color: colors.ink }]}>{rr.question.question}</Text>
+                    <Text style={[type.small, { fontFamily: fonts.bold, color: colors.ink }]}>{rr.question.answers[0]}</Text>
                   </View>
                 </View>
               );
             })}
           </Card>
           <Button label="Noch eine Runde" variant="alarm" onPress={restart} />
-          <Button label="Zum Hauptmenü" variant="outline" onPress={onBack} />
+          <Button label="Zurück" variant="outline" onPress={onBack} />
         </ScrollView>
       </View>
     );
@@ -111,48 +106,36 @@ export function KnowledgeScreen({
         kicker="Wissensfragen"
         title={`Frage ${round + 1} von ${QUIZ_ROUNDS}`}
         onBack={onBack}
-        right={
-          <View style={styles.counter}>
-            <Text style={styles.counterValue}>{correctCount}</Text>
-            <Text style={styles.counterLabel}>richtig</Text>
-          </View>
-        }
+        right={<StatChip value={correctCount} label="richtig" color={colors.mintTint} />}
       />
-      <View style={styles.progress}>
-        <View style={[styles.progressFill, { width: `${((round + (given !== null ? 1 : 0)) / QUIZ_ROUNDS) * 100}%` }]} />
-      </View>
+      <ProgressTop pct={(round + (given !== null ? 1 : 0)) / QUIZ_ROUNDS} />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.questionBox}>
           <Text style={styles.question}>{r.question.question}</Text>
         </View>
 
-        <View style={{ gap: spacing.sm }}>
+        <View style={{ gap: spacing.md }}>
           {r.options.map((opt, i) => {
             const chosen = given === i;
             const isAnswer = given !== null && r.answer === i;
+            const state = isAnswer ? 'right' : chosen ? 'wrong' : given !== null ? 'dim' : 'idle';
             return (
-              <Pressable
+              <AnswerOption
                 key={opt}
+                letter={LETTERS[i]}
+                text={opt}
+                state={state}
                 disabled={given !== null}
                 onPress={() => answer(i)}
-                style={({ pressed }) => [
-                  styles.option,
-                  pressed && { opacity: 0.85 },
-                  isAnswer ? styles.optionRight : chosen ? styles.optionWrong : null,
-                  given !== null && !chosen && !isAnswer ? { opacity: 0.45 } : null,
-                ]}
-              >
-                <Text style={[styles.letter, (isAnswer || chosen) && { color: colors.weiss }]}>{LETTERS[i]}</Text>
-                <Text style={[styles.optionText, (isAnswer || chosen) && { color: colors.weiss }]}>{opt}</Text>
-              </Pressable>
+              />
             );
           })}
         </View>
 
         {given !== null && (
           <>
-            <Card style={{ borderLeftColor: right ? colors.gruen : colors.signalrot }}>
-              <Text style={[type.body, { fontFamily: fonts.bold }]}>{right ? 'Richtig!' : 'Leider falsch.'}</Text>
+            <Card style={{ borderLeftColor: right ? colors.mint : colors.red }}>
+              <Text style={[type.headline, { marginTop: spacing.xs }]}>{right ? 'Richtig!' : 'Leider falsch.'}</Text>
               <Text style={[type.body, { marginTop: spacing.xs }]}>{r.question.explanation}</Text>
             </Card>
             <Button label={round + 1 < QUIZ_ROUNDS ? 'Nächste Frage' : 'Auswertung'} variant="dark" onPress={next} />
@@ -165,44 +148,22 @@ export function KnowledgeScreen({
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
-  progress: { height: 6, backgroundColor: colors.grau200 },
-  progressFill: { height: 6, backgroundColor: colors.signalrot },
-  counter: {
-    alignItems: 'center',
-    backgroundColor: colors.blaulichtLight,
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
+  questionBox: {
+    backgroundColor: colors.yellow,
+    borderWidth: 2,
+    borderColor: colors.ink,
+    borderRadius: 24,
+    padding: spacing.xl,
+    ...hardShadow(5),
   },
-  counterValue: { color: colors.blaulicht, fontFamily: fonts.bold, fontSize: 17 },
-  counterLabel: { color: colors.blaulicht, fontFamily: fonts.medium, fontSize: 10 },
-  questionBox: { backgroundColor: colors.weiss, borderRadius: 20, padding: spacing.xl, ...shadow },
-  question: { fontFamily: fonts.extrabold, fontSize: 24, lineHeight: 30, letterSpacing: -0.5, color: colors.graphit },
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.weiss,
-    borderWidth: 1.5,
-    borderColor: colors.grau200,
-    borderRadius: 14,
-    padding: spacing.md,
-  },
-  optionRight: { backgroundColor: colors.gruen, borderColor: colors.gruen },
-  optionWrong: { backgroundColor: colors.signalrot, borderColor: colors.signalrot },
-  letter: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.blaulicht, width: 20 },
-  optionText: { flex: 1, fontFamily: fonts.semibold, fontSize: 15, lineHeight: 20, color: colors.graphit },
-  monitor: { backgroundColor: colors.nacht, borderRadius: 16, paddingTop: spacing.lg, alignItems: 'center', overflow: 'hidden' },
-  stars: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  bigScore: { fontFamily: fonts.displayBlack, fontSize: 64, color: colors.weiss, marginTop: spacing.sm },
-  bigScoreOf: { fontSize: 28, color: colors.grau300 },
-  gain: { fontFamily: fonts.extrabold, fontSize: 16, color: colors.monitorGruen, marginBottom: spacing.sm },
+  question: { fontFamily: fonts.displayBlack, fontSize: 25, lineHeight: 29, letterSpacing: -0.8, color: colors.ink },
   line: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.sm,
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.grau200,
+    paddingVertical: 7,
+    borderBottomWidth: 1.5,
+    borderBottomColor: colors.line,
+    borderStyle: 'dashed',
   },
 });

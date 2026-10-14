@@ -10,7 +10,7 @@ const isWindows = process.platform === 'win32';
 const titleBar = isMac
   ? { titleBarStyle: 'hiddenInset', trafficLightPosition: { x: 12, y: 9 } }
   : isWindows
-    ? { titleBarStyle: 'hidden', titleBarOverlay: { color: '#15181C', symbolColor: '#FFFFFF', height: 32 } }
+    ? { titleBarStyle: 'hidden', titleBarOverlay: { color: '#14173A', symbolColor: '#FFFFFF', height: 32 } }
     : {};
 
 function createWindow() {
@@ -21,7 +21,7 @@ function createWindow() {
     minWidth: 380,
     minHeight: 640,
     title: 'Einsatz 112',
-    backgroundColor: '#15181C',
+    backgroundColor: '#FFF3EE',
     ...titleBar,
     autoHideMenuBar: true,
     webPreferences: { contextIsolation: true, sandbox: true },

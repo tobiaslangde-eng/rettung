@@ -5,11 +5,11 @@ const W = 400;
 const H = 200;
 
 function Wheel({ x, level }: { x: number; level: number }) {
-  const rim = level >= 4 ? '#C9D3E3' : level >= 3 ? '#B7BEC8' : '#8C939C';
+  const rim = level >= 4 ? '#DDE6FF' : level >= 3 ? '#CFD6EC' : '#B9B3CB';
   return (
     <G>
-      <Circle cx={x} cy={165} r={25} fill="#16191D" />
-      <Circle cx={x} cy={165} r={14} fill={rim} />
+      <Circle cx={x} cy={165} r={25} fill={colors.ink} />
+      <Circle cx={x} cy={165} r={14} fill={rim} stroke={colors.ink} strokeWidth={2.5} />
       {level >= 3 &&
         [0, 72, 144, 216, 288].map((a) => (
           <Line
@@ -18,11 +18,11 @@ function Wheel({ x, level }: { x: number; level: number }) {
             y1={165}
             x2={x + 12 * Math.cos((a * Math.PI) / 180)}
             y2={165 + 12 * Math.sin((a * Math.PI) / 180)}
-            stroke="#5F6670"
+            stroke={colors.ink}
             strokeWidth={level >= 4 ? 3 : 2}
           />
         ))}
-      <Circle cx={x} cy={165} r={4} fill="#3A4048" />
+      <Circle cx={x} cy={165} r={4} fill={colors.ink} />
     </G>
   );
 }
@@ -35,7 +35,16 @@ function StarOfLifeSmall({ x, y, r }: { x: number; y: number; r: number }) {
   return (
     <G>
       {[0, 60, 120].map((d) => (
-        <Rect key={d} x={x - w / 2} y={y - r} width={w} height={r * 2} rx={1} fill={colors.blaulicht} transform={`rotate(${d} ${x} ${y})`} />
+        <Rect
+          key={d}
+          x={x - w / 2}
+          y={y - r}
+          width={w}
+          height={r * 2}
+          rx={1}
+          fill={colors.blaulicht}
+          transform={`rotate(${d} ${x} ${y})`}
+        />
       ))}
       <Line x1={x} y1={y - r * 0.7} x2={x} y2={y + r * 0.7} stroke="#fff" strokeWidth={r * 0.12} />
     </G>
@@ -54,7 +63,7 @@ function Battenburg({ x1, x2, y, rows, size }: { x1: number; x2: number; y: numb
           y={y + r * size}
           width={Math.min(size * 1.4, x2 - x)}
           height={size}
-          fill={(i + r) % 2 === 0 ? '#FFD100' : colors.signalrot}
+          fill={(i + r) % 2 === 0 ? colors.yellow : colors.signalrot}
         />,
       );
     }
@@ -67,7 +76,7 @@ export function Ambulance({ level, width = 320, blink = false }: { level: number
   const height = (width * H) / W;
   return (
     <Svg width={width} height={height} viewBox={`0 0 ${W} ${H}`}>
-      <Ellipse cx={200} cy={190} rx={185} ry={8} fill="rgba(0,0,0,0.25)" />
+      <Ellipse cx={200} cy={190} rx={185} ry={8} fill="rgba(20,23,58,0.28)" />
       {level === 1 && <Van blink={blink} />}
       {level === 2 && <TypeC blink={blink} />}
       {level === 3 && <Modern blink={blink} />}
@@ -81,11 +90,17 @@ export function Ambulance({ level, width = 320, blink = false }: { level: number
 function Van({ blink }: { blink: boolean }) {
   return (
     <G>
-      <Path d="M30 165 L30 72 Q30 60 42 60 L284 60 L330 108 L360 115 Q370 118 370 130 L370 165 Z" fill="#F1EFE8" stroke="#C9C4B5" strokeWidth={2} />
+      <Path
+        d="M30 165 L30 72 Q30 60 42 60 L284 60 L330 108 L360 115 Q370 118 370 130 L370 165 Z"
+        fill="#FFFFFF"
+        stroke={colors.ink}
+        strokeWidth={3.5}
+        strokeLinejoin="round"
+      />
       <Rect x={31} y={118} width={338} height={14} fill="#F08A24" />
-      <Rect x={226} y={70} width={52} height={36} rx={4} fill="#2A3340" />
-      <Polygon points="288,68 324,106 288,106" fill="#2A3340" />
-      <Rect x={40} y={70} width={60} height={30} rx={3} fill="#2A3340" />
+      <Rect x={226} y={70} width={52} height={36} rx={4} fill="#1D2A6B" />
+      <Polygon points="288,68 324,106 288,106" fill="#1D2A6B" />
+      <Rect x={40} y={70} width={60} height={30} rx={3} fill="#1D2A6B" />
       <SvgText x={150} y={106} fontSize={26} fontFamily={fonts.artBlack} fill="#F08A24" textAnchor="middle">
         112
       </SvgText>
@@ -99,15 +114,35 @@ function Van({ blink }: { blink: boolean }) {
 function TypeC({ blink }: { blink: boolean }) {
   return (
     <G>
-      <Rect x={30} y={40} width={244} height={125} rx={6} fill="#FFFFFF" stroke="#C7CDD5" strokeWidth={2} />
-      <Path d="M274 165 L274 70 L318 70 L354 112 Q370 116 370 130 L370 165 Z" fill="#FFFFFF" stroke="#C7CDD5" strokeWidth={2} />
+      <Rect
+        x={30}
+        y={40}
+        width={244}
+        height={125}
+        rx={6}
+        fill="#FFFFFF"
+        stroke={colors.ink}
+        strokeWidth={3.5}
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M274 165 L274 70 L318 70 L354 112 Q370 116 370 130 L370 165 Z"
+        fill="#FFFFFF"
+        stroke={colors.ink}
+        strokeWidth={3.5}
+        strokeLinejoin="round"
+      />
       <Rect x={31} y={120} width={338} height={16} fill={colors.signalrot} />
       {[0, 1, 2, 3, 4, 5].map((i) => (
-        <Polygon key={i} points={`30,${44 + i * 20} 44,${34 + i * 20} 44,${44 + i * 20} 30,${54 + i * 20}`} fill={colors.signalrot} />
+        <Polygon
+          key={i}
+          points={`30,${44 + i * 20} 44,${34 + i * 20} 44,${44 + i * 20} 30,${54 + i * 20}`}
+          fill={colors.signalrot}
+        />
       ))}
-      <Rect x={282} y={78} width={30} height={30} rx={3} fill="#253041" />
-      <Polygon points="320,76 348,110 320,110" fill="#253041" />
-      <SvgText x={156} y={100} fontSize={24} fontFamily={fonts.artBlack} fill={colors.signalrot} textAnchor="middle">
+      <Rect x={282} y={78} width={30} height={30} rx={3} fill="#1D2A6B" />
+      <Polygon points="320,76 348,110 320,110" fill="#1D2A6B" />
+      <SvgText x={160} y={100} fontSize={19} fontFamily={fonts.artBlack} fill={colors.signalrot} textAnchor="middle">
         RETTUNGSDIENST
       </SvgText>
       <Rect x={36} y={30} width={22} height={10} rx={3} fill={lamp(blink)} />
@@ -121,13 +156,29 @@ function TypeC({ blink }: { blink: boolean }) {
 function Modern({ blink }: { blink: boolean }) {
   return (
     <G>
-      <Rect x={28} y={32} width={248} height={133} rx={12} fill="#FFFFFF" stroke="#C7CDD5" strokeWidth={2} />
-      <Path d="M276 165 L276 66 L322 66 L358 110 Q372 114 372 130 L372 165 Z" fill="#FFFFFF" stroke="#C7CDD5" strokeWidth={2} />
+      <Rect
+        x={28}
+        y={32}
+        width={248}
+        height={133}
+        rx={12}
+        fill="#FFFFFF"
+        stroke={colors.ink}
+        strokeWidth={3.5}
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M276 165 L276 66 L322 66 L358 110 Q372 114 372 130 L372 165 Z"
+        fill="#FFFFFF"
+        stroke={colors.ink}
+        strokeWidth={3.5}
+        strokeLinejoin="round"
+      />
       <Battenburg x1={30} x2={370} y={112} rows={2} size={14} />
-      <Rect x={284} y={74} width={30} height={32} rx={4} fill="#1E2A3B" />
-      <Polygon points="324,72 352,108 324,108" fill="#1E2A3B" />
+      <Rect x={284} y={74} width={30} height={32} rx={4} fill="#1D2A6B" />
+      <Polygon points="324,72 352,108 324,108" fill="#1D2A6B" />
       <StarOfLifeSmall x={150} y={84} r={18} />
-      <SvgText x={150} y={58} fontSize={13} fontFamily={fonts.artBlack} fill="#1F3E78" textAnchor="middle">
+      <SvgText x={150} y={58} fontSize={12} fontFamily={fonts.artBlack} fill="#1F3E78" textAnchor="middle">
         NOTFALLRETTUNG
       </SvgText>
       {/* LED-Lichtbalken und Eckleuchten */}
@@ -136,7 +187,7 @@ function Modern({ blink }: { blink: boolean }) {
       <Rect x={30} y={36} width={6} height={40} rx={2} fill={lamp(!blink)} />
       <Rect x={268} y={36} width={6} height={40} rx={2} fill={lamp(blink)} />
       <Rect x={360} y={118} width={12} height={6} rx={2} fill={lamp(!blink)} />
-      <Rect x={356} y={140} width={16} height={7} rx={2} fill="#FFFFFF" stroke="#C7CDD5" />
+      <Rect x={356} y={140} width={16} height={7} rx={2} fill="#FFFFFF" stroke={colors.ink} strokeWidth={2} />
     </G>
   );
 }
@@ -145,14 +196,20 @@ function Electric({ blink }: { blink: boolean }) {
   return (
     <G>
       {/* Aerodynamischer Aufbau mit dunkler Schürze */}
-      <Path d="M26 165 L26 44 Q26 28 44 28 L262 28 Q282 28 290 44 L298 62 L330 62 L366 106 Q378 112 378 128 L378 165 Z" fill="#FFFFFF" stroke="#C7CDD5" strokeWidth={2} />
+      <Path
+        d="M26 165 L26 44 Q26 28 44 28 L262 28 Q282 28 290 44 L298 62 L330 62 L366 106 Q378 112 378 128 L378 165 Z"
+        fill="#FFFFFF"
+        stroke={colors.ink}
+        strokeWidth={3.5}
+        strokeLinejoin="round"
+      />
       <Path d="M27 142 L377 142 L377 165 L27 165 Z" fill="#2A3038" />
       <Battenburg x1={28} x2={376} y={114} rows={1} size={14} />
       <Rect x={28} y={130} width={348} height={4} fill="#33D6FF" />
-      <Path d="M300 70 L330 70 L362 108 L300 108 Z" fill="#17304F" />
-      <Rect x={232} y={44} width={52} height={40} rx={8} fill="#17304F" />
+      <Path d="M300 70 L330 70 L362 108 L300 108 Z" fill="#1D2A6B" />
+      <Rect x={232} y={44} width={52} height={40} rx={8} fill="#1D2A6B" />
       <StarOfLifeSmall x={70} y={76} r={22} />
-      <SvgText x={160} y={84} fontSize={18} fontFamily={fonts.artBlack} fill="#1F3E78" textAnchor="middle">
+      <SvgText x={176} y={84} fontSize={14} fontFamily={fonts.artBlack} fill="#1F3E78" textAnchor="middle">
         RETTUNGSDIENST
       </SvgText>
       <Circle cx={344} cy={146} r={10} fill="#1F9D55" />
