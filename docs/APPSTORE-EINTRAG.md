@@ -72,9 +72,9 @@ Weil Einsatz 112 auch für das iPad freigegeben ist, verlangt Apple zusätzlich 
 | Sekundäre Kategorie | Spiele → Lernspiele |
 | Altersfreigabe | Fragebogen: „Medizinische Informationen/Behandlungen“ → *selten/gering*, sonst überall *Nein* |
 | App-Datenschutz | „Keine Daten erfasst“ |
-| Datenschutz-URL | `https://tobiaslangde-eng.github.io/retung/datenschutz.html` |
-| Support-URL | `https://github.com/tobiaslangde-eng/retung/issues` |
-| Marketing-URL (optional) | `https://tobiaslangde-eng.github.io/retung/` |
+| Datenschutz-URL | `https://tobiaslangde-eng.github.io/rettung/datenschutz.html` |
+| Support-URL | `https://github.com/tobiaslangde-eng/rettung/issues` |
+| Marketing-URL (optional) | `https://tobiaslangde-eng.github.io/rettung/` |
 | Copyright | `2026 <dein Name>` |
 | Preis | Kostenlos |
 | Verfügbarkeit | alle Länder oder nur Deutschland, Österreich, Schweiz (App ist nur auf Deutsch) |

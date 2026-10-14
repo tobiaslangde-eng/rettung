@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Platform, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Button, Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
 import { BADGE_BONUS } from '../game/achievements';
 import { CPR_POINTS } from '../game/cpr';
@@ -9,9 +9,10 @@ import { DAILY_GOAL, dailyGoalBonus } from '../game/daily';
 import { QUIZ_POINTS } from '../game/quiz';
 import { DIFFICULTIES } from '../game/difficulty';
 import { POINTS } from '../game/scoring';
+import { Progress, exportCode, importCode } from '../game/storage';
 import { colors, spacing, type, fonts } from '../theme';
 
-const PRIVACY_URL = 'https://tobiaslangde-eng.github.io/retung/datenschutz.html';
+const PRIVACY_URL = 'https://tobiaslangde-eng.github.io/rettung/datenschutz.html';
 
 const STEPS = [
   { de: 'Alarm', text: 'Mein Melder piept: Die Leitstelle schickt mich zum nächsten Notfall. Mit Blaulicht geht es los.' },
@@ -23,7 +24,89 @@ const STEPS = [
   { de: 'Maßnahmen', text: 'Ich wähle alle passenden Maßnahmen. Falsche Maßnahmen schaden dem Patienten und kosten Punkte.' },
 ];
 
-export function GuideScreen({ onBack, onReset }: { onBack: () => void; onReset: () => void }) {
+/** Spielstand als Code mitnehmen – auf ein anderes Gerät oder zu einer neuen Web-Adresse. */
+function Transfer({ progress, onImport }: { progress: Progress; onImport: (p: Progress) => void }) {
+  const [shown, setShown] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [input, setInput] = useState('');
+  const [status, setStatus] = useState<'idle' | 'ok' | 'error'>('idle');
+  const code = exportCode(progress);
+  const parsed = input.trim() ? importCode(input) : null;
+
+  const copy = async () => {
+    try {
+      if (Platform.OS === 'web' && navigator.clipboard) {
+        await navigator.clipboard.writeText(code);
+        setCopied(true);
+      } else {
+        await Share.share({ message: code });
+      }
+    } catch {
+      setShown(true);
+    }
+  };
+
+  return (
+    <Card style={{ borderLeftColor: colors.blaulicht }}>
+      <Eyebrow title="Spielstand übertragen" />
+      <Text style={[type.small, { marginTop: spacing.xs }]}>
+        Neues Gerät oder neue Adresse? Hier den Code kopieren und auf dem anderen Gerät unter „Anleitung“ wieder
+        einfügen – Punkte, Rang, Abzeichen und Ausrüstung kommen mit.
+      </Text>
+      <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md }}>
+        <Button label={copied ? 'Kopiert ✓' : 'Code kopieren'} variant="dark" onPress={copy} style={{ flex: 1 }} />
+        <Button label={shown ? 'Ausblenden' : 'Code zeigen'} variant="outline" onPress={() => setShown(!shown)} style={{ flex: 1 }} />
+      </View>
+      {shown && (
+        <Text selectable style={styles.code}>
+          {code}
+        </Text>
+      )}
+      <TextInput
+        value={input}
+        onChangeText={(t) => {
+          setInput(t);
+          setStatus('idle');
+        }}
+        placeholder="Code vom anderen Gerät hier einfügen"
+        placeholderTextColor={colors.grau300}
+        autoCapitalize="none"
+        autoCorrect={false}
+        multiline
+        style={styles.input}
+      />
+      {input.trim() !== '' && (
+        <Text style={[type.small, { color: parsed ? colors.gruen : colors.signalrot, marginTop: spacing.xs }]}>
+          {parsed ? `Gültiger Code: ${parsed.totalPoints} Punkte, ${parsed.badges.length} Abzeichen` : 'Das ist kein gültiger Spielstand-Code.'}
+        </Text>
+      )}
+      <Button
+        label={status === 'ok' ? 'Übernommen ✓' : 'Spielstand übernehmen'}
+        variant="primary"
+        disabled={!parsed || status === 'ok'}
+        onPress={() => {
+          if (!parsed) return setStatus('error');
+          onImport(parsed);
+          setStatus('ok');
+        }}
+        style={{ marginTop: spacing.sm }}
+      />
+      <Text style={[type.small, { marginTop: spacing.xs }]}>Achtung: Der Spielstand auf diesem Gerät wird dabei ersetzt.</Text>
+    </Card>
+  );
+}
+
+export function GuideScreen({
+  progress,
+  onBack,
+  onReset,
+  onImport,
+}: {
+  progress: Progress;
+  onBack: () => void;
+  onReset: () => void;
+  onImport: (p: Progress) => void;
+}) {
   const [confirmReset, setConfirmReset] = useState(false);
   return (
     <View style={{ flex: 1 }}>
@@ -118,6 +201,7 @@ export function GuideScreen({ onBack, onReset }: { onBack: () => void; onReset: 
             style={{ marginTop: spacing.md }}
           />
         </Card>
+        <Transfer progress={progress} onImport={onImport} />
         <Card style={{ borderLeftColor: colors.grau500 }}>
           <Eyebrow title="Neu anfangen" />
           <Text style={[type.small, { marginTop: spacing.xs }]}>
@@ -152,5 +236,26 @@ function Row({ label, pts, text }: { label: string; pts: number; text?: string }
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
+  code: {
+    fontFamily: Platform.OS === 'web' ? 'monospace' : undefined,
+    fontSize: 11,
+    color: colors.graphit,
+    backgroundColor: colors.grau50,
+    borderRadius: 4,
+    padding: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  input: {
+    minHeight: 64,
+    borderWidth: 1,
+    borderColor: colors.grau200,
+    borderRadius: 6,
+    padding: spacing.sm,
+    marginTop: spacing.md,
+    fontFamily: fonts.regular,
+    fontSize: 14,
+    color: colors.graphit,
+    backgroundColor: colors.weiss,
+  },
   row: { flexDirection: 'row', paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: colors.grau50 },
 });

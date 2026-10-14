@@ -14,7 +14,7 @@ Die Stores verlangen das vom Besitzer der App.
 | Apple App Store | 99 € pro Jahr | Prüfung durch Apple | ca. 2–7 Tage |
 | Google Play | 25 $ einmalig | Bestätigung mit einem **Android-Handy**; **14 Tage Test mit 12 Testern** | ca. 3 Wochen |
 | Microsoft Store (Windows) | kostenlos | Prüfung durch Microsoft | ca. 1–3 Tage |
-| Web-App | kostenlos | läuft schon: https://tobiaslangde-eng.github.io/retung/ | – |
+| Web-App | kostenlos | läuft schon: https://tobiaslangde-eng.github.io/rettung/ | – |
 
 Feste Angaben, die du immer wieder brauchst:
 
@@ -22,15 +22,15 @@ Feste Angaben, die du immer wieder brauchst:
 |---|---|
 | App-Name | Einsatz 112 – Rettungsdienst |
 | Bundle-ID / Paketname | `io.github.tobiaslangde.einsatz112` |
-| Datenschutz-URL | `https://tobiaslangde-eng.github.io/retung/datenschutz.html` |
-| Support-URL | `https://github.com/tobiaslangde-eng/retung/issues` |
+| Datenschutz-URL | `https://tobiaslangde-eng.github.io/rettung/datenschutz.html` |
+| Support-URL | `https://github.com/tobiaslangde-eng/rettung/issues` |
 | Texte & Bilder | [`APPSTORE-EINTRAG.md`](APPSTORE-EINTRAG.md), [`PLAYSTORE-EINTRAG.md`](PLAYSTORE-EINTRAG.md) |
 
 ### So speicherst du ein „Secret“ bei GitHub
 
 Zugangsdaten gehören nie in den Code, sondern in die geschützten Secrets des Repositorys:
 
-1. https://github.com/tobiaslangde-eng/retung/settings/secrets/actions öffnen
+1. https://github.com/tobiaslangde-eng/rettung/settings/secrets/actions öffnen
 2. **New repository secret** → *Name* und *Secret* einfügen → **Add secret**
 
 Secrets kann danach niemand mehr lesen – auch du nicht. Bei einem Tippfehler einfach neu speichern.
@@ -40,7 +40,7 @@ Secrets kann danach niemand mehr lesen – auch du nicht. Bei einem Tippfehler e
 Den Knopf **Run workflow** zeigt GitHub nur für Workflows im Standard-Branch. Der aktuelle Stand liegt im
 Branch `claude/medical-game-app-expo-nru897`, der Standard ist noch `main`. Einmalig umstellen:
 
-1. https://github.com/tobiaslangde-eng/retung/settings öffnen (*Settings → General*)
+1. https://github.com/tobiaslangde-eng/rettung/settings öffnen (*Settings → General*)
 2. Bei **Default branch** auf das Pfeil-Symbol ⇄ tippen → `claude/medical-game-app-expo-nru897` wählen →
    **Update** → bestätigen
 
@@ -48,7 +48,7 @@ Branch `claude/medical-game-app-expo-nru897`, der Standard ist noch `main`. Einm
 
 ### So startest du den Store-Bau
 
-1. https://github.com/tobiaslangde-eng/retung/actions/workflows/store-release.yml öffnen
+1. https://github.com/tobiaslangde-eng/rettung/actions/workflows/store-release.yml öffnen
 2. **Run workflow** → Store auswählen → **Run workflow**
 3. Nach 20–60 Minuten ist der Lauf grün. Rot? Dann den Lauf öffnen – die Fehlermeldung sagt, was fehlt.
 
@@ -122,7 +122,7 @@ Dabei legt Expo bei Apple die Bundle-ID, das Zertifikat und das Profil an.
 1. Play Console → **App erstellen** → Name **Einsatz 112 – Rettungsdienst**, Sprache **Deutsch**,
    **Spiel**, **Kostenlos**, Erklärungen bestätigen
 2. Store-Bau starten mit Store **`android`**. Danach liegt die Datei **Einsatz112-GooglePlay.aab** unter
-   https://github.com/tobiaslangde-eng/retung/releases (Release *Google Play – Build …*). Aufs iPhone laden.
+   https://github.com/tobiaslangde-eng/rettung/releases (Release *Google Play – Build …*). Aufs iPhone laden.
 3. Play Console → **Test und Veröffentlichung → Testen → Geschlossener Test** → Track *Alpha* →
    **Tester** hinzufügen (E-Mail-Liste) → **Neuen Release erstellen** → die .aab-Datei hochladen →
    Releasename z. B. `1.0` → **Weiter** → **Speichern und veröffentlichen**
@@ -148,7 +148,7 @@ https://expo.fyi/creating-google-service-account). Den Inhalt der JSON-Schlüsse
 1. Kostenloses Konto für Einzelpersonen: https://storedeveloper.microsoft.com → **Get started**
 2. Partner Center → **Apps und Spiele** → **Neues Produkt** → **MSIX- oder PWA-App** → Name **Einsatz 112** reservieren
 3. In der App unter **Produktverwaltung → Produktidentität** drei Werte kopieren und bei GitHub als
-   **Variablen** speichern (nicht als Secret): https://github.com/tobiaslangde-eng/retung/settings/variables/actions
+   **Variablen** speichern (nicht als Secret): https://github.com/tobiaslangde-eng/rettung/settings/variables/actions
    → **New repository variable**
 
    | Name der Variable | Wert aus „Produktidentität“ |

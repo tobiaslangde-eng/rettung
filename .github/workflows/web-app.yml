@@ -1,6 +1,6 @@
 # Veröffentlicht Einsatz 112 als Web-App (für iPhone: in Safari „Zum Home-Bildschirm“).
 # Die fertige Seite landet im Branch gh-pages, den GitHub Pages ausliefert:
-# https://tobiaslangde-eng.github.io/retung/
+# https://tobiaslangde-eng.github.io/rettung/
 #
 # Einmalig nötig: Repository öffentlich, und unter Settings → Pages als Quelle
 # „Deploy from a branch“ → Branch „gh-pages“ / „(root)“ wählen.

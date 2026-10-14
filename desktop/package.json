@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Einsatz 112 – medizinisches Lernspiel",
   "author": "Einsatz 112",
-  "repository": "github:tobiaslangde-eng/retung",
+  "repository": "github:tobiaslangde-eng/rettung",
   "main": "main.js",
   "private": true,
   "scripts": {

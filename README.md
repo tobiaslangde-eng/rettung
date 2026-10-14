@@ -111,7 +111,7 @@ Lokal bauen: `cd desktop && npm install && npm run prepare-app && npm run dist:l
 Beides liegt unter **Releases** im Repository (neuester Build oben).
 Android: APK auf dem Handy öffnen und „Installation aus unbekannten Quellen“ erlauben.
 **iPhone & iPad (ohne App Store):** Einsatz 112 läuft als Web-App mit eigenem Icon, im Vollbild und offline.
-Der Workflow „Web-App veröffentlichen“ legt sie unter <https://tobiaslangde-eng.github.io/retung/> ab.
+Der Workflow „Web-App veröffentlichen“ legt sie unter <https://tobiaslangde-eng.github.io/rettung/> ab.
 Auf dem iPhone den Link in **Safari** öffnen → Teilen-Symbol → **„Zum Home-Bildschirm“**.
 Einmalig nötig: Repository öffentlich und unter *Settings → Pages* den Branch `gh-pages` als Quelle wählen.
 

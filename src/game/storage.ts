@@ -96,3 +96,22 @@ export async function saveProgress(p: Progress): Promise<void> {
     // Fortschritt ist optional – Spiel läuft auch ohne Speicher weiter.
   }
 }
+
+const CODE_PREFIX = 'E112-';
+
+/** Spielstand als Text-Code, um ihn auf ein anderes Gerät oder eine neue Adresse mitzunehmen. */
+export function exportCode(p: Progress): string {
+  return CODE_PREFIX + btoa(encodeURIComponent(JSON.stringify(p)));
+}
+
+/** Liest einen Spielstand-Code; null, wenn der Code ungültig ist. */
+export function importCode(code: string): Progress | null {
+  try {
+    const raw = code.replace(/\s+/g, '').replace(CODE_PREFIX, '');
+    const data = JSON.parse(decodeURIComponent(atob(raw)));
+    if (typeof data !== 'object' || data === null || typeof data.totalPoints !== 'number') return null;
+    return { ...EMPTY_PROGRESS, ...data };
+  } catch {
+    return null;
+  }
+}

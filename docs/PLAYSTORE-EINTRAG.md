@@ -46,7 +46,7 @@ Alle Angaben für die **Google Play Console** (Sprache: Deutsch – de-DE). Gesa
 | App oder Spiel | **Spiel** |
 | Kategorie | **Lernspiele** |
 | Kostenlos oder kostenpflichtig | Kostenlos |
-| Datenschutzerklärung | `https://tobiaslangde-eng.github.io/retung/datenschutz.html` |
+| Datenschutzerklärung | `https://tobiaslangde-eng.github.io/rettung/datenschutz.html` |
 | App-Zugriff | „Alle Funktionen sind ohne besonderen Zugriff verfügbar“ |
 | Anzeigen | **Nein**, die App enthält keine Werbung |
 | Einstufung des Inhalts | Fragebogen ausfüllen: Kategorie *Spiel*; keine Gewalt, keine Glücksspiele, keine Nutzerinteraktion. Bei „medizinische Inhalte/Blut“ wahrheitsgemäß: nur Text, keine Darstellung |
@@ -59,7 +59,7 @@ Alle Angaben für die **Google Play Console** (Sprache: Deutsch – de-DE). Gesa
 ## Erster Upload (von Hand)
 
 Die Datei **Einsatz112-GooglePlay.aab** kommt aus dem Workflow *Store-Veröffentlichung* und liegt danach
-als Release `store-android-…` unter https://github.com/tobiaslangde-eng/retung/releases.
+als Release `store-android-…` unter https://github.com/tobiaslangde-eng/rettung/releases.
 
 ## Geschlossener Test (Pflicht für neue private Konten)
 

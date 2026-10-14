@@ -1,6 +1,6 @@
 # Datenschutzerklärung – Einsatz 112
 
-Veröffentlicht unter **https://tobiaslangde-eng.github.io/retung/datenschutz.html**
+Veröffentlicht unter **https://tobiaslangde-eng.github.io/rettung/datenschutz.html**
 (Quelle: [`web/datenschutz.html`](../web/datenschutz.html)) – diese Adresse in App Store Connect und
 der Google Play Console als Datenschutz-URL eintragen.
 
@@ -11,4 +11,4 @@ der Google Play Console als Datenschutz-URL eintragen.
 - Die Web-Version wird über GitHub Pages ausgeliefert; GitHub verarbeitet dabei technisch notwendige
   Verbindungsdaten (IP-Adresse).
 
-Kontakt: https://github.com/tobiaslangde-eng/retung/issues
+Kontakt: https://github.com/tobiaslangde-eng/rettung/issues

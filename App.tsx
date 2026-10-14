@@ -229,6 +229,12 @@ export default function App() {
     setScreen({ name: 'home' });
   };
 
+  /** Spielstand per Code von einem anderen Gerät übernehmen */
+  const importProgress = (p: Progress) => {
+    setProgress(p);
+    saveProgress(p);
+  };
+
   const home = () => setScreen({ name: 'home' });
 
   const setDifficulty = (difficulty: Difficulty) => {
@@ -289,7 +295,7 @@ export default function App() {
                   />
                 )}
                 {screen.name === 'lexikon' && <LexikonScreen progress={progress} onBack={home} />}
-                {screen.name === 'guide' && <GuideScreen onBack={home} onReset={resetProgress} />}
+                {screen.name === 'guide' && <GuideScreen progress={progress} onBack={home} onReset={resetProgress} onImport={importProgress} />}
                 {screen.name === 'quiz' && (
                   <QuizScreen key={screen.key} best={progress.quizBest} onFinish={finishQuiz} onBack={home} />
                 )}
