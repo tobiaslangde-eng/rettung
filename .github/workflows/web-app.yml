@@ -100,6 +100,27 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.sha }}
 
+      # Ältere Stände werden mit dem heutigen Verpackungs-Skript fertig gebaut:
+      # so tragen alle Vorschauen dasselbe schmale gelbe Schild (z. B. „VORSCHAU APPLE“) und ihren eigenen Namen.
+      - name: Aktuelles Verpackungs-Skript holen
+        if: inputs.ref != ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: aktuell
+          sparse-checkout: scripts/build-pwa.mjs
+          sparse-checkout-cone-mode: false
+
+      - name: Aktuelles Verpackungs-Skript einsetzen
+        if: inputs.ref != ''
+        run: cp aktuell/scripts/build-pwa.mjs scripts/build-pwa.mjs
+
+      - name: Namen der Vorschau festlegen
+        if: inputs.ordner != '' && inputs.ordner != 'vorschau'
+        env:
+          ORDNER: ${{ inputs.ordner }}
+        run: echo "VORSCHAU_NAME=${ORDNER##*/}" >> "$GITHUB_ENV"
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -112,19 +133,6 @@ jobs:
         run: npm run build:pwa
         env:
           VORSCHAU: '1'
-
-      # Das gelbe Schild im Bild und der Name auf dem Home-Bildschirm zeigen sonst den Stand des Arbeits-Branches
-      # statt der gewählten Vorschau (z. B. „VORSCHAU APPLE“ statt einer Versionsnummer).
-      - name: Vorschau beschriften
-        if: inputs.ordner != '' && inputs.ordner != 'vorschau'
-        env:
-          ORDNER: ${{ inputs.ordner }}
-        run: |
-          NAME="${ORDNER##*/}"
-          sed -i "s/VORSCHAU [0-9a-f]\{7\}</VORSCHAU ${NAME^^}</" dist-pwa/index.html
-          sed -i "s/content=\"E112 Vorschau\">/content=\"E112 ${NAME}\">/" dist-pwa/index.html
-          sed -i "s/E112 Vorschau/E112 ${NAME}/; s/(Vorschau)/(${NAME})/" dist-pwa/manifest.webmanifest
-          grep -c "VORSCHAU ${NAME^^}<" dist-pwa/index.html
 
       - name: Nach gh-pages/vorschau veröffentlichen
         uses: peaceiris/actions-gh-pages@v4
