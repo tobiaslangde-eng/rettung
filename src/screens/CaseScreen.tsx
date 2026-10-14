@@ -10,6 +10,7 @@ import { Rating, VITALS, VITAL_BY_ID, VitalId, formatVital, normalText, rateVita
 import { DifficultyDef, HINT_COST } from '../game/difficulty';
 import { EquipmentEffects } from '../game/equipment';
 import { CONDITION, CaseRun, MINUTES_PER_MEASUREMENT, clampCondition, shuffle } from '../game/scoring';
+import { Columns, useLayout } from '../layout';
 import { colors, fonts, monitor, spacing, type } from '../theme';
 
 type Phase = 'alarm' | 'drive' | 'exam' | 'diagnosis' | 'treatment';
@@ -60,6 +61,9 @@ export function CaseScreen({
   onAbort: () => void;
 }) {
   const scrollRef = useRef<ScrollView>(null);
+  const L = useLayout();
+  /** Auf breiten Bildschirmen bleiben Bedienfelder unten mittig und lesbar breit */
+  const sidePad = Math.max(spacing.lg, (L.width - 760) / 2);
   const [phase, setPhase] = useState<Phase>('alarm');
   const [measured, setMeasured] = useState<CaseRun['measured']>([]);
   const [pending, setPending] = useState<VitalId | null>(null);
@@ -86,7 +90,11 @@ export function CaseScreen({
 
   // Schwer: Der Patient verschlechtert sich in Echtzeit, solange ich untersuche und überlege.
   const incidentActive =
-    !!incident && phase === 'exam' && !pending && !incidentClosed && (measured.length >= incident.afterMeasurements || wantsDiagnosis);
+    !!incident &&
+    phase === 'exam' &&
+    !pending &&
+    !incidentClosed &&
+    (measured.length >= incident.afterMeasurements || wantsDiagnosis);
   const draining = difficulty.drainPerSecond > 0 && (phase === 'exam' || (phase === 'diagnosis' && !diagnosisLocked));
   useEffect(() => {
     if (!draining) return;
@@ -202,9 +210,7 @@ export function CaseScreen({
       <View style={styles.steps}>
         {STEPS.map((s, i) => (
           <View key={s.phase} style={[styles.step, i <= stepIndex && styles.stepActive]}>
-            <Text style={[styles.stepText, i <= stepIndex && { color: colors.weiss }]}>
-              {s.de}
-            </Text>
+            <Text style={[styles.stepText, i <= stepIndex && { color: colors.weiss }]}>{s.de}</Text>
           </View>
         ))}
       </View>
@@ -217,25 +223,29 @@ export function CaseScreen({
               {draining ? '  · verschlechtert sich!' : ''}
             </Text>
             <View style={styles.conditionTrack}>
-              <View
-                style={[styles.conditionFill, { width: `${condition}%`, backgroundColor: conditionColor(condition) }]}
-              />
+              <View style={[styles.conditionFill, { width: `${condition}%`, backgroundColor: conditionColor(condition) }]} />
             </View>
           </View>
           <Text style={styles.conditionValue}>{Math.round(condition)}%</Text>
         </View>
       )}
 
-      <ScrollView ref={scrollRef} contentContainerStyle={styles.content}>
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={[
+          styles.content,
+          L.wide && { width: '100%', maxWidth: phase === 'exam' ? 1180 : 780, alignSelf: 'center', padding: spacing.xl },
+        ]}
+      >
         {phase === 'alarm' && (
           <>
             <View style={styles.alarm}>
               <ReflexStripes height={6} />
               <View style={styles.alarmBody}>
-              {daily && <Text style={styles.dailyTag}>⭐ Einsatz des Tages · +50 % Punkte</Text>}
-              <Text style={styles.alarmEyebrow}>📟 Alarm · Mein Melder piept!</Text>
-              <Text style={styles.alarmText}>Leitstelle: „{medCase.dispatch}“</Text>
-              <Text style={styles.alarmLoc}>{medCase.location}</Text>
+                {daily && <Text style={styles.dailyTag}>⭐ Einsatz des Tages · +50 % Punkte</Text>}
+                <Text style={styles.alarmEyebrow}>📟 Alarm · Mein Melder piept!</Text>
+                <Text style={styles.alarmText}>Leitstelle: „{medCase.dispatch}“</Text>
+                <Text style={styles.alarmLoc}>{medCase.location}</Text>
               </View>
             </View>
             <Card>
@@ -255,90 +265,100 @@ export function CaseScreen({
 
         {phase === 'exam' && (
           <>
-            <Card style={{ borderLeftColor: colors.signalrot }}>
-              <Eyebrow title="Ich komme an" />
-              <Text style={[type.body, { marginTop: spacing.xs, fontFamily: fonts.italic }]}>{medCase.scene}</Text>
-            </Card>
-            <Card>
-              <Eyebrow title="Was ich höre" />
-              {medCase.anamnese.map((a, i) => (
-                <Text key={i} style={[type.body, { marginTop: spacing.xs }]}>
-                  • {a}
-                </Text>
-              ))}
-            </Card>
-            <Card style={{ borderLeftColor: colors.graphit }}>
-              <Eyebrow title="Was ich sehe" />
-              {medCase.befund.map((b, i) => (
-                <Text key={i} style={[type.body, { marginTop: spacing.xs }]}>
-                  • {b}
-                </Text>
-              ))}
-            </Card>
-
-            <Eyebrow title="Was messe ich?" />
-            <View style={styles.grid}>
-              {VITALS.map((v) => {
-                const done = measured.find((m) => m.id === v.id);
-                const isPending = pending === v.id;
-                const value = medCase.vitals[v.id];
-                const truth = rateVital(v.id, value, medCase.patient.age);
-                const right = done && truth !== null && difficulty.instantFeedback ? done.guess === truth : null;
-                return (
-                  <Pressable
-                    key={v.id}
-                    onPress={() => measure(v.id)}
-                    disabled={!!done || !!pending}
-                    style={[
-                      styles.tile,
-                      v.textOnly && styles.tileWide,
-                      isPending && styles.tilePending,
-                      right === true && styles.tileRight,
-                      right === false && styles.tileWrong,
-                    ]}
-                  >
-                    <View style={styles.tileHead}>
-                      <View style={[styles.tileDot, { backgroundColor: monitor[v.id] }]} />
-                      <Text style={styles.tileShort}>{v.short}</Text>
-                    </View>
-                    <Text style={styles.tileName}>{v.name}</Text>
-                    {done || isPending ? (
-                      <Text style={[styles.tileValue, v.textOnly && { fontFamily: fonts.regular, fontSize: 14 }]}>{formatVital(v.id, value)}</Text>
-                    ) : (
-                      <Text style={styles.tileTap}>Messen ›</Text>
-                    )}
-                    {done && truth !== null && right !== null && (
-                      <Text style={[styles.tileFeedback, { color: right ? colors.gruen : colors.signalrot }]}>
-                        {right ? `✓ ${truth}` : `✗ eigentlich ${truth}`} · Norm {normalText(v.id, medCase.patient.age)}
+            <Columns
+              wide={L.wide}
+              weights={[5, 6]}
+              cols={[
+                <>
+                  <Card style={{ borderLeftColor: colors.signalrot }}>
+                    <Eyebrow title="Ich komme an" />
+                    <Text style={[type.body, { marginTop: spacing.xs, fontFamily: fonts.italic }]}>{medCase.scene}</Text>
+                  </Card>
+                  <Card>
+                    <Eyebrow title="Was ich höre" />
+                    {medCase.anamnese.map((a, i) => (
+                      <Text key={i} style={[type.body, { marginTop: spacing.xs }]}>
+                        • {a}
                       </Text>
-                    )}
-                    {done && truth !== null && right === null && (
-                      <Text style={[styles.tileFeedback, { color: colors.grau500 }]}>meine Einschätzung: {done.guess}</Text>
-                    )}
-                  </Pressable>
-                );
-              })}
-            </View>
+                    ))}
+                  </Card>
+                  <Card style={{ borderLeftColor: colors.graphit }}>
+                    <Eyebrow title="Was ich sehe" />
+                    {medCase.befund.map((b, i) => (
+                      <Text key={i} style={[type.body, { marginTop: spacing.xs }]}>
+                        • {b}
+                      </Text>
+                    ))}
+                  </Card>
+                </>,
+                <>
+                  <Eyebrow title="Was messe ich?" />
+                  <View style={styles.grid}>
+                    {VITALS.map((v) => {
+                      const done = measured.find((m) => m.id === v.id);
+                      const isPending = pending === v.id;
+                      const value = medCase.vitals[v.id];
+                      const truth = rateVital(v.id, value, medCase.patient.age);
+                      const right = done && truth !== null && difficulty.instantFeedback ? done.guess === truth : null;
+                      return (
+                        <Pressable
+                          key={v.id}
+                          onPress={() => measure(v.id)}
+                          disabled={!!done || !!pending}
+                          style={[
+                            styles.tile,
+                            v.textOnly && styles.tileWide,
+                            isPending && styles.tilePending,
+                            right === true && styles.tileRight,
+                            right === false && styles.tileWrong,
+                          ]}
+                        >
+                          <View style={styles.tileHead}>
+                            <View style={[styles.tileDot, { backgroundColor: monitor[v.id] }]} />
+                            <Text style={styles.tileShort}>{v.short}</Text>
+                          </View>
+                          <Text style={styles.tileName}>{v.name}</Text>
+                          {done || isPending ? (
+                            <Text style={[styles.tileValue, v.textOnly && { fontFamily: fonts.regular, fontSize: 14 }]}>
+                              {formatVital(v.id, value)}
+                            </Text>
+                          ) : (
+                            <Text style={styles.tileTap}>Messen ›</Text>
+                          )}
+                          {done && truth !== null && right !== null && (
+                            <Text style={[styles.tileFeedback, { color: right ? colors.gruen : colors.signalrot }]}>
+                              {right ? `✓ ${truth}` : `✗ eigentlich ${truth}`} · Norm {normalText(v.id, medCase.patient.age)}
+                            </Text>
+                          )}
+                          {done && truth !== null && right === null && (
+                            <Text style={[styles.tileFeedback, { color: colors.grau500 }]}>meine Einschätzung: {done.guess}</Text>
+                          )}
+                        </Pressable>
+                      );
+                    })}
+                  </View>
 
-            {!pending && difficulty.hints !== 'keine' && (
-              examHint ? (
-                <Kati>{examHintText}</Kati>
-              ) : (
-                <AskKati
-                  label={`Kati fragen, was ich messen soll${hintCostLabel}`}
-                  onPress={() => {
-                    setExamHint(true);
-                    takeHint();
-                  }}
-                />
-              )
-            )}
+                  {!pending &&
+                    difficulty.hints !== 'keine' &&
+                    (examHint ? (
+                      <Kati>{examHintText}</Kati>
+                    ) : (
+                      <AskKati
+                        label={`Kati fragen, was ich messen soll${hintCostLabel}`}
+                        onPress={() => {
+                          setExamHint(true);
+                          takeHint();
+                        }}
+                      />
+                    ))}
 
-            <Button
-              label="Ich habe einen Verdacht"
-             
-              disabled={!!pending || measured.length === 0 || incidentActive}
-              onPress={toDiagnosis}
+                  <Button
+                    label="Ich habe einen Verdacht"
+                    disabled={!!pending || measured.length === 0 || incidentActive}
+                    onPress={toDiagnosis}
+                  />
+                </>,
+              ]}
             />
           </>
         )}
@@ -408,13 +428,7 @@ export function CaseScreen({
                 <Button label="Jetzt handeln" onPress={() => goto('treatment')} />
               </>
             ) : (
-              <Button
-                label="Das ist meine Diagnose"
-               
-                variant="dark"
-                disabled={!diagnosisGuess}
-                onPress={lockDiagnosis}
-              />
+              <Button label="Das ist meine Diagnose" variant="dark" disabled={!diagnosisGuess} onPress={lockDiagnosis} />
             )}
           </>
         )}
@@ -432,83 +446,74 @@ export function CaseScreen({
                   onPress={() => setTreatmentGuess((g) => (on ? g.filter((x) => x !== i) : [...g, i]))}
                   style={[styles.check, on && styles.checkOn]}
                 >
-                  <View style={[styles.box, on && styles.boxOn]}>
-                    {on && <Text style={styles.boxTick}>✓</Text>}
-                  </View>
+                  <View style={[styles.box, on && styles.boxOn]}>{on && <Text style={styles.boxTick}>✓</Text>}</View>
                   <Text style={[type.body, { flex: 1 }]}>{t.text}</Text>
                 </Pressable>
               );
             })}
-            <Button
-              label="Los, ich handle!"
-             
-              variant="alarm"
-              disabled={treatmentGuess.length === 0}
-              onPress={finish}
-            />
+            <Button label="Los, ich handle!" variant="alarm" disabled={treatmentGuess.length === 0} onPress={finish} />
           </>
         )}
         <WarnStripes />
       </ScrollView>
-        {incidentActive && incident && (
-          <View style={styles.incident}>
-            <ReflexStripes height={6} />
-            <View style={styles.incidentBody}>
-              <Text style={styles.incidentEyebrow}>⚠️ Zwischenfall!</Text>
-              <Text style={styles.incidentText}>{incident.text}</Text>
-              {incidentOptions.map((o) => {
-                const chosen = incidentChoice === o;
-                const reveal = !!incidentChoice && difficulty.instantFeedback;
-                const isRight = o === incident.options[0];
-                return (
-                  <Pressable
-                    key={o}
-                    disabled={!!incidentChoice}
-                    onPress={() => chooseIncident(o)}
-                    style={[
-                      styles.incidentOption,
-                      chosen && styles.incidentChosen,
-                      reveal && isRight && styles.incidentRight,
-                      reveal && chosen && !isRight && styles.incidentWrong,
-                      !!incidentChoice && !chosen && !(reveal && isRight) && { opacity: 0.45 },
-                    ]}
-                  >
-                    <Text style={[styles.incidentOptionText, (chosen || (reveal && isRight)) && { color: colors.weiss }]}>{o}</Text>
-                  </Pressable>
-                );
-              })}
-              {incidentChoice && (
-                <>
-                  <Text style={styles.incidentFeedback}>
-                    {difficulty.instantFeedback
-                      ? `${incidentChoice === incident.options[0] ? '✓ Richtig reagiert! ' : '✗ Leider falsch. '}${incident.explanation}`
-                      : 'Entscheidung getroffen – die Auswertung gibt es im Bericht.'}
-                  </Text>
-                  <Button label="Weiter" variant="dark" onPress={closeIncident} />
-                </>
-              )}
-            </View>
-          </View>
-        )}
-        {phase === 'exam' && pending && (
-          <View style={styles.ratePanel}>
-            <Text style={styles.rateAction}>{VITAL_BY_ID[pending].action}</Text>
-            <Text style={[styles.rateValue, { color: monitor[pending] }]}>{formatVital(pending, medCase.vitals[pending])}</Text>
-            {difficulty.showNormBeforeRating && (
-              <Text style={styles.rateNorm}>Norm: {normalText(pending, medCase.patient.age)}</Text>
-            )}
-            <Text style={styles.rateQ}>Wie schätze ich den Wert ein?</Text>
-            <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm }}>
-              {RATINGS.map((r) => (
-                <Pressable key={r.value} style={styles.rateBtn} onPress={() => rate(r.value)}>
-                  <Text style={styles.rateSymbol}>{r.symbol}</Text>
-                  <Text style={styles.rateLabel}>{r.label}</Text>
+      {incidentActive && incident && (
+        <View style={styles.incident}>
+          <ReflexStripes height={6} />
+          <View style={[styles.incidentBody, { paddingHorizontal: sidePad }]}>
+            <Text style={styles.incidentEyebrow}>⚠️ Zwischenfall!</Text>
+            <Text style={styles.incidentText}>{incident.text}</Text>
+            {incidentOptions.map((o) => {
+              const chosen = incidentChoice === o;
+              const reveal = !!incidentChoice && difficulty.instantFeedback;
+              const isRight = o === incident.options[0];
+              return (
+                <Pressable
+                  key={o}
+                  disabled={!!incidentChoice}
+                  onPress={() => chooseIncident(o)}
+                  style={[
+                    styles.incidentOption,
+                    chosen && styles.incidentChosen,
+                    reveal && isRight && styles.incidentRight,
+                    reveal && chosen && !isRight && styles.incidentWrong,
+                    !!incidentChoice && !chosen && !(reveal && isRight) && { opacity: 0.45 },
+                  ]}
+                >
+                  <Text style={[styles.incidentOptionText, (chosen || (reveal && isRight)) && { color: colors.weiss }]}>{o}</Text>
                 </Pressable>
-              ))}
-            </View>
+              );
+            })}
+            {incidentChoice && (
+              <>
+                <Text style={styles.incidentFeedback}>
+                  {difficulty.instantFeedback
+                    ? `${incidentChoice === incident.options[0] ? '✓ Richtig reagiert! ' : '✗ Leider falsch. '}${incident.explanation}`
+                    : 'Entscheidung getroffen – die Auswertung gibt es im Bericht.'}
+                </Text>
+                <Button label="Weiter" variant="dark" onPress={closeIncident} />
+              </>
+            )}
           </View>
-        )}
-
+        </View>
+      )}
+      {phase === 'exam' && pending && (
+        <View style={[styles.ratePanel, { paddingHorizontal: sidePad }]}>
+          <Text style={styles.rateAction}>{VITAL_BY_ID[pending].action}</Text>
+          <Text style={[styles.rateValue, { color: monitor[pending] }]}>{formatVital(pending, medCase.vitals[pending])}</Text>
+          {difficulty.showNormBeforeRating && (
+            <Text style={styles.rateNorm}>Norm: {normalText(pending, medCase.patient.age)}</Text>
+          )}
+          <Text style={styles.rateQ}>Wie schätze ich den Wert ein?</Text>
+          <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm }}>
+            {RATINGS.map((r) => (
+              <Pressable key={r.value} style={styles.rateBtn} onPress={() => rate(r.value)}>
+                <Text style={styles.rateSymbol}>{r.symbol}</Text>
+                <Text style={styles.rateLabel}>{r.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -579,9 +584,21 @@ const styles = StyleSheet.create({
   tileFeedback: { fontSize: 11, marginTop: 4, fontFamily: fonts.semibold },
   incident: { backgroundColor: colors.signalrot },
   incidentBody: { padding: spacing.lg, gap: spacing.sm },
-  incidentEyebrow: { fontFamily: fonts.displayBlack, fontSize: 26, color: colors.weiss, textTransform: 'uppercase', letterSpacing: 1 },
+  incidentEyebrow: {
+    fontFamily: fonts.displayBlack,
+    fontSize: 26,
+    color: colors.weiss,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
   incidentText: { fontFamily: fonts.bold, fontSize: 16, lineHeight: 22, color: colors.weiss, marginBottom: spacing.xs },
-  incidentOption: { backgroundColor: colors.weiss, borderRadius: 6, padding: spacing.md, borderWidth: 2, borderColor: colors.weiss },
+  incidentOption: {
+    backgroundColor: colors.weiss,
+    borderRadius: 6,
+    padding: spacing.md,
+    borderWidth: 2,
+    borderColor: colors.weiss,
+  },
   incidentChosen: { backgroundColor: colors.graphit, borderColor: colors.graphit },
   incidentRight: { backgroundColor: colors.gruen, borderColor: colors.weiss },
   incidentWrong: { backgroundColor: colors.graphit, borderColor: colors.warngelb },
@@ -621,7 +638,15 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   checkOn: { borderColor: colors.blaulicht },
-  box: { width: 26, height: 26, borderRadius: 4, borderWidth: 1.5, borderColor: colors.graphit, alignItems: 'center', justifyContent: 'center' },
+  box: {
+    width: 26,
+    height: 26,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: colors.graphit,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   boxOn: { backgroundColor: colors.blaulicht, borderColor: colors.blaulicht },
   boxTick: { color: colors.weiss, fontFamily: fonts.extrabold },
 });

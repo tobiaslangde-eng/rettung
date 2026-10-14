@@ -62,6 +62,24 @@ Der Fortschritt wird lokal gespeichert. Im **Lexikon** findest du Normwerte und 
 - **Mittel (11):** Anaphylaxie, Hypothermie, Hitzschlag, Hyperventilation, Krampfanfall, hypertensiver Notfall, Opioid-Überdosis, Gehirnerschütterung, COPD, verschluckte Erdnuss (Kind), Exsikkose (Kind)
 - **Schwer (6):** Sepsis, Lungenembolie, Lungenödem, Kohlenmonoxidvergiftung, diabetische Ketoazidose, Spannungspneumothorax (plus die mittleren Fälle)
 
+## Auf jedem Gerät
+
+Die Oberfläche passt sich an die Bildschirmgröße an:
+
+- **iPhone/Handy:** eine Spalte, alles mit dem Daumen erreichbar
+- **iPad hoch:** zwei Spalten; **iPad quer, PC und Mac:** feste Seitenleiste mit Dienstgrad, Budget und Menü,
+  Startseite in drei Spalten, Untersuchung mit Patient links und Messwerten rechts, Lexikon als Kachel-Raster
+- **Desktop-App:** Fenster 1280 × 820, unter macOS mit Ampel-Knöpfen in der dunklen Titelleiste, unter Windows mit
+  dunkler Titelleiste und den Windows-Fensterknöpfen; kleiner gezogen wird sie zur Handy-Ansicht
+
+![Einsatz 112 auf Mac, iPad und iPhone](docs/geraete/alle.png)
+
+| Mac | Windows |
+|---|---|
+| ![Mac](docs/geraete/mac.png) | ![Windows](docs/geraete/windows.png) |
+| **iPad quer** | **iPad hoch** |
+| ![iPad quer](docs/geraete/ipad-quer.png) | ![iPad hoch](docs/geraete/ipad-hoch.png) |
+
 ## Design: Rettungsdienst
 
 - **Patientenmonitor** als Startbild und im Einsatzbericht: dunkles Raster, grüne EKG-Kurve,

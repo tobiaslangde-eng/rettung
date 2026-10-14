@@ -102,7 +102,7 @@ Dabei legt Expo bei Apple die Bundle-ID, das Zertifikat und das Profil an.
 1. Store-Bau erneut starten: Store **`iphone`**, Haken bei *hochladen*. Nach ca. 30–60 Minuten
    erscheint der Build in App Store Connect unter **TestFlight**.
 2. Ausprobieren: App **TestFlight** auf dem iPhone installieren – du bist automatisch Tester.
-3. Store-Eintrag ausfüllen: Texte, Screenshots und alle Angaben stehen in
+3. Store-Eintrag ausfüllen (iPhone- **und** iPad-Screenshots, weil die App auch fürs iPad freigegeben ist): Texte, Screenshots und alle Angaben stehen in
    [`APPSTORE-EINTRAG.md`](APPSTORE-EINTRAG.md). Screenshots aus `docs/appstore/` hochladen.
 4. Unter *App-Datenschutz* **„Keine Daten erfasst“**, Altersfreigabe-Fragebogen ausfüllen.
 5. Den Build auswählen → **Zur Prüfung hinzufügen** → **Zur Prüfung einreichen**.

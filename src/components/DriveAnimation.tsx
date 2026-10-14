@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Animated, Easing, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useLayout } from '../layout';
 import { colors, fonts, spacing } from '../theme';
 import { Ambulance } from './Ambulance';
 import { CityScene, WarnStripes } from './Ems';
@@ -9,7 +10,7 @@ const SCENE_HEIGHT = 260;
 
 /** Kurze Blaulichtfahrt durch die Stadt bei Nacht zwischen Alarm und Eintreffen. */
 export function DriveAnimation({ location, rtwLevel = 1, onDone }: { location: string; rtwLevel?: number; onDone: () => void }) {
-  const { width } = useWindowDimensions();
+  const { width } = useLayout();
   const x = useRef(new Animated.Value(0)).current;
   const blink = useRef(new Animated.Value(0)).current;
   const [lightOn, setLightOn] = useState(false);
@@ -39,7 +40,7 @@ export function DriveAnimation({ location, rtwLevel = 1, onDone }: { location: s
     };
   }, [x, blink, onDone]);
 
-  const translateX = x.interpolate({ inputRange: [0, 1], outputRange: [-150, Math.min(width, 480) + 20] });
+  const translateX = x.interpolate({ inputRange: [0, 1], outputRange: [-150, width + 20] });
   const glow = blink.interpolate({ inputRange: [0, 1], outputRange: [0, 0.16] });
 
   return (
@@ -74,5 +75,12 @@ const styles = StyleSheet.create({
   scene: { height: SCENE_HEIGHT, overflow: 'hidden' },
   glow: { backgroundColor: colors.blaulicht },
   car: { position: 'absolute', bottom: 18, alignItems: 'center' },
-  skip: { fontFamily: fonts.semibold, color: colors.grau500, fontSize: 12, textAlign: 'center', marginTop: spacing.lg, letterSpacing: 1 },
+  skip: {
+    fontFamily: fonts.semibold,
+    color: colors.grau500,
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: spacing.lg,
+    letterSpacing: 1,
+  },
 });

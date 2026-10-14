@@ -10,6 +10,7 @@ import { DAILY_GOAL, dailyCase, dailyGoalBonus, dayState } from '../game/daily';
 import { DIFFICULTIES, Difficulty } from '../game/difficulty';
 import { RANKS, rankFor } from '../game/scoring';
 import { Progress } from '../game/storage';
+import { Columns, useLayout } from '../layout';
 import { weekView } from '../game/weekly';
 import { colors, fonts, monitor, spacing, type } from '../theme';
 
@@ -56,6 +57,7 @@ export function HomeScreen({
   onManv: () => void;
   onGarage: () => void;
 }) {
+  const L = useLayout();
   const canUpgrade = EQUIPMENT.some((e) => upgradeBlock(progress, e.id) === null);
   const week = weekView(progress);
   const barMax = Math.max(1, week.best, ...week.bars.map((b) => b.points));
@@ -67,34 +69,9 @@ export function HomeScreen({
   const mastered = CASES.filter((c) => (progress.bestStars[c.id] ?? 0) >= 3).length;
   const current = DIFFICULTIES.find((d) => d.id === progress.difficulty) ?? DIFFICULTIES[0];
 
-  return (
-    <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl }}>
-      <View style={styles.hero}>
-        <View style={StyleSheet.absoluteFill}>
-          <MonitorScene height={330} />
-        </View>
-        <View style={styles.heroTop}>
-          <View style={styles.status}>
-            <StatusLight />
-            <Text style={styles.statusText}>Einsatzbereit</Text>
-          </View>
-        </View>
-        <View style={styles.heroText}>
-          <Text style={styles.title}>Einsatz 112</Text>
-          <Text style={styles.subtitle}>Ich bin Sanitäter/in. Ich erkenne. Ich messe. Ich handle.</Text>
-        </View>
-        <View style={styles.ecg}>
-          <EcgStrip height={64} />
-        </View>
-        <View style={styles.readouts}>
-          <Readout label="HF" value="72" color={monitor.puls} />
-          <Readout label="SpO₂" value="98" color={monitor.spo2} />
-          <Readout label="RR" value="120/80" color={monitor.rr} />
-        </View>
-      </View>
-      <WarnStripes height={14} />
-
-      <View style={styles.body}>
+  const blocks = {
+    rank: (
+      <>
         <View style={styles.rank}>
           <RankBadge size={76} level={RANKS.indexOf(rank)} />
           <View style={{ flex: 1, minWidth: 0 }}>
@@ -109,7 +86,10 @@ export function HomeScreen({
             </Text>
           </View>
         </View>
-
+      </>
+    ),
+    stats: (
+      <>
         <View style={styles.stats}>
           <Stat value={progress.casesPlayed} label="Einsätze" />
           <View style={styles.statRule} />
@@ -117,7 +97,10 @@ export function HomeScreen({
           <View style={styles.statRule} />
           <Stat value={`${mastered}/${CASES.length}`} label="Gemeistert" />
         </View>
-
+      </>
+    ),
+    week: (
+      <>
         <View style={styles.week}>
           <View style={{ flex: 1, gap: 2 }}>
             <Eyebrow title="Meine Woche" />
@@ -154,13 +137,19 @@ export function HomeScreen({
             })}
           </View>
         </View>
-
+      </>
+    ),
+    streak: (
+      <>
         {progress.streak >= 2 && (
           <View style={styles.streak}>
             <Text style={styles.streakText}>🔥 {progress.streak} gute Einsätze in Folge</Text>
           </View>
         )}
-
+      </>
+    ),
+    difficulty: (
+      <>
         <View style={{ gap: spacing.sm }}>
           <Eyebrow title="Schwierigkeit" />
           <View style={styles.diffRow}>
@@ -193,9 +182,15 @@ export function HomeScreen({
           </View>
           <Text style={type.small}>{current.description}</Text>
         </View>
-
+      </>
+    ),
+    start: (
+      <>
         <Button label="Schicht beginnen" variant="alarm" onPress={onStart} />
-
+      </>
+    ),
+    daily: (
+      <>
         <View style={styles.daily}>
           <View style={styles.dailyHead}>
             <Text style={styles.dailyEyebrow}>Heutiger Dienst</Text>
@@ -229,8 +224,15 @@ export function HomeScreen({
             {!day.dailyCaseDone && <Text style={styles.quizArrow}>›</Text>}
           </Pressable>
         </View>
-
-        <Pressable onPress={onGarage} accessibilityRole="button" style={({ pressed }) => [styles.garage, pressed && { opacity: 0.9 }]}>
+      </>
+    ),
+    garage: (
+      <>
+        <Pressable
+          onPress={onGarage}
+          accessibilityRole="button"
+          style={({ pressed }) => [styles.garage, pressed && { opacity: 0.9 }]}
+        >
           <View style={styles.garageHead}>
             <Text style={styles.garageEyebrow}>Fahrzeughalle</Text>
             {canUpgrade && <Text style={styles.garageNew}>Aufrüsten möglich!</Text>}
@@ -248,10 +250,17 @@ export function HomeScreen({
             <Text style={[styles.quizArrow, { color: colors.warngelb }]}>›</Text>
           </View>
         </Pressable>
-
+      </>
+    ),
+    training: (
+      <>
         <View style={{ gap: spacing.sm }}>
           <Eyebrow title="Training" />
-          <Pressable onPress={onManv} accessibilityRole="button" style={({ pressed }) => [styles.manv, pressed && { opacity: 0.9 }]}>
+          <Pressable
+            onPress={onManv}
+            accessibilityRole="button"
+            style={({ pressed }) => [styles.manv, pressed && { opacity: 0.9 }]}
+          >
             <WarnStripes height={8} />
             <View style={styles.manvBody}>
               <Text style={styles.manvIcon}>🚨</Text>
@@ -283,18 +292,32 @@ export function HomeScreen({
             onPress={onQuiz}
           />
         </View>
+      </>
+    ),
+    links: (
+      <>
         <View style={{ flexDirection: 'row', gap: spacing.sm }}>
           <Button label="Lexikon" variant="dark" onPress={onLexikon} style={{ flex: 1 }} />
           <Button label="Anleitung" variant="outline" onPress={onGuide} style={{ flex: 1 }} />
         </View>
-
+      </>
+    ),
+    badges: (
+      <>
         <View style={{ gap: spacing.sm }}>
           <Eyebrow title={`Abzeichen · ${progress.badges.length} von ${BADGES.length}`} />
           <View style={styles.badges}>
             {BADGES.map((b) => {
               const has = progress.badges.includes(b.id);
               return (
-                <View key={b.id} style={[styles.badge, !has && styles.badgeLocked]}>
+                <View
+                  key={b.id}
+                  style={[
+                    styles.badge,
+                    L.desktop ? { width: '12.5%' } : L.wide ? { width: '23%' } : null,
+                    !has && styles.badgeLocked,
+                  ]}
+                >
                   <Text style={[styles.badgeIcon, !has && { opacity: 0.25 }]}>{b.icon}</Text>
                   <Text style={[styles.badgeTitle, !has && { color: colors.grau500 }]} numberOfLines={2}>
                     {b.title}
@@ -307,11 +330,104 @@ export function HomeScreen({
             })}
           </View>
         </View>
-
+      </>
+    ),
+    note: (
+      <>
         <Text style={[type.small, { textAlign: 'center' }]}>
           Lernspiel – ersetzt keine medizinische Ausbildung und keine ärztliche Beratung.{'\n'}
           Im echten Notfall immer: 112.
         </Text>
+      </>
+    ),
+  };
+
+  return (
+    <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl }}>
+      <View style={styles.hero}>
+        <View style={StyleSheet.absoluteFill}>
+          <MonitorScene height={330} />
+        </View>
+        <View style={styles.heroTop}>
+          <View style={styles.status}>
+            <StatusLight />
+            <Text style={styles.statusText}>Einsatzbereit</Text>
+          </View>
+        </View>
+        <View style={styles.heroText}>
+          <Text style={[styles.title, L.wide && styles.titleWide]}>Einsatz 112</Text>
+          <Text style={styles.subtitle}>Ich bin Sanitäter/in. Ich erkenne. Ich messe. Ich handle.</Text>
+        </View>
+        <View style={styles.ecg}>
+          <EcgStrip height={64} />
+        </View>
+        <View style={[styles.readouts, L.desktop && styles.readoutsWide]}>
+          <Readout label="HF" value="72" color={monitor.puls} />
+          <Readout label="SpO₂" value="98" color={monitor.spo2} />
+          <Readout label="RR" value="120/80" color={monitor.rr} />
+        </View>
+      </View>
+      <WarnStripes height={14} />
+
+      <View style={[styles.body, L.wide && styles.bodyWide]}>
+        {L.desktop ? (
+          <Columns
+            wide
+            cols={[
+              <>
+                {blocks.rank}
+                {blocks.stats}
+                {blocks.week}
+                {blocks.streak}
+              </>,
+              <>
+                {blocks.difficulty}
+                {blocks.start}
+                {blocks.daily}
+                {blocks.garage}
+              </>,
+              <>
+                {blocks.training}
+                {blocks.links}
+              </>,
+            ]}
+          />
+        ) : L.wide ? (
+          <Columns
+            wide
+            cols={[
+              <>
+                {blocks.rank}
+                {blocks.stats}
+                {blocks.difficulty}
+                {blocks.start}
+                {blocks.daily}
+              </>,
+              <>
+                {blocks.week}
+                {blocks.streak}
+                {blocks.garage}
+                {blocks.training}
+                {blocks.links}
+              </>,
+            ]}
+          />
+        ) : (
+          <>
+            {blocks.rank}
+            {blocks.stats}
+            {blocks.week}
+            {blocks.streak}
+            {blocks.difficulty}
+            {blocks.start}
+            {blocks.daily}
+            {blocks.garage}
+            {blocks.training}
+            {blocks.links}
+          </>
+        )}
+        {blocks.badges}
+        {blocks.note}
       </View>
     </ScrollView>
   );
@@ -331,10 +447,11 @@ function Training({ title, sub, color, onPress }: { title: string; sub: string; 
 }
 
 function Readout({ label, value, color }: { label: string; value: string; color: string }) {
+  const { desktop } = useLayout();
   return (
-    <View>
+    <View style={desktop && styles.readoutBox}>
       <Text style={[styles.readoutLabel, { color }]}>{label}</Text>
-      <Text style={[styles.readoutValue, { color }]}>{value}</Text>
+      <Text style={[styles.readoutValue, { color }, desktop && styles.readoutValueWide]}>{value}</Text>
     </View>
   );
 }
@@ -371,12 +488,25 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
+  titleWide: { fontSize: 104, lineHeight: 106 },
   subtitle: { color: colors.grau300, fontSize: 15, fontFamily: fonts.semibold },
   ecg: { alignSelf: 'stretch', height: 64 },
   readouts: { flexDirection: 'row', gap: spacing.xl, paddingHorizontal: spacing.xl, paddingBottom: spacing.lg },
+  readoutsWide: { position: 'absolute', right: spacing.xl, top: 64, flexDirection: 'column', gap: spacing.sm, paddingBottom: 0 },
+  readoutBox: {
+    minWidth: 190,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: 'rgba(11,14,18,0.75)',
+    borderRadius: 6,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 4,
+  },
+  readoutValueWide: { fontSize: 40, lineHeight: 42, textAlign: 'right' },
   readoutLabel: { fontFamily: fonts.bold, fontSize: 11, letterSpacing: 1 },
   readoutValue: { fontFamily: fonts.displayBlack, fontSize: 28, lineHeight: 30 },
   body: { padding: spacing.lg, gap: spacing.xl },
+  bodyWide: { padding: spacing.xl },
   rank: {
     flexDirection: 'row',
     gap: spacing.lg,
@@ -386,7 +516,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.grau200,
   },
-  rankName: { fontFamily: fonts.displayBlack, fontSize: 22, lineHeight: 25, color: colors.graphit, textTransform: 'uppercase', marginTop: 2 },
+  rankName: {
+    fontFamily: fonts.displayBlack,
+    fontSize: 22,
+    lineHeight: 25,
+    color: colors.graphit,
+    textTransform: 'uppercase',
+    marginTop: 2,
+  },
   bar: { height: 6, backgroundColor: colors.grau200, marginVertical: spacing.sm, borderRadius: 3, overflow: 'hidden' },
   barFill: { height: 6, backgroundColor: colors.signalrot },
   stats: { flexDirection: 'row', alignItems: 'stretch' },
@@ -394,7 +531,13 @@ const styles = StyleSheet.create({
   stat: { flex: 1, alignItems: 'center', paddingVertical: spacing.xs },
   statValue: { fontSize: 34, lineHeight: 36, fontFamily: fonts.displayBlack, color: colors.graphit },
   statLabel: { fontFamily: fonts.bold, fontSize: 11, color: colors.grau500, letterSpacing: 1.2, textTransform: 'uppercase' },
-  streak: { alignSelf: 'center', backgroundColor: colors.graphit, paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: 20 },
+  streak: {
+    alignSelf: 'center',
+    backgroundColor: colors.graphit,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
   streakText: { color: colors.warngelb, fontFamily: fonts.extrabold, fontSize: 13 },
   diffRow: { flexDirection: 'row', gap: spacing.sm },
   quiz: {
@@ -427,17 +570,45 @@ const styles = StyleSheet.create({
   manvIcon: { fontSize: 26, fontFamily: fonts.regular },
   manvTitle: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.graphit, textTransform: 'uppercase' },
   manvSub: { fontFamily: fonts.semibold, fontSize: 13, color: colors.graphit },
-  garage: { backgroundColor: '#1A1F26', borderRadius: 6, padding: spacing.lg, gap: spacing.sm, borderBottomWidth: 4, borderBottomColor: colors.warngelb },
+  garage: {
+    backgroundColor: '#1A1F26',
+    borderRadius: 6,
+    padding: spacing.lg,
+    gap: spacing.sm,
+    borderBottomWidth: 4,
+    borderBottomColor: colors.warngelb,
+  },
   garageHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  garageEyebrow: { fontFamily: fonts.extrabold, fontSize: 11, letterSpacing: 1.8, color: colors.warngelb, textTransform: 'uppercase' },
-  garageNew: { fontFamily: fonts.extrabold, fontSize: 11, color: colors.graphit, backgroundColor: colors.monitorGruen, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, overflow: 'hidden' },
+  garageEyebrow: {
+    fontFamily: fonts.extrabold,
+    fontSize: 11,
+    letterSpacing: 1.8,
+    color: colors.warngelb,
+    textTransform: 'uppercase',
+  },
+  garageNew: {
+    fontFamily: fonts.extrabold,
+    fontSize: 11,
+    color: colors.graphit,
+    backgroundColor: colors.monitorGruen,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
   garageRow: { flexDirection: 'row', alignItems: 'center' },
   garageTitle: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.weiss, textTransform: 'uppercase' },
   garageSub: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau300 },
   trainingDot: { width: 10, height: 10, borderRadius: 5 },
   daily: { backgroundColor: colors.graphit, borderRadius: 6, padding: spacing.lg, gap: spacing.sm },
   dailyHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  dailyEyebrow: { fontFamily: fonts.extrabold, fontSize: 11, letterSpacing: 1.8, color: colors.warngelb, textTransform: 'uppercase' },
+  dailyEyebrow: {
+    fontFamily: fonts.extrabold,
+    fontSize: 11,
+    letterSpacing: 1.8,
+    color: colors.warngelb,
+    textTransform: 'uppercase',
+  },
   dailyStreak: { fontFamily: fonts.bold, fontSize: 13, color: colors.weiss },
   segments: { flexDirection: 'row', gap: 6 },
   segment: { flex: 1, height: 8, borderRadius: 2, backgroundColor: colors.graphitSoft },

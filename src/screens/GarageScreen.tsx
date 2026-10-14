@@ -17,6 +17,7 @@ import {
   upgradeBlock,
 } from '../game/equipment';
 import { Progress } from '../game/storage';
+import { Columns, useLayout } from '../layout';
 import { colors, fonts, spacing, type } from '../theme';
 
 function Pips({ level, dark }: { level: number; dark?: boolean }) {
@@ -52,6 +53,7 @@ function Steckbrief({
   onClose: () => void;
 }) {
   const { height } = useWindowDimensions();
+  const L = useLayout();
   const slide = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.timing(slide, { toValue: 1, duration: 260, useNativeDriver: Platform.OS !== 'web' }).start();
@@ -67,7 +69,13 @@ function Steckbrief({
   return (
     <View style={StyleSheet.absoluteFill}>
       <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Steckbrief schließen" />
-      <Animated.View style={[styles.sheet, { maxHeight: height * 0.9, transform: [{ translateY }] }]}>
+      <Animated.View
+        style={[
+          styles.sheet,
+          L.wide && { left: (L.width - 600) / 2, right: (L.width - 600) / 2, bottom: spacing.xl, borderRadius: 16 },
+          { maxHeight: height * 0.9, transform: [{ translateY }] },
+        ]}
+      >
         <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl }}>
           <View style={styles.showroom}>
             <View style={styles.spot} />
@@ -165,8 +173,8 @@ export function GarageScreen({
   onUpgrade: (id: EquipmentId) => void;
   onBack: () => void;
 }) {
-  const { width } = useWindowDimensions();
-  const sceneWidth = Math.min(width, 480);
+  const L = useLayout();
+  const sceneWidth = L.wide ? Math.floor(((L.width - spacing.xl * 2 - spacing.lg) * 6) / 11) : L.width;
   const [inside, setInside] = useState(false);
   const [sheet, setSheet] = useState<EquipmentId | null>(null);
   const [fresh, setFresh] = useState<EquipmentId | null>(null);
@@ -215,71 +223,88 @@ export function GarageScreen({
           </View>
         }
       />
-      <ScrollView contentContainerStyle={{ paddingBottom: spacing.xxl }}>
-        <View style={styles.hall}>
-          {inside ? (
-            <FirstPersonInterior levels={levels} width={sceneWidth} upgradable={upgradable} onSelect={setSheet} />
-          ) : (
-            <Pressable onPress={() => setSheet('rtw')} style={styles.outside} accessibilityLabel="Fahrzeug ansehen">
-              <View style={styles.hallLight} />
-              <Ambulance level={levels.rtw} width={sceneWidth - spacing.lg * 2} blink={blink} />
-              <View style={styles.floorLine} />
-            </Pressable>
-          )}
-          <View style={styles.hallInfo}>
-            <Text style={styles.rtwName}>{inside ? 'Im Patientenraum' : rtwTier.name}</Text>
-            <Text style={styles.rtwYear}>
-              {inside ? 'Tippe ein Gerät an – Steckbrief ansehen und aufrüsten' : `Baujahr ${rtwTier.year} · Ausbau ${total}/${maxTotal}`}
-            </Text>
-            <View style={styles.toggle}>
-              {[
-                { v: false, label: 'Außen' },
-                { v: true, label: '🚪 Einsteigen' },
-              ].map((o) => (
-                <Pressable key={o.label} onPress={() => setInside(o.v)} style={[styles.toggleBtn, inside === o.v && styles.toggleActive]}>
-                  <Text style={[styles.toggleText, inside === o.v && { color: colors.graphit }]}>{o.label}</Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-        </View>
-        <ReflexStripes height={6} />
-
-        <View style={styles.body}>
-          <View style={styles.summary}>
-            <Eyebrow title="Wirkung meiner Ausrüstung im Einsatz" />
-            <View style={styles.progressTrack}>
-              <View style={[styles.progressFill, { width: `${(total / maxTotal) * 100}%` }]} />
-            </View>
-            <Text style={type.small}>
-              {effects.length > 0 ? effects.join(' · ') : 'Noch Grundausstattung – jede Aufrüstung hilft meinen Patienten.'}
-            </Text>
-            <Text style={[type.small, { marginTop: 4 }]}>Für jeden Punkt im Einsatz bekommt die Wache 1 € Budget.</Text>
-          </View>
-
-          <Eyebrow title="Gesamte Ausrüstung" />
-          {EQUIPMENT.map((e) => {
-            const l = levels[e.id];
-            const can = upgradable.includes(e.id);
-            return (
-              <Pressable key={e.id} onPress={() => setSheet(e.id)} style={({ pressed }) => [styles.row, pressed && { opacity: 0.8 }]}>
-                <View style={styles.rowArt}>
-                  {e.id === 'rtw' ? <Ambulance level={l} width={56} /> : <DeviceArt id={e.id} level={l} size={44} />}
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.rowKicker}>{e.title}</Text>
-                  <Text style={styles.rowName} numberOfLines={1}>
-                    {e.tiers[l - 1].name}
+      <ScrollView contentContainerStyle={[{ paddingBottom: spacing.xxl }, L.wide && { padding: spacing.xl }]}>
+        <Columns
+          wide={L.wide}
+          weights={[6, 5]}
+          cols={[
+            <View key="hall" style={L.wide && styles.hallWide}>
+              <View style={styles.hall}>
+                {inside ? (
+                  <FirstPersonInterior levels={levels} width={sceneWidth} upgradable={upgradable} onSelect={setSheet} />
+                ) : (
+                  <Pressable onPress={() => setSheet('rtw')} style={styles.outside} accessibilityLabel="Fahrzeug ansehen">
+                    <View style={styles.hallLight} />
+                    <Ambulance level={levels.rtw} width={sceneWidth - spacing.lg * 2} blink={blink} />
+                    <View style={styles.floorLine} />
+                  </Pressable>
+                )}
+                <View style={styles.hallInfo}>
+                  <Text style={styles.rtwName}>{inside ? 'Im Patientenraum' : rtwTier.name}</Text>
+                  <Text style={styles.rtwYear}>
+                    {inside
+                      ? 'Tippe ein Gerät an – Steckbrief ansehen und aufrüsten'
+                      : `Baujahr ${rtwTier.year} · Ausbau ${total}/${maxTotal}`}
                   </Text>
-                  <Pips level={l} />
+                  <View style={styles.toggle}>
+                    {[
+                      { v: false, label: 'Außen' },
+                      { v: true, label: '🚪 Einsteigen' },
+                    ].map((o) => (
+                      <Pressable
+                        key={o.label}
+                        onPress={() => setInside(o.v)}
+                        style={[styles.toggleBtn, inside === o.v && styles.toggleActive]}
+                      >
+                        <Text style={[styles.toggleText, inside === o.v && { color: colors.graphit }]}>{o.label}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
                 </View>
-                {can && <Text style={styles.rowUp}>↑ Aufrüsten</Text>}
-                <Text style={styles.rowArrow}>›</Text>
-              </Pressable>
-            );
-          })}
-          <WarnStripes />
-        </View>
+              </View>
+              <ReflexStripes height={6} />
+            </View>,
+            <View key="body" style={[styles.body, L.wide && { padding: 0 }]}>
+              <View style={styles.summary}>
+                <Eyebrow title="Wirkung meiner Ausrüstung im Einsatz" />
+                <View style={styles.progressTrack}>
+                  <View style={[styles.progressFill, { width: `${(total / maxTotal) * 100}%` }]} />
+                </View>
+                <Text style={type.small}>
+                  {effects.length > 0 ? effects.join(' · ') : 'Noch Grundausstattung – jede Aufrüstung hilft meinen Patienten.'}
+                </Text>
+                <Text style={[type.small, { marginTop: 4 }]}>Für jeden Punkt im Einsatz bekommt die Wache 1 € Budget.</Text>
+              </View>
+
+              <Eyebrow title="Gesamte Ausrüstung" />
+              {EQUIPMENT.map((e) => {
+                const l = levels[e.id];
+                const can = upgradable.includes(e.id);
+                return (
+                  <Pressable
+                    key={e.id}
+                    onPress={() => setSheet(e.id)}
+                    style={({ pressed }) => [styles.row, pressed && { opacity: 0.8 }]}
+                  >
+                    <View style={styles.rowArt}>
+                      {e.id === 'rtw' ? <Ambulance level={l} width={56} /> : <DeviceArt id={e.id} level={l} size={44} />}
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.rowKicker}>{e.title}</Text>
+                      <Text style={styles.rowName} numberOfLines={1}>
+                        {e.tiers[l - 1].name}
+                      </Text>
+                      <Pips level={l} />
+                    </View>
+                    {can && <Text style={styles.rowUp}>↑ Aufrüsten</Text>}
+                    <Text style={styles.rowArrow}>›</Text>
+                  </Pressable>
+                );
+              })}
+              <WarnStripes />
+            </View>,
+          ]}
+        />
       </ScrollView>
 
       {sheet && (
@@ -298,9 +323,17 @@ export function GarageScreen({
 }
 
 const styles = StyleSheet.create({
-  budget: { alignItems: 'flex-end', borderWidth: 1, borderColor: colors.warngelb, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 },
+  budget: {
+    alignItems: 'flex-end',
+    borderWidth: 1,
+    borderColor: colors.warngelb,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
   budgetValue: { color: colors.warngelb, fontFamily: fonts.extrabold, fontSize: 15 },
   budgetLabel: { color: colors.grau300, fontFamily: fonts.regular, fontSize: 9, letterSpacing: 1 },
+  hallWide: { borderRadius: 10, overflow: 'hidden' },
   hall: { backgroundColor: '#1A1F26' },
   outside: { alignItems: 'center', paddingTop: spacing.xl, paddingHorizontal: spacing.lg, overflow: 'hidden' },
   hallLight: {
@@ -312,7 +345,14 @@ const styles = StyleSheet.create({
     borderRadius: 200,
     backgroundColor: 'rgba(255,255,255,0.06)',
   },
-  floorLine: { height: 4, backgroundColor: colors.warngelb, opacity: 0.7, marginTop: spacing.sm, alignSelf: 'stretch', marginHorizontal: -spacing.lg },
+  floorLine: {
+    height: 4,
+    backgroundColor: colors.warngelb,
+    opacity: 0.7,
+    marginTop: spacing.sm,
+    alignSelf: 'stretch',
+    marginHorizontal: -spacing.lg,
+  },
   hallInfo: { padding: spacing.lg, paddingTop: spacing.md },
   rtwName: { fontFamily: fonts.displayBlack, fontSize: 26, color: colors.weiss, textTransform: 'uppercase' },
   rtwYear: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau300 },
@@ -321,7 +361,14 @@ const styles = StyleSheet.create({
   toggleActive: { backgroundColor: colors.warngelb },
   toggleText: { fontFamily: fonts.displayBlack, fontSize: 17, color: colors.grau300, textTransform: 'uppercase' },
   body: { padding: spacing.lg, gap: spacing.md },
-  summary: { backgroundColor: colors.weiss, borderWidth: 1, borderColor: colors.grau200, borderRadius: 6, padding: spacing.lg, gap: 4 },
+  summary: {
+    backgroundColor: colors.weiss,
+    borderWidth: 1,
+    borderColor: colors.grau200,
+    borderRadius: 6,
+    padding: spacing.lg,
+    gap: 4,
+  },
   progressTrack: { height: 8, backgroundColor: colors.grau200, borderRadius: 4, overflow: 'hidden', marginVertical: 4 },
   progressFill: { height: 8, backgroundColor: colors.warngelb },
   row: {
@@ -335,7 +382,13 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   rowArt: { width: 58, height: 46, alignItems: 'center', justifyContent: 'center', backgroundColor: '#1A1F26', borderRadius: 6 },
-  rowKicker: { fontFamily: fonts.extrabold, fontSize: 10, letterSpacing: 1.4, color: colors.signalrot, textTransform: 'uppercase' },
+  rowKicker: {
+    fontFamily: fonts.extrabold,
+    fontSize: 10,
+    letterSpacing: 1.4,
+    color: colors.signalrot,
+    textTransform: 'uppercase',
+  },
   rowName: { fontFamily: fonts.displayBlack, fontSize: 17, color: colors.graphit, textTransform: 'uppercase', marginBottom: 3 },
   rowUp: {
     fontFamily: fonts.extrabold,
@@ -373,7 +426,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(120,170,255,0.10)',
   },
   sheetHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: spacing.lg },
-  sheetKicker: { fontFamily: fonts.extrabold, fontSize: 11, letterSpacing: 1.6, color: colors.warngelb, textTransform: 'uppercase' },
+  sheetKicker: {
+    fontFamily: fonts.extrabold,
+    fontSize: 11,
+    letterSpacing: 1.6,
+    color: colors.warngelb,
+    textTransform: 'uppercase',
+  },
   close: { fontFamily: fonts.bold, fontSize: 22, color: colors.grau300 },
   artWrap: { alignItems: 'center', justifyContent: 'center', height: 190, marginTop: spacing.sm },
   sparkles: { position: 'absolute' },
@@ -389,18 +448,38 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     textTransform: 'uppercase',
   },
-  sheetName: { fontFamily: fonts.displayBlack, fontSize: 28, lineHeight: 30, color: colors.weiss, textTransform: 'uppercase', marginTop: spacing.sm },
+  sheetName: {
+    fontFamily: fonts.displayBlack,
+    fontSize: 28,
+    lineHeight: 30,
+    color: colors.weiss,
+    textTransform: 'uppercase',
+    marginTop: spacing.sm,
+  },
   sheetMeta: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: 4 },
   sheetMetaText: { fontFamily: fonts.semibold, fontSize: 13, color: colors.grau300 },
   sheetBody: { padding: spacing.lg, gap: spacing.md },
   facts: { gap: 4 },
   fact: { fontFamily: fonts.bold, fontSize: 14, color: colors.graphit },
   effectBox: { backgroundColor: colors.weiss, borderRadius: 6, borderWidth: 1, borderColor: colors.grau200, padding: spacing.md },
-  effectLabel: { fontFamily: fonts.extrabold, fontSize: 10, letterSpacing: 1.4, color: colors.grau500, textTransform: 'uppercase' },
+  effectLabel: {
+    fontFamily: fonts.extrabold,
+    fontSize: 10,
+    letterSpacing: 1.4,
+    color: colors.grau500,
+    textTransform: 'uppercase',
+  },
   effectText: { fontFamily: fonts.bold, fontSize: 14, color: colors.gruen, marginTop: 2 },
   wissen: { backgroundColor: colors.blaulichtLight, borderRadius: 6, padding: spacing.md, gap: 4 },
   wissenLabel: { fontFamily: fonts.extrabold, fontSize: 12, color: colors.blaulichtDark },
-  next: { backgroundColor: colors.weiss, borderRadius: 6, borderWidth: 1, borderColor: colors.grau200, padding: spacing.md, gap: spacing.sm },
+  next: {
+    backgroundColor: colors.weiss,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.grau200,
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
   nextRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   nextArt: { width: 86, height: 80, borderRadius: 6, backgroundColor: '#1A1F26', alignItems: 'center', justifyContent: 'center' },
   nextName: { fontFamily: fonts.displayBlack, fontSize: 18, color: colors.graphit, textTransform: 'uppercase' },

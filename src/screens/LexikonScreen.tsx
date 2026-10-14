@@ -5,24 +5,32 @@ import { BASICS } from '../data/basics';
 import { CASES } from '../data/cases';
 import { CHILD_NORMS, VITALS } from '../data/vitals';
 import { Progress } from '../game/storage';
+import { useLayout } from '../layout';
 import { colors, spacing, type, fonts } from '../theme';
 
 type Tab = 'wissen' | 'werte' | 'krankheiten';
 
 export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack: () => void }) {
   const [tab, setTab] = useState<Tab>('werte');
+  const L = useLayout();
+  const cardW = L.desktop ? { width: '32.3%' as const } : L.wide ? { width: '48.9%' as const } : undefined;
   return (
     <View style={{ flex: 1 }}>
       <TopBar kicker="Nachschlagen" title="Lexikon" onBack={onBack} />
       <View style={styles.tabs}>
         <TabBtn active={tab === 'werte'} label="Normwerte" sub="Vitalwerte" onPress={() => setTab('werte')} />
-        <TabBtn active={tab === 'krankheiten'} label="Krankheiten" sub={`${CASES.length} Fälle`} onPress={() => setTab('krankheiten')} />
+        <TabBtn
+          active={tab === 'krankheiten'}
+          label="Krankheiten"
+          sub={`${CASES.length} Fälle`}
+          onPress={() => setTab('krankheiten')}
+        />
         <TabBtn active={tab === 'wissen'} label="Wissen" sub="Erste Hilfe" onPress={() => setTab('wissen')} />
       </View>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, L.wide && styles.contentWide]}>
         {tab === 'wissen' &&
           BASICS.map((b) => (
-            <Card key={b.id}>
+            <Card key={b.id} style={cardW}>
               <Eyebrow title="Rettungswissen" />
               <Text style={[type.h2, { marginTop: 2 }]}>{b.title}</Text>
               {b.intro ? <Text style={[type.small, { marginTop: spacing.xs }]}>{b.intro}</Text> : null}
@@ -35,26 +43,28 @@ export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack
           ))}
         {tab === 'wissen' ? null : tab === 'werte' ? (
           <>
-            <Text style={type.small}>Richtwerte für Erwachsene in Ruhe. Bei Kindern gelten andere Normalbereiche.</Text>
-            <Card style={{ borderLeftColor: colors.warngelb }}>
+            <Text style={[type.small, { width: '100%' }]}>
+              Richtwerte für Erwachsene in Ruhe. Bei Kindern gelten andere Normalbereiche.
+            </Text>
+            <Card style={[{ borderLeftColor: colors.warngelb }, cardW]}>
               <Eyebrow title="Kinder" />
               <Text style={[type.h2, { marginTop: 2 }]}>Normwerte bei Kindern</Text>
               <Text style={[type.small, { marginTop: spacing.xs }]}>
-                Je jünger, desto schneller schlagen Herz und Atmung – und desto niedriger ist der Blutdruck. SpO₂,
-                Temperatur, Blutzucker und GCS wie bei Erwachsenen. Ab etwa 13 Jahren gelten die Erwachsenenwerte.
+                Je jünger, desto schneller schlagen Herz und Atmung – und desto niedriger ist der Blutdruck. SpO₂, Temperatur,
+                Blutzucker und GCS wie bei Erwachsenen. Ab etwa 13 Jahren gelten die Erwachsenenwerte.
               </Text>
               {CHILD_NORMS.map((g) => (
                 <View key={g.label} style={{ marginTop: spacing.sm }}>
                   <Text style={[type.body, { fontFamily: fonts.bold }]}>{g.label}</Text>
                   <Text style={type.small}>
-                    Puls {g.limits.puls?.low}–{g.limits.puls?.high} /min · AF {g.limits.af?.low}–{g.limits.af?.high} /min · RR syst.{' '}
-                    {g.limits.rr?.low}–{g.limits.rr?.high} mmHg
+                    Puls {g.limits.puls?.low}–{g.limits.puls?.high} /min · AF {g.limits.af?.low}–{g.limits.af?.high} /min · RR
+                    syst. {g.limits.rr?.low}–{g.limits.rr?.high} mmHg
                   </Text>
                 </View>
               ))}
             </Card>
             {VITALS.map((v) => (
-              <Card key={v.id}>
+              <Card key={v.id} style={cardW}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Eyebrow title="Vitalwert" />
                   <Text style={styles.short}>{v.short}</Text>
@@ -67,7 +77,9 @@ export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack
                     {v.id !== 'spo2' ? `  ·  ↑ hoch über ${String(v.high).replace('.', ',')} ${v.unit}` : ''}
                   </Text>
                 )}
-                {v.id === 'gcs' && <Text style={type.small}>↓ jeder Wert unter 15 = Bewusstseinsstörung (≤ 8: Atemweg gefährdet)</Text>}
+                {v.id === 'gcs' && (
+                  <Text style={type.small}>↓ jeder Wert unter 15 = Bewusstseinsstörung (≤ 8: Atemweg gefährdet)</Text>
+                )}
               </Card>
             ))}
           </>
@@ -75,7 +87,7 @@ export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack
           CASES.map((c) => {
             const stars = progress.bestStars[c.id] ?? 0;
             return (
-              <Card key={c.id}>
+              <Card key={c.id} style={cardW}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Eyebrow title="Krankheitsbild" />
                   <Text style={{ color: colors.blaulicht }}>
@@ -94,7 +106,9 @@ export function LexikonScreen({ progress, onBack }: { progress: Progress; onBack
             );
           })
         )}
-        <WarnStripes />
+        <View style={{ width: '100%' }}>
+          <WarnStripes />
+        </View>
       </ScrollView>
     </View>
   );
@@ -111,6 +125,7 @@ function TabBtn({ active, label, sub, onPress }: { active: boolean; label: strin
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
+  contentWide: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', padding: spacing.xl },
   tabs: { flexDirection: 'row', backgroundColor: colors.grau200 },
   tab: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center' },
   tabActive: { backgroundColor: colors.blaulicht },

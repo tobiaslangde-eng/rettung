@@ -3,12 +3,12 @@
     "name": "Einsatz 112",
     "slug": "retung",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "backgroundColor": "#F2F3F5",
     "ios": {
-      "supportsTablet": false,
+      "supportsTablet": true,
       "bundleIdentifier": "io.github.tobiaslangde.einsatz112",
       "config": {
         "usesNonExemptEncryption": false

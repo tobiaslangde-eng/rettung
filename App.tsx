@@ -9,9 +9,10 @@ import { BarlowCondensed_700Bold, BarlowCondensed_800ExtraBold } from '@expo-goo
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StarOfLife } from './src/components/Ems';
+import { NavTarget, SideNav } from './src/components/SideNav';
 import { CASES, MedCase } from './src/data/cases';
 import { Badge, awardBadges } from './src/game/achievements';
 import { CprResult } from './src/game/cpr';
@@ -33,7 +34,8 @@ import { LexikonScreen } from './src/screens/LexikonScreen';
 import { ManvScreen } from './src/screens/ManvScreen';
 import { QuizScreen } from './src/screens/QuizScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
-import { colors } from './src/theme';
+import { FrameWidthProvider, SIDEBAR_FROM, SIDEBAR_WIDTH, desktopShell } from './src/layout';
+import { colors, fonts } from './src/theme';
 
 type Screen =
   | { name: 'home' }
@@ -45,7 +47,37 @@ type Screen =
   | { name: 'manv'; key: number }
   | { name: 'garage' }
   | { name: 'case'; medCase: MedCase; daily: boolean; key: number }
-  | { name: 'result'; run: CaseRun; result: ScoreResult; newBadges: Badge[]; goalBonus: number; promotion?: string; weekRecord: boolean };
+  | {
+      name: 'result';
+      run: CaseRun;
+      result: ScoreResult;
+      newBadges: Badge[];
+      goalBonus: number;
+      promotion?: string;
+      weekRecord: boolean;
+    };
+
+/** Größte Inhaltsbreite je Bildschirm auf großen Displays (undefined = volle Breite mit eigenem Spaltenlayout) */
+const FRAME_MAX: Partial<Record<Screen['name'], number>> = {
+  result: 1180,
+  lexikon: 1180,
+  guide: 880,
+  quiz: 760,
+  wissen: 760,
+  cpr: 760,
+  manv: 860,
+};
+
+const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
+  home: 'home',
+  garage: 'garage',
+  manv: 'manv',
+  cpr: 'cpr',
+  wissen: 'wissen',
+  quiz: 'quiz',
+  lexikon: 'lexikon',
+  guide: 'guide',
+};
 
 /** Wählt passend zur Schwierigkeit bevorzugt ungemeisterte Fälle, nie denselben Fall zweimal hintereinander. */
 function pickCase(progress: Progress, lastId?: string): MedCase {
@@ -58,6 +90,7 @@ function pickCase(progress: Progress, lastId?: string): MedCase {
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>({ name: 'home' });
+  const win = useWindowDimensions();
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
   const lastCaseId = useRef<string | undefined>(undefined);
   const [fontsLoaded, fontError] = useFonts({
@@ -91,7 +124,11 @@ export default function App() {
     const after = rankFor(next.totalPoints).rank;
     setProgress(next);
     saveProgress(next);
-    return { newBadges, promotion: after.min > before.min ? after.de : undefined, weekRecord: week.newRecord };
+    return {
+      newBadges,
+      promotion: after.min > before.min ? after.de : undefined,
+      weekRecord: week.newRecord,
+    };
   };
 
   const finishCase = (run: CaseRun, daily: boolean) => {
@@ -100,7 +137,10 @@ export default function App() {
     const { pointsPct } = equipmentEffects(progress);
     if (pointsPct > 0) {
       const extra = Math.round((scored.total * pointsPct) / 100);
-      result.lines.push({ label: `Ausrüstung (+${pointsPct} %)`, points: extra });
+      result.lines.push({
+        label: `Ausrüstung (+${pointsPct} %)`,
+        points: extra,
+      });
       result.total += extra;
     }
     if (daily) {
@@ -110,7 +150,10 @@ export default function App() {
     }
     const day = registerDailyCase(progress, daily);
     if (day.goalBonus > 0) {
-      result.lines.push({ label: `Tagesziel erreicht (${day.progress.dayStreak}. Tag in Folge)`, points: day.goalBonus });
+      result.lines.push({
+        label: `Tagesziel erreicht (${day.progress.dayStreak}. Tag in Folge)`,
+        points: day.goalBonus,
+      });
       result.total += day.goalBonus;
     }
     const id = run.medCase.id;
@@ -120,12 +163,23 @@ export default function App() {
       totalPoints: progress.totalPoints + result.total,
       casesPlayed: progress.casesPlayed + 1,
       correctDiagnoses: progress.correctDiagnoses + (result.diagnosisCorrect ? 1 : 0),
-      bestStars: { ...progress.bestStars, [id]: Math.max(progress.bestStars[id] ?? 0, result.stars) },
+      bestStars: {
+        ...progress.bestStars,
+        [id]: Math.max(progress.bestStars[id] ?? 0, result.stars),
+      },
       perfectRuns: progress.perfectRuns + (result.stars === 3 ? 1 : 0),
       hardWins: progress.hardWins + (run.difficulty === 'schwer' && result.stars >= 2 ? 1 : 0),
     };
     const { newBadges, promotion, weekRecord } = commit(updated);
-    setScreen({ name: 'result', run, result, newBadges, goalBonus: day.goalBonus, promotion, weekRecord });
+    setScreen({
+      name: 'result',
+      run,
+      result,
+      newBadges,
+      goalBonus: day.goalBonus,
+      promotion,
+      weekRecord,
+    });
   };
 
   const finishQuiz = (correct: number) => {
@@ -183,6 +237,19 @@ export default function App() {
     saveProgress(next);
   };
 
+  const navigate = (t: NavTarget) => {
+    if (t === 'start') return startCase();
+    if (t === 'quiz' || t === 'wissen' || t === 'cpr' || t === 'manv') return setScreen({ name: t, key: Date.now() } as Screen);
+    setScreen({ name: t } as Screen);
+  };
+
+  // Große Bildschirme: Seitenleiste links, Inhalt mittig in passender Breite
+  const sidebar = win.width >= SIDEBAR_FROM;
+  const available = win.width - (sidebar ? SIDEBAR_WIDTH : 0);
+  const frameMax = FRAME_MAX[screen.name];
+  const frameWidth = Math.min(available, frameMax ?? available);
+  const framed = frameWidth < available;
+
   if (!fontsLoaded && !fontError) {
     return (
       <View style={styles.splash}>
@@ -195,58 +262,75 @@ export default function App() {
     <SafeAreaProvider>
       <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
         <StatusBar style="light" />
-        <View style={styles.body}>
-          {screen.name === 'home' && (
-            <HomeScreen
-              progress={progress}
-              onStart={() => startCase()}
-              onDaily={() => startCase(true)}
-              onDifficulty={setDifficulty}
-              onLexikon={() => setScreen({ name: 'lexikon' })}
-              onGuide={() => setScreen({ name: 'guide' })}
-              onQuiz={() => setScreen({ name: 'quiz', key: Date.now() })}
-              onKnowledge={() => setScreen({ name: 'wissen', key: Date.now() })}
-              onCpr={() => setScreen({ name: 'cpr', key: Date.now() })}
-              onManv={() => setScreen({ name: 'manv', key: Date.now() })}
-              onGarage={() => setScreen({ name: 'garage' })}
-            />
-          )}
-          {screen.name === 'lexikon' && <LexikonScreen progress={progress} onBack={home} />}
-          {screen.name === 'guide' && <GuideScreen onBack={home} onReset={resetProgress} />}
-          {screen.name === 'quiz' && (
-            <QuizScreen key={screen.key} best={progress.quizBest} onFinish={finishQuiz} onBack={home} />
-          )}
-          {screen.name === 'wissen' && (
-            <KnowledgeScreen key={screen.key} best={progress.knowBest} onFinish={finishKnowledge} onBack={home} />
-          )}
-          {screen.name === 'garage' && <GarageScreen progress={progress} onUpgrade={upgrade} onBack={home} />}
-          {screen.name === 'manv' && <ManvScreen key={screen.key} best={progress.manvBest} onFinish={finishManv} onBack={home} />}
-          {screen.name === 'cpr' && <CprScreen key={screen.key} best={progress.cprBest} onFinish={finishCpr} onBack={home} />}
-          {screen.name === 'case' && (
-            <CaseScreen
-              key={screen.key}
-              medCase={screen.medCase}
-              difficulty={DIFFICULTY_BY_ID[progress.difficulty]}
-              daily={screen.daily}
-              equipment={equipmentEffects(progress)}
-              rtwLevel={levelOf(progress, 'rtw')}
-              onFinish={(run) => finishCase(run, screen.daily)}
-              onAbort={home}
-            />
-          )}
-          {screen.name === 'result' && (
-            <ResultScreen
-              run={screen.run}
-              result={screen.result}
-              newBadges={screen.newBadges}
-              goalBonus={screen.goalBonus}
-              promotion={screen.promotion}
-              weekRecord={screen.weekRecord}
-              streak={progress.streak}
-              onNext={() => startCase()}
-              onHome={home}
-            />
-          )}
+        {desktopShell && (
+          <View nativeID="titlebar" style={[styles.titlebar, desktopShell === 'mac' ? styles.titlebarMac : styles.titlebarWin]}>
+            <StarOfLife size={14} />
+            <Text style={styles.titlebarText}>Einsatz 112</Text>
+          </View>
+        )}
+        <View style={styles.shell}>
+          {sidebar && <SideNav progress={progress} active={NAV_OF[screen.name] ?? null} onNavigate={navigate} />}
+          <View style={[styles.body, framed && styles.bodyFramed]}>
+            <View style={[styles.frame, frameMax !== undefined && { maxWidth: frameMax }, framed && styles.frameBorder]}>
+              <FrameWidthProvider value={frameWidth}>
+                {screen.name === 'home' && (
+                  <HomeScreen
+                    progress={progress}
+                    onStart={() => startCase()}
+                    onDaily={() => startCase(true)}
+                    onDifficulty={setDifficulty}
+                    onLexikon={() => setScreen({ name: 'lexikon' })}
+                    onGuide={() => setScreen({ name: 'guide' })}
+                    onQuiz={() => setScreen({ name: 'quiz', key: Date.now() })}
+                    onKnowledge={() => setScreen({ name: 'wissen', key: Date.now() })}
+                    onCpr={() => setScreen({ name: 'cpr', key: Date.now() })}
+                    onManv={() => setScreen({ name: 'manv', key: Date.now() })}
+                    onGarage={() => setScreen({ name: 'garage' })}
+                  />
+                )}
+                {screen.name === 'lexikon' && <LexikonScreen progress={progress} onBack={home} />}
+                {screen.name === 'guide' && <GuideScreen onBack={home} onReset={resetProgress} />}
+                {screen.name === 'quiz' && (
+                  <QuizScreen key={screen.key} best={progress.quizBest} onFinish={finishQuiz} onBack={home} />
+                )}
+                {screen.name === 'wissen' && (
+                  <KnowledgeScreen key={screen.key} best={progress.knowBest} onFinish={finishKnowledge} onBack={home} />
+                )}
+                {screen.name === 'garage' && <GarageScreen progress={progress} onUpgrade={upgrade} onBack={home} />}
+                {screen.name === 'manv' && (
+                  <ManvScreen key={screen.key} best={progress.manvBest} onFinish={finishManv} onBack={home} />
+                )}
+                {screen.name === 'cpr' && (
+                  <CprScreen key={screen.key} best={progress.cprBest} onFinish={finishCpr} onBack={home} />
+                )}
+                {screen.name === 'case' && (
+                  <CaseScreen
+                    key={screen.key}
+                    medCase={screen.medCase}
+                    difficulty={DIFFICULTY_BY_ID[progress.difficulty]}
+                    daily={screen.daily}
+                    equipment={equipmentEffects(progress)}
+                    rtwLevel={levelOf(progress, 'rtw')}
+                    onFinish={(run) => finishCase(run, screen.daily)}
+                    onAbort={home}
+                  />
+                )}
+                {screen.name === 'result' && (
+                  <ResultScreen
+                    run={screen.run}
+                    result={screen.result}
+                    newBadges={screen.newBadges}
+                    goalBonus={screen.goalBonus}
+                    promotion={screen.promotion}
+                    weekRecord={screen.weekRecord}
+                    streak={progress.streak}
+                    onNext={() => startCase()}
+                    onHome={home}
+                  />
+                )}
+              </FrameWidthProvider>
+            </View>
+          </View>
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -255,6 +339,35 @@ export default function App() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.graphit },
-  body: { flex: 1, backgroundColor: colors.grau50 },
-  splash: { flex: 1, backgroundColor: colors.graphit, alignItems: 'center', justifyContent: 'center' },
+  shell: { flex: 1, flexDirection: 'row' },
+  body: { flex: 1, backgroundColor: colors.grau50, alignItems: 'center' },
+  bodyFramed: { backgroundColor: '#E4E7EB' },
+  frame: { flex: 1, width: '100%', backgroundColor: colors.grau50 },
+  frameBorder: {
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: colors.grau200,
+  },
+  titlebar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.graphit,
+    borderBottomWidth: 1,
+    borderBottomColor: '#262B31',
+  },
+  titlebarMac: { height: 30, justifyContent: 'center' },
+  titlebarWin: { height: 32, paddingLeft: 12 },
+  titlebarText: {
+    fontFamily: fonts.semibold,
+    fontSize: 12,
+    color: colors.grau300,
+    letterSpacing: 0.5,
+  },
+  splash: {
+    flex: 1,
+    backgroundColor: colors.graphit,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

@@ -32,33 +32,21 @@ js = js.replace(/<\/script/gi, '<\\/script');
 
 const html = `<title>Einsatz 112</title>
 <style>
-  /* Ein Spielbildschirm im Handyformat, auf breiten Screens mittig vor Schwarz. */
-  :root {
-    --must: #111111;
-    --lumi: #EEF3F8;
-    --sinine: #0072CE;
-    color-scheme: light;
-  }
+  /* Die App passt sich selbst an: Handy, iPad und PC (mit Seitenleiste). */
+  :root { color-scheme: light; }
   html, body { height: 100%; }
   /* Schnelles Tippen (z. B. Herzdruckmassage) soll nicht zoomen. */
   html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
-  body {
-    overflow: hidden;
-    background: var(--must);
-    background-image: repeating-linear-gradient(45deg, transparent 0 22px, rgba(0, 114, 206, 0.12) 22px 24px),
-      repeating-linear-gradient(-45deg, transparent 0 22px, rgba(0, 114, 206, 0.12) 22px 24px);
-  }
-  #root {
-    display: flex;
-    height: 100%;
-    flex: 1;
-    max-width: 480px;
-    margin: 0 auto;
-    background: var(--lumi);
-    box-shadow: 0 0 0 4px var(--sinine), 0 0 40px rgba(0, 0, 0, 0.6);
-  }
-  @media (max-width: 480px) {
-    #root { box-shadow: none; }
+  body { overflow: hidden; background: #15181C; }
+  #root { display: flex; height: 100%; flex: 1; }
+  /* Desktop-App: eigene Titelleiste zum Verschieben des Fensters */
+  #titlebar { -webkit-app-region: drag; user-select: none; }
+  /* Mauszeiger und Scrollbalken für PC und Mac */
+  @media (hover: hover) and (pointer: fine) {
+    [role="button"], [role="radio"] { cursor: pointer; }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-thumb { background: rgba(95, 102, 112, 0.45); border-radius: 5px; border: 2px solid transparent; background-clip: content-box; }
+    ::-webkit-scrollbar-track { background: transparent; }
   }
 </style>
 <noscript>Bitte JavaScript aktivieren, um Einsatz 112 zu spielen.</noscript>

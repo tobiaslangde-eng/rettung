@@ -16,6 +16,19 @@ In dieser Reihenfolge hochladen – Apple skaliert sie für kleinere iPhones sel
 | 5 | [`appstore/05.png`](appstore/05.png) | Herzdruckmassage im richtigen Takt |
 | 6 | [`appstore/06.png`](appstore/06.png) | Befördert! Vom Praktikanten zur Legende |
 
+## Screenshots iPad (13″, 2064 × 2752 px)
+
+Weil Einsatz 112 auch für das iPad freigegeben ist, verlangt Apple zusätzlich iPad-Screenshots:
+
+| | Datei | Überschrift |
+|---|---|---|
+| 1 | [`appstore/ipad/01.png`](appstore/ipad/01.png) | Rette Leben – jetzt auch auf dem iPad |
+| 2 | [`appstore/ipad/02.png`](appstore/ipad/02.png) | Vitalwerte messen und richtig einschätzen |
+| 3 | [`appstore/ipad/03.png`](appstore/ipad/03.png) | Einsteigen und Ausrüstung aufrüsten |
+| 4 | [`appstore/ipad/04.png`](appstore/ipad/04.png) | Befördert! Vom Praktikanten zur Legende |
+| 5 | [`appstore/ipad/05.png`](appstore/ipad/05.png) | Viele Verletzte – sichte Rot, Gelb, Grün |
+| 6 | [`appstore/ipad/06.png`](appstore/ipad/06.png) | Herzdruckmassage im richtigen Takt |
+
 ## Texte
 
 **Name** (max. 30): `Einsatz 112 – Rettungsdienst`
