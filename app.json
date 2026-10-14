@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Einsatz 112",
+    "slug": "rettung",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F2F3F5",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "io.github.tobiaslangde.einsatz112",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "io.github.tobiaslangde.einsatz112",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#15181C",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}

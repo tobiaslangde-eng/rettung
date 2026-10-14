@@ -1,0 +1,338 @@
+import { useId, useState } from 'react';
+import { LayoutChangeEvent, View } from 'react-native';
+import Svg, { Circle, ClipPath, Defs, G, LinearGradient, Line, Path, Polygon, RadialGradient, Rect, Stop } from 'react-native-svg';
+import { colors } from '../theme';
+
+function useWidth(initial = 360) {
+  const [width, setWidth] = useState(initial);
+  const onLayout = (e: LayoutChangeEvent) => setWidth(Math.round(e.nativeEvent.layout.width));
+  return { width, onLayout };
+}
+
+/**
+ * Star of Life – das internationale Symbol des Rettungsdienstes:
+ * sechsarmiges Kreuz mit Äskulapstab in der Mitte.
+ */
+export function StarOfLife({
+  size = 24,
+  color = colors.blaulicht,
+  outline = colors.weiss,
+  staff = colors.weiss,
+}: {
+  size?: number;
+  color?: string;
+  outline?: string;
+  staff?: string;
+}) {
+  const c = size / 2;
+  const w = size * 0.3;
+  const len = size * 0.92;
+  const o = Math.max(1, size * 0.06);
+  const bar = (fill: string, grow: number) =>
+    [0, 60, 120].map((deg) => (
+      <Rect
+        key={`${fill}-${deg}`}
+        x={c - w / 2 - grow}
+        y={c - len / 2 - grow}
+        width={w + grow * 2}
+        height={len + grow * 2}
+        rx={size * 0.02}
+        fill={fill}
+        transform={`rotate(${deg} ${c} ${c})`}
+      />
+    ));
+  const top = c - len * 0.36;
+  const bottom = c + len * 0.36;
+  const sw = Math.max(1, size * 0.045);
+  return (
+    <Svg width={size} height={size}>
+      {bar(outline, o)}
+      {bar(color, 0)}
+      {size >= 18 && (
+        <G stroke={staff} strokeLinecap="round" fill="none">
+          <Line x1={c} y1={top} x2={c} y2={bottom} strokeWidth={sw} />
+          <Path
+            d={`M ${c - size * 0.06} ${bottom - len * 0.08} C ${c + size * 0.12} ${bottom - len * 0.2}, ${c - size * 0.12} ${
+              c - len * 0.02
+            }, ${c + size * 0.06} ${c - len * 0.16} S ${c - size * 0.02} ${top + len * 0.04}, ${c - size * 0.05} ${top + len * 0.06}`}
+            strokeWidth={sw * 0.9}
+          />
+        </G>
+      )}
+    </Svg>
+  );
+}
+
+/** Rot-weiße Warnmarkierung wie am Heck eines Rettungswagens. */
+export function WarnStripes({
+  height = 12,
+  color = colors.signalrot,
+  accent = colors.weiss,
+}: {
+  height?: number;
+  color?: string;
+  accent?: string;
+}) {
+  const { width, onLayout } = useWidth();
+  const step = height * 2;
+  const n = Math.ceil((width + height) / step) + 1;
+  return (
+    <View onLayout={onLayout} style={{ height, backgroundColor: accent, overflow: 'hidden' }}>
+      <Svg width={width} height={height}>
+        {Array.from({ length: n }).map((_, i) => {
+          const x = i * step - height;
+          return <Polygon key={i} points={`${x},${height} ${x + height},0 ${x + height * 2},0 ${x + height},${height}`} fill={color} />;
+        })}
+      </Svg>
+    </View>
+  );
+}
+
+/** Reflexstreifen wie an der Einsatzkleidung: Gelb – Silber – Gelb. */
+export function ReflexStripes({ height = 6 }: { height?: number }) {
+  return (
+    <View style={{ height }}>
+      <View style={{ flex: 1, backgroundColor: colors.warngelb }} />
+      <View style={{ flex: 1, backgroundColor: colors.grau300 }} />
+      <View style={{ flex: 1, backgroundColor: colors.warngelb }} />
+    </View>
+  );
+}
+
+/** Ein EKG-Komplex (P, QRS, T) als Pfadstück ab x0. */
+function ecgBeat(x0: number, mid: number, w: number, amp: number): string {
+  const x = (f: number) => (x0 + f * w).toFixed(1);
+  const y = (f: number) => (mid - f * amp).toFixed(1);
+  return [
+    `L ${x(0.18)} ${y(0)}`,
+    `Q ${x(0.23)} ${y(0.16)} ${x(0.28)} ${y(0)}`,
+    `L ${x(0.36)} ${y(0)}`,
+    `L ${x(0.39)} ${y(-0.12)}`,
+    `L ${x(0.43)} ${y(1)}`,
+    `L ${x(0.47)} ${y(-0.3)}`,
+    `L ${x(0.5)} ${y(0)}`,
+    `L ${x(0.6)} ${y(0)}`,
+    `Q ${x(0.68)} ${y(0.3)} ${x(0.76)} ${y(0)}`,
+    `L ${x(1)} ${y(0)}`,
+  ].join(' ');
+}
+
+/** Patientenmonitor-Hintergrund: dunkler Verlauf mit feinem Raster. */
+export function MonitorScene({ height = 240 }: { height?: number }) {
+  const W = 400;
+  const H = 240;
+  return (
+    <Svg width="100%" height={height} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice">
+      <Defs>
+        <LinearGradient id="mon" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor={colors.graphit} />
+          <Stop offset="1" stopColor={colors.nacht} />
+        </LinearGradient>
+      </Defs>
+      <Rect width={W} height={H} fill="url(#mon)" />
+      <G stroke={colors.graphitSoft} strokeWidth={0.6}>
+        {Array.from({ length: 21 }).map((_, i) => (
+          <Line key={`v${i}`} x1={i * 20} y1={0} x2={i * 20} y2={H} />
+        ))}
+        {Array.from({ length: 13 }).map((_, i) => (
+          <Line key={`h${i}`} x1={0} y1={i * 20} x2={W} y2={i * 20} />
+        ))}
+      </G>
+    </Svg>
+  );
+}
+
+/** Grüne EKG-Kurve wie auf dem Monitor, als eigener Streifen (transparent). */
+export function EcgStrip({ height = 64, beats = 3, color = colors.monitorGruen }: { height?: number; beats?: number; color?: string }) {
+  const W = 400;
+  const H = 100;
+  const mid = H * 0.78;
+  const bw = W / beats;
+  let d = `M 0 ${mid}`;
+  for (let i = 0; i < beats; i++) d += ' ' + ecgBeat(i * bw, mid, bw, H * 0.7);
+  return (
+    <Svg width="100%" height={height} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
+      <Path d={d} stroke={color} strokeOpacity={0.18} strokeWidth={7} fill="none" strokeLinejoin="round" />
+      <Path d={d} stroke={color} strokeWidth={2.2} fill="none" strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
+const BUILDINGS: [number, number, number][] = [
+  [0, 40, 70], [38, 34, 110], [70, 46, 84], [114, 30, 130], [142, 52, 96],
+  [192, 36, 150], [226, 44, 104], [268, 30, 124], [296, 50, 88], [344, 28, 116], [370, 40, 92],
+];
+
+/** Stadt bei Nacht mit Straße – Kulisse für die Blaulichtfahrt. */
+export function CityScene({ height = 240 }: { height?: number }) {
+  const road = 196;
+  return (
+    <Svg width="100%" height={height} viewBox="0 0 400 240" preserveAspectRatio="xMidYMax slice">
+      <Defs>
+        <LinearGradient id="city" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor={colors.nacht} />
+          <Stop offset="1" stopColor={colors.graphitSoft} />
+        </LinearGradient>
+      </Defs>
+      <Rect width={400} height={240} fill="url(#city)" />
+      {BUILDINGS.map(([x, w, h], i) => (
+        <G key={i}>
+          <Rect x={x} y={road - h} width={w} height={h} fill={colors.graphit} />
+          {Array.from({ length: Math.floor(h / 18) }).map((_, r) =>
+            [0, 1].map((cIdx) =>
+              (i + r + cIdx) % 3 === 0 ? (
+                <Rect
+                  key={`${r}-${cIdx}`}
+                  x={x + 7 + cIdx * (w / 2 - 2)}
+                  y={road - h + 10 + r * 18}
+                  width={6}
+                  height={8}
+                  fill={colors.warngelb}
+                  opacity={0.55}
+                />
+              ) : null,
+            ),
+          )}
+        </G>
+      ))}
+      <Rect x={0} y={road} width={400} height={44} fill={colors.graphitSoft} />
+      <Rect x={0} y={road} width={400} height={2} fill={colors.grau500} />
+      {Array.from({ length: 10 }).map((_, i) => (
+        <Rect key={i} x={i * 44 + 6} y={road + 22} width={24} height={3} fill={colors.grau300} />
+      ))}
+    </Svg>
+  );
+}
+
+/** Fünfzackiger Bewertungsstern. */
+export function RatingStar({ size = 32, filled }: { size?: number; filled: boolean }) {
+  const c = size / 2;
+  const pts = Array.from({ length: 10 })
+    .map((_, i) => {
+      const r = i % 2 === 0 ? size / 2 : size / 4.6;
+      const a = (Math.PI / 5) * i - Math.PI / 2;
+      return `${(c + r * Math.cos(a)).toFixed(1)},${(c + r * Math.sin(a)).toFixed(1)}`;
+    })
+    .join(' ');
+  return (
+    <Svg width={size} height={size}>
+      <Polygon
+        points={pts}
+        fill={filled ? colors.warngelb : 'transparent'}
+        stroke={filled ? colors.warngelb : colors.grau500}
+        strokeWidth={1.5}
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+/** Metallfarben der Dienstgrad-Abzeichen: Bronze, Silber, Gold, Blaulicht-Platin. */
+const BADGE_METALS = [
+  ['#F6C28B', '#B8733A', '#6E3D18'],
+  ['#FFFFFF', '#AEB6C1', '#5E6672'],
+  ['#FFF3A6', '#FFC21A', '#A87400'],
+  ['#E6F0FF', '#5C9DFF', '#1A47B8'],
+];
+
+function starPoints(cx: number, cy: number, r: number) {
+  return Array.from({ length: 10 })
+    .map((_, i) => {
+      const rr = i % 2 === 0 ? r : r / 2.4;
+      const a = (Math.PI / 5) * i - Math.PI / 2;
+      return `${(cx + rr * Math.cos(a)).toFixed(2)},${(cy + rr * Math.sin(a)).toFixed(2)}`;
+    })
+    .join(' ');
+}
+
+/**
+ * Dienstgrad-Abzeichen als „Profilbild“: Metallring je Stufe (Bronze → Silber → Gold → Blaulicht),
+ * Star of Life auf Nachtblau, Sterne am unteren Rand zeigen den Rang.
+ */
+export function RankBadge({ size = 72, level, maxLevel = 7 }: { size?: number; level: number; maxLevel?: number }) {
+  const id = useId().replace(/[^a-zA-Z0-9]/g, '');
+  const metal = BADGE_METALS[Math.min(BADGE_METALS.length - 1, Math.floor(level / 2))];
+  const c = size / 2;
+  const inner = size * 0.39;
+  // Star of Life (sechs Arme) mit Verlauf
+  const s = size * 0.5;
+  const w = s * 0.3;
+  const len = s * 0.92;
+  const arms = (fill: string, grow = 0) =>
+    [0, 60, 120].map((deg) => (
+      <Rect
+        key={`${fill}-${deg}`}
+        x={c - w / 2 - grow}
+        y={c - len / 2 - grow}
+        width={w + grow * 2}
+        height={len + grow * 2}
+        rx={s * 0.03}
+        fill={fill}
+        transform={`rotate(${deg} ${c} ${c})`}
+      />
+    ));
+  const top = c - len * 0.36;
+  const bottom = c + len * 0.36;
+  const sw = Math.max(1, s * 0.05);
+  // Rangsterne auf dem unteren Ringbogen
+  const ringR = size * 0.445;
+  const starR = size * 0.055;
+  const slots = Array.from({ length: maxLevel }, (_, i) => {
+    const a = ((150 - (120 / (maxLevel - 1)) * i) * Math.PI) / 180;
+    return { x: c + ringR * Math.cos(a), y: c + ringR * Math.sin(a), on: i < level };
+  });
+  return (
+    <Svg width={size} height={size}>
+      <Defs>
+        <LinearGradient id={`m${id}`} x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor={metal[0]} />
+          <Stop offset="0.5" stopColor={metal[1]} />
+          <Stop offset="1" stopColor={metal[2]} />
+        </LinearGradient>
+        <RadialGradient id={`d${id}`} cx="50%" cy="40%" r="60%">
+          <Stop offset="0" stopColor="#1F3E78" />
+          <Stop offset="1" stopColor="#07090D" />
+        </RadialGradient>
+        <LinearGradient id={`s${id}`} x1="0" y1={c - len / 2} x2="0" y2={c + len / 2} gradientUnits="userSpaceOnUse">
+          <Stop offset="0" stopColor="#5AA0FF" />
+          <Stop offset="1" stopColor="#123F9E" />
+        </LinearGradient>
+        <ClipPath id={`c${id}`}>{arms('#000')}</ClipPath>
+      </Defs>
+      <Circle cx={c} cy={c} r={c} fill={`url(#m${id})`} />
+      <Circle cx={c} cy={c} r={c - size * 0.025} fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth={size * 0.012} />
+      <Circle cx={c} cy={c} r={inner} fill={`url(#d${id})`} />
+      <Circle cx={c} cy={c} r={inner} fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth={size * 0.02} />
+      <Path
+        d={`M ${c - inner * 0.95} ${c} h ${inner * 0.35} l ${inner * 0.08} ${-inner * 0.08} l ${inner * 0.1} ${inner * 0.14} l ${inner * 0.12} ${-inner * 0.5} l ${inner * 0.1} ${inner * 0.62} l ${inner * 0.08} ${-inner * 0.18} h ${inner * 1.07}`}
+        stroke={colors.monitorGruen}
+        strokeWidth={size * 0.02}
+        fill="none"
+        strokeLinejoin="round"
+        opacity={0.8}
+      />
+      {arms(colors.weiss, size * 0.022)}
+      <Rect x={0} y={0} width={size} height={size} fill={`url(#s${id})`} clipPath={`url(#c${id})`} />
+      {size >= 32 && (
+        <G stroke={colors.weiss} strokeLinecap="round" fill="none">
+          <Line x1={c} y1={top} x2={c} y2={bottom} strokeWidth={sw} />
+          <Path
+            d={`M ${c - s * 0.065} ${bottom - len * 0.08} C ${c + s * 0.13} ${bottom - len * 0.2}, ${c - s * 0.13} ${c - len * 0.02}, ${
+              c + s * 0.065
+            } ${c - len * 0.16} S ${c - s * 0.02} ${top + len * 0.04}, ${c - s * 0.055} ${top + len * 0.06}`}
+            strokeWidth={sw * 0.85}
+          />
+        </G>
+      )}
+      {slots.map((p, i) => (
+        <Polygon
+          key={i}
+          points={starPoints(p.x, p.y, starR)}
+          fill={p.on ? colors.weiss : 'rgba(0,0,0,0.35)'}
+          stroke={p.on ? metal[2] : 'none'}
+          strokeWidth={size * 0.006}
+        />
+      ))}
+    </Svg>
+  );
+}

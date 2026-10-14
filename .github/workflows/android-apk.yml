@@ -1,0 +1,192 @@
+# Baut alle Versionen von Einsatz 112 und stellt sie unter „Releases“ zum Herunterladen bereit:
+#   - Android-App (APK)
+#   - iOS-App als unsignierte .ipa (zum Sideloaden, z. B. mit Sideloadly oder AltStore)
+#   - Desktop-App für Windows (.exe), macOS (.dmg) und Linux (.AppImage)
+#   - Web-Version als einzelne HTML-Datei
+#
+# STILLGELEGT: Vorerst gibt es Einsatz 112 nur als Web-App (Workflow „Web-App veröffentlichen“).
+# Dieser Workflow läuft deshalb nicht mehr bei jedem Push, sondern nur noch per Hand:
+# Actions → „App bauen“ → Run workflow.
+# Wieder automatisch bauen: unter „on:“ die beiden auskommentierten push-Zeilen wieder einkommentieren.
+name: App bauen
+
+on:
+  # push:
+  #   branches: [main, claude/medical-game-app-expo-nru897]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: app-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Web-Version als einzelne HTML-Datei
+        run: npm run build:web
+
+      - name: Android-Projekt erzeugen
+        run: npx expo prebuild --platform android --no-install
+        env:
+          CI: 1
+
+      - name: APK bauen
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,armeabi-v7a,x86_64
+
+      - name: Dateien sammeln
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/release/app-release.apk out/Einsatz112.apk
+          cp dist/kiirabi.html out/Einsatz112-Web.html
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-web
+          path: out/
+
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: iOS-Projekt erzeugen (inkl. CocoaPods)
+        run: npx expo prebuild --platform ios
+        env:
+          CI: 1
+
+      - name: App bauen (ohne Signatur)
+        run: |
+          set -o pipefail
+          xcodebuild -workspace ios/Einsatz112.xcworkspace -scheme Einsatz112 -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath ios/build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build | tail -n 80
+
+      - name: IPA packen
+        run: |
+          mkdir -p out/Payload
+          cp -R ios/build/Build/Products/Release-iphoneos/Einsatz112.app out/Payload/
+          cd out && zip -qry Einsatz112-iOS-unsigniert.ipa Payload && rm -rf Payload
+          ls -la
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios
+          path: out/
+
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: dist:win
+            files: desktop/release/Einsatz112-Windows*.exe
+          - os: macos-latest
+            target: dist:mac
+            files: desktop/release/Einsatz112-Mac-*.dmg
+          - os: ubuntu-latest
+            target: dist:linux
+            files: desktop/release/Einsatz112-Linux.AppImage
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            desktop/package-lock.json
+
+      - name: Abhängigkeiten installieren
+        run: |
+          npm ci
+          npm ci --prefix desktop
+
+      - name: Spiel für die Desktop-App bauen
+        working-directory: desktop
+        run: npm run prepare-app
+
+      - name: Desktop-App bauen
+        working-directory: desktop
+        run: npm run ${{ matrix.target }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.os }}
+          path: ${{ matrix.files }}
+
+  release:
+    needs: [android, ios, desktop]
+    # Auch veröffentlichen, wenn eine einzelne Plattform fehlschlägt – solange Android durch ist.
+    if: ${{ !cancelled() && needs.android.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+
+      - run: ls -la out
+
+      - name: Release veröffentlichen
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: app-${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          name: Einsatz 112 – Build ${{ github.run_number }}
+          make_latest: true
+          body: |
+            **Einsatz 112 – Rettungsdienst-Lernspiel**, automatisch gebaut aus `${{ github.ref_name }}` (${{ github.sha }}).
+
+            | Gerät | Datei | So startest du es |
+            |---|---|---|
+            | Windows | **Einsatz112-Windows.exe** | Doppelklick, ohne Installation. Bei „Der Computer wurde durch Windows geschützt“: *Weitere Informationen* → *Trotzdem ausführen*. |
+            | Windows (Installer) | **Einsatz112-Windows-Setup.exe** | Installiert Einsatz 112 mit Startmenü-Eintrag (auch für den Microsoft Store geeignet). |
+            | Mac (Apple-Chip M1–M4) | **Einsatz112-Mac-arm64.dmg** | Öffnen, Einsatz 112 in „Programme“ ziehen. Beim ersten Start: Rechtsklick auf Einsatz 112 → *Öffnen* (oder Systemeinstellungen → Datenschutz & Sicherheit → *Trotzdem öffnen*). |
+            | Mac (Intel) | **Einsatz112-Mac-x64.dmg** | wie oben |
+            | Linux | **Einsatz112-Linux.AppImage** | Ausführbar machen (`chmod +x`), dann starten. |
+            | iPhone/iPad | **Einsatz112-iOS-unsigniert.ipa** | Mit [Sideloadly](https://sideloadly.io) oder [AltStore](https://altstore.io) und deiner Apple-ID installieren (am Computer, iPhone per Kabel). Mit kostenloser Apple-ID läuft die App 7 Tage, danach erneut installieren. |
+            | Android | **Einsatz112.apk** | Auf dem Handy öffnen und „Installation aus unbekannten Quellen“ erlauben. |
+            | Jeder Browser | **Einsatz112-Web.html** | Herunterladen und öffnen, läuft auch offline. |
+
+            Die Desktop-Apps sind nicht von Microsoft/Apple zertifiziert, deshalb fragt das System beim ersten Start nach.
+          files: out/*

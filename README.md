@@ -2,10 +2,9 @@
 
 > **Ein Freizeitprojekt aus dem Rettungsdienst:** Lerninhalte aus der Sanitätsausbildung – zum Üben als Spiel.
 
-![Einsatz 112 auf Mac, iPad und iPhone](https://github.com/tobiaslangde-eng/rettung/raw/claude/medical-game-app-expo-nru897/docs/geraete/alle.png)
+![Einsatz 112 auf Mac, iPad und iPhone](docs/geraete/alle.png)
 
-**[▶ Jetzt im Browser spielen](https://tobiaslangde-eng.github.io/rettung/)** · kostenlos, ohne Anmeldung, auch fürs iPhone ·
-[Downloads für Android, Windows, Mac und Linux](https://github.com/tobiaslangde-eng/rettung/releases)
+**[▶ Jetzt im Browser spielen](https://rettung.tankard.de)** · kostenlos, ohne Anmeldung, auf iPhone, iPad, Android, PC und Mac
 
 ## Über dieses Projekt
 
@@ -44,9 +43,9 @@ Stufe modern ausrüstet.
 
 - **Kostenlos** – keine Werbung, keine In-App-Käufe
 - **Keine Datensammlung** – kein Konto, kein Tracking; der Spielstand bleibt auf dem eigenen Gerät
-  ([Datenschutzerklärung](https://github.com/tobiaslangde-eng/rettung/blob/claude/medical-game-app-expo-nru897/docs/DATENSCHUTZ.md))
+  ([Datenschutzerklärung](docs/DATENSCHUTZ.md))
 - **Komplett auf Deutsch**; die Einsätze spielen in ganz Deutschland
-- **Läuft überall:** iPhone, iPad, Android, PC, Mac und im Browser
+- **Läuft überall im Browser:** iPhone, iPad, Android, PC und Mac – auch als App auf dem Home-Bildschirm
 
 > ⚠️ **Wichtig:** Einsatz 112 ist ein Lernspiel mit **vereinfachten** Inhalten. Es ersetzt keine Ausbildung,
 > keine Praxisanleitung, keine ärztliche Beratung und keine regionalen Leitlinien oder SOPs. Welche Maßnahmen
@@ -131,9 +130,9 @@ Die Oberfläche passt sich an die Bildschirmgröße an:
 
 | Mac | Windows |
 |---|---|
-| ![Mac](https://github.com/tobiaslangde-eng/rettung/raw/claude/medical-game-app-expo-nru897/docs/geraete/mac.png) | ![Windows](https://github.com/tobiaslangde-eng/rettung/raw/claude/medical-game-app-expo-nru897/docs/geraete/windows.png) |
+| ![Mac](docs/geraete/mac.png) | ![Windows](docs/geraete/windows.png) |
 | **iPad quer** | **iPad hoch** |
-| ![iPad quer](https://github.com/tobiaslangde-eng/rettung/raw/claude/medical-game-app-expo-nru897/docs/geraete/ipad-quer.png) | ![iPad hoch](https://github.com/tobiaslangde-eng/rettung/raw/claude/medical-game-app-expo-nru897/docs/geraete/ipad-hoch.png) |
+| ![iPad quer](docs/geraete/ipad-quer.png) | ![iPad hoch](docs/geraete/ipad-hoch.png) |
 
 ## Design: Rettungsdienst
 
@@ -148,11 +147,20 @@ Die Grafiken sind Vektorgrafiken (`react-native-svg`) in `src/components/`.
 
 ## Spielen und herunterladen
 
-**iPhone & iPad (ohne App Store):** Einsatz 112 läuft als Web-App mit eigenem Icon, im Vollbild und offline.
-<https://tobiaslangde-eng.github.io/rettung/> in **Safari** öffnen → Teilen-Symbol → **„Zum Home-Bildschirm“**.
+Einsatz 112 gibt es **vorerst nur als Web-App**: <https://rettung.tankard.de>
+Sie läuft mit eigenem Icon, im Vollbild und offline. Bei jeder Änderung wird sie automatisch neu
+veröffentlicht (`.github/workflows/web-app.yml`).
 
-Bei jedem Push baut GitHub Actions (`.github/workflows/android-apk.yml`) automatisch und legt unter
-[**Releases**](https://github.com/tobiaslangde-eng/rettung/releases) ab (neuester Build oben):
+- **iPhone & iPad:** Link in **Safari** öffnen → Teilen-Symbol → **„Zum Home-Bildschirm“**
+- **Android:** Link in Chrome öffnen → Menü ⋮ → **„App installieren“** bzw. „Zum Startbildschirm hinzufügen“
+- **PC & Mac:** Link in Chrome oder Edge öffnen → Installieren-Symbol in der Adressleiste (oder einfach im Browser spielen)
+
+### Native Apps (stillgelegt)
+
+Die nativen Apps sind fertig vorbereitet, werden aber **nicht mehr automatisch gebaut**. Bei Bedarf lassen sie sich
+jederzeit per Hand bauen: *Actions → „App bauen“ → Run workflow*. Wieder dauerhaft einschalten: in
+`.github/workflows/android-apk.yml` die auskommentierten `push`-Zeilen aktivieren. Ältere Builds liegen weiter unter
+[**Releases**](https://github.com/tobiaslangde-eng/rettung/releases). Der Workflow erzeugt:
 
 - **Einsatz112-Windows.exe** – Desktop-App für Windows (Doppelklick, keine Installation)
 - **Einsatz112-Mac-arm64.dmg / Einsatz112-Mac-x64.dmg** – Desktop-App für Mac (Apple-Chip / Intel)
@@ -165,7 +173,7 @@ Die Desktop-Apps (Ordner `desktop/`, Electron) laden die Web-Version in ein eige
 offline. Sie sind nicht von Microsoft/Apple zertifiziert: Windows zeigt beim ersten Start „Weitere
 Informationen → Trotzdem ausführen“, auf dem Mac beim ersten Start Rechtsklick → *Öffnen*.
 
-**App Store, Google Play und Microsoft Store:** Schritt-für-Schritt-Anleitung in [`docs/STORES.md`](https://github.com/tobiaslangde-eng/rettung/blob/claude/medical-game-app-expo-nru897/docs/STORES.md) – kein eigener Computer nötig. Gebaut wird über den Workflow „Store-Veröffentlichung“ (Expo EAS); Texte und Bilder: [`docs/APPSTORE-EINTRAG.md`](https://github.com/tobiaslangde-eng/rettung/blob/claude/medical-game-app-expo-nru897/docs/APPSTORE-EINTRAG.md), [`docs/PLAYSTORE-EINTRAG.md`](https://github.com/tobiaslangde-eng/rettung/blob/claude/medical-game-app-expo-nru897/docs/PLAYSTORE-EINTRAG.md).
+**App Store, Google Play und Microsoft Store** (für später, ebenfalls nur per Hand): Schritt-für-Schritt-Anleitung in [`docs/STORES.md`](docs/STORES.md) – kein eigener Computer nötig. Gebaut wird über den Workflow „Store-Veröffentlichung“ (Expo EAS); Texte und Bilder: [`docs/APPSTORE-EINTRAG.md`](docs/APPSTORE-EINTRAG.md), [`docs/PLAYSTORE-EINTRAG.md`](docs/PLAYSTORE-EINTRAG.md).
 
 ---
 
