@@ -1,1 +1,214 @@
-# retung
+# Einsatz 112 – das Sanitäter-Lernspiel 🚑
+
+> **Ein Freizeitprojekt aus dem Rettungsdienst:** Lerninhalte aus der Sanitätsausbildung – zum Üben als Spiel.
+
+![Einsatz 112 auf Mac, iPad und iPhone](https://github.com/tobiaslangde-eng/rettung/raw/claude/medical-game-app-expo-nru897/docs/geraete/alle.png)
+
+**[▶ Jetzt im Browser spielen](https://tobiaslangde-eng.github.io/rettung/)** · kostenlos, ohne Anmeldung, auch fürs iPhone ·
+[Downloads für Android, Windows, Mac und Linux](https://github.com/tobiaslangde-eng/rettung/releases)
+
+## Über dieses Projekt
+
+Einsatz 112 ist ein **Freizeitprojekt eines Rettungssanitäters**.
+
+Die Idee dahinter: Was man in der Sanitätsausbildung lernt, soll man nicht nur im Lehrbuch lesen. Man soll es
+**spielerisch üben** können – zwischendurch, auf dem Handy, Einsatz für Einsatz. Gemeint sind Normwerte,
+das ABCDE-Schema, typische Krankheitsbilder, die richtigen Erstmaßnahmen, Wiederbelebung und die Sichtung beim Großeinsatz.
+
+Statt Karteikarten gibt es Einsätze. Die Leitstelle alarmiert, ich fahre mit meiner Kollegin Kati raus und
+untersuche den Patienten. Ich messe Vitalwerte, stelle eine Verdachtsdiagnose und entscheide, was zu tun ist.
+Fehler sind ausdrücklich erlaubt: Nach jedem Einsatz erklärt der Einsatzbericht, worauf es ankam und woran man
+das Krankheitsbild erkennt.
+
+### Was man übt
+
+| Lerninhalt aus der Ausbildung | So kommt er im Spiel vor |
+|---|---|
+| **Vitalwerte und Normbereiche** (Erwachsene und Kinder) | Puls, Blutdruck, SpO₂, Atemfrequenz, Temperatur, Blutzucker, GCS und EKG messen und als niedrig, normal oder hoch einstufen; Training „Normwerte“ |
+| **Strukturiertes Vorgehen** (ABCDE, SAMPLER, GCS, BE-FAST, 5 W) | Anamnese und Sichtbefund in jedem Einsatz; Nachschlagen im Lexikon |
+| **Krankheitsbilder erkennen** | 28 Einsätze von Hypoglykämie über Schlaganfall bis Spannungspneumothorax, davon 4 Kinder-Notfälle |
+| **Erstmaßnahmen** | die richtigen Maßnahmen auswählen – falsche kosten Punkte und schaden dem Patienten |
+| **Reagieren, wenn es kritisch wird** | Zwischenfälle mitten im Einsatz, z. B. Kammerflimmern oder Erbrechen |
+| **Herz-Lungen-Wiederbelebung** | Herzdruckmassage im Takt von 100–120/min, 30:2 |
+| **Sichtung beim Großeinsatz (MANV)** | 8 Verletzte nach einem vereinfachten mSTaRT-Schema einteilen |
+| **Theorie** | 48 Wissensfragen aus dem Einsatzalltag mit Erklärung |
+
+### Warum ein Spiel?
+
+Gelerntes bleibt hängen, wenn man es oft wiederholt. Deshalb gibt es kleine Anreize, um dranzubleiben:
+einen Einsatz des Tages, eine Dienst-Serie, Abzeichen und eine Beförderung vom Praktikanten bis zur
+„Rettungsdienst-Legende“. Dazu kommt ein eigener Rettungswagen, den man mit den gesammelten Punkten Stufe für
+Stufe modern ausrüstet.
+
+### Grundsätze
+
+- **Kostenlos** – keine Werbung, keine In-App-Käufe
+- **Keine Datensammlung** – kein Konto, kein Tracking; der Spielstand bleibt auf dem eigenen Gerät
+  ([Datenschutzerklärung](https://github.com/tobiaslangde-eng/rettung/blob/claude/medical-game-app-expo-nru897/docs/DATENSCHUTZ.md))
+- **Komplett auf Deutsch**; die Einsätze spielen in ganz Deutschland
+- **Läuft überall:** iPhone, iPad, Android, PC, Mac und im Browser
+
+> ⚠️ **Wichtig:** Einsatz 112 ist ein Lernspiel mit **vereinfachten** Inhalten. Es ersetzt keine Ausbildung,
+> keine Praxisanleitung, keine ärztliche Beratung und keine regionalen Leitlinien oder SOPs. Welche Maßnahmen
+> man durchführen darf, hängt von der eigenen Qualifikation und dem Rettungsdienstbereich ab.
+> **Im Notfall: 112.**
+
+### Feedback
+
+Fehler gefunden, fachlich etwas anders gelernt oder eine Idee für einen neuen Einsatz?
+Dann gerne ein [Issue](https://github.com/tobiaslangde-eng/rettung/issues) anlegen. Hinweise aus Ausbildung und
+Praxis sind ausdrücklich willkommen.
+
+---
+
+## So spielt es sich
+
+Erzählt wird in der **Ich-Perspektive**: Ich bin Sanitäter/in im Rettungsdienst und fahre mit meiner Kollegin Kati
+zu Einsätzen quer durch Deutschland.
+
+1. **Alarm:** Einsatzmeldung der Leitstelle (Köln, Heidelberg, Lübeck, Rügen, Müritz …), danach Blaulichtfahrt.
+2. **Untersuchung:** Anamnese und Sichtbefund lesen, Werte messen
+   (Puls, Blutdruck, SpO₂, Atemfrequenz, Temperatur, Blutzucker, GCS, 12-Kanal-EKG)
+   und jeden Wert als *niedrig / normal / hoch* einstufen. Jede Messung kostet eine Minute.
+3. **Diagnose:** Verdachtsdiagnose aus vier Möglichkeiten wählen.
+4. **Maßnahmen:** Alle richtigen Erstmaßnahmen auswählen – falsche kosten Punkte.
+5. **Einsatzbericht:** Punkte, Sterne, Erklärung und Leitsymptome. Ich erfahre auch, wie der Patient in der Klinik ankommt.
+
+### Schwierigkeitsstufen
+
+| Stufe | Fälle | Hilfen | Druck | Punkte |
+|---|---|---|---|---|
+| ◆◇◇ **Leicht** | einfache Fälle | Normwerte sichtbar, Kati gibt Tipps und 50:50 gratis | gering | ×1 |
+| ◆◆◇ **Mittel** | mittlere Fälle | Normwerte muss ich kennen, Katis Tipps kosten 10 Punkte | mittel | ×1,5 |
+| ◆◆◆ **Schwer** | komplexe Fälle | keine Hilfe, Feedback erst im Bericht | Patient verschlechtert sich in Echtzeit | ×2 |
+
+### Spielelemente
+
+- **Tagesdienst:** jeden Tag ein „Einsatz des Tages“ (+50 % Punkte) und ein Tagesziel von 3 Einsätzen;
+  wer es mehrere Tage hintereinander schafft, baut eine Dienst-Serie mit steigendem Bonus auf
+- **Zwischenfälle:** In 17 Einsätzen passiert mitten in der Untersuchung etwas Unerwartetes
+  (z. B. Kammerflimmern, Erbrechen, Status epilepticus) – ich muss sofort richtig reagieren
+- **Kinder-Einsätze:** 4 Fälle mit kleinen Patienten (Fieberkrampf, Pseudokrupp, verschluckte Erdnuss,
+  Exsikkose); bewertet wird mit Kinder-Normwerten für Puls, Atmung und Blutdruck
+- **Großeinsatz (MANV):** 8 Verletzte nach einem vereinfachten mSTaRT-Schema sichten (Rot, Gelb, Grün, Schwarz)
+- **Mein Rettungswagen (Fahrzeughalle):** Jeder Punkt bringt 1 € Budget. Damit rüste ich Fahrzeug,
+  Patientenmonitor, Notfallrucksack, Beatmung, Trage, Funk und Einsatzkleidung in vier Stufen auf
+  (vom Krankenwagen Baujahr 1999 bis zum Elektro-RTW 2026). Jede Stufe hilft im Einsatz; höhere Stufen
+  werden mit dem Dienstgrad freigeschaltet. Ich kann den Wagen von außen ansehen oder einsteigen. Dann stehe ich
+  in der Ich-Perspektive im Patientenraum, tippe Geräte an und sehe ihren Steckbrief mit Großansicht, Infos und
+  Vorschau auf die nächste Stufe.
+- **Meine Woche:** Wochenpunkte mit Verlauf der letzten 6 Wochen und Wochenrekord
+- **Training Herzdruckmassage:** im Takt von 100–120/min auf den Brustkorb tippen, 2 Runden 30:2,
+  mit Live-Anzeige, Taktgeber (abschaltbar für doppelte Punkte) und Auswertung der Beatmungspause
+- **Training Wissensfragen:** 48 Fragen aus dem Einsatzalltag, je 10 pro Runde, mit Erklärung
+- **Training Normwerte:** 10 zufällige Messwerte in Folge als niedrig, normal oder hoch einstufen
+- **Zustandsbalken** des Patienten: Jede Messung kostet Kraft, Fehler schaden, richtige Maßnahmen helfen
+- **Kati**, meine Kollegin, gibt Tipps und kann zwei falsche Diagnosen ausschließen (50:50)
+- **18 Abzeichen** (z. B. „Lehrbuchreif“, „Taktgefühl“, „Dienstwoche“) mit je 50 Bonuspunkten
+- **Bonuspunkte** für perfekte Einsätze und Serien 🔥, **8 Dienstgrade** von *Praktikant/in* bis zur
+  *Rettungsdienst-Legende* – jede Beförderung wird im Einsatzbericht gefeiert
+- **Lexikon:** Normwerte, alle Krankheitsbilder und Rettungswissen – Notruf (5 W), Rettungskette, ABCDE,
+  Wiederbelebung, Seitenlage, BE-FAST, SAMPLER, GCS, Schockzeichen, Sichtung, Kindernotfälle
+
+Der Spielstand wird nur lokal gespeichert. Über *Anleitung → Spielstand übertragen* lässt er sich als Code
+auf ein anderes Gerät mitnehmen.
+
+### Enthaltene Fälle (28)
+
+- **Leicht (11):** Herzinfarkt, Hypoglykämie, Schlaganfall, Asthmaanfall, Kreislaufkollaps, Unterarmbruch, Verbrennung, Nierenkolik, Alkoholvergiftung, Fieberkrampf (Kind), Pseudokrupp (Kind)
+- **Mittel (11):** Anaphylaxie, Hypothermie, Hitzschlag, Hyperventilation, Krampfanfall, hypertensiver Notfall, Opioid-Überdosis, Gehirnerschütterung, COPD, verschluckte Erdnuss (Kind), Exsikkose (Kind)
+- **Schwer (6):** Sepsis, Lungenembolie, Lungenödem, Kohlenmonoxidvergiftung, diabetische Ketoazidose, Spannungspneumothorax (plus die mittleren Fälle)
+
+## Auf jedem Gerät
+
+Die Oberfläche passt sich an die Bildschirmgröße an:
+
+- **iPhone/Handy:** eine Spalte, alles mit dem Daumen erreichbar
+- **iPad hoch:** zwei Spalten; **iPad quer, PC und Mac:** feste Seitenleiste mit Dienstgrad, Budget und Menü,
+  Startseite in drei Spalten, Untersuchung mit Patient links und Messwerten rechts, Lexikon als Kachel-Raster
+- **Desktop-App:** Fenster 1280 × 820, unter macOS mit Ampel-Knöpfen in der dunklen Titelleiste, unter Windows mit
+  dunkler Titelleiste und den Windows-Fensterknöpfen; kleiner gezogen wird sie zur Handy-Ansicht
+
+| Mac | Windows |
+|---|---|
+| ![Mac](https://github.com/tobiaslangde-eng/rettung/raw/claude/medical-game-app-expo-nru897/docs/geraete/mac.png) | ![Windows](https://github.com/tobiaslangde-eng/rettung/raw/claude/medical-game-app-expo-nru897/docs/geraete/windows.png) |
+| **iPad quer** | **iPad hoch** |
+| ![iPad quer](https://github.com/tobiaslangde-eng/rettung/raw/claude/medical-game-app-expo-nru897/docs/geraete/ipad-quer.png) | ![iPad hoch](https://github.com/tobiaslangde-eng/rettung/raw/claude/medical-game-app-expo-nru897/docs/geraete/ipad-hoch.png) |
+
+## Design: Rettungsdienst
+
+- **Patientenmonitor** als Startbild und im Einsatzbericht: dunkles Raster, grüne EKG-Kurve,
+  Vitalwerte in den typischen Monitorfarben (HF grün, SpO₂ cyan, RR rot …)
+- **Star of Life** – das internationale Rettungsdienst-Symbol – als Rangabzeichen und App-Icon
+- **Rot-weiße Warnmarkierung** wie am Heck eines Rettungswagens, **Reflexstreifen** (Gelb–Silber–Gelb)
+  wie an der Einsatzkleidung
+- Graphit, Signalrot und Blaulicht-Blau auf neutralem Grau; Schriften *Barlow Condensed* und *Barlow*
+
+Die Grafiken sind Vektorgrafiken (`react-native-svg`) in `src/components/`.
+
+## Spielen und herunterladen
+
+**iPhone & iPad (ohne App Store):** Einsatz 112 läuft als Web-App mit eigenem Icon, im Vollbild und offline.
+<https://tobiaslangde-eng.github.io/rettung/> in **Safari** öffnen → Teilen-Symbol → **„Zum Home-Bildschirm“**.
+
+Bei jedem Push baut GitHub Actions (`.github/workflows/android-apk.yml`) automatisch und legt unter
+[**Releases**](https://github.com/tobiaslangde-eng/rettung/releases) ab (neuester Build oben):
+
+- **Einsatz112-Windows.exe** – Desktop-App für Windows (Doppelklick, keine Installation)
+- **Einsatz112-Mac-arm64.dmg / Einsatz112-Mac-x64.dmg** – Desktop-App für Mac (Apple-Chip / Intel)
+- **Einsatz112-Linux.AppImage** – Desktop-App für Linux
+- **Einsatz112.apk** – die Android-App (auf dem Handy öffnen und „Installation aus unbekannten Quellen“ erlauben)
+- **Einsatz112-iOS-unsigniert.ipa** – iOS-App zum Sideloaden mit [Sideloadly](https://sideloadly.io) oder [AltStore](https://altstore.io) und der eigenen Apple-ID (kostenlose Apple-ID: läuft 7 Tage, dann neu installieren)
+- **Einsatz112-Web.html** – das ganze Spiel als eine Datei für jeden Browser, auch offline
+
+Die Desktop-Apps (Ordner `desktop/`, Electron) laden die Web-Version in ein eigenes Fenster und laufen
+offline. Sie sind nicht von Microsoft/Apple zertifiziert: Windows zeigt beim ersten Start „Weitere
+Informationen → Trotzdem ausführen“, auf dem Mac beim ersten Start Rechtsklick → *Öffnen*.
+
+**App Store, Google Play und Microsoft Store:** Schritt-für-Schritt-Anleitung in [`docs/STORES.md`](https://github.com/tobiaslangde-eng/rettung/blob/claude/medical-game-app-expo-nru897/docs/STORES.md) – kein eigener Computer nötig. Gebaut wird über den Workflow „Store-Veröffentlichung“ (Expo EAS); Texte und Bilder: [`docs/APPSTORE-EINTRAG.md`](https://github.com/tobiaslangde-eng/rettung/blob/claude/medical-game-app-expo-nru897/docs/APPSTORE-EINTRAG.md), [`docs/PLAYSTORE-EINTRAG.md`](https://github.com/tobiaslangde-eng/rettung/blob/claude/medical-game-app-expo-nru897/docs/PLAYSTORE-EINTRAG.md).
+
+---
+
+## Für Entwickler
+
+Gebaut mit **Expo / React Native** und TypeScript.
+
+```bash
+npm install
+npx expo start        # QR-Code mit Expo Go scannen
+npx expo start --web  # im Browser
+npm run typecheck     # Typecheck
+npm run build:web     # dist/kiirabi.html – das ganze Spiel als eine eigenständige Datei
+```
+
+Desktop-App lokal bauen: `cd desktop && npm install && npm run prepare-app && npm run dist:linux` (bzw. `dist:win`, `dist:mac`).
+Die Web-App veröffentlicht der Workflow „Web-App veröffentlichen“ auf GitHub Pages (Branch `gh-pages`).
+
+### Projektstruktur
+
+```
+App.tsx                 Navigation (Zustandsautomat) & Fortschritt
+src/theme.ts            Farben & Typografie (Rettungsdienst-Design)
+src/layout.tsx          Anpassung an Handy, Tablet und Desktop
+src/components/Ems.tsx  Star of Life, Warnmarkierung, Reflexstreifen, Monitor, EKG, Stadt, Rangabzeichen
+src/components/         Buttons, Karten, Kati, Blaulichtfahrt, Rettungswagen, Geräte, Seitenleiste
+src/data/vitals.ts      Vitalwerte, Normbereiche (auch für Kinder), Einstufung
+src/data/cases.ts       Einsatzfälle
+src/data/questions.ts   Wissensfragen
+src/data/incidents.ts   Zwischenfälle in Einsätzen
+src/data/manv.ts        Großeinsatz: Verletzte und Sichtungsschema
+src/data/basics.ts      Rettungswissen fürs Lexikon
+src/game/scoring.ts     Punkte, Sterne, Ränge, Patientenzustand
+src/game/difficulty.ts  Schwierigkeitsstufen
+src/game/daily.ts       Tagesdienst: Einsatz des Tages, Tagesziel, Dienst-Serie
+src/game/cpr.ts         Herzdruckmassage-Training: Takt messen und bewerten
+src/game/quiz.ts        Normwerte- und Wissensfragen-Training
+src/game/achievements.ts Abzeichen
+src/game/manv.ts        Großeinsatz-Runden und Punkte
+src/game/weekly.ts      Wochenpunkte und Wochenrekord
+src/game/equipment.ts   Fahrzeughalle: Ausrüstungsstufen, Kosten und Wirkung
+src/game/storage.ts     Speicherung (AsyncStorage) und Spielstand-Übertragung
+src/screens/            Start, Einsatz, Ergebnis, Training, Fahrzeughalle, Lexikon, Anleitung
+```
+
+Neue Fälle lassen sich einfach in `src/data/cases.ts` ergänzen.
