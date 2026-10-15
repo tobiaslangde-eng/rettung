@@ -62,8 +62,21 @@ Praxis sind ausdrücklich willkommen.
 
 ## So spielt es sich
 
-Erzählt wird in der **Ich-Perspektive**: Ich bin Sanitäter/in im Rettungsdienst und fahre mit meiner Kollegin Kati
-zu Einsätzen quer durch Deutschland.
+Beim ersten Start wähle ich meine **Rolle** – jede hat ihren eigenen Spielstand, gewechselt wird jederzeit unter „Mehr“:
+
+- **Ersthelfer/in:** Erste Hilfe im Alltag, ohne Messgeräte. 26 Notfälle (Herzstillstand im Supermarkt, Unfall auf der
+  Autobahn, Verschlucken im Restaurant, Kind im Badesee …) in vier Schritten: *Lage → Prüfen → Erkennen → Handeln*.
+  Dazu Wissensfragen (auch Alltagsfragen wie Warndreieck oder Rettungsgasse), „Schritt für Schritt“, Herzdruckmassage
+  und Detektiv-Akten ohne Messwerte. Mit den Punkten rüste ich **mein eigenes Auto** aus: Verbandkasten, Warnausrüstung,
+  Decken, Licht, Defibrillator und Ausbildung.
+- **Sanitäter/in:** das Rettungsdienst-Spiel mit Untersuchung, Messwerten, Diagnosen und dem eigenen Rettungswagen (unten).
+
+**Die Geschichte:** Beide Rollen erzählen eine Geschichte in elf Kapiteln mit Kati als Begleiterin – vom Erste-Hilfe-Kurs
+für den Führerschein bis zur Ersthelfer-App bzw. vom ersten Tag auf der Wache bis zur Praxisanleitung. Jedes Kapitel hat
+eine Aufgabe und schaltet neue Bereiche frei, so baut alles aufeinander auf. Am Ende der Ersthelfer-Geschichte wartet der
+Weg in den Rettungsdienst.
+
+**Als Sanitäter/in** wird in der **Ich-Perspektive** erzählt: Ich fahre mit meiner Kollegin Kati zu Einsätzen quer durch Deutschland.
 
 1. **Alarm:** Einsatzmeldung der Leitstelle (Köln, Heidelberg, Lübeck, Rügen, Müritz …), danach Blaulichtfahrt.
 2. **Untersuchung:** Anamnese und Sichtbefund lesen, Werte messen
@@ -143,14 +156,12 @@ Die Oberfläche passt sich an die Bildschirmgröße an:
 | **iPad quer** | **iPad hoch** |
 | ![iPad quer](docs/geraete/ipad-quer.png) | ![iPad hoch](docs/geraete/ipad-hoch.png) |
 
-## Design „Warnweste“
+## Design „Klar“
 
-Ein eigenes Design für junge Leute: **Aufkleber auf EKG-Papier.** Der Hintergrund ist rosa Millimeterpapier, wie es
-ein EKG ausdruckt. Darauf liegen weiße und bunte Karten mit dicker Tinten-Umrandung und hartem Schatten, Knöpfe sinken
-beim Drücken ein. Die Farben haben feste Bedeutungen: **Rot** = Einsatz, **Blau** = Aktion, **Gelb** (wie die Warnweste)
-= Belohnung, **Mint** = richtig. Unten schwebt eine **Tab-Leiste** (Start, Training, Fahrzeug, Lexikon, Mehr); die Alarmmeldung
-erscheint auf einem **Meldeempfänger**, das Tagesziel auf einer **Stechkarte**, der Dienstgrad auf einem **Dienstausweis**.
-Schriften: *Bricolage Grotesque*, *Inter* und *DM Mono*. Details: [`docs/DESIGN.md`](docs/DESIGN.md).
+Schlicht und klar strukturiert: ruhiger hellgrauer Hintergrund, weiße Flächen mit feiner Linie, keine Schatten, eine Schrift
+(*Inter*). Jede Rolle hat eine **Akzentfarbe** – Grün für Ersthelfer/innen, Rot für Sanitäter/innen. Farben haben nur dort
+eine Bedeutung, wo sie gebraucht werden (Grün = richtig, Rot = falsch/Alarm). Die Startseite ist von oben nach unten
+gegliedert: Geschichte, Hauptaktion, Heute, Training, Fahrzeug, Rang. Details: [`docs/DESIGN.md`](docs/DESIGN.md).
 
 ## Spielen und herunterladen
 

@@ -429,7 +429,7 @@ export function DetectiveScreen({
               >
                 <View style={styles.clueHead}>
                   <Text style={styles.clueIcon}>{cl.icon}</Text>
-                  <Text style={[styles.clueLabel, !open && { color: colors.lilac }]}>{cl.label}</Text>
+                  <Text style={[styles.clueLabel, !open && { color: colors.muted }]}>{cl.label}</Text>
                 </View>
                 {open ? (
                   <Text style={styles.clueText}>{cl.text}</Text>
@@ -544,10 +544,10 @@ const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   contentWide: { padding: spacing.xl },
   hero: {
-    backgroundColor: colors.violet,
+    backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.line,
-    borderRadius: 28,
+    borderRadius: 16,
     overflow: 'hidden',
     padding: spacing.lg + 2,
     gap: spacing.md,
@@ -555,8 +555,8 @@ const styles = StyleSheet.create({
   },
   heroTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   heroIcon: { fontSize: 48, lineHeight: 58, fontFamily: fonts.regular },
-  heroTitle: { color: colors.white, fontFamily: fonts.displayBlack, fontSize: 30, lineHeight: 32, letterSpacing: -1 },
-  heroSub: { color: colors.white, fontFamily: fonts.medium, fontSize: 15, lineHeight: 21 },
+  heroTitle: { color: colors.ink, fontFamily: fonts.bold, fontSize: 24, lineHeight: 29 },
+  heroSub: { color: colors.muted, fontFamily: fonts.regular, fontSize: 15, lineHeight: 21 },
   gradeBox: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -569,7 +569,7 @@ const styles = StyleSheet.create({
   },
   gradeIcon: { fontSize: 38, lineHeight: 46, fontFamily: fonts.regular },
   gradeTitle: { fontFamily: fonts.displayBlack, fontSize: 21, lineHeight: 23, color: colors.ink, letterSpacing: -0.6 },
-  total: { color: colors.yellow, fontFamily: fonts.displayBlack, fontSize: 64, lineHeight: 70, letterSpacing: -2.5 },
+  total: { color: colors.ink, fontFamily: fonts.displayBlack, fontSize: 64, lineHeight: 70, letterSpacing: -2.5 },
   money: {
     backgroundColor: colors.white,
     borderWidth: 1,
@@ -660,7 +660,7 @@ const styles = StyleSheet.create({
   meterValue: { fontFamily: fonts.displayBlack, fontSize: 34, lineHeight: 36, color: colors.violet, letterSpacing: -1.2 },
   meterUnit: { fontFamily: fonts.mono, fontSize: 13, color: colors.muted, letterSpacing: 0.4 },
   dossier: {
-    backgroundColor: colors.butter,
+    backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 22,
@@ -683,7 +683,7 @@ const styles = StyleSheet.create({
   },
   dossierTabText: { fontFamily: fonts.mono, fontSize: 10.5, letterSpacing: 1, color: colors.ink, textTransform: 'uppercase' },
   dossierLabel: { fontFamily: fonts.mono, fontSize: 12, color: colors.inkSoft },
-  dossierText: { fontFamily: fonts.displayBlack, fontSize: 21, lineHeight: 25, color: colors.ink, letterSpacing: -0.6 },
+  dossierText: { fontFamily: fonts.semibold, fontSize: 19, lineHeight: 25, color: colors.ink },
   dossierPlace: { fontFamily: fonts.mono, fontSize: 12, color: colors.inkSoft },
   stamp: {
     position: 'absolute',
@@ -707,14 +707,14 @@ const styles = StyleSheet.create({
     minHeight: 98,
     gap: 6,
   },
-  clueClosed: { backgroundColor: colors.ink },
-  clueOpen: { backgroundColor: colors.white, transform: [{ translateY: 3 }] },
+  clueClosed: { backgroundColor: colors.paper, borderStyle: 'dashed', borderColor: colors.grau300 },
+  clueOpen: { backgroundColor: colors.white },
   clueUnused: { opacity: 0.5 },
   clueHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   clueIcon: { fontSize: 18, fontFamily: fonts.regular },
   clueLabel: { fontFamily: fonts.mono, fontSize: 11.5, letterSpacing: 0.5, color: colors.muted, textTransform: 'uppercase' },
   clueText: { fontFamily: fonts.medium, fontSize: 14, lineHeight: 19, color: colors.ink },
-  clueCost: { fontFamily: fonts.displayBlack, fontSize: 15, color: colors.yellow, marginTop: 'auto', letterSpacing: -0.2 },
+  clueCost: { fontFamily: fonts.displayBlack, fontSize: 15, color: colors.violet, marginTop: 'auto', letterSpacing: -0.2 },
   suspectHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
   tries: { fontFamily: fonts.mono, fontSize: 13, color: colors.muted },
   line: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: 4 },

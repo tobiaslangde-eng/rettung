@@ -149,14 +149,14 @@ export function KnowledgeScreen({
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   questionBox: {
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.line,
-    borderRadius: 24,
+    borderRadius: 16,
     padding: spacing.xl,
     ...hardShadow(5),
   },
-  question: { fontFamily: fonts.displayBlack, fontSize: 25, lineHeight: 29, letterSpacing: -0.8, color: colors.ink },
+  question: { fontFamily: fonts.bold, fontSize: 21, lineHeight: 27, color: colors.ink },
   line: {
     flexDirection: 'row',
     alignItems: 'flex-start',

@@ -18,7 +18,7 @@ if (!scriptSrc) throw new Error('Kein Bundle-Script in index.html gefunden');
 
 // Nur die Schriftschnitte einbetten, die das Theme wirklich nutzt (z. B. 'Inter_700Bold').
 const usedFonts = new Set(
-  [...readFileSync('src/theme.ts', 'utf8').matchAll(/'((?:Inter)_\w+)'/g)].map((m) => m[1]),
+  [...readFileSync('src/theme.ts', 'utf8').matchAll(/'(Inter_\w+)'/g)].map((m) => m[1]),
 );
 
 let js = readFileSync(join(exportDir, scriptSrc), 'utf8');

@@ -257,7 +257,6 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
                         <Ambulance level={levels.rtw} width={Math.max(160, Math.min(sceneWidth - 56, 420))} blink={blink} />
                       )}
                     </View>
-                    <View style={styles.floorLine} />
                   </Pressable>
                 )}
               </View>
@@ -343,7 +342,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     ...hardShadow(5),
   },
-  stage: { backgroundColor: colors.butter, borderBottomWidth: 2, borderBottomColor: colors.ink },
+  stage: { backgroundColor: colors.paper, borderBottomWidth: 1, borderBottomColor: colors.line },
   outside: { alignItems: 'center', paddingTop: spacing.xl, paddingHorizontal: spacing.lg, overflow: 'hidden' },
   sun: {
     position: 'absolute',
@@ -421,7 +420,7 @@ const styles = StyleSheet.create({
   rowArrow: { fontFamily: fonts.displayBlack, fontSize: 24, color: colors.ink },
   pips: { flexDirection: 'row', gap: 3 },
   pip: { width: 14, height: 8, borderRadius: 4, backgroundColor: colors.white, borderWidth: 1.5, borderColor: colors.line },
-  pipOn: { backgroundColor: colors.yellow },
+  pipOn: { backgroundColor: colors.mintDark, borderColor: colors.mintDark },
   backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(20,23,58,0.55)' },
   sheet: {
     position: 'absolute',

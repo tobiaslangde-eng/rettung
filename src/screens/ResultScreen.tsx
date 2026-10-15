@@ -1,7 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, Eyebrow, TopBar } from '../components/UI';
 import { EcgStrip, RankBadge, RatingStar } from '../components/Ems';
-import { Confetti } from '../components/Training';
 import { INCIDENTS } from '../data/incidents';
 import { VITAL_BY_ID, formatVital, rateVital } from '../data/vitals';
 import { BADGE_BONUS, Badge } from '../game/achievements';
@@ -42,8 +41,7 @@ export function ResultScreen({
     <View style={{ flex: 1 }}>
       <TopBar kicker="Einsatz beendet" title="Mein Einsatzbericht" onBack={onHome} />
       <ScrollView contentContainerStyle={[styles.content, L.wide && styles.contentWide]}>
-        <View style={[styles.hero, result.stars < 2 && { backgroundColor: colors.inkSoft }]}>
-          {result.stars >= 2 && <Confetti />}
+        <View style={styles.hero}>
           <View style={styles.stars}>
             {[0, 1, 2].map((i) => (
               <RatingStar key={i} size={i === 1 ? 58 : 44} filled={i < result.stars} />
@@ -61,7 +59,7 @@ export function ResultScreen({
             </Text>
           </View>
           <View style={styles.ecg}>
-            <EcgStrip height={48} beats={4} color={colors.yellow} />
+            <EcgStrip height={40} beats={4} color={colors.red} />
           </View>
         </View>
         <Columns
@@ -233,7 +231,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.lg,
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.yellowTint,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 24,
@@ -244,7 +242,7 @@ const styles = StyleSheet.create({
   promoText: { fontFamily: fonts.mono, fontSize: 11, color: colors.ink, letterSpacing: 0.6, textTransform: 'uppercase' },
   promoRank: { fontFamily: fonts.displayBlack, fontSize: 21, lineHeight: 24, color: colors.ink, letterSpacing: -0.5 },
   badgeBox: {
-    backgroundColor: colors.ink,
+    backgroundColor: colors.white,
     borderRadius: 24,
     padding: spacing.lg,
     gap: spacing.sm,
@@ -252,11 +250,11 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     ...hardShadow(4, colors.blue),
   },
-  badgeHead: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.yellow, letterSpacing: -0.5 },
+  badgeHead: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.ink, letterSpacing: -0.5 },
   badgeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   badgeIcon: { fontFamily: fonts.regular, fontSize: 30 },
-  badgeTitle: { fontFamily: fonts.display, fontSize: 16, color: colors.white, letterSpacing: -0.2 },
-  badgeDesc: { fontFamily: fonts.regular, fontSize: 12, color: colors.grau300 },
+  badgeTitle: { fontFamily: fonts.display, fontSize: 16, color: colors.ink, letterSpacing: -0.2 },
+  badgeDesc: { fontFamily: fonts.regular, fontSize: 12, color: colors.muted },
   badgePts: { fontFamily: fonts.displayBlack, fontSize: 18, color: colors.monitorGruen, letterSpacing: -0.4 },
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   contentWide: { padding: spacing.xl, gap: spacing.lg },
@@ -265,7 +263,7 @@ const styles = StyleSheet.create({
   hero: {
     alignItems: 'center',
     overflow: 'hidden',
-    backgroundColor: colors.blue,
+    backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 28,
@@ -276,15 +274,15 @@ const styles = StyleSheet.create({
   ecg: { alignSelf: 'stretch', marginTop: spacing.md },
   stars: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.md },
   praise: {
-    color: colors.white,
+    color: colors.ink,
     fontSize: 32,
     lineHeight: 36,
     fontFamily: fonts.displayBlack,
     marginTop: spacing.md,
     letterSpacing: -1,
   },
-  points: { color: colors.yellow, fontSize: 56, lineHeight: 62, fontFamily: fonts.displayBlack, letterSpacing: -2 },
-  pointsMax: { fontSize: 16, color: colors.white, fontFamily: fonts.mono, letterSpacing: 0.5 },
+  points: { color: colors.ink, fontSize: 56, lineHeight: 62, fontFamily: fonts.displayBlack, letterSpacing: -2 },
+  pointsMax: { fontSize: 16, color: colors.muted, fontFamily: fonts.mono, letterSpacing: 0.5 },
   diffPill: {
     backgroundColor: colors.white,
     borderWidth: 1,

@@ -198,8 +198,8 @@ export const RANKS: Rank[] = [
 export const HELFER_RANKS: Rank[] = [
   { min: 0, de: 'Neuling' },
   { min: 200, de: 'Ersthelfer/in' },
-  { min: 600, de: 'Aufmerksame/r Helfer/in' },
-  { min: 1200, de: 'Erfahrene/r Ersthelfer/in' },
+  { min: 600, de: 'Hilfsbereit' },
+  { min: 1200, de: 'Routinierte Hilfe' },
   { min: 2200, de: 'Betriebshelfer/in' },
   { min: 3800, de: 'Mobile/r Retter/in' },
   { min: 6000, de: 'Lebensretter/in' },

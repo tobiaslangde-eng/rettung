@@ -69,8 +69,7 @@ export function ScoreHero({
   note?: string;
 }) {
   return (
-    <View style={[styles.hero, stars < 2 && { backgroundColor: colors.inkSoft }]}>
-      {stars >= 2 && <Confetti />}
+    <View style={styles.hero}>
       <View style={styles.stars}>
         {[0, 1, 2].map((i) => (
           <RatingStar key={i} size={i === 1 ? 54 : 40} filled={i < stars} />
@@ -85,7 +84,7 @@ export function ScoreHero({
       </View>
       {note ? <Text style={styles.note}>{note}</Text> : null}
       <View style={{ alignSelf: 'stretch', marginTop: spacing.md }}>
-        <EcgStrip height={44} beats={4} color={colors.yellow} />
+        <EcgStrip height={36} beats={4} color={colors.red} />
       </View>
     </View>
   );
@@ -182,26 +181,26 @@ const styles = StyleSheet.create({
   hero: {
     alignItems: 'center',
     overflow: 'hidden',
-    backgroundColor: colors.blue,
+    backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.line,
-    borderRadius: 28,
+    borderRadius: 16,
     paddingTop: spacing.xl,
     gap: 2,
     ...hardShadow(6),
   },
   stars: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.md },
   big: {
-    color: colors.white,
+    color: colors.ink,
     fontSize: 68,
     lineHeight: 74,
     fontFamily: fonts.displayBlack,
     letterSpacing: -2.5,
     marginTop: spacing.sm,
   },
-  unit: { fontSize: 22, color: colors.white, fontFamily: fonts.display, letterSpacing: -0.5 },
+  unit: { fontSize: 22, color: colors.ink, fontFamily: fonts.display, letterSpacing: -0.5 },
   gain: {
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.yellowTint,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 999,
@@ -210,7 +209,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   gainText: { color: colors.ink, fontFamily: fonts.displayBlack, fontSize: 17, letterSpacing: -0.3 },
-  note: { color: colors.white, fontFamily: fonts.mono, fontSize: 12, marginTop: spacing.sm, letterSpacing: 0.4 },
+  note: { color: colors.ink, fontFamily: fonts.mono, fontSize: 12, marginTop: spacing.sm, letterSpacing: 0.4 },
   monitor: {
     backgroundColor: colors.monitorBg,
     borderRadius: 24,
