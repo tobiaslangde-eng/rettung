@@ -8,6 +8,7 @@ import { INCIDENT_POINTS } from '../data/incidents';
 import { MANV_PERFECT_BONUS, MANV_POINTS } from '../data/manv';
 import { DAILY_GOAL, dailyGoalBonus } from '../game/daily';
 import { QUIZ_POINTS } from '../game/quiz';
+import { useRolle } from '../game/rolle';
 import { DIFFICULTIES } from '../game/difficulty';
 import { POINTS } from '../game/scoring';
 import { Progress, exportCode, importCode } from '../game/storage';
@@ -108,16 +109,27 @@ export function GuideScreen({
   progress,
   onReset,
   onImport,
+  onRolle,
 }: {
   progress: Progress;
   onReset: () => void;
   onImport: (p: Progress) => void;
+  onRolle: () => void;
 }) {
   const [confirmReset, setConfirmReset] = useState(false);
+  const r = useRolle();
   return (
     <View style={{ flex: 1 }}>
       <TopBar kicker="Anleitung & Spielstand" title="Mehr" />
       <ScrollView contentContainerStyle={styles.content}>
+        <Card style={{ gap: spacing.sm }}>
+          <Text style={type.eyebrow}>Meine Rolle</Text>
+          <Text style={type.h2}>
+            {r.icon} {r.titel}
+          </Text>
+          <Text style={type.small}>Jede Rolle hat einen eigenen Spielstand. Beim Wechsel geht nichts verloren.</Text>
+          <Button label="Rolle wechseln" variant="outline" onPress={onRolle} />
+        </Card>
         <View style={styles.intro}>
           <KatiAvatar size={52} />
           <Text style={[type.body, { flex: 1 }]}>
@@ -283,8 +295,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.md,
     backgroundColor: colors.blueTint,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     borderRadius: 22,
     padding: spacing.md,
   },
@@ -295,8 +307,8 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 18,
     backgroundColor: colors.yellow,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -307,7 +319,7 @@ const styles = StyleSheet.create({
     color: colors.ink,
     backgroundColor: colors.paper,
     borderWidth: 1.5,
-    borderColor: colors.ink,
+    borderColor: colors.line,
     borderStyle: 'dashed',
     borderRadius: 12,
     padding: spacing.sm,
@@ -315,8 +327,8 @@ const styles = StyleSheet.create({
   },
   input: {
     minHeight: 64,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     borderRadius: 16,
     padding: spacing.sm,
     marginTop: spacing.md,
@@ -336,8 +348,8 @@ const styles = StyleSheet.create({
   },
   hint: {
     backgroundColor: colors.redTint,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     borderRadius: 22,
     padding: spacing.lg,
     gap: 4,

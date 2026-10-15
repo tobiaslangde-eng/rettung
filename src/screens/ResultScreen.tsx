@@ -7,7 +7,7 @@ import { VITAL_BY_ID, formatVital, rateVital } from '../data/vitals';
 import { BADGE_BONUS, Badge } from '../game/achievements';
 import { DAILY_GOAL } from '../game/daily';
 import { DIFFICULTY_BY_ID } from '../game/difficulty';
-import { CaseRun, RANKS, ScoreResult, conditionOutcome } from '../game/scoring';
+import { CaseRun, ScoreResult, rankList, conditionOutcome } from '../game/scoring';
 import { Columns, useLayout } from '../layout';
 import { colors, fonts, hardShadow, spacing, type } from '../theme';
 
@@ -70,7 +70,7 @@ export function ResultScreen({
             <>
               {promotion && (
                 <View style={styles.promo}>
-                  <RankBadge size={72} level={RANKS.findIndex((r) => r.de === promotion)} />
+                  <RankBadge size={72} level={rankList().findIndex((r) => r.de === promotion)} />
                   <View style={{ flex: 1 }}>
                     <Text style={styles.promoHead}>Befördert!</Text>
                     <Text style={styles.promoText}>Mein neuer Dienstgrad:</Text>
@@ -234,8 +234,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.lg,
     backgroundColor: colors.yellow,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     borderRadius: 24,
     padding: spacing.lg,
     ...hardShadow(4),
@@ -248,8 +248,8 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: spacing.lg,
     gap: spacing.sm,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     ...hardShadow(4, colors.blue),
   },
   badgeHead: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.yellow, letterSpacing: -0.5 },
@@ -266,8 +266,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     overflow: 'hidden',
     backgroundColor: colors.blue,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     borderRadius: 28,
     paddingTop: spacing.xl,
     gap: 2,
@@ -287,8 +287,8 @@ const styles = StyleSheet.create({
   pointsMax: { fontSize: 16, color: colors.white, fontFamily: fonts.mono, letterSpacing: 0.5 },
   diffPill: {
     backgroundColor: colors.white,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     borderRadius: 999,
     paddingHorizontal: 14,
     paddingVertical: 4,

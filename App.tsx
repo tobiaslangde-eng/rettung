@@ -4,32 +4,39 @@ import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StarOfLife } from './src/components/Ems';
-import { PaperBackground } from './src/components/Paper';
 import { NavTarget, SideNav } from './src/components/SideNav';
 import { TabBar, TabId } from './src/components/TabBar';
 import { CASES, MedCase } from './src/data/cases';
+import { HELFER_FAELLE, HelferFall } from './src/data/helfer';
 import { Badge, awardBadges } from './src/game/achievements';
 import { CprResult } from './src/game/cpr';
-import { DAILY_CASE_BONUS, dailyCase, registerDailyCase } from './src/game/daily';
+import { DAILY_CASE_BONUS, dailyCase, dailyHelferFall, registerDailyCase } from './src/game/daily';
 import { DIFFICULTY_BY_ID, Difficulty } from './src/game/difficulty';
-import { EQUIPMENT, EquipmentId, buyUpgrade, equipmentEffects, levelOf, upgradeBlock } from './src/game/equipment';
+import { EquipmentId, ausruestung, buyUpgrade, equipmentEffects, levelOf, upgradeBlock } from './src/game/equipment';
 import { ArchiveStamp, mergeArchive } from './src/game/detective';
+import { HelferErgebnis } from './src/game/helfer';
+import { Rolle, RolleContext, setAktiveRolle } from './src/game/rolle';
+import { KAPITEL_BONUS, StoryAktion, istFrei } from './src/game/story';
+import { TrainingId } from './src/game/trainings';
 import { manvPoints } from './src/game/manv';
 import { QUIZ_POINTS } from './src/game/quiz';
 import { CaseRun, ScoreResult, rankFor, scoreRun } from './src/game/scoring';
-import { EMPTY_PROGRESS, Progress, loadProgress, saveProgress } from './src/game/storage';
+import { EMPTY_PROGRESS, Progress, loadProgress, loadRolle, saveProgress, saveRolle } from './src/game/storage';
 import { addWeekPoints } from './src/game/weekly';
 import { CaseScreen } from './src/screens/CaseScreen';
 import { CprScreen } from './src/screens/CprScreen';
 import { GarageScreen } from './src/screens/GarageScreen';
 import { GuideScreen } from './src/screens/GuideScreen';
-import { HomeScreen, TrainingId } from './src/screens/HomeScreen';
+import { HelferAbschluss, HelferScreen } from './src/screens/HelferScreen';
+import { HomeScreen } from './src/screens/HomeScreen';
 import { KnowledgeScreen } from './src/screens/KnowledgeScreen';
 import { LexikonScreen } from './src/screens/LexikonScreen';
 import { ManvScreen } from './src/screens/ManvScreen';
 import { QuizScreen } from './src/screens/QuizScreen';
 import { DetectiveScreen } from './src/screens/DetectiveScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
+import { RolleScreen } from './src/screens/RolleScreen';
+import { SchritteScreen } from './src/screens/SchritteScreen';
 import { TrainingScreen } from './src/screens/TrainingScreen';
 import { FrameWidthProvider, SIDEBAR_FROM, SIDEBAR_WIDTH, SidebarProvider, desktopShell } from './src/layout';
 import { colors, fonts } from './src/theme';
@@ -44,6 +51,9 @@ type Screen =
   | { name: 'cpr'; key: number }
   | { name: 'manv'; key: number }
   | { name: 'detektiv'; key: number }
+  | { name: 'schritte'; key: number }
+  | { name: 'rolle' }
+  | { name: 'helfer'; fall: HelferFall; daily: boolean; key: number }
   | { name: 'garage' }
   | { name: 'case'; medCase: MedCase; daily: boolean; key: number }
   | {
@@ -66,6 +76,9 @@ const FRAME_MAX: Partial<Record<Screen['name'], number>> = {
   cpr: 760,
   manv: 860,
   detektiv: 980,
+  schritte: 760,
+  helfer: 820,
+  rolle: 760,
 };
 
 /** Auf dem Handy und iPad hoch: Tab-Leiste unten für diese Bildschirme */
@@ -83,6 +96,8 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   garage: 'garage',
   manv: 'manv',
   detektiv: 'detektiv',
+  schritte: 'schritte',
+  helfer: 'home',
   cpr: 'cpr',
   wissen: 'wissen',
   quiz: 'quiz',
@@ -99,16 +114,26 @@ function pickCase(progress: Progress, lastId?: string): MedCase {
   return from[Math.floor(Math.random() * from.length)];
 }
 
+/** Ersthelfer-Notfall: bevorzugt noch nicht gemeisterte, nie zweimal derselbe hintereinander */
+function pickHelferFall(progress: Progress, lastId?: string): HelferFall {
+  const pool = HELFER_FAELLE.filter((c) => c.id !== lastId);
+  const open = pool.filter((c) => (progress.bestStars[c.id] ?? 0) < 3);
+  const from = open.length > 0 ? open : pool;
+  return from[Math.floor(Math.random() * from.length)];
+}
+
 export default function App() {
   const [screen, setScreen] = useState<Screen>({ name: 'home' });
   const win = useWindowDimensions();
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
+  /** Gewählte Rolle; null = Auswahl anzeigen, undefined = wird noch geladen */
+  const [rolle, setRolle] = useState<Rolle | null | undefined>(undefined);
   const lastCaseId = useRef<string | undefined>(undefined);
+  // Spiel-Logik (Ränge, Ausrüstung, Abzeichen) richtet sich nach der aktiven Rolle
+  setAktiveRolle(rolle ?? 'sani');
+  const aktiv: Rolle = rolle ?? 'sani';
   const [fontsLoaded, fontError] = useFonts({
     // Schriften (SIL Open Font License), auf die benötigten Zeichen verkleinert – siehe assets/fonts/
-    Bricolage_700Bold: require('./assets/fonts/Bricolage_700Bold.ttf'),
-    Bricolage_800ExtraBold: require('./assets/fonts/Bricolage_800ExtraBold.ttf'),
-    DMMono_500Medium: require('./assets/fonts/DMMono_500Medium.ttf'),
     Inter_400Regular: require('./assets/fonts/Inter_400Regular.ttf'),
     Inter_400Regular_Italic: require('./assets/fonts/Inter_400Regular_Italic.ttf'),
     Inter_500Medium: require('./assets/fonts/Inter_500Medium.ttf'),
@@ -118,10 +143,29 @@ export default function App() {
   });
 
   useEffect(() => {
-    loadProgress().then(setProgress);
+    loadRolle().then(async (r) => {
+      if (r) setProgress(await loadProgress(r));
+      setRolle(r);
+    });
   }, []);
 
+  /** Rolle wählen oder wechseln: lädt den Spielstand dieser Rolle */
+  const waehleRolle = async (r: Rolle) => {
+    saveRolle(r);
+    setAktiveRolle(r);
+    const p = await loadProgress(r);
+    lastCaseId.current = undefined;
+    setProgress(p);
+    setRolle(r);
+    setScreen({ name: 'home' });
+  };
+
   const startCase = (daily = false) => {
+    if (aktiv === 'helfer') {
+      const fall = daily ? dailyHelferFall() : pickHelferFall(progress, lastCaseId.current);
+      lastCaseId.current = fall.id;
+      return setScreen({ name: 'helfer', fall, daily, key: Date.now() });
+    }
     const medCase = daily ? dailyCase(progress) : pickCase(progress, lastCaseId.current);
     lastCaseId.current = medCase.id;
     setScreen({ name: 'case', medCase, daily, key: Date.now() });
@@ -137,7 +181,7 @@ export default function App() {
     const before = rankFor(progress.totalPoints).rank;
     const after = rankFor(next.totalPoints).rank;
     setProgress(next);
-    saveProgress(next);
+    saveProgress(aktiv, next);
     return {
       newBadges,
       promotion: after.min > before.min ? after.de : undefined,
@@ -196,6 +240,43 @@ export default function App() {
     });
   };
 
+  /** Ersthelfer-Notfall abgeschlossen: Punkte, Sterne, Tagesziel */
+  const finishHelfer = (e: HelferErgebnis, punkte: number, daily: boolean): HelferAbschluss => {
+    const day = registerDailyCase(progress, daily);
+    const total = punkte + day.goalBonus;
+    const { newBadges, promotion } = commit({
+      ...day.progress,
+      streak: e.sterne >= 2 ? progress.streak + 1 : 0,
+      totalPoints: progress.totalPoints + total,
+      casesPlayed: progress.casesPlayed + 1,
+      correctDiagnoses: progress.correctDiagnoses + (e.erkannt ? 1 : 0),
+      bestStars: { ...progress.bestStars, [e.fallId]: Math.max(progress.bestStars[e.fallId] ?? 0, e.sterne) },
+      perfectRuns: progress.perfectRuns + (e.sterne === 3 ? 1 : 0),
+    });
+    return { punkte: total, ausruestung: 0, goalBonus: day.goalBonus, newBadges, promotion };
+  };
+
+  /** Schritt für Schritt: Punkte und richtig sortierte Abläufe */
+  const finishSchritte = (punkte: number, ids: string[]) => {
+    commit({
+      ...progress,
+      totalPoints: progress.totalPoints + punkte,
+      ablaeufe: [...new Set([...progress.ablaeufe, ...ids])],
+    });
+  };
+
+  /** Kapitel der Geschichte abschließen */
+  const storyDone = () => {
+    commit({ ...progress, story: progress.story + 1, totalPoints: progress.totalPoints + KAPITEL_BONUS });
+  };
+
+  const storyAktion = (a: StoryAktion) => {
+    if (a === 'einsatz') return startCase();
+    if (a === 'garage') return setScreen({ name: 'garage' });
+    if (a === 'rolle') return setScreen({ name: 'rolle' });
+    setScreen({ name: a, key: Date.now() } as Screen);
+  };
+
   const finishQuiz = (correct: number) => {
     commit({
       ...progress,
@@ -249,7 +330,7 @@ export default function App() {
   const resetProgress = () => {
     const fresh = { ...EMPTY_PROGRESS, difficulty: progress.difficulty };
     setProgress(fresh);
-    saveProgress(fresh);
+    saveProgress(aktiv, fresh);
     lastCaseId.current = undefined;
     setScreen({ name: 'home' });
   };
@@ -257,7 +338,7 @@ export default function App() {
   /** Spielstand per Code von einem anderen Gerät übernehmen */
   const importProgress = (p: Progress) => {
     setProgress(p);
-    saveProgress(p);
+    saveProgress(aktiv, p);
   };
 
   const home = () => setScreen({ name: 'home' });
@@ -269,14 +350,14 @@ export default function App() {
   const setDifficulty = (difficulty: Difficulty) => {
     const next = { ...progress, difficulty };
     setProgress(next);
-    saveProgress(next);
+    saveProgress(aktiv, next);
   };
 
   const openTraining = (t: TrainingId) => setScreen({ name: t, key: Date.now() } as Screen);
 
   const navigate = (t: NavTarget) => {
     if (t === 'start') return startCase();
-    if (t === 'quiz' || t === 'wissen' || t === 'cpr' || t === 'manv' || t === 'detektiv')
+    if (t === 'quiz' || t === 'wissen' || t === 'cpr' || t === 'manv' || t === 'detektiv' || t === 'schritte')
       return setScreen({ name: t, key: Date.now() } as Screen);
     setScreen({ name: t } as Screen);
   };
@@ -288,18 +369,32 @@ export default function App() {
   const frameWidth = Math.min(available, frameMax ?? available);
   const tab = sidebar ? undefined : TAB_OF[screen.name];
 
-  if (!fontsLoaded && !fontError) {
+  if ((!fontsLoaded && !fontError) || rolle === undefined) {
     return (
       <View style={styles.splash}>
-        <StarOfLife size={72} color={colors.red} outline={colors.ink} />
+        <StarOfLife size={64} color={colors.red} />
       </View>
+    );
+  }
+
+  // Erster Start: Rolle wählen
+  if (rolle === null) {
+    return (
+      <SafeAreaProvider>
+        <View style={styles.paper}>
+          <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
+            <StatusBar style="dark" />
+            <RolleScreen onWahl={waehleRolle} />
+          </SafeAreaView>
+        </View>
+      </SafeAreaProvider>
     );
   }
 
   return (
     <SafeAreaProvider>
+      <RolleContext.Provider value={aktiv}>
       <View style={styles.paper}>
-        <PaperBackground />
         <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
           <StatusBar style="dark" />
           {desktopShell && (
@@ -322,12 +417,40 @@ export default function App() {
                         onDifficulty={setDifficulty}
                         onTraining={openTraining}
                         onGarage={() => setScreen({ name: 'garage' })}
+                        onStory={storyAktion}
+                        onStoryDone={storyDone}
+                      />
+                    )}
+                    {screen.name === 'rolle' && <RolleScreen aktuell={aktiv} onWahl={waehleRolle} />}
+                    {screen.name === 'helfer' && (
+                      <HelferScreen
+                        key={screen.key}
+                        fall={screen.fall}
+                        daily={screen.daily}
+                        pointsPct={equipmentEffects(progress).pointsPct}
+                        onFinish={(e, punkte) => finishHelfer(e, punkte, screen.daily)}
+                        onNext={() => startCase()}
+                        onHome={home}
+                      />
+                    )}
+                    {screen.name === 'schritte' && (
+                      <SchritteScreen
+                        key={screen.key}
+                        rolle={aktiv}
+                        geloest={progress.ablaeufe}
+                        onFinish={finishSchritte}
+                        onBack={back}
                       />
                     )}
                     {screen.name === 'training' && <TrainingScreen progress={progress} onTraining={openTraining} />}
                     {screen.name === 'lexikon' && <LexikonScreen progress={progress} />}
                     {screen.name === 'guide' && (
-                      <GuideScreen progress={progress} onReset={resetProgress} onImport={importProgress} />
+                      <GuideScreen
+                        progress={progress}
+                        onReset={resetProgress}
+                        onImport={importProgress}
+                        onRolle={() => setScreen({ name: 'rolle' })}
+                      />
                     )}
                     {screen.name === 'quiz' && (
                       <QuizScreen key={screen.key} best={progress.quizBest} onFinish={finishQuiz} onBack={back} />
@@ -383,13 +506,14 @@ export default function App() {
                 <TabBar
                   active={tab}
                   onSelect={(t) => setScreen({ name: t } as Screen)}
-                  badge={{ garage: EQUIPMENT.some((e) => upgradeBlock(progress, e.id) === null) }}
+                  badge={{ garage: istFrei(aktiv, progress, 'garage') && ausruestung().some((e) => upgradeBlock(progress, e.id) === null) }}
                 />
               )}
             </View>
           </View>
         </SafeAreaView>
       </View>
+      </RolleContext.Provider>
     </SafeAreaProvider>
   );
 }

@@ -1,5 +1,6 @@
 import { AKTEN, AktenBild, BILDER, DetektivFall, KATEGORIEN, Kategorie } from '../data/akten';
 import { VITAL_BY_ID, VitalId, rateVital } from '../data/vitals';
+import { aktiveRolle } from './rolle';
 import { Progress } from './storage';
 
 /**
@@ -25,6 +26,19 @@ export const GENIUS_BONUS = 15;
 export const NEW_AKTE_BONUS = 10;
 /** Versuche je Akte */
 export const MAX_GUESSES = 2;
+
+/** Krankheitsbilder, die auch Laien erkennen können – nur diese kommen im Ersthelfer-Modus vor */
+const HELFER_BILDER = new Set([
+  'stemi', 'synkope', 'asthma', 'hyperventilation', 'panik', 'bolus', 'stroke', 'krampf', 'migraene', 'hypo', 'blinddarm',
+  'nierenkolik', 'gastro', 'fraktur', 'sht', 'verbrennung', 'oberschenkelhals', 'sprunggelenk', 'schulterluxation', 'rippen',
+  'wirbelsaeule', 'blutung', 'amputation', 'kopfplatz', 'biss', 'augen', 'verbruehung', 'ertrinken', 'strom', 'anaphylaxie',
+  'hypothermie', 'hitzschlag', 'hitzeerschoepfung', 'alkohol', 'co', 'fieberkrampf', 'pseudokrupp', 'aspiration', 'exsikkose',
+  'kindvergiftung', 'knopfzelle', 'geburt',
+]);
+const HELFER_AKTEN = AKTEN.filter((a) => HELFER_BILDER.has(a.bild) && a.difficulty < 3);
+
+/** Akten der aktiven Rolle: Ersthelfer/innen bekommen erkennbare Bilder ohne die schwersten Fälle */
+export const aktenListe = (): DetektivFall[] => (aktiveRolle() === 'helfer' ? HELFER_AKTEN : AKTEN);
 
 export type ClueKind = 'person' | 'fundort' | 'aussage' | 'befund' | 'messwert';
 
@@ -83,7 +97,9 @@ export function cluesFor(c: DetektivFall): Clue[] {
   const abnormal = [...c.keyVitals.filter(isAbnormal), ...all.filter((id) => !c.keyVitals.includes(id) && isAbnormal(id))];
   // Ohne auffällige Werte ist auch ein unauffälliger wichtiger Wert ein Hinweis (z. B. beim Knochenbruch)
   const shown = abnormal.length > 0 ? abnormal : c.keyVitals.slice(0, 1);
-  shown.slice(0, 2).forEach((id) => clues.push({ kind: 'messwert', icon: '🩺', label: 'Messwert', text: vitalText(id, c) }));
+  // Ersthelfer/innen haben keine Messgeräte
+  if (aktiveRolle() !== 'helfer')
+    shown.slice(0, 2).forEach((id) => clues.push({ kind: 'messwert', icon: '🩺', label: 'Messwert', text: vitalText(id, c) }));
   return clues;
 }
 
@@ -102,7 +118,7 @@ const MAX_SCHWER = 2;
 export function makeInvestigation(p: Progress, rnd: () => number = Math.random): Akte[] {
   const solvedCount = archiveCount(p).solved;
   const byBild = new Map<string, DetektivFall[]>();
-  for (const a of AKTEN) {
+  for (const a of aktenListe()) {
     if (a.difficulty === 3 && solvedCount < SCHWER_AB) continue;
     byBild.set(a.bild, [...(byBild.get(a.bild) ?? []), a]);
   }
@@ -189,24 +205,36 @@ export const DETECTIVE_GRADES = [
   { min: 15, title: 'Ermittler/in', icon: '🔎' },
   { min: 35, title: 'Kommissar/in', icon: '🎖️' },
   { min: 70, title: 'Hauptkommissar/in', icon: '🏅' },
-  { min: Math.round(AKTEN.length * 0.6), title: 'Meisterdetektiv/in', icon: '👑' },
+  { min: 120, title: 'Meisterdetektiv/in', icon: '👑' },
 ];
 
-const AKTE_IDS = new Set(AKTEN.map((a) => a.id));
+/** Ränge passend zur Zahl der Akten der Rolle (Meisterdetektiv/in bei 60 % des Archivs) */
+export function detectiveGrades() {
+  const n = aktenListe().length;
+  const g = DETECTIVE_GRADES.map((x) => ({ ...x }));
+  g[5].min = Math.round(n * 0.6);
+  if (g[4].min >= g[5].min) g[4].min = Math.round(n * 0.4);
+  if (g[3].min >= g[4].min) g[3].min = Math.round(n * 0.25);
+  return g;
+}
+
 
 /** Gelöste Akten (nur Akten, die es noch gibt), Meisterlösungen und alle Akten */
 export function archiveCount(p: Progress) {
-  const entries = Object.entries(p.detectiveSolved).filter(([id]) => AKTE_IDS.has(id));
-  return { solved: entries.length, master: entries.filter(([, v]) => v === 2).length, total: AKTEN.length };
+  const list = aktenListe();
+  const ids = new Set(list.map((a) => a.id));
+  const entries = Object.entries(p.detectiveSolved).filter(([id]) => ids.has(id));
+  return { solved: entries.length, master: entries.filter(([, v]) => v === 2).length, total: list.length };
 }
 
 export function detectiveGrade(p: Progress) {
   const { solved } = archiveCount(p);
   let i = 0;
-  DETECTIVE_GRADES.forEach((g, k) => {
+  const grades = detectiveGrades();
+  grades.forEach((g, k) => {
     if (solved >= g.min) i = k;
   });
-  return { grade: DETECTIVE_GRADES[i], next: DETECTIVE_GRADES[i + 1], index: i };
+  return { grade: grades[i], next: grades[i + 1], index: i };
 }
 
 /** Aktennummer im Archiv (1 = erste Akte) */
@@ -221,12 +249,18 @@ export interface BildStand {
   master: number;
 }
 
-const AKTEN_JE_BILD = new Map<string, DetektivFall[]>();
-for (const a of AKTEN) AKTEN_JE_BILD.set(a.bild, [...(AKTEN_JE_BILD.get(a.bild) ?? []), a]);
+const jeBild = (list: DetektivFall[]) => {
+  const m = new Map<string, DetektivFall[]>();
+  for (const a of list) m.set(a.bild, [...(m.get(a.bild) ?? []), a]);
+  return m;
+};
+const JE_BILD_ALLE = jeBild(AKTEN);
+const JE_BILD_HELFER = jeBild(HELFER_AKTEN);
+const aktenJeBild = () => (aktiveRolle() === 'helfer' ? JE_BILD_HELFER : JE_BILD_ALLE);
 
 export function bildStand(p: Progress, bildId: string): BildStand | undefined {
   const bild = BILDER.find((b) => b.id === bildId);
-  const list = AKTEN_JE_BILD.get(bildId);
+  const list = aktenJeBild().get(bildId);
   if (!bild || !list) return undefined;
   const stamps = list.map((a) => p.detectiveSolved[a.id] ?? 0);
   return { bild, total: list.length, solved: stamps.filter((s) => s > 0).length, master: stamps.filter((s) => s === 2).length };
@@ -244,7 +278,7 @@ export interface KategorieStand {
 /** Archiv nach Kategorien und Krankheitsbildern – für die Archiv-Ansicht */
 export function archivNachKategorie(p: Progress): KategorieStand[] {
   return KATEGORIEN.map((k) => {
-    const bilder = BILDER.filter((b) => b.kategorie === k.id && AKTEN_JE_BILD.has(b.id)).map((b) => bildStand(p, b.id)!);
+    const bilder = BILDER.filter((b) => b.kategorie === k.id && aktenJeBild().has(b.id)).map((b) => bildStand(p, b.id)!);
     return {
       ...k,
       bilder,
@@ -256,7 +290,7 @@ export function archivNachKategorie(p: Progress): KategorieStand[] {
 
 /** Anzahl verschiedener Krankheitsbilder, von denen mindestens eine Akte gelöst ist */
 export function bilderGeloest(p: Progress) {
-  const alle = [...AKTEN_JE_BILD.keys()];
+  const alle = [...aktenJeBild().keys()];
   return { solved: alle.filter((id) => (bildStand(p, id)?.solved ?? 0) > 0).length, total: alle.length };
 }
 

@@ -18,7 +18,7 @@ if (!scriptSrc) throw new Error('Kein Bundle-Script in index.html gefunden');
 
 // Nur die Schriftschnitte einbetten, die das Theme wirklich nutzt (z. B. 'Inter_700Bold').
 const usedFonts = new Set(
-  [...readFileSync('src/theme.ts', 'utf8').matchAll(/'((?:Bricolage|DMMono|Inter)_\w+)'/g)].map((m) => m[1]),
+  [...readFileSync('src/theme.ts', 'utf8').matchAll(/'((?:Inter)_\w+)'/g)].map((m) => m[1]),
 );
 
 let js = readFileSync(join(exportDir, scriptSrc), 'utf8');
@@ -37,7 +37,7 @@ const html = `<title>Einsatz 112</title>
   html, body { height: 100%; }
   /* Schnelles Tippen (z. B. Herzdruckmassage) soll nicht zoomen. */
   html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
-  body { overflow: hidden; background: #FFF3EE; }
+  body { overflow: hidden; background: #F4F5F7; }
   #root { display: flex; height: 100%; flex: 1; }
   /* Desktop-App: eigene Titelleiste zum Verschieben des Fensters */
   #titlebar { -webkit-app-region: drag; user-select: none; }
@@ -61,7 +61,7 @@ const doc = fragment
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#FFF3EE">
+<meta name="theme-color" content="#F4F5F7">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">

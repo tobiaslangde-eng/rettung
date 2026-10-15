@@ -1,7 +1,8 @@
 import { ReactNode, useEffect, useRef } from 'react';
 import { Animated, Platform, Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import Svg, { Defs, Path, Pattern, Polygon, Rect } from 'react-native-svg';
-import { colors, fonts, hardShadow, onColor, radius, spacing, type } from '../theme';
+import Svg, { Defs, Path, Pattern, Rect } from 'react-native-svg';
+import { useRolle } from '../game/rolle';
+import { colors, fonts, onColor, radius, spacing, type } from '../theme';
 
 export { WarnStripes } from './Ems';
 
@@ -20,16 +21,12 @@ export function SectionTitle({ title, right }: { title: string; right?: ReactNod
   );
 }
 
-/**
- * Antippbarer Aufkleber: Beim Drücken sinkt die Karte in ihren harten Schatten (wie ein dicker Knopf),
- * am PC hebt sie sich beim Darüberfahren leicht an.
- */
+/** Antippbare Fläche: wird beim Drücken etwas blasser, am PC beim Darüberfahren leicht. */
 export function Tap({
   onPress,
   style,
   children,
   offset = 4,
-  shadowColor = colors.ink,
   disabled,
   accessibilityLabel,
   accessibilityRole = 'button',
@@ -38,8 +35,9 @@ export function Tap({
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
   children?: ReactNode;
+  /** 0 = keine Rückmeldung beim Drücken (z. B. bei ausgewählten Optionen) */
   offset?: number;
-  /** Farbe des harten Schattens (auf dunklem Grund heller wählen) */
+  /** Früher Farbe des harten Schattens – ohne Wirkung */
   shadowColor?: string;
   disabled?: boolean;
   accessibilityLabel?: string;
@@ -55,12 +53,7 @@ export function Tap({
       accessibilityState={{ disabled, ...accessibilityState }}
       style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
         style,
-        offset > 0 && !disabled
-          ? {
-              ...hardShadow(pressed ? 1 : hovered ? offset + 1 : offset, shadowColor),
-              transform: [{ translateY: pressed ? offset - 1 : hovered ? -1 : 0 }],
-            }
-          : null,
+        offset > 0 && !disabled && (pressed || hovered) ? { opacity: pressed ? 0.6 : 0.85 } : null,
       ]}
     >
       {children}
@@ -68,21 +61,13 @@ export function Tap({
   );
 }
 
-/**
- * Weiße Karte mit Tinten-Umrandung und hartem Schatten. Ein Statuston (`borderLeftColor`, z. B. Grün/Rot)
- * erscheint als farbiger Streifen oben an der Karte.
- */
+/** Weiße Karte mit feiner Linie. Ein Statuston (`borderLeftColor`, z. B. Grün/Rot) erscheint als schmaler Streifen links. */
 export function Card({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
   const { borderLeftColor, ...rest } = StyleSheet.flatten(style) ?? {};
   const tone = typeof borderLeftColor === 'string' ? borderLeftColor : undefined;
   return (
     <View style={[styles.card, rest]}>
-      {tone && (
-        <>
-          <View style={[styles.status, { backgroundColor: tone }]} />
-          <View style={styles.statusLine} />
-        </>
-      )}
+      {tone && <View style={[styles.status, { backgroundColor: tone }]} />}
       {children}
     </View>
   );
@@ -90,16 +75,7 @@ export function Card({ children, style }: { children: ReactNode; style?: StylePr
 
 type BtnVariant = 'primary' | 'dark' | 'outline' | 'alarm' | 'tinted' | 'mint';
 
-const BTN_BG: Record<BtnVariant, string> = {
-  primary: colors.blue,
-  dark: colors.ink,
-  outline: colors.white,
-  alarm: colors.red,
-  tinted: colors.yellow,
-  mint: colors.mint,
-};
-
-/** Dicker Knopf: Tinten-Umrandung, harter Schatten, sinkt beim Drücken */
+/** Klarer Knopf: Hauptaktion in der Farbe der Rolle, sonst weiß oder hell getönt */
 export function Button({
   label,
   sub,
@@ -115,14 +91,22 @@ export function Button({
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
-  const bg = BTN_BG[variant];
-  const fg = onColor(bg);
+  const r = useRolle();
+  const look: Record<BtnVariant, { bg: string; fg: string; border?: string }> = {
+    primary: { bg: r.akzent, fg: colors.white },
+    dark: { bg: colors.ink, fg: colors.white },
+    outline: { bg: colors.white, fg: colors.ink, border: colors.line },
+    alarm: { bg: colors.red, fg: colors.white },
+    tinted: { bg: r.akzentTint, fg: r.akzentDunkel },
+    mint: { bg: colors.mintTint, fg: colors.mintDark },
+  };
+  const { bg, fg, border } = look[variant];
   return (
     <Tap
       onPress={onPress}
       disabled={disabled}
       accessibilityLabel={label}
-      style={[styles.btn, { backgroundColor: bg, opacity: disabled ? 0.45 : 1 }, style]}
+      style={[styles.btn, { backgroundColor: bg, opacity: disabled ? 0.45 : 1 }, border ? { borderWidth: 1, borderColor: border } : null, style]}
     >
       <View style={styles.btnInner}>
         <Text style={[styles.btnLabel, { color: fg }]}>{label}</Text>
@@ -138,7 +122,7 @@ function Chevron({ color = colors.ink, size = 20, dir = 'left' }: { color?: stri
       <Path
         d={dir === 'left' ? 'M10 2 L2 10 L10 18' : 'M2 2 L10 10 L2 18'}
         stroke={color}
-        strokeWidth={3}
+        strokeWidth={2.4}
         fill="none"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -147,7 +131,7 @@ function Chevron({ color = colors.ink, size = 20, dir = 'left' }: { color?: stri
   );
 }
 
-/** Kopfzeile: runder Zurück-Knopf, Etikett und großer Titel */
+/** Kopfzeile: Zurück-Knopf, kleines Etikett und Titel */
 export function TopBar({
   title,
   kicker,
@@ -163,13 +147,13 @@ export function TopBar({
     <View style={styles.topBar}>
       <View style={styles.topRow}>
         {onBack ? (
-          <Tap onPress={onBack} offset={3} accessibilityLabel="Zurück" style={styles.backBtn}>
+          <Tap onPress={onBack} accessibilityLabel="Zurück" style={styles.backBtn}>
             <Chevron />
           </Tap>
         ) : null}
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={styles.topKicker}>{kicker}</Text>
-          <Text style={[styles.topTitle, !onBack && { fontSize: 30, lineHeight: 33 }]} numberOfLines={2}>
+          <Text style={[styles.topTitle, !onBack && { fontSize: 28, lineHeight: 34 }]} numberOfLines={2}>
             {title}
           </Text>
         </View>
@@ -198,7 +182,7 @@ export function IconTile({ icon, color, size = 44 }: { icon: string; color: stri
   );
 }
 
-/** Auswahl aus mehreren Möglichkeiten: Die gewählte Pille ist „eingedrückt“ und gelb. */
+/** Auswahl aus mehreren Möglichkeiten (Segment-Schalter): die gewählte Option liegt weiß auf grauem Grund. */
 export function Segmented<T extends string>({
   options,
   value,
@@ -216,13 +200,13 @@ export function Segmented<T extends string>({
           <Tap
             key={o.id}
             onPress={() => onChange(o.id)}
-            offset={active ? 0 : 3}
+            offset={active ? 0 : 1}
             accessibilityRole="radio"
             accessibilityLabel={o.label}
             accessibilityState={{ selected: active }}
             style={[styles.segItem, active && styles.segActive]}
           >
-            <Text style={[styles.segLabel, active && { fontFamily: fonts.displayBlack }]} numberOfLines={1}>
+            <Text style={[styles.segLabel, active && { fontFamily: fonts.semibold, color: colors.ink }]} numberOfLines={1}>
               {o.label}
             </Text>
           </Tap>
@@ -232,23 +216,23 @@ export function Segmented<T extends string>({
   );
 }
 
-/** Kleines Etikett (z. B. „Neu“, „+50 %“) mit Umrandung; `light` = weißer Grund mit farbigem Text */
-export function Pill({ label, color = colors.red, light }: { label: string; color?: string; light?: boolean }) {
+/** Kleines Etikett (z. B. „Neu“, „+50 %“); `light` = weißer Grund mit Rahmen */
+export function Pill({ label, color = colors.redTint, light }: { label: string; color?: string; light?: boolean }) {
   const bg = light ? colors.white : color;
-  const fg = light ? onColor(colors.white) : onColor(color);
+  const fg = onColor(bg);
   return (
-    <View style={[styles.pill, { backgroundColor: bg }]}>
+    <View style={[styles.pill, { backgroundColor: bg }, light && { borderWidth: 1, borderColor: colors.line }]}>
       <Text style={[styles.pillText, { color: fg }]}>{label}</Text>
     </View>
   );
 }
 
-/** Dicker Fortschrittsbalken mit Umrandung */
+/** Schlanker Fortschrittsbalken */
 export function Bar({
   pct,
-  color = colors.blue,
-  height = 14,
-  track = colors.white,
+  color,
+  height = 8,
+  track = colors.line,
   style,
 }: {
   pct: number;
@@ -257,50 +241,32 @@ export function Bar({
   track?: string;
   style?: StyleProp<ViewStyle>;
 }) {
+  const r = useRolle();
   const p = Math.max(0, Math.min(1, pct));
+  const h = Math.min(height, 10);
   return (
-    <View style={[styles.bar, { height, backgroundColor: track, borderRadius: height / 2 }, style]}>
-      {p > 0 && <View style={{ width: `${p * 100}%`, height: '100%', backgroundColor: color, borderRadius: height / 2 }} />}
+    <View style={[styles.bar, { height: h, backgroundColor: track === colors.white ? colors.line : track, borderRadius: h / 2 }, style]}>
+      {p > 0 && <View style={{ width: `${p * 100}%`, height: '100%', backgroundColor: color ?? r.akzent, borderRadius: h / 2 }} />}
     </View>
   );
 }
 
-/** Sternenzacke als Aufkleber („NEU“, „+50 %“); `\n` im Text macht eine zweite Zeile */
+/** Runder Hinweis-Punkt („NEU“, „+50 %“); `\n` im Text macht eine zweite Zeile */
 export function Burst({
   label,
   size = 54,
   color = colors.yellow,
-  rotate = -10,
 }: {
   label: string;
   size?: number;
   color?: string;
   rotate?: number;
 }) {
-  const n = 12;
-  const pts = Array.from({ length: n * 2 })
-    .map((_, i) => {
-      const r = i % 2 === 0 ? size / 2 - 1.5 : size / 2 - 6;
-      const a = (Math.PI / n) * i;
-      return `${(size / 2 + r * Math.cos(a)).toFixed(1)},${(size / 2 + r * Math.sin(a)).toFixed(1)}`;
-    })
-    .join(' ');
   const longest = Math.max(...label.split('\n').map((l) => l.length));
-  const fontSize = Math.min(size * 0.26, (size * 0.72) / (longest * 0.56));
+  const fontSize = Math.min(size * 0.24, (size * 0.74) / (longest * 0.58));
   return (
-    <View
-      style={{
-        width: size,
-        height: size,
-        transform: [{ rotate: `${rotate}deg` }],
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <Svg width={size} height={size} style={StyleSheet.absoluteFill as object}>
-        <Polygon points={pts} fill={color} stroke={colors.ink} strokeWidth={2} strokeLinejoin="round" />
-      </Svg>
-      <Text style={[styles.burstText, { fontSize, lineHeight: fontSize * 1.05, color: onColor(color) }]}>{label}</Text>
+    <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={[styles.burstText, { fontSize, lineHeight: fontSize * 1.1, color: onColor(color) }]}>{label}</Text>
     </View>
   );
 }
@@ -358,14 +324,14 @@ export function ListRow({
   onPress: () => void;
 }) {
   return (
-    <Tap onPress={onPress} offset={3} accessibilityLabel={title} style={styles.row}>
+    <Tap onPress={onPress} accessibilityLabel={title} style={styles.row}>
       <IconTile icon={icon} color={color} size={40} />
       <View style={{ flex: 1 }}>
         <Text style={type.headline}>{title}</Text>
         {sub ? <Text style={type.small}>{sub}</Text> : null}
       </View>
       {value ? <Text style={styles.rowValue}>{value}</Text> : null}
-      <Chevron size={16} dir="right" />
+      <Chevron size={14} dir="right" color={colors.grau300} />
     </Tap>
   );
 }
@@ -375,78 +341,51 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.white,
     borderRadius: radius.md,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     padding: spacing.lg,
     overflow: 'hidden',
-    ...hardShadow(4),
   },
-  status: { position: 'absolute', top: 0, left: 0, right: 0, height: 8 },
-  statusLine: { position: 'absolute', top: 8, left: 0, right: 0, height: 2, backgroundColor: colors.ink },
-  btn: { borderRadius: 16, borderWidth: 2, borderColor: colors.ink, minHeight: 54, justifyContent: 'center' },
+  status: { position: 'absolute', top: 0, bottom: 0, left: 0, width: 4 },
+  btn: { borderRadius: 12, minHeight: 50, justifyContent: 'center' },
   btnInner: { paddingVertical: 12, paddingHorizontal: spacing.lg, alignItems: 'center' },
-  btnLabel: { fontSize: 18, lineHeight: 22, fontFamily: fonts.displayBlack, letterSpacing: -0.3 },
-  btnSub: { fontFamily: fonts.mono, fontSize: 10, marginTop: 2, opacity: 0.85, letterSpacing: 1, textTransform: 'uppercase' },
-  topBar: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.md },
-  topRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 46 },
+  btnLabel: { fontSize: 16, lineHeight: 21, fontFamily: fonts.semibold },
+  btnSub: { fontFamily: fonts.medium, fontSize: 12, marginTop: 2, opacity: 0.85 },
+  topBar: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.sm },
+  topRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 44 },
   backBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: colors.white,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     alignItems: 'center',
     justifyContent: 'center',
   },
   topKicker: { ...type.eyebrow, marginBottom: 1 },
-  topTitle: { color: colors.ink, fontSize: 24, lineHeight: 27, fontFamily: fonts.displayBlack, letterSpacing: -0.7 },
-  statChip: {
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: colors.ink,
-    borderRadius: 14,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    ...hardShadow(2),
-  },
-  statValue: { color: colors.ink, fontFamily: fonts.displayBlack, fontSize: 18, lineHeight: 21, letterSpacing: -0.4 },
-  statLabel: { color: colors.muted, fontFamily: fonts.mono, fontSize: 9, letterSpacing: 0.8, textTransform: 'uppercase' },
-  iconTile: { alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.ink },
-  seg: { flexDirection: 'row', gap: spacing.sm },
-  segItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 9,
-    paddingHorizontal: 6,
-    backgroundColor: colors.white,
-    borderWidth: 2,
-    borderColor: colors.ink,
-    borderRadius: radius.pill,
-  },
-  segActive: { backgroundColor: colors.yellow, transform: [{ translateY: 3 }] },
-  segLabel: { fontFamily: fonts.display, fontSize: 15, color: colors.ink, letterSpacing: -0.2 },
-  pill: {
-    alignSelf: 'flex-start',
-    borderWidth: 1.5,
-    borderColor: colors.ink,
-    borderRadius: radius.pill,
-    paddingHorizontal: 9,
-    paddingVertical: 2,
-  },
-  pillText: { fontFamily: fonts.mono, fontSize: 11, lineHeight: 15, letterSpacing: 0.6 },
-  bar: { borderWidth: 2, borderColor: colors.ink, overflow: 'hidden' },
-  burstText: { fontFamily: fonts.displayBlack, letterSpacing: -0.3, textAlign: 'center' },
+  topTitle: { color: colors.ink, fontSize: 21, lineHeight: 26, fontFamily: fonts.bold, letterSpacing: -0.3 },
+  statChip: { alignItems: 'center', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 4 },
+  statValue: { color: colors.ink, fontFamily: fonts.bold, fontSize: 17, lineHeight: 21 },
+  statLabel: { color: colors.muted, fontFamily: fonts.medium, fontSize: 10, letterSpacing: 0.3 },
+  iconTile: { alignItems: 'center', justifyContent: 'center' },
+  seg: { flexDirection: 'row', gap: 2, backgroundColor: colors.line, borderRadius: 10, padding: 2 },
+  segItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 6, borderRadius: 8 },
+  segActive: { backgroundColor: colors.white },
+  segLabel: { fontFamily: fonts.medium, fontSize: 14, color: colors.muted },
+  pill: { alignSelf: 'flex-start', borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 3 },
+  pillText: { fontFamily: fonts.semibold, fontSize: 12, lineHeight: 15 },
+  bar: { overflow: 'hidden' },
+  burstText: { fontFamily: fonts.bold, textAlign: 'center' },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     backgroundColor: colors.white,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     borderRadius: radius.md,
     padding: spacing.md,
   },
-  rowValue: { fontFamily: fonts.mono, fontSize: 13, color: colors.muted },
+  rowValue: { fontFamily: fonts.medium, fontSize: 13, color: colors.muted },
 });

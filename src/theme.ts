@@ -1,69 +1,68 @@
-// Design „Warnweste“ – Leuchtfarben auf EKG-Papier
+// Design „Klar“ – schlicht und klar strukturiert
 //
-// - Papier: rosa EKG-Millimeterpapier als Hintergrund, darauf weiße und pastellfarbene „Sticker“-Karten
-// - Tinte: ein tiefes Nachtblau für Text, Umrandungen und harte Schatten (kein weicher Schatten)
-// - Signalfarben mit fester Bedeutung: Rot = Einsatz/Alarm, Blau = Aktion/Fortschritt,
-//   Warnwesten-Gelb = Belohnung/Auswahl, Mint = richtig
-// - Schrift: Bricolage Grotesque für Überschriften und Zahlen, Inter zum Lesen, DM Mono für Etiketten
-// Die alten Farbnamen (graphit, signalrot, …) bleiben als Alias bestehen.
+// - Ruhiger, hellgrauer Hintergrund, weiße Flächen mit feiner Linie, keine Schatten
+// - Eine Akzentfarbe je Rolle: Sanitäter/in Rot, Ersthelfer/in Grün (siehe src/game/rolle.ts)
+// - Farben nur mit Bedeutung: Grün = richtig, Rot = falsch/Alarm, Bernstein = Belohnung
+// - Eine Schrift: Inter
+// Die alten Farbnamen bleiben als Alias bestehen und zeigen auf die ruhigen Werte.
 export const colors = {
   // Basis
-  ink: '#14173A', // Tinte
-  inkSoft: '#2A2E5C',
-  monitorBg: '#0C0F2B', // Patientenmonitor bleibt dunkel wie im echten Rettungswagen
-  paper: '#FFF3EE', // EKG-Papier
-  paperLine: '#FADCD4', // feines Raster (1 mm)
-  paperLineStrong: '#F4BFB3', // kräftiges Raster (5 mm)
+  ink: '#1A1D24', // Text
+  inkSoft: '#343944',
+  monitorBg: '#151922', // Patientenmonitor bleibt dunkel wie im echten Rettungswagen
+  paper: '#F4F5F7', // Hintergrund
+  paperLine: '#ECEEF2',
+  paperLineStrong: '#E1E4EA',
   white: '#FFFFFF',
-  muted: '#666A8F', // Zweittext
-  line: '#EADBD5', // feine Linien und leere Balken auf Papier
+  muted: '#667085', // Zweittext
+  line: '#E3E6EB', // Linien, Rahmen, leere Balken
 
   // Signalfarben
-  red: '#E4262F',
-  redDark: '#B51424',
-  redTint: '#FFD9D6',
-  blue: '#2F5BFF',
-  blueDark: '#1B3BC4',
-  blueTint: '#DCE5FF',
-  yellow: '#FFE226', // Warnweste
-  yellowTint: '#FFF1A8',
-  mint: '#2BD99F',
-  mintDark: '#0B8A5F',
-  mintTint: '#C8F7E4',
+  red: '#D92D20',
+  redDark: '#B42318',
+  redTint: '#FDECEA',
+  blue: '#2563EB',
+  blueDark: '#1D4ED8',
+  blueTint: '#E8EFFE',
+  yellow: '#FBD860', // Belohnung, Auswahl
+  yellowTint: '#FEF6DA',
+  mint: '#A6E9C3', // richtig (Fläche)
+  mintDark: '#127A47', // richtig (Text, Linie)
+  mintTint: '#E7F8EE',
 
-  // Pastellfarben der Bereiche
-  lilac: '#E4DCFF',
-  violet: '#6B4DFF',
-  pinkTint: '#FFD9E8',
-  pinkStrong: '#FF5C93',
-  peach: '#FFDCC2',
-  orange: '#FF8A1F',
-  sky: '#D5F0FF',
-  skyStrong: '#2EB8FF',
-  butter: '#FFE9A8',
+  // Bereichsfarben (zurückhaltend)
+  lilac: '#EEEFFC',
+  violet: '#4F46E5',
+  pinkTint: '#FCEBF3',
+  pinkStrong: '#D6337A',
+  peach: '#FDEEE2',
+  orange: '#E46A12',
+  sky: '#E6F3FB',
+  skyStrong: '#1F8FC9',
+  butter: '#FBF7EC',
 
-  // Alte Namen (Alias) – damit ältere Stellen automatisch die neuen Werte bekommen
-  graphit: '#14173A',
-  graphitSoft: '#2A2E5C',
-  nacht: '#0C0F2B',
+  // Alte Namen (Alias)
+  graphit: '#1A1D24',
+  graphitSoft: '#343944',
+  nacht: '#151922',
   weiss: '#FFFFFF',
-  grau50: '#FFF3EE',
-  grau200: '#EADBD5',
-  grau300: '#B9B3CB',
-  grau500: '#666A8F',
-  signalrot: '#E4262F',
-  leuchtorange: '#FF8A1F',
-  warngelb: '#FFE226',
-  blaulicht: '#2F5BFF',
-  blaulichtDark: '#1B3BC4',
-  blaulichtLight: '#DCE5FF',
-  gruen: '#0B8A5F',
-  amber: '#FF8A1F',
+  grau50: '#F4F5F7',
+  grau200: '#E3E6EB',
+  grau300: '#C5CAD3',
+  grau500: '#667085',
+  signalrot: '#D92D20',
+  leuchtorange: '#E46A12',
+  warngelb: '#FBD860',
+  blaulicht: '#2563EB',
+  blaulichtDark: '#1D4ED8',
+  blaulichtLight: '#E8EFFE',
+  gruen: '#127A47',
+  amber: '#E46A12',
   monitorGruen: '#2BE38B',
-  indigo: '#6B4DFF',
-  lila: '#B07CFF',
-  pink: '#FF5C93',
-  tuerkis: '#2EB8FF',
+  indigo: '#4F46E5',
+  lila: '#8B7CF6',
+  pink: '#D6337A',
+  tuerkis: '#1F8FC9',
 };
 
 /** Farben wie auf einem Patientenmonitor (auf dunklem Grund) */
@@ -79,64 +78,60 @@ export const monitor = {
 };
 
 export const fonts = {
-  /** Überschriften und Zahlen: Bricolage Grotesque */
-  display: 'Bricolage_700Bold',
-  displayBlack: 'Bricolage_800ExtraBold',
-  /** Lesetext: Inter */
+  /** Eine Schrift für alles: Inter */
+  display: 'Inter_700Bold',
+  displayBlack: 'Inter_800ExtraBold',
   regular: 'Inter_400Regular',
   italic: 'Inter_400Regular_Italic',
   medium: 'Inter_500Medium',
   semibold: 'Inter_600SemiBold',
   bold: 'Inter_700Bold',
   extrabold: 'Inter_800ExtraBold',
-  /** Etiketten, Pager-Anzeige, Uhrzeiten: DM Mono */
-  mono: 'DMMono_500Medium',
-  /** Beschriftungen in den Grafiken (Rettungswagen, Geräte) */
-  art: 'Bricolage_700Bold',
-  artBlack: 'Bricolage_800ExtraBold',
+  /** Kleine Etiketten in Großbuchstaben */
+  mono: 'Inter_600SemiBold',
+  /** Beschriftungen in den Grafiken (Rettungswagen, Auto, Geräte) */
+  art: 'Inter_700Bold',
+  artBlack: 'Inter_800ExtraBold',
 };
 
 export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 };
 
-/** Große, weiche Rundungen – wie bei Aufklebern */
-export const radius = { sm: 12, md: 20, lg: 28, pill: 999 };
+export const radius = { sm: 10, md: 14, lg: 18, pill: 999 };
 
-/** Harter Schatten in Tinte (kein Weichzeichner): wirkt wie ein dicker Aufkleber auf dem Papier */
-export const hardShadow = (offset = 4, color: string = colors.ink) => ({ boxShadow: `0px ${offset}px 0px ${color}` });
+/** Früher harte Schatten – im Design „Klar“ gibt es keine Schatten. Bleibt als Funktion, damit alte Stellen funktionieren. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const hardShadow = (_offset = 0, _color: string = colors.line) => ({});
 
-/** Schatten für Karten (alter Name bleibt) */
-export const shadow = hardShadow(4);
+export const shadow = {};
 
-/** Aufkleber ohne Schatten: weiße Fläche mit Tinten-Umrandung (Schatten kommt bei antippbaren Karten von Tap) */
+/** Weiße Fläche mit feiner Linie */
 export const stickerFlat = {
   backgroundColor: colors.white,
-  borderWidth: 2,
-  borderColor: colors.ink,
+  borderWidth: 1,
+  borderColor: colors.line,
   borderRadius: radius.md,
 };
 
-/** Aufkleber: Tinten-Umrandung plus harter Schatten */
-export const sticker = { borderWidth: 2, borderColor: colors.ink, ...hardShadow(4) };
+export const sticker = { borderWidth: 1, borderColor: colors.line };
 
 export const type = {
-  largeTitle: { fontSize: 36, lineHeight: 38, fontFamily: fonts.displayBlack, letterSpacing: -1.1, color: colors.ink },
-  title: { fontSize: 28, lineHeight: 31, fontFamily: fonts.displayBlack, letterSpacing: -0.8, color: colors.ink },
-  h2: { fontSize: 22, lineHeight: 25, fontFamily: fonts.displayBlack, letterSpacing: -0.5, color: colors.ink },
-  headline: { fontSize: 17, lineHeight: 21, fontFamily: fonts.display, letterSpacing: -0.3, color: colors.ink },
-  /** Etikett in Großbuchstaben, wie am Gerätegehäuse */
+  largeTitle: { fontSize: 30, lineHeight: 36, fontFamily: fonts.bold, letterSpacing: -0.6, color: colors.ink },
+  title: { fontSize: 24, lineHeight: 30, fontFamily: fonts.bold, letterSpacing: -0.4, color: colors.ink },
+  h2: { fontSize: 19, lineHeight: 25, fontFamily: fonts.bold, letterSpacing: -0.2, color: colors.ink },
+  headline: { fontSize: 16, lineHeight: 21, fontFamily: fonts.semibold, letterSpacing: -0.1, color: colors.ink },
+  /** Kleines Etikett in Großbuchstaben über Abschnitten */
   eyebrow: {
-    fontSize: 11,
-    lineHeight: 15,
-    fontFamily: fonts.mono,
-    letterSpacing: 1.2,
+    fontSize: 12,
+    lineHeight: 16,
+    fontFamily: fonts.semibold,
+    letterSpacing: 0.6,
     textTransform: 'uppercase' as const,
     color: colors.muted,
   },
-  body: { fontSize: 16, lineHeight: 23, color: colors.ink, fontFamily: fonts.regular, letterSpacing: -0.1 },
+  body: { fontSize: 16, lineHeight: 23, color: colors.ink, fontFamily: fonts.regular },
   small: { fontSize: 13, lineHeight: 18, color: colors.muted, fontFamily: fonts.regular },
 };
 
-/** Gut lesbare Textfarbe (Tinte oder Weiß) auf einem Hintergrund – wählt den besseren Kontrast. */
 export function onColor(bg: string): string {
   const m = /^#?([0-9a-f]{6})/i.exec(bg);
   if (!m) return colors.ink;

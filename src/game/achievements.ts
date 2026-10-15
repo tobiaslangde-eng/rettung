@@ -1,6 +1,8 @@
-import { AKTEN, KATEGORIEN } from '../data/akten';
+import { KATEGORIEN } from '../data/akten';
 import { CASES } from '../data/cases';
-import { DETECTIVE_GRADES, archiveCount, archivNachKategorie } from './detective';
+import { HELFER_FAELLE } from '../data/helfer';
+import { Rolle, aktiveRolle } from './rolle';
+import { aktenListe, archiveCount, archivNachKategorie, detectiveGrades } from './detective';
 import { Progress } from './storage';
 
 export interface Badge {
@@ -9,15 +11,21 @@ export interface Badge {
   title: string;
   description: string;
   earned: (p: Progress) => boolean;
+  /** Nur für diese Rolle (sonst für beide) */
+  nur?: Rolle;
 }
 
 /** Bonuspunkte für jedes neu freigeschaltete Abzeichen */
 export const BADGE_BONUS = 50;
 
-const mastered = (p: Progress, level?: 1 | 2 | 3) =>
-  CASES.filter((c) => (level === undefined || c.difficulty === level) && (p.bestStars[c.id] ?? 0) >= 3).length;
+/** Einsätze der aktiven Rolle (gleiche Felder für id, Schwierigkeit und Patient) */
+const faelle = (): { id: string; difficulty: 1 | 2 | 3; patient: { age: number } }[] =>
+  aktiveRolle() === 'helfer' ? HELFER_FAELLE : CASES;
 
-const KIDS = CASES.filter((c) => c.patient.age <= 12);
+const mastered = (p: Progress, level?: 1 | 2 | 3) =>
+  faelle().filter((c) => (level === undefined || c.difficulty === level) && (p.bestStars[c.id] ?? 0) >= 3).length;
+
+const kids = () => faelle().filter((c) => c.patient.age <= 12);
 
 export const BADGES: Badge[] = [
   {
@@ -54,13 +62,14 @@ export const BADGES: Badge[] = [
     icon: '✅',
     title: 'Basis sitzt',
     description: 'Alle leichten Fälle mit 3 Sternen',
-    earned: (p) => mastered(p, 1) === CASES.filter((c) => c.difficulty === 1).length,
+    earned: (p) => mastered(p, 1) === faelle().filter((c) => c.difficulty === 1).length,
   },
   {
     id: 'nerven',
     icon: '🧊',
     title: 'Nervenstark',
     description: 'Einen Einsatz auf „Schwer“ mit 2+ Sternen',
+    nur: 'sani',
     earned: (p) => p.hardWins >= 1,
   },
   {
@@ -68,6 +77,7 @@ export const BADGES: Badge[] = [
     icon: '📈',
     title: 'Normwerte-Profi',
     description: '10 von 10 im Schnelltraining',
+    nur: 'sani',
     earned: (p) => p.quizBest >= 10,
   },
   {
@@ -75,7 +85,7 @@ export const BADGES: Badge[] = [
     icon: '🗺️',
     title: 'Alles gesehen',
     description: 'Jeden Fall mindestens einmal gespielt',
-    earned: (p) => CASES.every((c) => c.id in p.bestStars),
+    earned: (p) => faelle().every((c) => c.id in p.bestStars),
   },
   {
     id: 'dienst',
@@ -110,6 +120,7 @@ export const BADGES: Badge[] = [
     icon: '🚨',
     title: 'Großeinsatz-Profi',
     description: 'Beim Großeinsatz alle 8 Verletzten richtig gesichtet',
+    nur: 'sani',
     earned: (p) => p.manvBest >= 8,
   },
   {
@@ -117,13 +128,13 @@ export const BADGES: Badge[] = [
     icon: '🧸',
     title: 'Kinderretter/in',
     description: 'Alle Kinder-Einsätze mit mindestens 2 Sternen',
-    earned: (p) => KIDS.every((c) => (p.bestStars[c.id] ?? 0) >= 2),
+    earned: (p) => kids().every((c) => (p.bestStars[c.id] ?? 0) >= 2),
   },
   {
     id: 'werkstatt',
     icon: '🔧',
     title: 'Erste Aufrüstung',
-    description: 'Den Rettungswagen zum ersten Mal aufgerüstet',
+    description: 'Das eigene Fahrzeug zum ersten Mal aufgerüstet',
     earned: (p) => Object.values(p.equipment).some((l) => l >= 2),
   },
   {
@@ -144,15 +155,18 @@ export const BADGES: Badge[] = [
     id: 'kommissar',
     icon: '🎖️',
     title: 'Kommissar/in',
-    description: `${DETECTIVE_GRADES[3].min} Detektiv-Akten im Archiv gelöst`,
-    earned: (p) => archiveCount(p).solved >= DETECTIVE_GRADES[3].min,
+    description: 'Den Detektiv-Rang Kommissar/in erreicht',
+    earned: (p) => archiveCount(p).solved >= detectiveGrades()[3].min,
   },
   {
     id: 'allrounder',
     icon: '🧭',
     title: 'Allrounder',
     description: 'In jeder Kategorie des Archivs eine Detektiv-Akte gelöst',
-    earned: (p) => KATEGORIEN.every((k) => AKTEN.some((a) => a.kategorie === k.id && p.detectiveSolved[a.id])),
+    earned: (p) =>
+      KATEGORIEN.filter((k) => aktenListe().some((a) => a.kategorie === k.id)).every((k) =>
+        aktenListe().some((a) => a.kategorie === k.id && p.detectiveSolved[a.id]),
+      ),
   },
   {
     id: 'gesichter',
@@ -173,20 +187,23 @@ export const BADGES: Badge[] = [
     icon: '🗄️',
     title: 'Akte geschlossen',
     description: 'Alle Detektiv-Akten im Archiv gelöst',
-    earned: (p) => AKTEN.every((a) => p.detectiveSolved[a.id]),
+    earned: (p) => aktenListe().every((a) => p.detectiveSolved[a.id]),
   },
   {
     id: 'meister',
     icon: '🏆',
     title: 'Meister/in',
     description: 'Alle Fälle mit 3 Sternen gemeistert',
-    earned: (p) => mastered(p) === CASES.length,
+    earned: (p) => mastered(p) === faelle().length,
   },
 ];
 
 /** Prüft neue Abzeichen, schreibt sie in den Fortschritt und vergibt Bonuspunkte. */
+/** Abzeichen der aktiven Rolle */
+export const badgesFuerRolle = () => BADGES.filter((b) => !b.nur || b.nur === aktiveRolle());
+
 export function awardBadges(p: Progress): { progress: Progress; newBadges: Badge[] } {
-  const newBadges = BADGES.filter((b) => !p.badges.includes(b.id) && b.earned(p));
+  const newBadges = badgesFuerRolle().filter((b) => !p.badges.includes(b.id) && b.earned(p));
   if (newBadges.length === 0) return { progress: p, newBadges };
   return {
     progress: {

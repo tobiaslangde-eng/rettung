@@ -150,8 +150,8 @@ const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   questionBox: {
     backgroundColor: colors.yellow,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     borderRadius: 24,
     padding: spacing.xl,
     ...hardShadow(5),

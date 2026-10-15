@@ -1,76 +1,62 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { IconTile, Pill, Tap } from '../components/UI';
-import { AKTEN } from '../data/akten';
+import { Tap, TopBar } from '../components/UI';
+import { useRolle } from '../game/rolle';
+import { freiAb, istFrei } from '../game/story';
 import { Progress } from '../game/storage';
+import { TrainingId, trainingsFuer } from '../game/trainings';
 import { useLayout } from '../layout';
 import { colors, fonts, spacing, type } from '../theme';
-import { DetectiveTeaser, TrainingId, trainings } from './HomeScreen';
 
-const MORE: Record<TrainingId, string> = {
-  detektiv: `Decke Hinweise auf wie ein Detektiv und finde die Diagnose. Combo, Geniestreich und ein Archiv mit ${AKTEN.length} Akten in vielen Situationen.`,
-  manv: 'Viele Verletzte, wenig Zeit: Teile alle nach dem Sichtungsschema in Rot, Gelb, Grün oder Schwarz ein.',
-  cpr: 'Tippe im richtigen Takt auf den Brustkorb – 2 Runden 30:2 mit Live-Anzeige.',
-  wissen: 'Notruf, ABCDE, Krankheitsbilder und mehr – mit Erklärung nach jeder Antwort.',
-  quiz: 'Ist der Wert niedrig, normal oder hoch? 10 zufällige Messwerte in Folge.',
-};
-
-/** Tab „Training“: alle Übungen auf einen Blick */
+/** Alle Trainings der Rolle als klare Liste */
 export function TrainingScreen({ progress, onTraining }: { progress: Progress; onTraining: (t: TrainingId) => void }) {
   const L = useLayout();
+  const r = useRolle();
   return (
-    <ScrollView contentContainerStyle={[styles.body, L.wide && { padding: spacing.xl }]}>
-      <View>
-        <Text style={type.eyebrow}>Üben zwischendurch</Text>
-        <Text style={type.largeTitle}>Training</Text>
-      </View>
-      <DetectiveTeaser progress={progress} onPress={() => onTraining('detektiv')} />
-      <View style={[styles.list, L.wide && styles.grid]}>
-        {trainings(progress)
-          .filter((t) => t.id !== 'detektiv')
-          .map((t) => (
+    <View style={{ flex: 1 }}>
+      <TopBar kicker={r.titel} title="Training" />
+      <ScrollView contentContainerStyle={[styles.content, L.wide && styles.contentWide]}>
+        <Text style={type.body}>Übe hier in Ruhe. Jedes Training bringt Punkte – und Budget für {r.id === 'helfer' ? 'dein Auto' : 'deinen Rettungswagen'}.</Text>
+        {trainingsFuer(r.id, progress).map((t) => {
+          const frei = istFrei(r.id, progress, t.id);
+          return (
             <Tap
               key={t.id}
-              onPress={() => onTraining(t.id)}
+              onPress={frei ? () => onTraining(t.id) : undefined}
+              disabled={!frei}
               accessibilityLabel={t.title}
-              style={[styles.card, { backgroundColor: t.tone }, L.wide && styles.cardWide]}
+              style={styles.card}
             >
-              <View style={styles.head}>
-                <IconTile icon={t.icon} color={colors.white} size={54} />
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.title}>{t.title}</Text>
-                  <Text style={styles.sub}>{t.sub}</Text>
-                </View>
+              <View style={[styles.icon, { backgroundColor: frei ? r.akzentTint : colors.paper }]}>
+                <Text style={{ fontSize: 24, fontFamily: fonts.regular }}>{t.icon}</Text>
               </View>
-              <Text style={type.body}>{MORE[t.id]}</Text>
-              <View style={styles.foot}>
-                <Pill label={t.best ?? 'Noch nicht gespielt'} color={colors.white} light />
-                <View style={[styles.start, { backgroundColor: t.accent }]}>
-                  <Text style={styles.startText}>Starten ▶</Text>
-                </View>
+              <View style={{ flex: 1, gap: 3 }}>
+                <Text style={[type.headline, !frei && { color: colors.muted }]}>{t.title}</Text>
+                <Text style={type.small}>{t.sub}</Text>
+                <Text style={[styles.stand, { color: frei ? r.akzentDunkel : colors.muted }]}>
+                  {frei ? (t.stand ?? 'Noch nicht gespielt') : `🔒 Kapitel ${freiAb(r.id, t.id)}`}
+                </Text>
               </View>
             </Tap>
-          ))}
-      </View>
-    </ScrollView>
+          );
+        })}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  body: { padding: spacing.lg, paddingBottom: spacing.xxl + 8, gap: spacing.xl },
-  list: { gap: spacing.lg },
-  grid: { flexDirection: 'row', flexWrap: 'wrap' },
+  content: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
+  contentWide: { padding: spacing.xl, maxWidth: 760, alignSelf: 'center', width: '100%' },
   card: {
-    borderWidth: 2,
-    borderColor: colors.ink,
-    borderRadius: 24,
-    padding: spacing.lg,
+    flexDirection: 'row',
     gap: spacing.md,
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: 14,
+    padding: spacing.lg,
   },
-  cardWide: { flexBasis: '45%', flexGrow: 1 },
-  head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  title: { fontFamily: fonts.displayBlack, fontSize: 22, lineHeight: 24, color: colors.ink, letterSpacing: -0.6 },
-  sub: { fontFamily: fonts.mono, fontSize: 11, lineHeight: 15, color: colors.inkSoft, marginTop: 2 },
-  foot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  start: { borderRadius: 999, borderWidth: 2, borderColor: colors.ink, paddingHorizontal: 18, paddingVertical: 8 },
-  startText: { color: colors.ink, fontFamily: fonts.displayBlack, fontSize: 15, letterSpacing: -0.2 },
+  icon: { width: 52, height: 52, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  stand: { fontFamily: fonts.semibold, fontSize: 12, marginTop: 2 },
 });

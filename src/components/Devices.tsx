@@ -319,7 +319,7 @@ function Trage({ l }: { l: number }) {
   );
 }
 
-const ART: Record<Exclude<EquipmentId, 'rtw'>, (p: { l: number }) => ReactElement> = {
+const ART: Partial<Record<EquipmentId, (p: { l: number }) => ReactElement>> = {
   monitor: Monitor,
   beatmung: Beatmung,
   rucksack: Rucksack,
@@ -345,6 +345,7 @@ export function DeviceArt({
   height?: number;
 }) {
   const Art = ART[id];
+  if (!Art) return null;
   return (
     <Svg x={x} y={y} width={size} height={height ?? size} viewBox="0 0 100 100">
       <Art l={level} />

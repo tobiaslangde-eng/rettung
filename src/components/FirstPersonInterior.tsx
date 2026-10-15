@@ -12,7 +12,7 @@ const H = 300;
 const BACK = { x1: 135, x2: 265, y1: 65, y2: 175 };
 
 /** Antippbare Bereiche (SVG-Koordinaten) und wo das Namensschild sitzt */
-const SPOTS: Record<EquipmentId, { x: number; y: number; w: number; h: number; chipX: number; chipY: number }> = {
+const SPOTS: Partial<Record<EquipmentId, { x: number; y: number; w: number; h: number; chipX: number; chipY: number }>> = {
   rtw: { x: 158, y: 74, w: 66, h: 48, chipX: 191, chipY: 70 },
   funk: { x: 226, y: 86, w: 40, h: 40, chipX: 246, chipY: 132 },
   monitor: { x: 26, y: 88, w: 88, h: 86, chipX: 70, chipY: 84 },
@@ -192,7 +192,7 @@ export function FirstPersonInterior({
         <Rect x={W - 6} y={0} width={6} height={H} fill="#15181C" />
       </Svg>
       {(Object.keys(SPOTS) as EquipmentId[]).map((id) => {
-        const s = SPOTS[id];
+        const s = SPOTS[id]!;
         return (
           <Pressable
             key={id}
@@ -208,7 +208,7 @@ export function FirstPersonInterior({
         );
       })}
       {(Object.keys(SPOTS) as EquipmentId[]).map((id) => (
-        <Chip key={id} id={id} level={levels[id]} canUpgrade={upgradable.includes(id)} left={SPOTS[id].chipX * k} top={SPOTS[id].chipY * k} />
+        <Chip key={id} id={id} level={levels[id]} canUpgrade={upgradable.includes(id)} left={SPOTS[id]!.chipX * k} top={SPOTS[id]!.chipY * k} />
       ))}
     </View>
   );
@@ -216,7 +216,7 @@ export function FirstPersonInterior({
 
 const styles = StyleSheet.create({
   spot: { position: 'absolute', borderRadius: 10 },
-  spotPressed: { backgroundColor: 'rgba(31,111,235,0.18)', borderWidth: 2, borderColor: colors.blaulicht },
+  spotPressed: { backgroundColor: 'rgba(31,111,235,0.18)', borderWidth: 1, borderColor: colors.blaulicht },
   chip: {
     position: 'absolute',
     width: 48,

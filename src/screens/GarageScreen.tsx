@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Ambulance } from '../components/Ambulance';
+import { Car } from '../components/Car';
 import { DeviceArt, Sparkles } from '../components/Devices';
 import { FirstPersonInterior } from '../components/FirstPersonInterior';
 import { Bar, Button, Segmented, StatChip, Tap, TopBar } from '../components/UI';
 import {
-  EQUIPMENT,
+  ausruestung,
   EQUIPMENT_BY_ID,
   EquipmentId,
   MAX_LEVEL,
@@ -15,6 +16,7 @@ import {
   totalLevel,
   upgradeBlock,
 } from '../game/equipment';
+import { useRolle } from '../game/rolle';
 import { Progress } from '../game/storage';
 import { Columns, useLayout } from '../layout';
 import { colors, fonts, hardShadow, spacing, type } from '../theme';
@@ -39,6 +41,9 @@ function Pips({ level, dark }: { level: number; dark?: boolean }) {
 /** Großansicht eines Geräts (oder des Fahrzeugs) in einer bestimmten Stufe */
 function Art({ id, level, size, blink }: { id: EquipmentId; level: number; size: number; blink?: boolean }) {
   if (id === 'rtw') return <Ambulance level={level} width={size * 1.6} blink={blink} />;
+  if (id === 'auto') return <Car level={level} width={size * 1.6} />;
+  if (!EQUIPMENT_BY_ID[id] || ['verbandkasten', 'warn', 'waerme', 'licht', 'defi', 'kurs'].includes(id))
+    return <Text style={{ fontSize: size * 0.7, lineHeight: size * 0.9, fontFamily: fonts.regular }}>{EQUIPMENT_BY_ID[id].icon}</Text>;
   return <DeviceArt id={id} level={level} size={size} />;
 }
 
@@ -183,6 +188,7 @@ function Steckbrief({
 /** Fahrzeughalle: meinen Rettungswagen von außen ansehen, einsteigen und Geräte aufrüsten. */
 export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUpgrade: (id: EquipmentId) => void }) {
   const L = useLayout();
+  const rolle = useRolle();
   const sceneWidth = L.wide ? Math.floor(((L.width - spacing.xl * 2 - spacing.lg) * 6) / 11) : L.width;
   const [inside, setInside] = useState(false);
   const [sheet, setSheet] = useState<EquipmentId | null>(null);
@@ -200,12 +206,14 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
     return () => clearTimeout(t);
   }, [fresh]);
 
-  const levels = Object.fromEntries(EQUIPMENT.map((e) => [e.id, levelOf(progress, e.id)])) as Record<EquipmentId, number>;
-  const upgradable = EQUIPMENT.filter((e) => upgradeBlock(progress, e.id) === null).map((e) => e.id);
-  const rtwTier = EQUIPMENT_BY_ID.rtw.tiers[levels.rtw - 1];
+  const levels = Object.fromEntries(ausruestung().map((e) => [e.id, levelOf(progress, e.id)])) as Record<EquipmentId, number>;
+  const upgradable = ausruestung().filter((e) => upgradeBlock(progress, e.id) === null).map((e) => e.id);
+  const fahrzeugId: EquipmentId = rolle.id === 'helfer' ? 'auto' : 'rtw';
+  const rtwTier = EQUIPMENT_BY_ID[fahrzeugId].tiers[levels[fahrzeugId] - 1];
+  const helfer = rolle.id === 'helfer';
   const fx = equipmentEffects(progress);
   const total = totalLevel(progress);
-  const maxTotal = EQUIPMENT.length * MAX_LEVEL;
+  const maxTotal = ausruestung().length * MAX_LEVEL;
   const effects = [
     fx.startBonus > 0 && `+${fx.startBonus} % Startzustand`,
     fx.measureFactor < 1 && `Messungen −${Math.round((1 - fx.measureFactor) * 100)} %`,
@@ -222,9 +230,9 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
   return (
     <View style={{ flex: 1 }}>
       <TopBar
-        kicker="Fahrzeughalle"
-        title="Mein Rettungswagen"
-        right={<StatChip value={euro(progress.budget)} label="Budget" color={colors.yellow} />}
+        kicker={helfer ? 'Garage' : 'Fahrzeughalle'}
+        title={rolle.fahrzeug}
+        right={<StatChip value={euro(progress.budget)} label="Budget" color={colors.yellowTint} />}
       />
       <ScrollView contentContainerStyle={[{ paddingBottom: spacing.xxl }, L.wide && { padding: spacing.xl }]}>
         <Columns
@@ -233,7 +241,7 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
           cols={[
             <View key="hall" style={styles.hall}>
               <View style={styles.stage}>
-                {inside ? (
+                {inside && !helfer ? (
                   <FirstPersonInterior
                     levels={levels}
                     width={Math.max(280, sceneWidth - 4)}
@@ -241,10 +249,13 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
                     onSelect={setSheet}
                   />
                 ) : (
-                  <Pressable onPress={() => setSheet('rtw')} style={styles.outside} accessibilityLabel="Fahrzeug ansehen">
-                    <View style={styles.sun} />
+                  <Pressable onPress={() => setSheet(fahrzeugId)} style={styles.outside} accessibilityLabel="Fahrzeug ansehen">
                     <View>
-                      <Ambulance level={levels.rtw} width={Math.max(160, Math.min(sceneWidth - 56, 420))} blink={blink} />
+                      {helfer ? (
+                        <Car level={levels.auto} width={Math.max(160, Math.min(sceneWidth - 56, 380))} />
+                      ) : (
+                        <Ambulance level={levels.rtw} width={Math.max(160, Math.min(sceneWidth - 56, 420))} blink={blink} />
+                      )}
                     </View>
                     <View style={styles.floorLine} />
                   </Pressable>
@@ -257,6 +268,7 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
                     ? 'Tippe ein Gerät an – Steckbrief ansehen und aufrüsten'
                     : `Baujahr ${rtwTier.year} · Ausbau ${total}/${maxTotal}`}
                 </Text>
+                {!helfer && (
                 <View style={{ marginTop: spacing.md }}>
                   <Segmented
                     options={[
@@ -267,26 +279,27 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
                     onChange={(v) => setInside(v === 'in')}
                   />
                 </View>
+                )}
               </View>
             </View>,
             <View key="body" style={[styles.body, L.wide && { padding: 0 }]}>
               <View style={styles.summary}>
-                <Text style={type.eyebrow}>Wirkung meiner Ausrüstung im Einsatz</Text>
-                <Bar pct={total / maxTotal} color={colors.red} height={14} style={{ marginVertical: 6 }} />
+                <Text style={type.eyebrow}>Wirkung meiner Ausrüstung</Text>
+                <Bar pct={total / maxTotal} style={{ marginVertical: 6 }} />
                 <Text style={type.small}>
                   {effects.length > 0 ? effects.join(' · ') : 'Noch Grundausstattung – jede Aufrüstung hilft meinen Patienten.'}
                 </Text>
-                <Text style={[type.small, { marginTop: 4 }]}>Für jeden Punkt im Einsatz bekommt die Wache 1 € Budget.</Text>
+                <Text style={[type.small, { marginTop: 4 }]}>Für jeden Punkt bekommst du 1 € Budget.</Text>
               </View>
 
               <Text style={[type.eyebrow, { marginTop: spacing.sm }]}>Gesamte Ausrüstung</Text>
-              {EQUIPMENT.map((e) => {
+              {ausruestung().map((e) => {
                 const l = levels[e.id];
                 const can = upgradable.includes(e.id);
                 return (
                   <Tap key={e.id} onPress={() => setSheet(e.id)} offset={3} accessibilityLabel={e.title} style={styles.row}>
                     <View style={styles.rowArt}>
-                      {e.id === 'rtw' ? <Ambulance level={l} width={56} /> : <DeviceArt id={e.id} level={l} size={44} />}
+                      <Art id={e.id} level={l} size={e.id === 'rtw' || e.id === 'auto' ? 36 : 44} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.rowKicker}>{e.title}</Text>
@@ -324,8 +337,8 @@ const styles = StyleSheet.create({
   hall: {
     marginHorizontal: spacing.lg,
     backgroundColor: colors.white,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     borderRadius: 28,
     overflow: 'hidden',
     ...hardShadow(5),
@@ -340,8 +353,8 @@ const styles = StyleSheet.create({
     height: 220,
     borderRadius: 110,
     backgroundColor: colors.yellow,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
   },
   floorLine: {
     height: 14,
@@ -356,8 +369,8 @@ const styles = StyleSheet.create({
   body: { padding: spacing.lg, gap: spacing.md },
   summary: {
     backgroundColor: colors.white,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     borderRadius: 22,
     padding: spacing.lg,
     gap: 4,
@@ -368,8 +381,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.md,
     backgroundColor: colors.white,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     borderRadius: 20,
     padding: spacing.md,
   },
@@ -379,8 +392,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.butter,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     borderRadius: 14,
     overflow: 'hidden',
   },
@@ -399,7 +412,7 @@ const styles = StyleSheet.create({
     color: colors.ink,
     backgroundColor: colors.mint,
     borderWidth: 1.5,
-    borderColor: colors.ink,
+    borderColor: colors.line,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 16,
@@ -407,7 +420,7 @@ const styles = StyleSheet.create({
   },
   rowArrow: { fontFamily: fonts.displayBlack, fontSize: 24, color: colors.ink },
   pips: { flexDirection: 'row', gap: 3 },
-  pip: { width: 14, height: 8, borderRadius: 4, backgroundColor: colors.white, borderWidth: 1.5, borderColor: colors.ink },
+  pip: { width: 14, height: 8, borderRadius: 4, backgroundColor: colors.white, borderWidth: 1.5, borderColor: colors.line },
   pipOn: { backgroundColor: colors.yellow },
   backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(20,23,58,0.55)' },
   sheet: {
@@ -418,9 +431,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.paper,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    borderWidth: 2,
+    borderWidth: 1,
     borderBottomWidth: 0,
-    borderColor: colors.ink,
+    borderColor: colors.line,
     overflow: 'hidden',
   },
   showroom: { backgroundColor: colors.ink, paddingHorizontal: spacing.lg, paddingBottom: spacing.lg, overflow: 'hidden' },
@@ -440,8 +453,8 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 18,
     backgroundColor: colors.white,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -454,8 +467,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.ink,
     backgroundColor: colors.mint,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     paddingHorizontal: 12,
     paddingVertical: 3,
     borderRadius: 999,
@@ -477,8 +490,8 @@ const styles = StyleSheet.create({
   effectBox: {
     backgroundColor: colors.white,
     borderRadius: 18,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     padding: spacing.md,
   },
   effectLabel: { fontFamily: fonts.mono, fontSize: 10.5, letterSpacing: 1, color: colors.muted, textTransform: 'uppercase' },
@@ -486,8 +499,8 @@ const styles = StyleSheet.create({
   wissen: {
     backgroundColor: colors.blueTint,
     borderRadius: 18,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     padding: spacing.md,
     gap: 4,
   },
@@ -495,8 +508,8 @@ const styles = StyleSheet.create({
   next: {
     backgroundColor: colors.white,
     borderRadius: 18,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     padding: spacing.md,
     gap: spacing.sm,
   },
@@ -506,8 +519,8 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 14,
     backgroundColor: colors.butter,
-    borderWidth: 2,
-    borderColor: colors.ink,
+    borderWidth: 1,
+    borderColor: colors.line,
     alignItems: 'center',
     justifyContent: 'center',
   },
