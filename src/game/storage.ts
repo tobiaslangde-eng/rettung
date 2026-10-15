@@ -97,6 +97,14 @@ export interface Progress {
   hilfspunkt: Record<string, number>;
   /** Spielweise: mit Geschichte oder frei; leer = noch nicht gewählt */
   modus: 'story' | 'frei' | '';
+  /** Gefahren-Check: gelöste Szenen (IDs) */
+  gefahrGeschafft: string[];
+  /** Urkunden: Tag (JJJJ-MM-TT), an dem sie erreicht wurden */
+  urkundenDatum: Record<string, string>;
+  /** Name auf den Urkunden */
+  spielerName: string;
+  /** Stadtkarte: angefahrene Einsätze */
+  kartenEinsaetze: number;
 }
 
 export const EMPTY_PROGRESS: Progress = {
@@ -139,6 +147,10 @@ export const EMPTY_PROGRESS: Progress = {
   wache: {},
   hilfspunkt: {},
   modus: '',
+  gefahrGeschafft: [],
+  urkundenDatum: {},
+  spielerName: '',
+  kartenEinsaetze: 0,
 };
 
 export async function loadProgress(rolle: Rolle): Promise<Progress> {

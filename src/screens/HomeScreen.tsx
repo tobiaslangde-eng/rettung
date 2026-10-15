@@ -12,6 +12,7 @@ import { MAX_LEVEL, ausruestung, euro, levelOf, totalLevel, upgradeBlock } from 
 import { HILF_GESAMT_MAX, hilfGesamt } from '../game/hilfspunkt';
 import { WACHE_GESAMT_MAX, wacheGesamt } from '../game/wache';
 import { useRolle } from '../game/rolle';
+import { urkundenFuer } from '../game/urkunden';
 import { rankFor, rankList } from '../game/scoring';
 import { KAPITEL, KAPITEL_BONUS, StoryAktion, aktuellesKapitel, freiAb, istFrei } from '../game/story';
 import { Progress } from '../game/storage';
@@ -34,6 +35,8 @@ export function HomeScreen({
   onStory,
   onStoryDone,
   onModus,
+  onKarte,
+  onUrkunden,
 }: {
   progress: Progress;
   onStart: () => void;
@@ -48,6 +51,10 @@ export function HomeScreen({
   onStoryDone: () => void;
   /** Spielweise ändern (Geschichte oder frei) */
   onModus: () => void;
+  /** Stadtkarte öffnen */
+  onKarte: () => void;
+  /** Urkunden öffnen */
+  onUrkunden: () => void;
 }) {
   const L = useLayout();
   const sidebar = useSidebar();
@@ -228,6 +235,32 @@ export function HomeScreen({
   const ausbauStufen = helfer ? hilfGesamt(progress) : wacheGesamt(progress);
   const ausbauMax = helfer ? HILF_GESAMT_MAX : WACHE_GESAMT_MAX;
 
+  const urkundenListe = urkundenFuer(r.id);
+  const urkundenErreicht = urkundenListe.filter((u) => u.erreicht(progress)).length;
+  const kartenFrei = istFrei(r.id, progress, 'einsatz');
+
+  const karte = (
+    <Tile size="md" tint="blue" onPress={kartenFrei ? onKarte : undefined} disabled={!kartenFrei} accessibilityLabel="Stadtkarte">
+      <TileLabel icon="🗺️" text="Stadtkarte" tint="blue" />
+      {kartenFrei ? (
+        <>
+          <BigNumber value={`${progress.kartenEinsaetze}`} unit="Einsätze angefahren" size={28} />
+          <Text style={type.small}>Wähle den Einsatz mit der kürzesten Anfahrt</Text>
+        </>
+      ) : (
+        <Text style={type.small}>Wird in Kapitel {freiAb(r.id, 'einsatz')} freigeschaltet</Text>
+      )}
+    </Tile>
+  );
+
+  const urkunden = (
+    <Tile size="md" tint="amber" onPress={onUrkunden} accessibilityLabel="Urkunden">
+      <TileLabel icon="📜" text="Urkunden" tint="amber" />
+      <BigNumber value={`${urkundenErreicht}`} unit={`von ${urkundenListe.length} erreicht`} size={28} />
+      <Text style={type.small}>Mit deinem Namen – zum Teilen</Text>
+    </Tile>
+  );
+
   const vehicle = (
     <Tile size="md" tint="slate" onPress={garageFrei ? onGarage : undefined} disabled={!garageFrei} accessibilityLabel={r.fahrzeug}>
       <TileLabel icon={helfer ? '🚗' : '🚑'} text={r.fahrzeug} tint="teal" />
@@ -303,6 +336,9 @@ export function HomeScreen({
         {action}
         {today}
         {training}
+        <BentoTitle>Unterwegs</BentoTitle>
+        {karte}
+        {urkunden}
         <BentoTitle>Ausbau</BentoTitle>
         {vehicle}
         {ausbau}

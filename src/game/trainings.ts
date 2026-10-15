@@ -1,13 +1,15 @@
 import { NOTRUF_SZENARIEN } from '../data/notruf';
 import { AED_SZENARIEN } from '../data/aed';
 import { PACKLISTEN } from '../data/packlisten';
+import { GEFAHREN_HELFER } from '../data/gefahren/helfer';
+import { GEFAHREN_SANI } from '../data/gefahren/sani';
 import { ablaeufeFuer } from './schritte';
 import { archiveCount } from './detective';
 import { Rolle } from './rolle';
 import { Bereich } from './story';
 import { Progress } from './storage';
 
-export type TrainingId = 'detektiv' | 'schritte' | 'cpr' | 'wissen' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack' | 'handgriffe' | 'mythen' | 'aed' | 'pruefung';
+export type TrainingId = 'detektiv' | 'schritte' | 'cpr' | 'wissen' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack' | 'handgriffe' | 'mythen' | 'aed' | 'pruefung' | 'gefahr';
 
 export interface TrainingInfo {
   id: TrainingId & Bereich;
@@ -127,5 +129,15 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
     sub: '20 Fragen aus dem ganzen Kurs – bestanden ab 16.',
     stand: p.pruefungBest > 0 ? `Bestwert ${p.pruefungBest}/20${p.pruefungBest >= 16 ? ' · bestanden' : ''}` : undefined,
   };
-  return rolle === 'helfer' ? [wissen, schritte, cpr, notruf, mythen, zuerst, pack, handgriffe, aed, pruefung] : [quiz, wissen, cpr, schritte, detektiv, manv];
+  const gefahr: TrainingInfo = {
+    id: 'gefahr',
+    farbe: '#FFE6C7',
+    icon: '⚠️',
+    title: 'Gefahren-Check',
+    sub: rolle === 'helfer' ? 'Eigenschutz zuerst: Finde alle Gefahren an der Einsatzstelle.' : 'Eigensicherung: Finde alle Gefahren, bevor du zum Patienten gehst.',
+    stand: p.gefahrGeschafft.length > 0 ? `${p.gefahrGeschafft.length}/${(rolle === 'helfer' ? GEFAHREN_HELFER : GEFAHREN_SANI).length} Szenen` : undefined,
+  };
+  return rolle === 'helfer'
+    ? [wissen, schritte, cpr, notruf, mythen, zuerst, gefahr, pack, handgriffe, aed, pruefung]
+    : [quiz, wissen, cpr, gefahr, schritte, detektiv, manv];
 }
