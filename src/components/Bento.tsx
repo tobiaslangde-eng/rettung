@@ -9,7 +9,7 @@ import { Tap } from './UI';
  * Bento-Raster: Kacheln in verschiedenen Größen, mit weichen Ecken und je einer Farbwelt.
  * Handy: 2 Spalten, Tablet/PC: 4 Spalten.
  */
-export type TileSize = 'sm' | 'half' | 'md' | 'lg';
+export type TileSize = 'third' | 'sm' | 'half' | 'md' | 'lg';
 
 const GAP = 12;
 
@@ -20,6 +20,7 @@ export function BentoGrid({ children, style }: { children: ReactNode; style?: St
 /** sm = ¼ (Handy ½), half = ½, md = ½ (Handy ganz), lg = ganz */
 const widthFor = (size: TileSize, wide: boolean): `${number}%` => {
   if (size === 'lg') return '100%';
+  if (size === 'third') return '33.3333%';
   if (size === 'half') return '50%';
   if (size === 'md') return wide ? '50%' : '100%';
   return wide ? '25%' : '50%';
@@ -202,6 +203,53 @@ export function Ring({
         />
       </Svg>
       {children}
+    </View>
+  );
+}
+
+/** Dein Weg: Kapitel als Stationen auf einer Herzschlag-Linie (wie der Lernpfad bei Duolingo, aber medizinisch) */
+export function ChapterPath({ total, current, accent = colors.tuerkis }: { total: number; current: number; accent?: string }) {
+  const count = Math.min(7, total);
+  const start = Math.max(0, Math.min(total - count, current - 2));
+  const nodes = Array.from({ length: count }, (_, i) => start + i);
+  const W = 100 / count;
+  return (
+    <View style={{ height: 54, justifyContent: 'center' }}>
+      <Svg width="100%" height={54} style={{ position: 'absolute' }} viewBox="0 0 100 54" preserveAspectRatio="none">
+        <Path
+          d={`M0 27 ${nodes.map((_, i) => `L${W * i + W * 0.5 - 2.4} 27 L${W * i + W * 0.5 - 1.2} 17 L${W * i + W * 0.5} 37 L${W * i + W * 0.5 + 1.2} 22 L${W * i + W * 0.5 + 2.4} 27`).join(' ')} L100 27`}
+          stroke="rgba(15,42,46,0.18)"
+          strokeWidth={1.6}
+          fill="none"
+          vectorEffect="non-scaling-stroke"
+        />
+      </Svg>
+      <View style={{ flexDirection: 'row' }}>
+        {nodes.map((n) => {
+          const done = n < current;
+          const now = n === current;
+          return (
+            <View key={n} style={{ width: `${W}%`, alignItems: 'center' }}>
+              <View
+                style={{
+                  width: now ? 38 : 30,
+                  height: now ? 38 : 30,
+                  borderRadius: 19,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: done ? accent : now ? '#FFFFFF' : 'rgba(15,42,46,0.1)',
+                  borderWidth: now ? 3 : 0,
+                  borderColor: accent,
+                  borderBottomWidth: done || now ? 4 : 0,
+                  borderBottomColor: done || now ? 'rgba(0,0,0,0.25)' : 'transparent',
+                }}
+              >
+                <Text style={{ fontFamily: fonts.displayBlack, fontSize: now ? 14 : 12, color: done ? '#fff' : now ? accent : colors.muted }}>{done ? '✓' : n + 1}</Text>
+              </View>
+            </View>
+          );
+        })}
+      </View>
     </View>
   );
 }

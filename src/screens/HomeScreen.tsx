@@ -3,7 +3,7 @@ import { Ambulance } from '../components/Ambulance';
 import { Car } from '../components/Car';
 import { RankBadge } from '../components/Ems';
 import { KatiAvatar } from '../components/Kati';
-import { BentoGrid, BentoTitle, BigNumber, Ring, Tile, TileLabel } from '../components/Bento';
+import { BentoGrid, BentoTitle, BigNumber, ChapterPath, Ring, Tile, TileLabel } from '../components/Bento';
 import { Bar, Button, Segmented, Tap } from '../components/UI';
 import { badgesFuerRolle } from '../game/achievements';
 import { DAILY_GOAL, dayState } from '../game/daily';
@@ -84,22 +84,33 @@ export function HomeScreen({
     </Tile>
   );
 
+  const ausbauNow = helfer ? hilfGesamt(progress) : wacheGesamt(progress);
+  const ausbauAll = helfer ? HILF_GESAMT_MAX : WACHE_GESAMT_MAX;
+
   const stats = (
     <>
-      <Tile size="half" tint="amber">
-        <TileLabel icon="⭐" text="Punkte" tint="amber" />
-        <BigNumber value={progress.totalPoints.toLocaleString('de-DE')} color={tiles.amber.accent} />
-        <Text style={type.small} numberOfLines={1}>
-          {next ? `${(next.min - progress.totalPoints).toLocaleString('de-DE')} bis ${next.de}` : 'Höchster Rang'}
-        </Text>
-        <Bar pct={rankPct} color={tiles.amber.accent} track="rgba(15,42,46,0.1)" height={6} />
+      <Tile size="third" tint="amber" style={styles.mini}>
+        <Text style={styles.miniIcon}>⭐</Text>
+        <BigNumber value={progress.totalPoints.toLocaleString('de-DE')} color={tiles.amber.accent} size={24} />
+        <Text style={[styles.miniLabel, { color: tiles.amber.accent }]}>Punkte</Text>
       </Tile>
-      <Tile size="half" tint="green">
-        <TileLabel icon="💶" text="Budget" tint="green" />
-        <BigNumber value={euro(progress.budget)} color={tiles.green.accent} />
-        <Text style={type.small} numberOfLines={2}>
-          Für {helfer ? 'Auto' : 'Rettungswagen'} und {helfer ? 'Hilfspunkt' : 'Wache'}. 1 Punkt = 1 €.
-        </Text>
+      <Tile size="third" tint="green" style={styles.mini}>
+        <Text style={styles.miniIcon}>💶</Text>
+        <BigNumber value={euro(progress.budget)} color={tiles.green.accent} size={24} />
+        <Text style={[styles.miniLabel, { color: tiles.green.accent }]}>Budget</Text>
+      </Tile>
+      <Tile size="third" tint="pink" style={styles.mini}>
+        <Text style={styles.miniIcon}>🔥</Text>
+        <BigNumber value={`${day.streak}`} color={tiles.pink.accent} size={24} />
+        <Text style={[styles.miniLabel, { color: tiles.pink.accent }]}>Tage am Stück</Text>
+      </Tile>
+      <Tile size="lg" tint="slate">
+        <TileLabel icon="📈" text="Heute im Überblick" tint="teal" />
+        <View style={styles.rings}>
+          <RingStat pct={rankPct} color={tiles.amber.accent} center={`${Math.round(rankPct * 100)}%`} label="Rang" sub={next ? next.de : 'Spitze'} />
+          <RingStat pct={day.cases / DAILY_GOAL} color={tiles.blue.accent} center={`${Math.min(day.cases, DAILY_GOAL)}/${DAILY_GOAL}`} label="Tagesziel" sub={r.einsatz === 'Notfall' ? 'Notfälle' : 'Einsätze'} />
+          <RingStat pct={ausbauNow / ausbauAll} color={tiles.green.accent} center={`${ausbauNow}/${ausbauAll}`} label="Ausbau" sub={helfer ? 'Hilfspunkt' : 'Wache'} />
+        </View>
       </Tile>
     </>
   );
@@ -114,6 +125,7 @@ export function HomeScreen({
             <Text style={[type.h2, { marginTop: 4 }]}>{kap.kapitel.titel}</Text>
           </View>
         </View>
+        <ChapterPath total={KAPITEL[r.id].length} current={kap.nr - 1} accent={tiles.violet.accent} />
         <Text style={styles.storyText}>{kap.kapitel.text}</Text>
         <View style={styles.goal}>
           <Text style={[styles.goalLabel, { color: tiles.violet.accent }]}>{kap.erfuellt ? '✓ Aufgabe erfüllt' : 'Deine Aufgabe'}</Text>
@@ -166,22 +178,7 @@ export function HomeScreen({
 
   const today = einsatzFrei ? (
     <>
-      <Tile size="half" tint="blue">
-        <TileLabel icon="🎯" text="Tagesziel" tint="blue" />
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <Ring pct={day.cases / DAILY_GOAL} size={64} stroke={7} color={tiles.blue.accent}>
-            <Text style={styles.ringText}>
-              {Math.min(day.cases, DAILY_GOAL)}/{DAILY_GOAL}
-            </Text>
-          </Ring>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.streak}>🔥 {day.streak}</Text>
-            <Text style={type.small}>Tage am Stück</Text>
-          </View>
-        </View>
-        <Text style={type.small}>{r.einsatz === 'Notfall' ? 'Notfälle' : 'Einsätze'} heute</Text>
-      </Tile>
-      <Tile size="half" tint="pink" onPress={day.dailyCaseDone ? undefined : onDaily} accessibilityLabel={`${r.einsatz} des Tages`}>
+      <Tile size="lg" tint="pink" onPress={day.dailyCaseDone ? undefined : onDaily} accessibilityLabel={`${r.einsatz} des Tages`}>
         <TileLabel icon="⭐" text="Des Tages" tint="pink" />
         <Text style={type.headline}>{r.einsatz} des Tages</Text>
         <Text style={type.small}>{day.dailyCaseDone ? 'Heute schon erledigt ✓' : '+50 % Punkte – jeden Tag ein neuer Fall.'}</Text>
@@ -266,20 +263,34 @@ export function HomeScreen({
     </Tile>
   );
 
+  const badgeList = badgesFuerRolle();
   const profile = (
     <Tile size="lg" tint="slate">
+      <TileLabel icon="🏅" text="Mein Rang" tint="amber" />
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.lg }}>
-        <RankBadge size={56} level={rankList().indexOf(rank)} />
-        <View style={{ flex: 1, gap: 5 }}>
-          <TileLabel icon="🏅" text="Mein Rang" tint="amber" />
-          <Text style={type.headline}>{rank.de}</Text>
-          <Bar pct={rankPct} color={tiles.amber.accent} track="rgba(15,42,46,0.1)" />
+        <Ring pct={rankPct} size={92} stroke={9} color={tiles.amber.accent}>
+          <RankBadge size={52} level={rankList().indexOf(rank)} />
+        </Ring>
+        <View style={{ flex: 1, gap: 4 }}>
+          <Text style={type.h2}>{rank.de}</Text>
           <Text style={type.small}>
-            {next ? `Noch ${(next.min - progress.totalPoints).toLocaleString('de-DE')} Punkte bis ${next.de}` : 'Höchster Rang erreicht'} · {progress.badges.length} von{' '}
-            {badgesFuerRolle().length} Abzeichen
+            {next ? `Noch ${(next.min - progress.totalPoints).toLocaleString('de-DE')} Punkte bis ${next.de}` : 'Höchster Rang erreicht'}
           </Text>
         </View>
       </View>
+      <View style={styles.medalRow}>
+        {badgeList.slice(0, 12).map((bd) => {
+          const has = progress.badges.includes(bd.id);
+          return (
+            <View key={bd.id} style={[styles.medal, has ? { backgroundColor: tiles.amber.bg, borderColor: tiles.amber.edge } : null]}>
+              <Text style={[styles.medalIcon, !has && { opacity: 0.25 }]}>{bd.icon}</Text>
+            </View>
+          );
+        })}
+      </View>
+      <Text style={type.small}>
+        {progress.badges.length} von {badgeList.length} Abzeichen
+      </Text>
     </Tile>
   );
 
@@ -302,6 +313,20 @@ export function HomeScreen({
   );
 }
 
+function RingStat({ pct, color, center, label, sub }: { pct: number; color: string; center: string; label: string; sub: string }) {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', gap: 4 }}>
+      <Ring pct={pct} size={78} stroke={9} color={color}>
+        <Text style={styles.ringText}>{center}</Text>
+      </Ring>
+      <Text style={[styles.ringLabel, { color }]}>{label}</Text>
+      <Text style={type.small} numberOfLines={1}>
+        {sub}
+      </Text>
+    </View>
+  );
+}
+
 function Locked({ kapitel }: { kapitel: number }) {
   return (
     <View style={styles.locked}>
@@ -311,6 +336,14 @@ function Locked({ kapitel }: { kapitel: number }) {
 }
 
 const styles = StyleSheet.create({
+  mini: { gap: 2, paddingHorizontal: 12, paddingVertical: 14, minHeight: 104 },
+  miniIcon: { fontSize: 18, fontFamily: fonts.regular },
+  miniLabel: { fontFamily: fonts.semibold, fontSize: 11, letterSpacing: 0.4 },
+  rings: { flexDirection: 'row', gap: 6, marginTop: 4 },
+  ringLabel: { fontFamily: fonts.display, fontSize: 14 },
+  medalRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  medal: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(15,42,46,0.06)', borderWidth: 1, borderColor: 'transparent', alignItems: 'center', justifyContent: 'center' },
+  medalIcon: { fontSize: 20, fontFamily: fonts.regular },
   modusChip: { alignSelf: 'flex-start', marginTop: 8, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)', backgroundColor: 'rgba(255,255,255,0.08)' },
   modusText: { fontFamily: fonts.semibold, fontSize: 12, color: colors.onDark },
   content: { padding: spacing.lg, paddingBottom: spacing.xxl },

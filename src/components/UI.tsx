@@ -73,6 +73,15 @@ export function Card({ children, style }: { children: ReactNode; style?: StylePr
   );
 }
 
+/** Dunklere Farbe für die „dicke Unterkante“ (wie bei Duolingo-Knöpfen) */
+export function shade(hex: string, amount = 0.22): string {
+  const m = /^#?([0-9a-f]{6})/i.exec(hex);
+  if (!m) return hex;
+  const n = parseInt(m[1], 16);
+  const f = (c: number) => Math.max(0, Math.round(c * (1 - amount)));
+  return `#${[(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) => f(c).toString(16).padStart(2, '0')).join('')}`;
+}
+
 type BtnVariant = 'primary' | 'dark' | 'outline' | 'alarm' | 'tinted' | 'mint';
 
 /** Klarer Knopf: Hauptaktion in der Farbe der Rolle, sonst weiß oder hell getönt */
@@ -106,7 +115,12 @@ export function Button({
       onPress={onPress}
       disabled={disabled}
       accessibilityLabel={label}
-      style={[styles.btn, { backgroundColor: bg, opacity: disabled ? 0.45 : 1 }, border ? { borderWidth: 1, borderColor: border } : null, style]}
+      style={[
+        styles.btn,
+        { backgroundColor: bg, opacity: disabled ? 0.45 : 1, borderBottomWidth: 4, borderBottomColor: border ? '#C3D5CE' : shade(bg) },
+        border ? { borderWidth: 1, borderColor: border, borderBottomWidth: 4, borderBottomColor: '#C3D5CE' } : null,
+        style,
+      ]}
     >
       <View style={styles.btnInner}>
         <Text style={[styles.btnLabel, { color: fg }]}>{label}</Text>

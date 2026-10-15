@@ -27,3 +27,10 @@ Bricolage Grotesque für Überschriften und große Zahlen, Inter zum Lesen.
 `src/components/Bento.tsx`: `BentoGrid`, `Tile`, `TileLabel`, `BigNumber`, `Ring`, `Ecg`, `EcgPaper`. Illustrationen als SVG: Rettungswagen, Auto, Szenen bei Notfällen, Rettungswache und Hilfspunkt bei Nacht.
 
 Die dunkle Variante „Leitstelle“ liegt unter `/vorschau/leitstelle/`, die erste helle Variante „Klar“ unter `/vorschau/klar/`.
+
+## Referenzen (Mobbin) und was daraus übernommen wurde
+- **Bevel, Google Health, Withings, Apple Health:** Zusammenfassung mit drei Ringen („Heute im Überblick“) und eine Reihe pastellfarbener Kurz-Kacheln mit großer Zahl (Punkte, Budget, Tage am Stück).
+- **Duolingo, Vocabulary:** dicke „3D“-Knöpfe und Antwort-Karten mit kräftiger Unterkante; der Lernpfad wird bei uns zu **„Dein Weg“** – Kapitel als Stationen auf einer Herzschlag-Linie.
+- **Mimo, Tonal, Azar:** Profil mit Level-Ring und runden Medaillen für Abzeichen (erreichte farbig, offene grau).
+- **Speechify, Nibble:** Quiz mit Fortschrittsleiste, Buchstaben A–D und klarer Rückmeldung.
+- **Finch „First Aid Kit“:** farbige Symbol-Quadrate mit kurzer Beschreibung in abgerundeten Karten.
