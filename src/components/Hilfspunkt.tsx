@@ -33,7 +33,7 @@ export function HilfspunktBild({
   const h = 210;
   const ground = 168;
   const warm = '#FFD98A';
-  const aus = '#13233A';
+  const aus = '#CFE0DB';
   const kreuz = (x: number, y: number, s: number, c = '#2FD28F') => (
     <G>
       <Rect x={x - s * 0.18} y={y - s * 0.5} width={s * 0.36} height={s} rx={1} fill={c} />
@@ -44,9 +44,9 @@ export function HilfspunktBild({
     <Svg width={width} height={(width * h) / w} viewBox={`0 0 ${w} ${h}`}>
       <Defs>
         <LinearGradient id="hp-abend" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#0A1424" />
-          <Stop offset="0.7" stopColor="#25395C" />
-          <Stop offset="1" stopColor="#5B4A5E" />
+          <Stop offset="0" stopColor="#BFE3F2" />
+          <Stop offset="0.7" stopColor="#E2F1EE" />
+          <Stop offset="1" stopColor="#F6EBDD" />
         </LinearGradient>
       </Defs>
       <Rect width={w} height={h} fill="url(#hp-abend)" />
@@ -57,19 +57,19 @@ export function HilfspunktBild({
         [250, 28],
         [320, 16],
       ].map(([x, y], i) => (
-        <Circle key={i} cx={x} cy={y} r={1.2} fill="#B5C6E0" />
+        <Circle key={i} cx={x} cy={y} r={0} fill="none" />
       ))}
 
       {/* Baum */}
-      <Rect x={328} y={ground - 40} width={6} height={40} fill="#3A2C25" />
-      <Circle cx={331} cy={ground - 50} r={22} fill="#1F4A3A" />
-      <Circle cx={320} cy={ground - 40} r={14} fill="#245640" />
+      <Rect x={328} y={ground - 40} width={6} height={40} fill="#8A6A52" />
+      <Circle cx={331} cy={ground - 50} r={22} fill="#5BB589" />
+      <Circle cx={320} cy={ground - 40} r={14} fill="#6FC79B" />
 
       {/* Gebäude mit Satteldach */}
-      <Polygon points={`14,${ground - 92} 180,${ground - 128} 346,${ground - 92}`} fill="#3A2D3E" />
+      <Polygon points={`14,${ground - 92} 180,${ground - 128} 346,${ground - 92}`} fill="#9FB8B1" />
       <Polygon
         points={`14,${ground - 92} 180,${ground - 128} 346,${ground - 92} 340,${ground - 88} 20,${ground - 88}`}
-        fill="#4A3A50"
+        fill="#8EA9A2"
         opacity={0.6}
       />
       <Rect x={22} y={ground - 90} width={316} height={90} fill="#E8DCC4" stroke="#B9A98A" strokeWidth={1.5} />
@@ -197,14 +197,15 @@ export function HilfspunktBild({
       ))}
       {netz > 0 && (
         <G>
-          <Path d={`M180 ${ground - 128} V${ground - 142}`} stroke="#B5C6E0" strokeWidth={2} />
+          <Path d={`M180 ${ground - 128} V${ground - 142}`} stroke="#FFFFFF" strokeWidth={2} />
           <Circle cx={180} cy={ground - 144} r={2.6} fill={colors.signalrot} />
         </G>
       )}
 
       {/* Boden, Weg, Bank */}
-      <Rect x={0} y={ground} width={w} height={h - ground} fill="#1B2A22" />
-      <Polygon points={`96,${ground} 140,${ground} 168,${h} 70,${h}`} fill="#4A4450" />
+      <Rect x={0} y={ground} width={w} height={h - ground} fill="#9CCDB4" />
+      <Polygon points={`96,${ground} 140,${ground} 168,${h} 70,${h}`} fill="#D6C9B8" />
+      <Circle cx={40} cy={34} r={14} fill="#FFE29A" />
       <Rect x={216} y={ground + 14} width={60} height={5} rx={2} fill="#6B4A32" />
       <Rect x={220} y={ground + 19} width={4} height={10} fill="#4A3524" />
       <Rect x={268} y={ground + 19} width={4} height={10} fill="#4A3524" />

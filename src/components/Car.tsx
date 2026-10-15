@@ -2,7 +2,7 @@ import Svg, { Circle, G, Path, Rect } from 'react-native-svg';
 import { colors } from '../theme';
 
 /** Farben der vier Auto-Stufen: alter Kleinwagen, Kompaktwagen, Kombi, E-Auto */
-const KAROSSE = ['#9AA3AF', '#3B6FD8', '#1F8A5B', '#F4F5F7'];
+const KAROSSE = ['#B9C6C3', '#4C8DF0', '#2FB58A', '#F6FAF8'];
 
 /** Schlichtes Auto in Seitenansicht; die Stufe bestimmt Form und Farbe. */
 export function Car({ level = 1, width = 160 }: { level?: number; width?: number }) {
@@ -20,9 +20,9 @@ export function Car({ level = 1, width = 160 }: { level?: number; width?: number
           : 'M40 34 L64 17 H116 L138 34 Z';
   return (
     <Svg width={width} height={h} viewBox="0 0 180 90">
-      <Rect x={14} y={78} width={152} height={4} rx={2} fill={colors.line} />
+      <Rect x={14} y={78} width={152} height={4} rx={2} fill="rgba(15,42,46,0.12)" />
       <G>
-        <Path d={dach} fill={body} stroke={colors.inkSoft} strokeWidth={2} strokeLinejoin="round" />
+        <Path d={dach} fill={body} stroke="#9FB8B1" strokeWidth={1.8} strokeLinejoin="round" />
         <Path
           d="M18 62 V44 Q18 34 30 34 H150 Q164 34 166 46 V62 Q166 66 162 66 H22 Q18 66 18 62 Z"
           fill={body}
@@ -31,7 +31,7 @@ export function Car({ level = 1, width = 160 }: { level?: number; width?: number
           strokeLinejoin="round"
         />
         {/* Fenster */}
-        <Path d={l === 3 ? 'M64 32 L74 20 H96 V32 Z M100 32 V20 H136 L140 32 Z' : 'M60 32 L70 21 H90 V32 Z M94 32 V21 H106 L114 32 Z'} fill="#CFE3F5" />
+        <Path d={l === 3 ? 'M64 32 L74 20 H96 V32 Z M100 32 V20 H136 L140 32 Z' : 'M60 32 L70 21 H90 V32 Z M94 32 V21 H106 L114 32 Z'} fill="#CFE8F7" />
         {/* Scheinwerfer und Rücklicht */}
         <Rect x={156} y={44} width={8} height={5} rx={2} fill={l === 4 ? '#7DD3FC' : '#FDE68A'} />
         <Rect x={19} y={44} width={6} height={6} rx={2} fill="#F87171" />
@@ -78,8 +78,8 @@ export function Car({ level = 1, width = 160 }: { level?: number; width?: number
       )}
       {[52, 134].map((x) => (
         <G key={x}>
-          <Circle cx={x} cy={66} r={13} fill={colors.navy} />
-          <Circle cx={x} cy={66} r={6} fill={l === 4 ? '#E5E7EB' : '#9CA3AF'} />
+          <Circle cx={x} cy={66} r={13} fill="#26363A" />
+          <Circle cx={x} cy={66} r={6} fill={l === 4 ? '#E3F3F0' : '#B7C6C2'} />
         </G>
       ))}
     </Svg>
