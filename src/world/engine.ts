@@ -361,44 +361,54 @@ export class WorldEngine {
     }
   };
   private onPointerDown = (e: PointerEvent) => {
-    if (this.paused) return;
+    if (this.paused || e.pointerType !== 'mouse') return;
     this.startAudio();
-    if (e.pointerType === 'mouse') {
-      this.touchMode = false;
-      if (!this.locked) this.renderer.domElement.requestPointerLock?.();
-      return;
-    }
+    this.touchMode = false;
+    if (!this.locked) this.renderer.domElement.requestPointerLock?.();
+  };
+
+  /** Touch: eigene Touch-Ereignisse (auf dem iPhone zuverlässiger als Pointer-Ereignisse) */
+  private touchPos(t: Touch) {
+    const rect = this.container.getBoundingClientRect();
+    return { x: t.clientX - rect.left, y: t.clientY - rect.top, w: rect.width };
+  }
+  private onTouchStart = (e: TouchEvent) => {
+    if (this.paused) return;
+    e.preventDefault();
+    this.startAudio();
     this.touchMode = true;
-    const rect = this.container.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    if (x < rect.width * 0.45 && this.stick.id < 0) {
-      this.stick = { id: e.pointerId, x: 0, y: 0, cx: x, cy: y };
-    } else if (this.look.id < 0) {
-      this.look = { id: e.pointerId, x: e.clientX, y: e.clientY };
-    }
-    (e.target as Element).setPointerCapture?.(e.pointerId);
-  };
-  private onPointerMove = (e: PointerEvent) => {
-    if (e.pointerType === 'mouse') return;
-    const rect = this.container.getBoundingClientRect();
-    if (e.pointerId === this.stick.id) {
-      const dx = e.clientX - rect.left - this.stick.cx;
-      const dy = e.clientY - rect.top - this.stick.cy;
-      const m = Math.min(1, Math.hypot(dx, dy) / 60);
-      const a = Math.atan2(dy, dx);
-      this.stick.x = Math.cos(a) * m;
-      this.stick.y = Math.sin(a) * m;
-    } else if (e.pointerId === this.look.id) {
-      this.lookDelta.x += (e.clientX - this.look.x) * 1.6;
-      this.lookDelta.y += (e.clientY - this.look.y) * 1.6;
-      this.look.x = e.clientX;
-      this.look.y = e.clientY;
+    for (const t of Array.from(e.changedTouches)) {
+      const { x, y, w } = this.touchPos(t);
+      if (x < w * 0.5 && this.stick.id < 0) this.stick = { id: t.identifier, x: 0, y: 0, cx: x, cy: y };
+      else if (this.look.id < 0) this.look = { id: t.identifier, x: t.clientX, y: t.clientY };
     }
   };
-  private onPointerUp = (e: PointerEvent) => {
-    if (e.pointerId === this.stick.id) this.stick = { id: -1, x: 0, y: 0, cx: 0, cy: 0 };
-    if (e.pointerId === this.look.id) this.look = { id: -1, x: 0, y: 0 };
+  private onTouchMove = (e: TouchEvent) => {
+    if (this.paused) return;
+    e.preventDefault();
+    for (const t of Array.from(e.changedTouches)) {
+      if (t.identifier === this.stick.id) {
+        const { x, y } = this.touchPos(t);
+        const dx = x - this.stick.cx;
+        const dy = y - this.stick.cy;
+        const m = Math.min(1, Math.hypot(dx, dy) / 50);
+        const a = Math.atan2(dy, dx);
+        this.stick.x = Math.cos(a) * m;
+        this.stick.y = Math.sin(a) * m;
+      } else if (t.identifier === this.look.id) {
+        this.lookDelta.x += (t.clientX - this.look.x) * 1.6;
+        this.lookDelta.y += (t.clientY - this.look.y) * 1.6;
+        this.look.x = t.clientX;
+        this.look.y = t.clientY;
+      }
+    }
+  };
+  private onTouchEnd = (e: TouchEvent) => {
+    e.preventDefault();
+    for (const t of Array.from(e.changedTouches)) {
+      if (t.identifier === this.stick.id) this.stick = { id: -1, x: 0, y: 0, cx: 0, cy: 0 };
+      if (t.identifier === this.look.id) this.look = { id: -1, x: 0, y: 0 };
+    }
   };
   private onLockChange = () => {
     this.locked = document.pointerLockElement === this.renderer.domElement;
@@ -413,9 +423,11 @@ export class WorldEngine {
     document.addEventListener('pointerlockchange', this.onLockChange);
     const el = this.renderer.domElement;
     el.addEventListener('pointerdown', this.onPointerDown);
-    el.addEventListener('pointermove', this.onPointerMove);
-    el.addEventListener('pointerup', this.onPointerUp);
-    el.addEventListener('pointercancel', this.onPointerUp);
+    const po = { passive: false } as AddEventListenerOptions;
+    el.addEventListener('touchstart', this.onTouchStart, po);
+    el.addEventListener('touchmove', this.onTouchMove, po);
+    el.addEventListener('touchend', this.onTouchEnd, po);
+    el.addEventListener('touchcancel', this.onTouchEnd, po);
   }
 
   private resize() {
@@ -1148,6 +1160,8 @@ export class WorldEngine {
   }
   debug() {
     return {
+      yaw: this.yaw,
+      pitch: this.pitch,
       pos: this.pos.clone(),
       emergencies: this.emergencies.map((e) => ({ id: e.id, x: e.pos.x, z: e.pos.z })),
       time: this.time,
