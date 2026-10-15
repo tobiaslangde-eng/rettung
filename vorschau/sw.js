@@ -2,7 +2,7 @@
 // Bei einer neuen Version (anderer CACHE-Name) wird der alte Speicher ersetzt.
 // Live-Version und Vorschau (/vorschau/) liegen auf derselben Adresse: jede löscht nur ihre eigenen alten Speicher.
 const PREFIX = 'vorschau-';
-const CACHE = PREFIX + '3a16033';
+const CACHE = PREFIX + 'eb05b78';
 const FILES = ['./', './index.html', './manifest.webmanifest', './apple-touch-icon.png', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
