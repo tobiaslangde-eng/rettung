@@ -12,6 +12,7 @@ import { Badge, awardBadges } from './src/game/achievements';
 import { CprResult } from './src/game/cpr';
 import { DAILY_CASE_BONUS, dailyCase, dailyHelferFall, registerDailyCase } from './src/game/daily';
 import { DIFFICULTY_BY_ID, Difficulty } from './src/game/difficulty';
+import { WacheId, wacheKaufen } from './src/game/wache';
 import { EquipmentId, ausruestung, buyUpgrade, equipmentEffects, levelOf, upgradeBlock } from './src/game/equipment';
 import { ArchiveStamp, mergeArchive } from './src/game/detective';
 import { HelferErgebnis } from './src/game/helfer';
@@ -36,6 +37,7 @@ import { QuizScreen } from './src/screens/QuizScreen';
 import { DetectiveScreen } from './src/screens/DetectiveScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
 import { RolleScreen } from './src/screens/RolleScreen';
+import { WacheScreen } from './src/screens/WacheScreen';
 import { NotrufScreen } from './src/screens/NotrufScreen';
 import { PackScreen } from './src/screens/PackScreen';
 import { ZuerstScreen } from './src/screens/ZuerstScreen';
@@ -61,6 +63,7 @@ type Screen =
   | { name: 'rolle' }
   | { name: 'helfer'; fall: HelferFall; daily: boolean; key: number }
   | { name: 'garage' }
+  | { name: 'wache' }
   | { name: 'case'; medCase: MedCase; daily: boolean; key: number }
   | {
       name: 'result';
@@ -95,6 +98,7 @@ const TAB_OF: Partial<Record<Screen['name'], TabId>> = {
   home: 'home',
   training: 'training',
   garage: 'garage',
+  wache: 'garage',
   lexikon: 'lexikon',
   guide: 'guide',
 };
@@ -103,6 +107,7 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   home: 'home',
   training: 'home',
   garage: 'garage',
+  wache: 'wache',
   manv: 'manv',
   detektiv: 'detektiv',
   schritte: 'schritte',
@@ -353,6 +358,12 @@ export default function App() {
     commit(bought);
   };
 
+  /** Rettungswache: Bereich ausbauen (kostet Budget) */
+  const baue = (id: WacheId) => {
+    const next = wacheKaufen(progress, id);
+    if (next !== progress) commit(next);
+  };
+
   const finishCpr = (r: CprResult) => {
     commit({
       ...progress,
@@ -417,7 +428,7 @@ export default function App() {
       <SafeAreaProvider>
         <View style={styles.paper}>
           <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
-            <StatusBar style="dark" />
+            <StatusBar style="light" />
             <RolleScreen onWahl={waehleRolle} />
           </SafeAreaView>
         </View>
@@ -430,7 +441,7 @@ export default function App() {
       <RolleContext.Provider value={aktiv}>
       <View style={styles.paper}>
         <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
-          <StatusBar style="dark" />
+          <StatusBar style="light" />
           {desktopShell && (
             <View nativeID="titlebar" style={[styles.titlebar, desktopShell === 'mac' ? styles.titlebarMac : styles.titlebarWin]}>
               <StarOfLife size={14} />
@@ -451,6 +462,7 @@ export default function App() {
                         onDifficulty={setDifficulty}
                         onTraining={openTraining}
                         onGarage={() => setScreen({ name: 'garage' })}
+                        onWache={() => setScreen({ name: 'wache' })}
                         onStory={storyAktion}
                         onStoryDone={storyDone}
                       />
@@ -501,6 +513,7 @@ export default function App() {
                     {screen.name === 'wissen' && (
                       <KnowledgeScreen key={screen.key} best={progress.knowBest} onFinish={finishKnowledge} onBack={back} />
                     )}
+                    {screen.name === 'wache' && <WacheScreen progress={progress} onBuild={baue} />}
                     {screen.name === 'garage' && <GarageScreen progress={progress} onUpgrade={upgrade} />}
                     {screen.name === 'manv' && (
                       <ManvScreen key={screen.key} best={progress.manvBest} onFinish={finishManv} onBack={back} />
@@ -571,7 +584,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.navy,
   },
   titlebarMac: { height: 30, justifyContent: 'center' },
   titlebarWin: { height: 32, paddingLeft: 12 },

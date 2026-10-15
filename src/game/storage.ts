@@ -87,6 +87,8 @@ export interface Progress {
   zuerstBest: number;
   /** Gut gepackt: richtig gepackte Listen (IDs) */
   packGeschafft: string[];
+  /** Ausbaustufen der Rettungswache (Sanitäter/in) */
+  wache: Record<string, number>;
 }
 
 export const EMPTY_PROGRESS: Progress = {
@@ -122,6 +124,7 @@ export const EMPTY_PROGRESS: Progress = {
   notrufGeschafft: [],
   zuerstBest: 0,
   packGeschafft: [],
+  wache: {},
 };
 
 export async function loadProgress(rolle: Rolle): Promise<Progress> {

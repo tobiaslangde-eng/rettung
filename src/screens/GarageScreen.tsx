@@ -335,7 +335,7 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
 const styles = StyleSheet.create({
   hall: {
     marginHorizontal: spacing.lg,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 28,
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
   },
   floorLine: {
     height: 14,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.navy,
     marginTop: spacing.sm,
     alignSelf: 'stretch',
     marginHorizontal: -spacing.lg,
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   rtwYear: { fontFamily: fonts.mono, fontSize: 12, color: colors.muted, marginTop: 2 },
   body: { padding: spacing.lg, gap: spacing.md },
   summary: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 22,
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 20,
@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
   },
   rowArrow: { fontFamily: fonts.displayBlack, fontSize: 24, color: colors.ink },
   pips: { flexDirection: 'row', gap: 3 },
-  pip: { width: 14, height: 8, borderRadius: 4, backgroundColor: colors.white, borderWidth: 1.5, borderColor: colors.line },
+  pip: { width: 14, height: 8, borderRadius: 4, backgroundColor: colors.paper, borderWidth: 1.5, borderColor: colors.line },
   pipOn: { backgroundColor: colors.mintDark, borderColor: colors.mintDark },
   backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(20,23,58,0.55)' },
   sheet: {
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     overflow: 'hidden',
   },
-  showroom: { backgroundColor: colors.ink, paddingHorizontal: spacing.lg, paddingBottom: spacing.lg, overflow: 'hidden' },
+  showroom: { backgroundColor: colors.navy, paddingHorizontal: spacing.lg, paddingBottom: spacing.lg, overflow: 'hidden' },
   spot: {
     position: 'absolute',
     top: 10,
@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     alignItems: 'center',
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
   facts: { gap: 4 },
   fact: { fontFamily: fonts.semibold, fontSize: 14, color: colors.ink },
   effectBox: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 18,
     borderWidth: 1,
     borderColor: colors.line,
@@ -505,7 +505,7 @@ const styles = StyleSheet.create({
   },
   wissenLabel: { fontFamily: fonts.display, fontSize: 13, color: colors.blueDark },
   next: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 18,
     borderWidth: 1,
     borderColor: colors.line,

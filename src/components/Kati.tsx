@@ -33,8 +33,8 @@ export function KatiAvatar({ size = 44 }: { size?: number }) {
             strokeLinejoin="round"
           />
           {/* Gesicht */}
-          <Circle cx={18.6} cy={22.6} r={1.2} fill={colors.ink} />
-          <Circle cx={25.4} cy={22.6} r={1.2} fill={colors.ink} />
+          <Circle cx={18.6} cy={22.6} r={1.2} fill={colors.navy} />
+          <Circle cx={25.4} cy={22.6} r={1.2} fill={colors.navy} />
           <Path d="M19 26.2 Q22 28.4 25 26.2" fill="none" stroke={colors.ink} strokeWidth={1.5} strokeLinecap="round" />
           <Circle cx={16.2} cy={25.4} r={1.5} fill="#FF9DA8" opacity={0.8} />
           <Circle cx={27.8} cy={25.4} r={1.5} fill="#FF9DA8" opacity={0.8} />
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     padding: spacing.sm,
     paddingRight: spacing.md,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderStyle: 'dashed',

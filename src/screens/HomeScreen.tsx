@@ -9,6 +9,7 @@ import { badgesFuerRolle } from '../game/achievements';
 import { DAILY_GOAL, dayState } from '../game/daily';
 import { DIFFICULTIES, DIFFICULTY_BY_ID, Difficulty } from '../game/difficulty';
 import { MAX_LEVEL, ausruestung, euro, levelOf, totalLevel, upgradeBlock } from '../game/equipment';
+import { WACHE_GESAMT_MAX, wacheGesamt } from '../game/wache';
 import { useRolle } from '../game/rolle';
 import { rankFor, rankList } from '../game/scoring';
 import { KAPITEL, KAPITEL_BONUS, StoryAktion, aktuellesKapitel, freiAb, istFrei } from '../game/story';
@@ -28,6 +29,7 @@ export function HomeScreen({
   onDifficulty,
   onTraining,
   onGarage,
+  onWache,
   onStory,
   onStoryDone,
 }: {
@@ -37,6 +39,7 @@ export function HomeScreen({
   onDifficulty: (d: Difficulty) => void;
   onTraining: (t: TrainingId) => void;
   onGarage: () => void;
+  onWache: () => void;
   /** Knopf im Kapitel: öffnet den passenden Bereich */
   onStory: (a: StoryAktion) => void;
   /** Kapitel abschließen und Belohnung holen */
@@ -193,6 +196,23 @@ export function HomeScreen({
   const total = totalLevel(progress);
   const maxTotal = ausruestung().length * MAX_LEVEL;
   const upgradable = ausruestung().some((e) => upgradeBlock(progress, e.id) === null);
+  const wacheStufen = wacheGesamt(progress);
+  const wacheRow = helfer ? null : (
+    <Tap onPress={garageFrei ? onWache : undefined} disabled={!garageFrei} accessibilityLabel="Meine Rettungswache" style={[styles.list, styles.listRow]}>
+      <Text style={[styles.listIcon, !garageFrei && { opacity: 0.4 }]}>🏥</Text>
+      <View style={{ flex: 1, gap: 4 }}>
+        <Text style={[type.headline, !garageFrei && { color: colors.muted }]}>Meine Rettungswache</Text>
+        {garageFrei ? (
+          <>
+            <Text style={type.small}>Ausbau {wacheStufen} von {WACHE_GESAMT_MAX}</Text>
+            <Bar pct={wacheStufen / WACHE_GESAMT_MAX} color={colors.tuerkis} />
+          </>
+        ) : (
+          <Text style={type.small}>Wird in Kapitel {freiAb(r.id, 'garage')} freigeschaltet</Text>
+        )}
+      </View>
+    </Tap>
+  );
   const vehicle = (
     <Tap
       onPress={garageFrei ? onGarage : undefined}
@@ -247,6 +267,7 @@ export function HomeScreen({
           <Col>
             {training}
             {vehicle}
+            {wacheRow}
             {profile}
           </Col>
         </View>
@@ -257,6 +278,7 @@ export function HomeScreen({
           {today}
           {training}
           {vehicle}
+          {wacheRow}
           {profile}
         </>
       )}
@@ -296,7 +318,7 @@ const styles = StyleSheet.create({
   headerStats: { flexDirection: 'row', gap: spacing.sm },
   mini: {
     alignItems: 'flex-end',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 10,
@@ -312,7 +334,7 @@ const styles = StyleSheet.create({
   actionTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   todayRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
   streak: { fontFamily: fonts.bold, fontSize: 18, color: colors.ink },
-  list: { backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderRadius: 14, overflow: 'hidden' },
+  list: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderRadius: 14, overflow: 'hidden' },
   listRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
   listDivider: { borderTopWidth: 1, borderTopColor: colors.line },
   listIconBox: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },

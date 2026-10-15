@@ -8,7 +8,7 @@ function Wheel({ x, level }: { x: number; level: number }) {
   const rim = level >= 4 ? '#DDE6FF' : level >= 3 ? '#CFD6EC' : '#B9B3CB';
   return (
     <G>
-      <Circle cx={x} cy={165} r={25} fill={colors.ink} />
+      <Circle cx={x} cy={165} r={25} fill={colors.navy} />
       <Circle cx={x} cy={165} r={14} fill={rim} stroke={colors.ink} strokeWidth={2.5} />
       {level >= 3 &&
         [0, 72, 144, 216, 288].map((a) => (
@@ -22,7 +22,7 @@ function Wheel({ x, level }: { x: number; level: number }) {
             strokeWidth={level >= 4 ? 3 : 2}
           />
         ))}
-      <Circle cx={x} cy={165} r={4} fill={colors.ink} />
+      <Circle cx={x} cy={165} r={4} fill={colors.navy} />
     </G>
   );
 }

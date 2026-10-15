@@ -203,7 +203,7 @@ export function ManvScreen({
             const chosen = given === t;
             const isAnswer = !!given && truth.cat === t;
             const light = t === 'gelb' || t === 'gruen';
-            const fg = light ? colors.ink : colors.white;
+            const fg = light ? colors.onBright : colors.white;
             return (
               <Tap
                 key={t}
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   },
   alarmTag: {
     alignSelf: 'flex-start',
-    backgroundColor: colors.ink,
+    backgroundColor: colors.navy,
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 4,

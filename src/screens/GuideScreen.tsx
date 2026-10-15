@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
     fontSize: 14,
     color: colors.ink,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
   },
   row: {
     flexDirection: 'row',

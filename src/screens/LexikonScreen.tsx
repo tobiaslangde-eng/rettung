@@ -172,7 +172,7 @@ function SaniLexikon({ progress }: { progress: Progress }) {
 }
 
 const styles = StyleSheet.create({
-  lexCard: { backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderRadius: 14, padding: spacing.lg },
+  lexCard: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderRadius: 14, padding: spacing.lg },
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl + 8 },
   contentWide: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', padding: spacing.xl },
   tabs: { paddingHorizontal: spacing.lg, paddingTop: spacing.xs, paddingBottom: spacing.md },

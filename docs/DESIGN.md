@@ -1,35 +1,31 @@
-# Design „Klar“
+# Design „Leitstelle“
 
-Einsatz 112 sieht schlicht und klar strukturiert aus: Inhalte stehen im Vordergrund, Farbe wird sparsam und nur mit
-Bedeutung eingesetzt.
+Dunkel, technisch, professionell – angelehnt an moderne Leitstellen, Patientenmonitore und Rettungsdienst-Simulationen.
 
-## Grundregeln
+## Farben (`src/theme.ts`)
+| Rolle | Wert |
+|---|---|
+| Hintergrund (Marineblau) | `#0B1727` |
+| Karten (Anthrazit-Marine) | `#13233A`, zweite Ebene `#1A2E4A` |
+| Linien | `#243C5A` |
+| Text | `#EAF0F8`, Zweittext `#8FA2BA` |
+| Akzent Rot (Sanitäter, Alarm, Warnung) | `#E5383B` |
+| Akzent Türkis (Ersthelfer, Ausbau, Technik) | `#2DD4BF` |
+| Richtig / Fortschritt | Grün `#4ADE9A` |
+| Belohnung | Gelb `#F7C948` |
 
-- **Ruhiger Hintergrund** (`#F4F5F7`), darauf **weiße Flächen mit feiner Linie** (`#E3E6EB`), Rundung 14 px, keine Schatten
-- **Eine Schrift:** Inter (Regular, Medium, SemiBold, Bold, ExtraBold), auf die benötigten Zeichen verkleinert (`assets/fonts/`)
-- **Eine Akzentfarbe je Rolle** (`src/game/rolle.ts`): Ersthelfer/in Grün `#12805C`, Sanitäter/in Rot `#D92D20` –
-  für Hauptknöpfe, aktive Tabs, Fortschrittsbalken und Hervorhebungen
-- **Farbe mit Bedeutung:** Grün = richtig, Rot = falsch oder Alarm, Bernstein = Belohnung
-- **Der Patientenmonitor bleibt dunkel** – wie im echten Rettungswagen
-- Große Tippflächen (Knöpfe mindestens 50 px hoch); beim Drücken wird eine Fläche kurz blasser
+Text auf hellen Flächen (Türkis, Gelb, Pastell) ist immer dunkel (`colors.onBright`). `onColor(bg)` wählt automatisch.
 
-## Aufbau
+## Schrift
+Bricolage Grotesque für Überschriften und Zahlen, Inter zum Lesen. Kleine Etiketten in Großbuchstaben mit Abstand.
 
-- **Startseite** von oben nach unten: Geschichte (aktuelles Kapitel mit Aufgabe) → Hauptaktion (Notfall / Einsatz) →
-  Heute (Tagesziel) → Training → eigenes Fahrzeug → Rang
-- **Leiste unten** (Handy, iPad hoch): Start, Training, Auto bzw. Fahrzeug, Lexikon, Mehr
-- **Seitenleiste** (iPad quer, PC, Mac) mit denselben Bereichen
-- Noch nicht freigeschaltete Bereiche zeigen ein Schloss und das Kapitel, in dem sie dazukommen
+## Bausteine
+Karten mit 1 px Linie, keine Schatten, abgerundete Ecken. Patientenmonitor, Pager und Tafeln bleiben tiefschwarz (`colors.navy`). Eigene Illustrationen als SVG: Rettungswagen, Auto, Szenen bei Notfällen (`Scene`), Rettungswache bei Nacht (`WacheBild`).
 
-## Bausteine (`src/components/`)
+## Bereiche
+- **Einsatz:** Alarm → Untersuchung → Diagnose → Maßnahmen, mit Zwischenfällen, die auf Entscheidungen reagieren.
+- **Fahrzeug:** RTW (oder Auto) in vier Stufen je Gerät.
+- **Rettungswache:** fünf Bereiche in drei Stufen; Wirkung im Einsatz.
+- **Karriere:** Dienstgrade, Abzeichen, Geschichte in Kapiteln.
 
-| Baustein | Datei | Beschreibung |
-|---|---|---|
-| `Card`, `Button`, `Tap` | `UI.tsx` | Fläche, Knopf in der Rollenfarbe, antippbare Fläche |
-| `TopBar`, `Segmented`, `Bar`, `Pill` | `UI.tsx` | Kopfzeile, Segment-Schalter, schmaler Balken, Etikett |
-| `TabBar`, `SideNav` | `TabBar.tsx`, `SideNav.tsx` | Navigation |
-| `Car`, `Ambulance` | `Car.tsx`, `Ambulance.tsx` | eigenes Auto (Ersthelfer) und Rettungswagen (Sanitäter) |
-
-## Frühere Fassungen
-
-Im Git-Verlauf: Rettungsdienst-Design (erste Fassung), Apple-Design (`da86d27`) und Design „Warnweste“ (`d20c78b`).
+Die frühere helle Variante „Klar“ ist unter `/vorschau/klar/` als Vergleich erreichbar.

@@ -24,7 +24,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   const akten = archiveCount(p);
   const detektiv: TrainingInfo = {
     id: 'detektiv',
-    farbe: '#E8E6FB',
+    farbe: '#1F2750',
     icon: '🔍',
     title: 'Detektiv-Akten',
     sub: rolle === 'helfer' ? 'Woran erkennst du, was los ist? Je weniger Hinweise, desto mehr Punkte.' : 'Der Diagnose-Krimi – je weniger Hinweise, desto mehr Punkte.',
@@ -32,7 +32,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const schritte: TrainingInfo = {
     id: 'schritte',
-    farbe: '#EEE8FB',
+    farbe: '#2A2150',
     icon: '🧩',
     title: 'Schritt für Schritt',
     sub: rolle === 'helfer' ? 'Notruf, Seitenlage, Unfallstelle: die richtige Reihenfolge.' : 'ABCDE, SAMPLER, Übergabe: Abläufe, die sitzen müssen.',
@@ -40,7 +40,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const cpr: TrainingInfo = {
     id: 'cpr',
-    farbe: '#FDE8E6',
+    farbe: '#3A1A25',
     icon: '❤️',
     title: 'Herzdruckmassage',
     sub: 'Im richtigen Takt drücken – 100 bis 120 Mal pro Minute.',
@@ -48,7 +48,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const wissen: TrainingInfo = {
     id: 'wissen',
-    farbe: '#FFF3D0',
+    farbe: '#3A3218',
     icon: '💡',
     title: 'Wissensfragen',
     sub: rolle === 'helfer' ? 'Erste Hilfe im Alltag, mit Erklärung nach jeder Antwort.' : 'Notruf, ABCDE, Krankheitsbilder – mit Erklärung.',
@@ -56,7 +56,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const quiz: TrainingInfo = {
     id: 'quiz',
-    farbe: '#E1ECFD',
+    farbe: '#14305A',
     icon: '📈',
     title: 'Normwerte',
     sub: 'Ist der Messwert niedrig, normal oder hoch?',
@@ -64,7 +64,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const manv: TrainingInfo = {
     id: 'manv',
-    farbe: '#FDEBDD',
+    farbe: '#3A261A',
     icon: '🚨',
     title: 'Großeinsatz',
     sub: 'Viele Verletzte: richtig sichten in Rot, Gelb, Grün, Schwarz.',
@@ -72,7 +72,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const notruf: TrainingInfo = {
     id: 'notruf',
-    farbe: '#DDF0FB',
+    farbe: '#0F3048',
     icon: '📞',
     title: 'Notruf üben',
     sub: 'Die Leitstelle fragt – du antwortest ruhig und klar.',
@@ -80,7 +80,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const zuerst: TrainingInfo = {
     id: 'zuerst',
-    farbe: '#FFE9D6',
+    farbe: '#3A261A',
     icon: '⚡',
     title: 'Was zuerst?',
     sub: 'Schnelle Entscheidungen: Was tust du als Erstes?',
@@ -88,7 +88,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const pack: TrainingInfo = {
     id: 'pack',
-    farbe: '#DDF5E8',
+    farbe: '#0F3A2E',
     icon: '🧰',
     title: 'Gut gepackt',
     sub: 'Was gehört in Verbandkasten, Rucksack und Hausapotheke?',

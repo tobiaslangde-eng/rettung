@@ -14,6 +14,7 @@ export type NavTarget =
   | 'home'
   | 'start'
   | 'garage'
+  | 'wache'
   | 'detektiv'
   | 'schritte'
   | 'notruf'
@@ -42,6 +43,7 @@ export function SideNav({
   const items: { id: NavTarget; icon: string; label: string; group?: string; bereich?: Bereich }[] = [
     { id: 'home', icon: '🏠', label: 'Start' },
     { id: 'garage', icon: r.id === 'helfer' ? '🚗' : '🚑', label: r.fahrzeug, bereich: 'garage' },
+    ...(r.id === 'sani' ? [{ id: 'wache' as NavTarget, icon: '🏥', label: 'Meine Wache' }] : []),
     ...trainingsFuer(r.id, progress).map((t, i) => ({
       id: t.id as NavTarget,
       icon: t.icon,
@@ -120,7 +122,7 @@ export function SideNav({
 }
 
 const styles = StyleSheet.create({
-  root: { width: SIDEBAR_WIDTH, backgroundColor: colors.white, borderRightWidth: 1, borderRightColor: colors.line },
+  root: { width: SIDEBAR_WIDTH, backgroundColor: colors.surface, borderRightWidth: 1, borderRightColor: colors.line },
   content: { padding: spacing.lg, gap: spacing.lg },
   brand: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingTop: spacing.xs },
   brandTitle: { fontFamily: fonts.bold, fontSize: 18, color: colors.ink },

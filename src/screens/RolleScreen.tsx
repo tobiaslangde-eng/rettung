@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     gap: spacing.lg,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 16,

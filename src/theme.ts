@@ -1,4 +1,4 @@
-// Design „Klar“ – schlicht und klar strukturiert
+// Design „Leitstelle“ – dunkel, technisch, professionell (Marineblau, Anthrazit, Weiß, Rot und Türkis als Akzente)
 //
 // - Ruhiger, hellgrauer Hintergrund, weiße Flächen mit feiner Linie, keine Schatten
 // - Eine Akzentfarbe je Rolle: Sanitäter/in Rot, Ersthelfer/in Grün (siehe src/game/rolle.ts)
@@ -6,63 +6,71 @@
 // - Zwei Schriften: Bricolage Grotesque für Überschriften, Inter zum Lesen
 // Die alten Farbnamen bleiben als Alias bestehen und zeigen auf die ruhigen Werte.
 export const colors = {
-  // Basis
-  ink: '#1A1D24', // Text
-  inkSoft: '#343944',
-  monitorBg: '#151922', // Patientenmonitor bleibt dunkel wie im echten Rettungswagen
-  paper: '#F4F5F7', // Hintergrund
-  paperLine: '#ECEEF2',
-  paperLineStrong: '#E1E4EA',
+  // Basis (dunkel: Marineblau / Anthrazit)
+  ink: '#EAF0F8', // Haupttext (hell auf dunkel)
+  inkSoft: '#C3CEDD',
+  onBright: '#08121F', // Text auf hellen Flächen (Türkis, Gelb, Weiß)
+  navy: '#050D18', // tiefste Fläche (Monitor, Tafeln)
+  monitorBg: '#050D18',
+  paper: '#0B1727', // Hintergrund (Marine)
+  paperLine: '#13253D',
+  paperLineStrong: '#1C3252',
+  surface: '#13233A', // Karten (Anthrazit-Marine)
+  surface2: '#1A2E4A', // zweite Ebene
   white: '#FFFFFF',
-  muted: '#667085', // Zweittext
-  line: '#E3E6EB', // Linien, Rahmen, leere Balken
+  muted: '#8FA2BA', // Zweittext
+  line: '#243C5A', // Linien, Rahmen, leere Balken
 
   // Signalfarben
-  red: '#D92D20',
-  redDark: '#B42318',
-  redTint: '#FDECEA',
-  blue: '#2563EB',
-  blueDark: '#1D4ED8',
-  blueTint: '#E8EFFE',
-  yellow: '#FBD860', // Belohnung, Auswahl
-  yellowTint: '#FEF6DA',
-  mint: '#A6E9C3', // richtig (Fläche)
-  mintDark: '#127A47', // richtig (Text, Linie)
-  mintTint: '#E7F8EE',
+  red: '#E5383B',
+  redDark: '#FF7A7D',
+  redTint: '#3A1A25',
+  blue: '#3B82F6',
+  blueDark: '#7FB0FF',
+  blueTint: '#14305A',
+  yellow: '#F7C948', // Belohnung, Auswahl
+  yellowTint: '#3A3218',
+  mint: '#14664A', // richtig (Fläche)
+  mintDark: '#4ADE9A', // richtig (Text, Linie)
+  mintTint: '#0F3A2E',
 
-  // Bereichsfarben (zurückhaltend)
-  lilac: '#EEEFFC',
-  violet: '#4F46E5',
-  pinkTint: '#FCEBF3',
-  pinkStrong: '#D6337A',
-  peach: '#FDEEE2',
-  orange: '#E46A12',
-  sky: '#E6F3FB',
-  skyStrong: '#1F8FC9',
-  butter: '#FBF7EC',
+  // Bereichsfarben
+  lilac: '#1F2750',
+  violet: '#8B8CFF',
+  pinkTint: '#3B1B30',
+  pinkStrong: '#FF6FAE',
+  peach: '#3A261A',
+  orange: '#FF8A3D',
+  sky: '#0F3048',
+  skyStrong: '#2DD4E8',
+  butter: '#222A33',
+
+  // Akzent Türkis
+  tuerkis: '#2DD4BF',
+  tuerkisDark: '#5EEAD4',
+  tuerkisTint: '#0E3A3C',
 
   // Alte Namen (Alias)
-  graphit: '#1A1D24',
-  graphitSoft: '#343944',
-  nacht: '#151922',
+  graphit: '#EAF0F8',
+  graphitSoft: '#C3CEDD',
+  nacht: '#050D18',
   weiss: '#FFFFFF',
-  grau50: '#F4F5F7',
-  grau200: '#E3E6EB',
-  grau300: '#C5CAD3',
-  grau500: '#667085',
-  signalrot: '#D92D20',
-  leuchtorange: '#E46A12',
-  warngelb: '#FBD860',
-  blaulicht: '#2563EB',
-  blaulichtDark: '#1D4ED8',
-  blaulichtLight: '#E8EFFE',
-  gruen: '#127A47',
-  amber: '#E46A12',
+  grau50: '#0B1727',
+  grau200: '#C3CEDD',
+  grau300: '#8FA2BA',
+  grau500: '#8FA2BA',
+  signalrot: '#E5383B',
+  leuchtorange: '#FF8A3D',
+  warngelb: '#F7C948',
+  blaulicht: '#3B82F6',
+  blaulichtDark: '#7FB0FF',
+  blaulichtLight: '#14305A',
+  gruen: '#4ADE9A',
+  amber: '#FF8A3D',
   monitorGruen: '#2BE38B',
-  indigo: '#4F46E5',
-  lila: '#8B7CF6',
-  pink: '#D6337A',
-  tuerkis: '#1F8FC9',
+  indigo: '#8B8CFF',
+  lila: '#A99BFF',
+  pink: '#FF6FAE',
 };
 
 /** Farben wie auf einem Patientenmonitor (auf dunklem Grund) */
@@ -106,7 +114,7 @@ export const shadow = {};
 
 /** Weiße Fläche mit feiner Linie */
 export const stickerFlat = {
-  backgroundColor: colors.white,
+  backgroundColor: colors.surface,
   borderWidth: 1,
   borderColor: colors.line,
   borderRadius: radius.md,
@@ -141,6 +149,6 @@ export function onColor(bg: string): string {
     return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
   };
   const L = 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
-  // Gleicher Kontrast zu Tinte und Weiß bei L ≈ 0,20
-  return L > 0.2 ? colors.ink : colors.white;
+  // Gleicher Kontrast zu dunkler Tinte und Weiß bei L ≈ 0,20
+  return L > 0.2 ? colors.onBright : colors.white;
 }

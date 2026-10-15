@@ -164,7 +164,7 @@ function Bubble({ von, text, gut, akzent }: { von: 'leitstelle' | 'du' | 'tipp';
                 backgroundColor: gut === false ? colors.redTint : akzent ? `${akzent}1F` : colors.paper,
                 borderBottomRightRadius: 4,
               }
-            : { backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderBottomLeftRadius: 4 },
+            : { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderBottomLeftRadius: 4 },
         ]}
       >
         <Text style={styles.bubbleWho}>{du ? 'Du' : 'Leitstelle'}</Text>

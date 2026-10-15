@@ -158,12 +158,17 @@ Die Oberfläche passt sich an die Bildschirmgröße an:
 | **iPad quer** | **iPad hoch** |
 | ![iPad quer](docs/geraete/ipad-quer.png) | ![iPad hoch](docs/geraete/ipad-hoch.png) |
 
-## Design „Klar“
+## Design „Leitstelle“
 
-Schlicht und klar strukturiert: ruhiger hellgrauer Hintergrund, weiße Flächen mit feiner Linie, keine Schatten, eine Schrift
-(*Inter*). Jede Rolle hat eine **Akzentfarbe** – Grün für Ersthelfer/innen, Rot für Sanitäter/innen. Farben haben nur dort
-eine Bedeutung, wo sie gebraucht werden (Grün = richtig, Rot = falsch/Alarm). Die Startseite ist von oben nach unten
-gegliedert: Geschichte, Hauptaktion, Heute, Training, Fahrzeug, Rang. Details: [`docs/DESIGN.md`](docs/DESIGN.md).
+Dunkel, technisch und professionell – wie eine moderne Leitstelle: Marineblau und Anthrazit als Grundton, Weiß für Text, **Rot**
+(Sanitäter/in, Alarm) und **Türkis** (Ersthelfer/in, Ausbau) als Akzente. Überschriften in *Bricolage Grotesque*, Lesetext in *Inter*.
+Der Patientenmonitor, die Fahrzeuge, die Notfall-Szenen und die **Rettungswache bei Nacht** sind eigene Illustrationen.
+Die Startseite ist von oben nach unten gegliedert: Geschichte, Hauptaktion, Heute, Training, Fahrzeug, Wache, Rang.
+Details: [`docs/DESIGN.md`](docs/DESIGN.md). Die helle Variante „Klar“ gibt es als Vergleich unter `/vorschau/klar/`.
+
+**Meine Rettungswache (Sanitäter/in):** Mit dem Budget aus Einsätzen und Trainings baue ich fünf Bereiche aus – Fahrzeughalle,
+Funkraum, Materiallager, Ruheraum und Schulungsraum, je drei Stufen. Das Bild der Wache wächst mit, und jeder Bereich wirkt im Einsatz
+(z. B. besserer Startzustand, langsamer sinkender Zustand, mehr Punkte).
 
 ## Spielen und herunterladen
 

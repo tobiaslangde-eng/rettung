@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
     alignSelf: 'stretch',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderTopWidth: 1,
     borderTopColor: colors.line,
     paddingTop: 6,

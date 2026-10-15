@@ -1,6 +1,7 @@
 import { aktiveRolle } from './rolle';
 import { rankFor, rankList } from './scoring';
 import { Progress } from './storage';
+import { wacheEffekte } from './wache';
 
 /**
  * Ausrüstung in vier Stufen – je höher, desto neuer und moderner.
@@ -292,12 +293,13 @@ export function equipmentEffects(p: Progress): EquipmentEffects {
     const steps = AUTO_AUSRUESTUNG.reduce((n, e) => n + l(e.id), 0);
     return { startBonus: 0, measureFactor: 1, drainFactor: 1, endBonus: 0, pointsPct: 2 * steps };
   }
+  const w = wacheEffekte(p);
   return {
-    startBonus: 2 * l('rtw'),
-    measureFactor: 1 - 0.15 * l('monitor'),
-    drainFactor: 1 - 0.15 * l('funk'),
-    endBonus: 2 * (l('trage') + l('beatmung')),
-    pointsPct: 3 * (l('rucksack') + l('psa')),
+    startBonus: 2 * l('rtw') + w.startBonus,
+    measureFactor: 1 - 0.15 * l('monitor') - w.measure,
+    drainFactor: 1 - 0.15 * l('funk') - w.drain,
+    endBonus: 2 * (l('trage') + l('beatmung')) + w.endBonus,
+    pointsPct: 3 * (l('rucksack') + l('psa')) + w.pointsPct,
   };
 }
 

@@ -160,7 +160,7 @@ export function DetectiveScreen({
         <ScrollView contentContainerStyle={[styles.content, L.wide && styles.contentWide]}>
           <View style={styles.hero}>
             <View style={styles.heroTop}>
-              <IconTile icon="🔍" color={colors.white} size={62} />
+              <IconTile icon="🔍" color={colors.surface2} size={62} />
               <Text style={[styles.heroTitle, { flex: 1 }]}>Der Diagnose-Krimi</Text>
             </View>
             <Text style={styles.heroSub}>
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   contentWide: { padding: spacing.xl },
   hero: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 16,
@@ -561,7 +561,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 20,
@@ -571,7 +571,7 @@ const styles = StyleSheet.create({
   gradeTitle: { fontFamily: fonts.displayBlack, fontSize: 21, lineHeight: 23, color: colors.ink, letterSpacing: -0.6 },
   total: { color: colors.ink, fontFamily: fonts.displayBlack, fontSize: 64, lineHeight: 70, letterSpacing: -2.5 },
   money: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 999,
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 18,
@@ -631,7 +631,7 @@ const styles = StyleSheet.create({
     gap: 2,
     ...hardShadow(2),
   },
-  folderLocked: { backgroundColor: colors.white, borderStyle: 'dashed', borderColor: colors.grau300, boxShadow: 'none' },
+  folderLocked: { backgroundColor: colors.paper, borderStyle: 'dashed', borderColor: colors.grau300, boxShadow: 'none' },
   folderGold: { backgroundColor: colors.yellow },
   folderIcon: { fontSize: 24, lineHeight: 30, fontFamily: fonts.regular },
   folderText: {
@@ -644,13 +644,13 @@ const styles = StyleSheet.create({
   },
   folderCount: { fontFamily: fonts.mono, fontSize: 10, color: colors.muted },
   progress: { flexDirection: 'row', gap: 6, paddingHorizontal: spacing.lg, paddingBottom: spacing.sm },
-  progressDot: { flex: 1, height: 12, borderRadius: 6, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line },
+  progressDot: { flex: 1, height: 12, borderRadius: 6, backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.line },
   meter: {
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
     gap: spacing.sm,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 22,
@@ -660,7 +660,7 @@ const styles = StyleSheet.create({
   meterValue: { fontFamily: fonts.displayBlack, fontSize: 34, lineHeight: 36, color: colors.violet, letterSpacing: -1.2 },
   meterUnit: { fontFamily: fonts.mono, fontSize: 13, color: colors.muted, letterSpacing: 0.4 },
   dossier: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 22,
@@ -681,7 +681,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 2,
   },
-  dossierTabText: { fontFamily: fonts.mono, fontSize: 10.5, letterSpacing: 1, color: colors.ink, textTransform: 'uppercase' },
+  dossierTabText: { fontFamily: fonts.mono, fontSize: 10.5, letterSpacing: 1, color: colors.onBright, textTransform: 'uppercase' },
   dossierLabel: { fontFamily: fonts.mono, fontSize: 12, color: colors.inkSoft },
   dossierText: { fontFamily: fonts.semibold, fontSize: 19, lineHeight: 25, color: colors.ink },
   dossierPlace: { fontFamily: fonts.mono, fontSize: 12, color: colors.inkSoft },
@@ -708,7 +708,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   clueClosed: { backgroundColor: colors.paper, borderStyle: 'dashed', borderColor: colors.grau300 },
-  clueOpen: { backgroundColor: colors.white },
+  clueOpen: { backgroundColor: colors.surface2, borderColor: colors.violet },
   clueUnused: { opacity: 0.5 },
   clueHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   clueIcon: { fontSize: 18, fontFamily: fonts.regular },

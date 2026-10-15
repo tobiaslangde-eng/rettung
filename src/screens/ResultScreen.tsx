@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   promoText: { fontFamily: fonts.mono, fontSize: 11, color: colors.ink, letterSpacing: 0.6, textTransform: 'uppercase' },
   promoRank: { fontFamily: fonts.displayBlack, fontSize: 21, lineHeight: 24, color: colors.ink, letterSpacing: -0.5 },
   badgeBox: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 24,
     padding: spacing.lg,
     gap: spacing.sm,
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   hero: {
     alignItems: 'center',
     overflow: 'hidden',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 28,
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   points: { color: colors.ink, fontSize: 56, lineHeight: 62, fontFamily: fonts.displayBlack, letterSpacing: -2 },
   pointsMax: { fontSize: 16, color: colors.muted, fontFamily: fonts.mono, letterSpacing: 0.5 },
   diffPill: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 999,

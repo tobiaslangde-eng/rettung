@@ -10,7 +10,7 @@ import { DifficultyDef, HINT_COST } from '../game/difficulty';
 import { EquipmentEffects } from '../game/equipment';
 import { CONDITION, CaseRun, MINUTES_PER_MEASUREMENT, clampCondition, shuffle } from '../game/scoring';
 import { Columns, useLayout } from '../layout';
-import { colors, fonts, hardShadow, monitor, spacing, type } from '../theme';
+import { colors, fonts, hardShadow, monitor, spacing, type, onColor } from '../theme';
 
 type Phase = 'alarm' | 'drive' | 'exam' | 'diagnosis' | 'treatment';
 
@@ -57,7 +57,7 @@ function patientEmoji(age: number, sex: 'm' | 'w') {
 function Label({ text, color }: { text: string; color: string }) {
   return (
     <View style={[styles.label, { backgroundColor: color }]}>
-      <Text style={styles.labelText}>{text}</Text>
+      <Text style={[styles.labelText, { color: onColor(color) }]}>{text}</Text>
     </View>
   );
 }
@@ -621,13 +621,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
     borderStyle: 'dashed',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepDotDone: { backgroundColor: colors.ink, borderStyle: 'solid' },
+  stepDotDone: { backgroundColor: colors.navy, borderStyle: 'solid' },
   stepDotNow: { backgroundColor: colors.yellow, borderStyle: 'solid', ...hardShadow(2) },
-  stepNum: { fontFamily: fonts.displayBlack, fontSize: 13, color: colors.ink },
+  stepNum: { fontFamily: fonts.displayBlack, fontSize: 13, color: colors.onBright },
   stepText: { fontFamily: fonts.mono, fontSize: 10, color: colors.muted, letterSpacing: 0.3 },
 
   condition: {
@@ -637,7 +637,7 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.lg,
     marginBottom: spacing.xs,
     padding: spacing.sm,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 18,
@@ -667,7 +667,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 2,
   },
-  labelText: { fontFamily: fonts.mono, fontSize: 10.5, letterSpacing: 1, textTransform: 'uppercase', color: colors.ink },
+  labelText: { fontFamily: fonts.mono, fontSize: 10.5, letterSpacing: 1, textTransform: 'uppercase', color: colors.onBright },
   sceneText: { marginTop: spacing.sm, fontFamily: fonts.italic },
   bullet: { marginTop: spacing.sm - 2 },
   patientCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
@@ -704,7 +704,7 @@ const styles = StyleSheet.create({
   tile: {
     width: '47%',
     flexGrow: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     padding: spacing.md,
     borderWidth: 1,
     borderColor: colors.line,
@@ -713,7 +713,7 @@ const styles = StyleSheet.create({
   },
   tileWide: { width: '100%' },
   tileDone: { transform: [{ translateY: 3 }], backgroundColor: colors.paper },
-  tilePending: { backgroundColor: colors.yellow, transform: [{ translateY: 3 }] },
+  tilePending: { backgroundColor: colors.yellowTint, borderColor: colors.yellow, transform: [{ translateY: 3 }] },
   tileRight: { backgroundColor: colors.mintTint },
   tileWrong: { backgroundColor: colors.redTint },
   tileDot: { width: 14, height: 14, borderRadius: 7, borderWidth: 1, borderColor: colors.line },
@@ -744,7 +744,7 @@ const styles = StyleSheet.create({
   incidentEyebrow: { fontFamily: fonts.displayBlack, fontSize: 28, lineHeight: 30, color: colors.white, letterSpacing: -0.8 },
   incidentText: { fontFamily: fonts.semibold, fontSize: 16, lineHeight: 22, color: colors.white, marginBottom: spacing.xs },
   incidentOption: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     padding: spacing.md,
     borderWidth: 1,
@@ -752,7 +752,7 @@ const styles = StyleSheet.create({
   },
   incidentChosen: { backgroundColor: colors.ink },
   incidentRight: { backgroundColor: colors.mint },
-  incidentWrong: { backgroundColor: colors.ink, borderColor: colors.yellow },
+  incidentWrong: { backgroundColor: colors.navy, borderColor: colors.yellow },
   incidentOptionText: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 20, color: colors.ink },
   incidentFeedback: { fontFamily: fonts.semibold, fontSize: 14, lineHeight: 20, color: colors.white, marginTop: spacing.xs },
 
@@ -800,7 +800,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     padding: spacing.md,
     borderWidth: 1,
     borderColor: colors.line,
@@ -821,14 +821,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  letterText: { fontFamily: fonts.displayBlack, fontSize: 16, color: colors.ink },
+  letterText: { fontFamily: fonts.displayBlack, fontSize: 16, color: colors.onBright },
 
   // Maßnahmen
   check: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     padding: spacing.md,
     borderWidth: 1,
     borderColor: colors.line,
@@ -841,7 +841,7 @@ const styles = StyleSheet.create({
     borderRadius: 9,
     borderWidth: 1,
     borderColor: colors.line,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },

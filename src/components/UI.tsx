@@ -93,9 +93,9 @@ export function Button({
 }) {
   const r = useRolle();
   const look: Record<BtnVariant, { bg: string; fg: string; border?: string }> = {
-    primary: { bg: r.akzent, fg: colors.white },
-    dark: { bg: colors.ink, fg: colors.white },
-    outline: { bg: colors.white, fg: colors.ink, border: colors.line },
+    primary: { bg: r.akzent, fg: onColor(r.akzent) },
+    dark: { bg: colors.surface2, fg: colors.ink },
+    outline: { bg: colors.surface, fg: colors.ink, border: colors.line },
     alarm: { bg: colors.red, fg: colors.white },
     tinted: { bg: r.akzentTint, fg: r.akzentDunkel },
     mint: { bg: colors.mintTint, fg: colors.mintDark },
@@ -164,10 +164,11 @@ export function TopBar({
 }
 
 /** Kleine Wert-Anzeige oben rechts (Punkte, Minuten, richtige Antworten) */
-export function StatChip({ value, label, color = colors.white }: { value: string | number; label: string; color?: string }) {
+export function StatChip({ value, label, color = colors.surface2 }: { value: string | number; label: string; color?: string }) {
+  const bright = onColor(color) === colors.onBright;
   return (
     <View style={[styles.statChip, { backgroundColor: color }]}>
-      <Text style={styles.statValue}>{value}</Text>
+      <Text style={[styles.statValue, bright && { color: colors.onBright }]}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
     </View>
   );
@@ -218,7 +219,7 @@ export function Segmented<T extends string>({
 
 /** Kleines Etikett (z. B. „Neu“, „+50 %“); `light` = weißer Grund mit Rahmen */
 export function Pill({ label, color = colors.redTint, light }: { label: string; color?: string; light?: boolean }) {
-  const bg = light ? colors.white : color;
+  const bg = light ? colors.surface2 : color;
   const fg = onColor(bg);
   return (
     <View style={[styles.pill, { backgroundColor: bg }, light && { borderWidth: 1, borderColor: colors.line }]}>
@@ -339,7 +340,7 @@ export function ListRow({
 const styles = StyleSheet.create({
   sectionTitle: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: spacing.sm },
   card: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.line,
@@ -357,7 +358,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     alignItems: 'center',
@@ -371,7 +372,7 @@ const styles = StyleSheet.create({
   iconTile: { alignItems: 'center', justifyContent: 'center' },
   seg: { flexDirection: 'row', gap: 2, backgroundColor: colors.line, borderRadius: 10, padding: 2 },
   segItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 6, borderRadius: 8 },
-  segActive: { backgroundColor: colors.white },
+  segActive: { backgroundColor: colors.surface2 },
   segLabel: { fontFamily: fonts.medium, fontSize: 14, color: colors.muted },
   pill: { alignSelf: 'flex-start', borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 3 },
   pillText: { fontFamily: fonts.semibold, fontSize: 12, lineHeight: 15 },
@@ -381,7 +382,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: radius.md,

@@ -46,7 +46,7 @@ export function Car({ level = 1, width = 160 }: { level?: number; width?: number
       </G>
       {[52, 134].map((x) => (
         <G key={x}>
-          <Circle cx={x} cy={66} r={13} fill={colors.ink} />
+          <Circle cx={x} cy={66} r={13} fill={colors.navy} />
           <Circle cx={x} cy={66} r={6} fill={l === 4 ? '#E5E7EB' : '#9CA3AF'} />
         </G>
       ))}

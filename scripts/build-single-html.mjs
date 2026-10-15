@@ -37,7 +37,7 @@ const html = `<title>Einsatz 112</title>
   html, body { height: 100%; }
   /* Schnelles Tippen (z. B. Herzdruckmassage) soll nicht zoomen. */
   html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
-  body { overflow: hidden; background: #F4F5F7; }
+  body { overflow: hidden; background: #0B1727; }
   #root { display: flex; height: 100%; flex: 1; }
   /* Desktop-App: eigene Titelleiste zum Verschieben des Fensters */
   #titlebar { -webkit-app-region: drag; user-select: none; }
@@ -45,7 +45,7 @@ const html = `<title>Einsatz 112</title>
   @media (hover: hover) and (pointer: fine) {
     [role="button"], [role="radio"] { cursor: pointer; }
     ::-webkit-scrollbar { width: 10px; height: 10px; }
-    ::-webkit-scrollbar-thumb { background: rgba(95, 102, 112, 0.45); border-radius: 5px; border: 2px solid transparent; background-clip: content-box; }
+    ::-webkit-scrollbar-thumb { background: rgba(143, 162, 186, 0.45); border-radius: 5px; border: 2px solid transparent; background-clip: content-box; }
     ::-webkit-scrollbar-track { background: transparent; }
   }
 </style>

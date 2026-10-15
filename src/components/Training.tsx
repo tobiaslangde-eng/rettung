@@ -111,7 +111,7 @@ export function AnswerOption({
   onPress: () => void;
   disabled?: boolean;
 }) {
-  const bg = { idle: colors.white, selected: colors.blue, right: colors.mint, wrong: colors.red, dim: colors.white }[state];
+  const bg = { idle: colors.surface, selected: colors.blue, right: colors.mint, wrong: colors.red, dim: colors.surface }[state];
   const fg = state === 'selected' || state === 'wrong' ? colors.white : colors.ink;
   const pressedIn = state !== 'idle' && state !== 'dim';
   return (
@@ -165,10 +165,10 @@ export function RateRow({ given, answer, onPick }: { given: Rating | null; answe
               given !== null && (chosen || isAnswer) && { transform: [{ translateY: 3 }] },
             ]}
           >
-            <Text style={[styles.rateSymbol, wrongChoice && { color: colors.white }]}>
+            <Text style={[styles.rateSymbol, wrongChoice && { color: colors.white }, isAnswer && { color: colors.ink }]}>
               {isAnswer ? '✓' : wrongChoice ? '✗' : r.symbol}
             </Text>
-            <Text style={[styles.rateLabel, wrongChoice && { color: colors.white }]}>{r.label}</Text>
+            <Text style={[styles.rateLabel, wrongChoice && { color: colors.white }, isAnswer && { color: colors.ink }]}>{r.label}</Text>
           </Tap>
         );
       })}
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   hero: {
     alignItems: 'center',
     overflow: 'hidden',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 16,
@@ -239,10 +239,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  letterText: { fontFamily: fonts.displayBlack, fontSize: 16, color: colors.ink },
+  letterText: { fontFamily: fonts.displayBlack, fontSize: 16, color: colors.onBright },
   answerText: { flex: 1, fontFamily: fonts.display, fontSize: 16, lineHeight: 21, letterSpacing: -0.3 },
   mark: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.ink },
   rate: { flex: 1, paddingVertical: spacing.lg, alignItems: 'center', borderRadius: 18, borderWidth: 1, borderColor: colors.line },
-  rateSymbol: { color: colors.ink, fontSize: 26, lineHeight: 30, fontFamily: fonts.displayBlack },
-  rateLabel: { color: colors.ink, fontSize: 14, fontFamily: fonts.display },
+  rateSymbol: { color: colors.onBright, fontSize: 26, lineHeight: 30, fontFamily: fonts.displayBlack },
+  rateLabel: { color: colors.onBright, fontSize: 14, fontFamily: fonts.display },
 });
