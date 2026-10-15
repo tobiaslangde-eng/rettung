@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { euro } from '../game/equipment';
 import { useRolle } from '../game/rolle';
 import { rankFor, rankList } from '../game/scoring';
@@ -14,6 +14,7 @@ export type NavTarget =
   | 'home'
   | 'start'
   | 'garage'
+  | 'welt'
   | 'wache'
   | 'hilfspunkt'
   | 'detektiv'
@@ -47,6 +48,7 @@ export function SideNav({
   const pct = next ? (progress.totalPoints - rank.min) / (next.min - rank.min) : 1;
   const items: { id: NavTarget; icon: string; label: string; group?: string; bereich?: Bereich }[] = [
     { id: 'home', icon: '🏠', label: 'Start' },
+    ...(Platform.OS === 'web' ? [{ id: 'welt' as NavTarget, icon: '🌍', label: '3D-Welt' }] : []),
     { id: 'garage', icon: r.id === 'helfer' ? '🚗' : '🚑', label: r.fahrzeug, bereich: 'garage' },
     r.id === 'sani' ? { id: 'wache' as NavTarget, icon: '🏥', label: 'Meine Wache' } : { id: 'hilfspunkt' as NavTarget, icon: '💚', label: 'Mein Hilfspunkt' },
     ...trainingsFuer(r.id, progress).map((t, i) => ({
