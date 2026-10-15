@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Ambulance } from '../components/Ambulance';
+import { AutoDeviceArt, hatAutoArt } from '../components/AutoDevices';
 import { Car } from '../components/Car';
 import { DeviceArt, Sparkles } from '../components/Devices';
 import { FirstPersonInterior } from '../components/FirstPersonInterior';
@@ -46,8 +47,8 @@ function Pips({ level, dark }: { level: number; dark?: boolean }) {
 function Art({ id, level, size, blink }: { id: EquipmentId; level: number; size: number; blink?: boolean }) {
   if (id === 'rtw') return <Ambulance level={level} width={size * 1.6} blink={blink} />;
   if (id === 'auto') return <Car level={level} width={size * 1.6} />;
-  if (!EQUIPMENT_BY_ID[id] || ['verbandkasten', 'warn', 'waerme', 'licht', 'defi', 'kurs'].includes(id))
-    return <Text style={{ fontSize: size * 0.7, lineHeight: size * 0.9, fontFamily: fonts.regular }}>{EQUIPMENT_BY_ID[id].icon}</Text>;
+  if (hatAutoArt(id)) return <AutoDeviceArt id={id} level={level} size={size * 1.15} />;
+  if (!EQUIPMENT_BY_ID[id]) return null;
   return <DeviceArt id={id} level={level} size={size} />;
 }
 
@@ -164,7 +165,9 @@ function Steckbrief({
                   </View>
                 </View>
                 {block?.reason === 'rank' ? (
-                  <Text style={styles.locked}>🔒 Freigeschaltet ab Dienstgrad „{block.rank}“</Text>
+                  <Text style={styles.locked}>
+                    🔒 Ab Dienstgrad „{block.rank}“ – noch {block.missing.toLocaleString('de-DE')} Punkte. Den Rang bekommst du nur durch Punkte, nicht durch Kaufen.
+                  </Text>
                 ) : (
                   <Button
                     label={`Aufrüsten · ${euro(kostenFuer(progress, id))}${angebotHeute(progress) === id ? ` (−${Math.round(RABATT * 100)} % heute)` : ''}`}

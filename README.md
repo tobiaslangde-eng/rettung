@@ -165,6 +165,8 @@ Der Patientenmonitor, die Fahrzeuge, die Notfall-Szenen und die **Rettungswache 
 Die Startseite ist von oben nach unten gegliedert: Geschichte, Hauptaktion, Heute, Training, Fahrzeug, Wache, Rang.
 Details: [`docs/DESIGN.md`](docs/DESIGN.md). Die helle Variante „Klar“ gibt es als Vergleich unter `/vorschau/klar/`.
 
+**Mein Hilfspunkt (Ersthelfer/in):** Das Gegenstück zur Wache – ein Vereinsheim als Erste-Hilfe-Stützpunkt mit Hausapotheke, Erste-Hilfe-Raum, Defi-Station, Helfer-Netzwerk und Kursraum (je drei Stufen). Jeder Bereich wirkt in Notfällen und Trainings. Auch die Auto-Ausrüstung hat für jede Stufe eine eigene Grafik.
+
 **Meine Rettungswache (Sanitäter/in):** Mit dem Budget aus Einsätzen und Trainings baue ich fünf Bereiche aus – Fahrzeughalle,
 Funkraum, Materiallager, Ruheraum und Schulungsraum, je drei Stufen. Das Bild der Wache wächst mit, und jeder Bereich wirkt im Einsatz
 (z. B. besserer Startzustand, langsamer sinkender Zustand, mehr Punkte).

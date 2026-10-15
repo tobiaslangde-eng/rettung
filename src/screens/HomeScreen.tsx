@@ -9,6 +9,7 @@ import { badgesFuerRolle } from '../game/achievements';
 import { DAILY_GOAL, dayState } from '../game/daily';
 import { DIFFICULTIES, DIFFICULTY_BY_ID, Difficulty } from '../game/difficulty';
 import { MAX_LEVEL, ausruestung, euro, levelOf, totalLevel, upgradeBlock } from '../game/equipment';
+import { HILF_GESAMT_MAX, hilfGesamt } from '../game/hilfspunkt';
 import { WACHE_GESAMT_MAX, wacheGesamt } from '../game/wache';
 import { useRolle } from '../game/rolle';
 import { rankFor, rankList } from '../game/scoring';
@@ -197,7 +198,24 @@ export function HomeScreen({
   const maxTotal = ausruestung().length * MAX_LEVEL;
   const upgradable = ausruestung().some((e) => upgradeBlock(progress, e.id) === null);
   const wacheStufen = wacheGesamt(progress);
-  const wacheRow = helfer ? null : (
+  const hilfStufen = hilfGesamt(progress);
+  const wacheRow = (
+    helfer ? (
+    <Tap onPress={garageFrei ? onWache : undefined} disabled={!garageFrei} accessibilityLabel="Mein Hilfspunkt" style={[styles.list, styles.listRow]}>
+      <Text style={[styles.listIcon, !garageFrei && { opacity: 0.4 }]}>💚</Text>
+      <View style={{ flex: 1, gap: 4 }}>
+        <Text style={[type.headline, !garageFrei && { color: colors.muted }]}>Mein Hilfspunkt</Text>
+        {garageFrei ? (
+          <>
+            <Text style={type.small}>Ausbau {hilfStufen} von {HILF_GESAMT_MAX}</Text>
+            <Bar pct={hilfStufen / HILF_GESAMT_MAX} color={colors.tuerkis} />
+          </>
+        ) : (
+          <Text style={type.small}>Wird in Kapitel {freiAb(r.id, 'garage')} freigeschaltet</Text>
+        )}
+      </View>
+    </Tap>
+    ) : (
     <Tap onPress={garageFrei ? onWache : undefined} disabled={!garageFrei} accessibilityLabel="Meine Rettungswache" style={[styles.list, styles.listRow]}>
       <Text style={[styles.listIcon, !garageFrei && { opacity: 0.4 }]}>🏥</Text>
       <View style={{ flex: 1, gap: 4 }}>
@@ -212,6 +230,7 @@ export function HomeScreen({
         )}
       </View>
     </Tap>
+    )
   );
   const vehicle = (
     <Tap

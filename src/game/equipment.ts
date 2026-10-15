@@ -2,6 +2,7 @@ import { aktiveRolle } from './rolle';
 import { rankFor, rankList } from './scoring';
 import { Progress } from './storage';
 import { AUTO_IDS, AutoId, HELFER_TEXT, RABATT, helferEffekte, tagesangebot, heuteKey } from './helferAusruestung';
+import { hilfEffekte } from './hilfspunkt';
 import { wacheEffekte } from './wache';
 
 /**
@@ -263,6 +264,8 @@ export const EQUIPMENT_BY_ID = Object.fromEntries([...RTW_AUSRUESTUNG, ...AUTO_A
 
 /** Ab welchem Dienstgrad (Index in RANKS) eine Stufe freigeschaltet wird */
 export const TIER_MIN_RANK: [0, number, number, number] = [0, 0, 2, 4];
+/** Für Ersthelfer/innen früher: Stufe 3 ab „Ersthelfer/in“ (200 Punkte), Stufe 4 ab „Routinierte Hilfe“ (1.200 Punkte) */
+export const TIER_MIN_RANK_HELFER: [0, number, number, number] = [0, 0, 1, 3];
 
 export function levelOf(p: Progress, id: EquipmentId): number {
   return Math.min(MAX_LEVEL, Math.max(1, p.equipment[id] ?? 1));
@@ -302,7 +305,18 @@ export function equipmentEffects(p: Progress): EquipmentEffects {
 }
 
 /** Wirkung meines Autos (Ersthelfer/in) – Stufen aus dem Spielstand */
-export const helferEffekteFuer = (p: Progress) => helferEffekte((id: AutoId) => levelOf(p, id as EquipmentId));
+export const helferEffekteFuer = (p: Progress) => {
+  const e = helferEffekte((id: AutoId) => levelOf(p, id as EquipmentId));
+  const h = hilfEffekte(p);
+  return {
+    ...e,
+    pointsPct: e.pointsPct + h.pointsPct,
+    falschWeniger: e.falschWeniger + h.falschWeniger,
+    richtigPlus: e.richtigPlus + h.richtigPlus,
+    herzPct: e.herzPct + h.herzPct,
+    trainingPct: e.trainingPct + h.trainingPct,
+  };
+};
 
 /** Tagesangebot (nur Ersthelfer/in): welche Ausrüstung heute 25 % günstiger ist */
 export function angebotHeute(p: Progress): EquipmentId | null {
@@ -318,16 +332,16 @@ export function kostenFuer(p: Progress, id: EquipmentId): number {
   return angebotHeute(p) === id ? Math.round(basis * (1 - RABATT)) : basis;
 }
 
-export type UpgradeBlock = { reason: 'max' } | { reason: 'rank'; rank: string } | { reason: 'budget'; missing: number };
+export type UpgradeBlock = { reason: 'max' } | { reason: 'rank'; rank: string; missing: number } | { reason: 'budget'; missing: number };
 
 /** Prüft, ob die nächste Stufe gekauft werden kann; null = ja. */
 export function upgradeBlock(p: Progress, id: EquipmentId): UpgradeBlock | null {
   const level = levelOf(p, id);
   if (level >= MAX_LEVEL) return { reason: 'max' };
   const next = level + 1;
-  const minRank = TIER_MIN_RANK[next - 1];
+  const minRank = (aktiveRolle() === 'helfer' ? TIER_MIN_RANK_HELFER : TIER_MIN_RANK)[next - 1];
   const rankIndex = rankList().indexOf(rankFor(p.totalPoints).rank);
-  if (rankIndex < minRank) return { reason: 'rank', rank: rankList()[minRank].de };
+  if (rankIndex < minRank) return { reason: 'rank', rank: rankList()[minRank].de, missing: rankList()[minRank].min - p.totalPoints };
   const cost = kostenFuer(p, id);
   if (p.budget < cost) return { reason: 'budget', missing: cost - p.budget };
   return null;

@@ -93,6 +93,8 @@ export interface Progress {
   pruefungBest: number;
   /** Ausbaustufen der Rettungswache (Sanitäter/in) */
   wache: Record<string, number>;
+  /** Ausbaustufen des Hilfspunkts (Ersthelfer/in) */
+  hilfspunkt: Record<string, number>;
 }
 
 export const EMPTY_PROGRESS: Progress = {
@@ -133,6 +135,7 @@ export const EMPTY_PROGRESS: Progress = {
   mythenBest: 0,
   pruefungBest: 0,
   wache: {},
+  hilfspunkt: {},
 };
 
 export async function loadProgress(rolle: Rolle): Promise<Progress> {

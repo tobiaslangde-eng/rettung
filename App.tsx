@@ -12,6 +12,7 @@ import { Badge, awardBadges } from './src/game/achievements';
 import { CprResult } from './src/game/cpr';
 import { DAILY_CASE_BONUS, dailyCase, dailyHelferFall, registerDailyCase } from './src/game/daily';
 import { DIFFICULTY_BY_ID, Difficulty } from './src/game/difficulty';
+import { HilfId, hilfKaufen } from './src/game/hilfspunkt';
 import { WacheId, wacheKaufen } from './src/game/wache';
 import { PRUEFUNG_BESTANDEN, handgriffePunkte, makeHandgriffe, makePruefung, makeZuerstFragen, pruefungPunkte, zuerstPunkte } from './src/game/helferTraining';
 import { EquipmentId, helferEffekteFuer, ausruestung, buyUpgrade, equipmentEffects, levelOf, upgradeBlock } from './src/game/equipment';
@@ -39,6 +40,7 @@ import { DetectiveScreen } from './src/screens/DetectiveScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
 import { RolleScreen } from './src/screens/RolleScreen';
 import { DevScreen } from './src/screens/DevScreen';
+import { HilfspunktScreen } from './src/screens/HilfspunktScreen';
 import { WacheScreen } from './src/screens/WacheScreen';
 import { NotrufScreen } from './src/screens/NotrufScreen';
 import { PackScreen } from './src/screens/PackScreen';
@@ -71,6 +73,7 @@ type Screen =
   | { name: 'helfer'; fall: HelferFall; daily: boolean; key: number }
   | { name: 'garage' }
   | { name: 'wache' }
+  | { name: 'hilfspunkt' }
   | { name: 'dev' }
   | { name: 'case'; medCase: MedCase; daily: boolean; key: number }
   | {
@@ -112,6 +115,7 @@ const TAB_OF: Partial<Record<Screen['name'], TabId>> = {
   training: 'training',
   garage: 'garage',
   wache: 'garage',
+  hilfspunkt: 'garage',
   lexikon: 'lexikon',
   guide: 'guide',
   dev: 'guide',
@@ -122,6 +126,7 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   training: 'home',
   garage: 'garage',
   wache: 'wache',
+  hilfspunkt: 'hilfspunkt',
   manv: 'manv',
   detektiv: 'detektiv',
   schritte: 'schritte',
@@ -389,6 +394,12 @@ export default function App() {
     if (next !== progress) commit(next);
   };
 
+  /** Hilfspunkt: Bereich ausbauen (kostet Budget) */
+  const baueHilf = (id: HilfId) => {
+    const next = hilfKaufen(progress, id);
+    if (next !== progress) commit(next);
+  };
+
   const finishCpr = (r: CprResult) => {
     commit({
       ...progress,
@@ -487,7 +498,7 @@ export default function App() {
                         onDifficulty={setDifficulty}
                         onTraining={openTraining}
                         onGarage={() => setScreen({ name: 'garage' })}
-                        onWache={() => setScreen({ name: 'wache' })}
+                        onWache={() => setScreen(aktiv === 'helfer' ? { name: 'hilfspunkt' } : { name: 'wache' })}
                         onStory={storyAktion}
                         onStoryDone={storyDone}
                       />
@@ -603,6 +614,7 @@ export default function App() {
                       <KnowledgeScreen key={screen.key} best={progress.knowBest} onFinish={finishKnowledge} onBack={back} />
                     )}
                     {screen.name === 'dev' && <DevScreen progress={progress} onChange={importProgress} onBack={() => setScreen({ name: 'guide' })} />}
+                    {screen.name === 'hilfspunkt' && <HilfspunktScreen progress={progress} onBuild={baueHilf} />}
                     {screen.name === 'wache' && <WacheScreen progress={progress} onBuild={baue} />}
                     {screen.name === 'garage' && <GarageScreen progress={progress} onUpgrade={upgrade} />}
                     {screen.name === 'manv' && (

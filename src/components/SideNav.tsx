@@ -15,6 +15,7 @@ export type NavTarget =
   | 'start'
   | 'garage'
   | 'wache'
+  | 'hilfspunkt'
   | 'detektiv'
   | 'schritte'
   | 'notruf'
@@ -47,7 +48,7 @@ export function SideNav({
   const items: { id: NavTarget; icon: string; label: string; group?: string; bereich?: Bereich }[] = [
     { id: 'home', icon: '🏠', label: 'Start' },
     { id: 'garage', icon: r.id === 'helfer' ? '🚗' : '🚑', label: r.fahrzeug, bereich: 'garage' },
-    ...(r.id === 'sani' ? [{ id: 'wache' as NavTarget, icon: '🏥', label: 'Meine Wache' }] : []),
+    r.id === 'sani' ? { id: 'wache' as NavTarget, icon: '🏥', label: 'Meine Wache' } : { id: 'hilfspunkt' as NavTarget, icon: '💚', label: 'Mein Hilfspunkt' },
     ...trainingsFuer(r.id, progress).map((t, i) => ({
       id: t.id as NavTarget,
       icon: t.icon,

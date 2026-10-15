@@ -1,5 +1,9 @@
 import { ReactNode, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Ambulance } from '../components/Ambulance';
+import { AutoDeviceArt, hatAutoArt } from '../components/AutoDevices';
+import { Car } from '../components/Car';
+import { DeviceArt } from '../components/Devices';
 import { Button, Tap, TopBar } from '../components/UI';
 import { AED_SZENARIEN } from '../data/aed';
 import { aktenListe } from '../game/detective';
@@ -8,17 +12,18 @@ import { HELFER_FAELLE } from '../data/helfer';
 import { NOTRUF_SZENARIEN } from '../data/notruf';
 import { PACKLISTEN } from '../data/packlisten';
 import { badgesFuerRolle } from '../game/achievements';
-import { EQUIPMENT_BY_ID, MAX_LEVEL, ausruestung, euro, levelOf } from '../game/equipment';
+import { EQUIPMENT_BY_ID, EquipmentId, MAX_LEVEL, ausruestung, euro, levelOf } from '../game/equipment';
 import { useRolle } from '../game/rolle';
 import { rankFor, rankList } from '../game/scoring';
 import { ablaeufeFuer } from '../game/schritte';
 import { Progress } from '../game/storage';
 import { KAPITEL } from '../game/story';
+import { HILFPUNKT, HILF_MAX, hilfLevel } from '../game/hilfspunkt';
 import { WACHE, WACHE_MAX, wacheLevel } from '../game/wache';
 import { useLayout } from '../layout';
 import { colors, fonts, spacing, type } from '../theme';
 
-type Tab = 'werte' | 'frei' | 'raenge' | 'technik' | 'abzeichen' | 'wache';
+type Tab = 'werte' | 'frei' | 'raenge' | 'technik' | 'grafik' | 'abzeichen' | 'wache' | 'hilf';
 
 const nf = (n: number) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
@@ -48,8 +53,9 @@ export function DevScreen({
     { id: 'frei', label: 'Freischalten' },
     { id: 'raenge', label: 'Ränge' },
     { id: 'technik', label: helfer ? 'Auto' : 'Fahrzeug' },
+    { id: 'grafik', label: 'Grafiken' },
     { id: 'abzeichen', label: 'Abzeichen' },
-    ...(helfer ? [] : [{ id: 'wache' as Tab, label: 'Wache' }]),
+    helfer ? { id: 'hilf' as Tab, label: 'Hilfspunkt' } : { id: 'wache' as Tab, label: 'Wache' },
   ];
 
   const alleErledigt = () => {
@@ -248,6 +254,37 @@ export function DevScreen({
           </>
         )}
 
+        {tab === 'grafik' && (
+          <>
+            <Block title="Alle Grafiken" info="Jede Ausrüstung in allen vier Stufen" />
+            {ausr.map((e) => (
+              <Block key={e.id} title={`${e.icon} ${e.title}`}>
+                <View style={styles.galerie}>
+                  {[1, 2, 3, 4].map((n) => (
+                    <View key={n} style={styles.galerieZelle}>
+                      <View style={styles.galerieBild}>
+                        {e.id === 'rtw' ? (
+                          <Ambulance level={n} width={96} />
+                        ) : e.id === 'auto' ? (
+                          <Car level={n} width={96} />
+                        ) : hatAutoArt(e.id) ? (
+                          <AutoDeviceArt id={e.id} level={n} size={84} />
+                        ) : (
+                          <DeviceArt id={e.id as Exclude<EquipmentId, 'rtw'>} level={n} size={84} />
+                        )}
+                      </View>
+                      <Text style={styles.tiny}>Stufe {n}</Text>
+                      <Text style={[styles.tiny, { color: colors.ink }]} numberOfLines={2}>
+                        {e.tiers[n - 1].name}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </Block>
+            ))}
+          </>
+        )}
+
         {tab === 'abzeichen' && (
           <>
             <Block
@@ -281,6 +318,30 @@ export function DevScreen({
                   </View>
                   <Text style={[styles.tiny, hat && { color: colors.mintDark }]}>{hat ? 'vergeben' : 'offen'}</Text>
                 </Tap>
+              );
+            })}
+          </>
+        )}
+
+        {tab === 'hilf' && (
+          <>
+            <Block title="Hilfspunkt" info="Ausbaustufen setzen">
+              <Row>
+                <Mini label="Alles voll ausbauen" onPress={() => set({ hilfspunkt: Object.fromEntries(HILFPUNKT.map((h) => [h.id, HILF_MAX])) })} />
+                <Mini label="Alles zurück" onPress={() => set({ hilfspunkt: {} })} />
+              </Row>
+            </Block>
+            {HILFPUNKT.map((h) => {
+              const l = hilfLevel(p, h.id);
+              return (
+                <Block key={h.id} title={`${h.icon} ${h.title}`} info={l === 0 ? 'Noch nicht gebaut' : `Stufe ${l}: ${h.stufen[l - 1]}`}>
+                  <Text style={type.small}>{h.wirkung}</Text>
+                  <Row>
+                    {[0, 1, 2, 3].map((n) => (
+                      <Mini key={n} label={n === 0 ? 'Aus' : `Stufe ${n}`} active={l === n} onPress={() => set({ hilfspunkt: { ...p.hilfspunkt, [h.id]: n } })} />
+                    ))}
+                  </Row>
+                </Block>
               );
             })}
           </>
@@ -351,6 +412,9 @@ function Mini({ label, onPress, active }: { label: string; onPress: () => void; 
 }
 
 const styles = StyleSheet.create({
+  galerie: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  galerieZelle: { width: '48%', gap: 2 },
+  galerieBild: { height: 96, alignItems: 'center', justifyContent: 'center', borderRadius: 10, backgroundColor: colors.surface2 },
   content: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
   wide: { padding: spacing.xl, maxWidth: 760, alignSelf: 'center', width: '100%' },
   tabScroll: { flexGrow: 0, maxHeight: 52 },
