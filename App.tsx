@@ -46,6 +46,11 @@ import { WacheScreen } from './src/screens/WacheScreen';
 import { NotrufScreen } from './src/screens/NotrufScreen';
 import { PackScreen } from './src/screens/PackScreen';
 import { FragenScreen } from './src/screens/FragenScreen';
+import { KarteScreen } from './src/screens/KarteScreen';
+import { KartenPin, BONUS_KUERZESTE, fuelleKarte } from './src/game/karte';
+import { UrkundenScreen } from './src/screens/UrkundenScreen';
+import { mitUrkundenDatum } from './src/game/urkunden';
+import { GefahrScreen } from './src/screens/GefahrScreen';
 import { MythenScreen } from './src/screens/MythenScreen';
 import { SchritteScreen } from './src/screens/SchritteScreen';
 import { TrainingScreen } from './src/screens/TrainingScreen';
@@ -68,6 +73,7 @@ type Screen =
   | { name: 'pack'; key: number }
   | { name: 'handgriffe'; key: number }
   | { name: 'mythen'; key: number }
+  | { name: 'gefahr'; key: number }
   | { name: 'aed'; key: number }
   | { name: 'pruefung'; key: number }
   | { name: 'rolle' }
@@ -75,6 +81,8 @@ type Screen =
   | { name: 'garage' }
   | { name: 'wache' }
   | { name: 'hilfspunkt' }
+  | { name: 'urkunden' }
+  | { name: 'karte' }
   | { name: 'dev' }
   | { name: 'case'; medCase: MedCase; daily: boolean; key: number }
   | {
@@ -104,6 +112,9 @@ const FRAME_MAX: Partial<Record<Screen['name'], number>> = {
   dev: 760,
   handgriffe: 760,
   mythen: 760,
+  gefahr: 760,
+  urkunden: 760,
+  karte: 760,
   aed: 760,
   pruefung: 760,
   helfer: 820,
@@ -117,6 +128,8 @@ const TAB_OF: Partial<Record<Screen['name'], TabId>> = {
   garage: 'garage',
   wache: 'garage',
   hilfspunkt: 'garage',
+  urkunden: 'home',
+  karte: 'home',
   lexikon: 'lexikon',
   guide: 'guide',
   dev: 'guide',
@@ -128,6 +141,8 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   garage: 'garage',
   wache: 'wache',
   hilfspunkt: 'hilfspunkt',
+  urkunden: 'urkunden',
+  karte: 'karte',
   manv: 'manv',
   detektiv: 'detektiv',
   schritte: 'schritte',
@@ -136,6 +151,7 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   pack: 'pack',
   handgriffe: 'handgriffe',
   mythen: 'mythen',
+  gefahr: 'gefahr',
   aed: 'aed',
   pruefung: 'pruefung',
   helfer: 'home',
@@ -170,6 +186,10 @@ export default function App() {
   /** Gewählte Rolle; null = Auswahl anzeigen, undefined = wird noch geladen */
   const [rolle, setRolle] = useState<Rolle | null | undefined>(undefined);
   const lastCaseId = useRef<string | undefined>(undefined);
+  // Stadtkarte: offene Einsätze, Rückkehr zur Karte nach dem Einsatz und Bonus für kurze Anfahrt
+  const [kartenPins, setKartenPins] = useState<KartenPin[]>([]);
+  const karteRueck = useRef(false);
+  const karteBonus = useRef(0);
   // Spiel-Logik (Ränge, Ausrüstung, Abzeichen) richtet sich nach der aktiven Rolle
   setAktiveRolle(rolle ?? 'sani');
   const aktiv: Rolle = rolle ?? 'sani';
@@ -204,6 +224,8 @@ export default function App() {
   };
 
   const startCase = (daily = false) => {
+    karteRueck.current = false;
+    karteBonus.current = 0;
     if (aktiv === 'helfer') {
       const fall = daily ? dailyHelferFall() : pickHelferFall(progress, lastCaseId.current);
       lastCaseId.current = fall.id;
@@ -220,7 +242,7 @@ export default function App() {
     const newBadges = awarded.newBadges;
     const earned = Math.max(0, awarded.progress.totalPoints - progress.totalPoints);
     const week = addWeekPoints(awarded.progress, earned);
-    const next = { ...week.progress, budget: week.progress.budget + earned };
+    const next = mitUrkundenDatum(aktiv, { ...week.progress, budget: week.progress.budget + earned });
     const before = rankFor(progress.totalPoints).rank;
     const after = rankFor(next.totalPoints).rank;
     setProgress(next);
@@ -249,6 +271,11 @@ export default function App() {
       result.lines.push({ label: 'Einsatz des Tages (+50 %)', points: extra });
       result.total += extra;
     }
+    if (karteBonus.current > 0) {
+      result.lines.push({ label: 'Kürzeste Anfahrt gewählt', points: karteBonus.current });
+      result.total += karteBonus.current;
+      karteBonus.current = 0;
+    }
     const day = registerDailyCase(progress, daily);
     if (day.goalBonus > 0) {
       result.lines.push({
@@ -270,6 +297,7 @@ export default function App() {
       },
       perfectRuns: progress.perfectRuns + (result.stars === 3 ? 1 : 0),
       hardWins: progress.hardWins + (run.difficulty === 'schwer' && result.stars >= 2 ? 1 : 0),
+      kartenEinsaetze: progress.kartenEinsaetze + (karteRueck.current ? 1 : 0),
     };
     const { newBadges, promotion, weekRecord } = commit(updated);
     setScreen({
@@ -293,7 +321,9 @@ export default function App() {
   /** Ersthelfer-Notfall abgeschlossen: Punkte, Sterne, Tagesziel */
   const finishHelfer = (e: HelferErgebnis, punkte: number, daily: boolean): HelferAbschluss => {
     const day = registerDailyCase(progress, daily);
-    const total = punkte + day.goalBonus;
+    const kb = karteBonus.current;
+    karteBonus.current = 0;
+    const total = punkte + kb + day.goalBonus;
     const { newBadges, promotion } = commit({
       ...day.progress,
       streak: e.sterne >= 2 ? progress.streak + 1 : 0,
@@ -302,6 +332,7 @@ export default function App() {
       correctDiagnoses: progress.correctDiagnoses + (e.erkannt ? 1 : 0),
       bestStars: { ...progress.bestStars, [e.fallId]: Math.max(progress.bestStars[e.fallId] ?? 0, e.sterne) },
       perfectRuns: progress.perfectRuns + (e.sterne === 3 ? 1 : 0),
+      kartenEinsaetze: progress.kartenEinsaetze + (karteRueck.current ? 1 : 0),
     });
     return { punkte: total, ausruestung: 0, goalBonus: day.goalBonus, newBadges, promotion };
   };
@@ -423,7 +454,35 @@ export default function App() {
     saveProgress(aktiv, p);
   };
 
-  const home = () => setScreen({ name: 'home' });
+  const home = () => {
+    if (karteRueck.current) {
+      karteRueck.current = false;
+      setKartenPins(fuelleKarte(aktiv, progress, kartenPins, lastCaseId.current));
+      return setScreen({ name: 'karte' });
+    }
+    setScreen({ name: 'home' });
+  };
+  const oeffneKarte = () => {
+    karteRueck.current = false;
+    if (kartenPins.length < 3) setKartenPins(fuelleKarte(aktiv, progress, kartenPins, lastCaseId.current));
+    setScreen({ name: 'karte' });
+  };
+  /** Einsatz von der Karte starten */
+  const fahreEinsatz = (pin: KartenPin, kuerzeste: boolean) => {
+    karteRueck.current = true;
+    karteBonus.current = kuerzeste ? BONUS_KUERZESTE : 0;
+    lastCaseId.current = pin.fallId;
+    setKartenPins(kartenPins.filter((q) => q.id !== pin.id));
+    if (aktiv === 'helfer') {
+      const fall = HELFER_FAELLE.find((f) => f.id === pin.fallId);
+      if (fall) return setScreen({ name: 'helfer', fall, daily: false, key: Date.now() });
+    } else {
+      const medCase = CASES.find((c) => c.id === pin.fallId);
+      if (medCase) return setScreen({ name: 'case', medCase, daily: false, key: Date.now() });
+    }
+    karteRueck.current = false;
+    setScreen({ name: 'karte' });
+  };
   /** Zurück zum Bereich, aus dem ein Training gestartet wurde (Startseite oder Training-Tab) */
   const lastTop = useRef<'home' | 'training'>('home');
   if (screen.name === 'home' || screen.name === 'training') lastTop.current = screen.name;
@@ -438,8 +497,9 @@ export default function App() {
   const openTraining = (t: TrainingId) => setScreen({ name: t, key: Date.now() } as Screen);
 
   const navigate = (t: NavTarget) => {
+    if (t === 'karte') return oeffneKarte();
     if (t === 'start') return startCase();
-    if (['quiz', 'wissen', 'cpr', 'manv', 'detektiv', 'schritte', 'notruf', 'zuerst', 'pack', 'handgriffe', 'mythen', 'aed', 'pruefung'].includes(t))
+    if (['quiz', 'wissen', 'cpr', 'manv', 'detektiv', 'schritte', 'notruf', 'zuerst', 'pack', 'handgriffe', 'mythen', 'aed', 'pruefung', 'gefahr'].includes(t))
       return setScreen({ name: t, key: Date.now() } as Screen);
     setScreen({ name: t } as Screen);
   };
@@ -528,6 +588,8 @@ export default function App() {
                         onWache={() => setScreen(aktiv === 'helfer' ? { name: 'hilfspunkt' } : { name: 'wache' })}
                         onStory={storyAktion}
                         onModus={() => setModusOffen(true)}
+                        onKarte={oeffneKarte}
+                        onUrkunden={() => setScreen({ name: 'urkunden' })}
                         onStoryDone={storyDone}
                       />
                     )}
@@ -594,6 +656,31 @@ export default function App() {
                         bestehen={PRUEFUNG_BESTANDEN}
                         punkte={pruefungPunkte}
                         onFinish={(richtig, punkte) => commit({ ...progress, totalPoints: progress.totalPoints + trainingPunkte(punkte), pruefungBest: Math.max(progress.pruefungBest, richtig) })}
+                        onBack={back}
+                      />
+                    )}
+                    {screen.name === 'karte' && (
+                      <KarteScreen pins={kartenPins} angefahren={progress.kartenEinsaetze} onFahre={fahreEinsatz} onBack={() => setScreen({ name: 'home' })} />
+                    )}
+                    {screen.name === 'urkunden' && (
+                      <UrkundenScreen
+                        progress={progress}
+                        onName={(spielerName) => importProgress({ ...progress, spielerName })}
+                        onDatum={() => importProgress(mitUrkundenDatum(aktiv, progress))}
+                        onBack={home}
+                      />
+                    )}
+                    {screen.name === 'gefahr' && (
+                      <GefahrScreen
+                        key={screen.key}
+                        geloest={progress.gefahrGeschafft}
+                        onFinish={(punkte, szenen) =>
+                          commit({
+                            ...progress,
+                            totalPoints: progress.totalPoints + trainingPunkte(punkte),
+                            gefahrGeschafft: [...new Set([...progress.gefahrGeschafft, ...szenen])],
+                          })
+                        }
                         onBack={back}
                       />
                     )}

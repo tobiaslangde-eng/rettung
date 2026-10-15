@@ -4,10 +4,10 @@ import { Rolle } from './rolle';
 import { Progress } from './storage';
 
 /** Was der Knopf eines Kapitels öffnet */
-export type StoryAktion = 'einsatz' | 'wissen' | 'schritte' | 'cpr' | 'garage' | 'detektiv' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack' | 'handgriffe' | 'mythen' | 'aed' | 'pruefung' | 'rolle';
+export type StoryAktion = 'einsatz' | 'wissen' | 'schritte' | 'cpr' | 'garage' | 'detektiv' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack' | 'handgriffe' | 'mythen' | 'aed' | 'pruefung' | 'gefahr' | 'rolle';
 
 /** Bereiche, die durch die Geschichte nach und nach freigeschaltet werden */
-export type Bereich = 'einsatz' | 'wissen' | 'schritte' | 'cpr' | 'garage' | 'detektiv' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack' | 'handgriffe' | 'mythen' | 'aed' | 'pruefung';
+export type Bereich = 'einsatz' | 'wissen' | 'schritte' | 'cpr' | 'garage' | 'detektiv' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack' | 'handgriffe' | 'mythen' | 'aed' | 'pruefung' | 'gefahr';
 
 export interface Kapitel {
   titel: string;
@@ -85,7 +85,7 @@ const HELFER: Kapitel[] = [
     ziel: 'Schaffe bei „Was zuerst?“ mindestens 7 von 10.',
     aktion: 'zuerst',
     stand: (p) => anteil(p.zuerstBest, 7),
-    frei: ['zuerst'],
+    frei: ['zuerst', 'gefahr'],
   },
   {
     titel: 'Ein Blick in den Kofferraum',
@@ -232,7 +232,7 @@ const SANI: Kapitel[] = [
     ziel: 'Schaffe die Herzdruckmassage mit mindestens 80 %.',
     aktion: 'cpr',
     stand: (p) => anteil(p.cprBest, 80),
-    frei: ['cpr'],
+    frei: ['cpr', 'gefahr'],
   },
   {
     titel: 'Handgriffe im Schlaf',

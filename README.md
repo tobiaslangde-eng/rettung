@@ -159,6 +159,12 @@ Die Oberfläche passt sich an die Bildschirmgröße an:
 | **iPad quer** | **iPad hoch** |
 | ![iPad quer](docs/geraete/ipad-quer.png) | ![iPad hoch](docs/geraete/ipad-hoch.png) |
 
+## Gefahren-Check, Stadtkarte und Urkunden
+
+- **Gefahren-Check** (Training, beide Rollen): Eine Einsatzstelle als Bild mit antippbaren Gegenständen. Alle echten Gefahren finden (Eigenschutz), harmlose Dinge nicht antippen. Nach jedem Tipp gibt es eine Erklärung; am Ende einen Merksatz. 10 Szenen für Ersthelfer/innen, 10 für den Rettungsdienst.
+- **Stadtkarte** (Startseite): Auf einer Karte erscheinen drei Einsätze mit Anfahrtszeit. Wer den Einsatz mit der kürzesten Anfahrt wählt, bekommt +10 Punkte. Das Fahrzeug fährt über die Straßen, danach startet der Einsatz; nach dem Einsatz geht es zurück zur Karte.
+- **Urkunden** (Startseite): Für Ränge und große Ziele gibt es Urkunden mit eigenem Namen (Ersthelfer: Kurs, Prüfung, Hilfspunkt, Herzdruck, Gefahren-Check, Karte; Sanitäter: Ausbildung, Detektiv, Großeinsatz, Wache u. a.). Als Bild speichern oder teilen. Auf jeder Urkunde steht, dass sie eine Spiel-Urkunde ist und keine Ausbildung ersetzt.
+
 ## Design „Puls“
 
 Hell, frisch und klinisch-sauber: ein **Bento-Raster** aus bunten Pastell-Kacheln auf Mintweiß, tiefes Petrolgrün als Tinte, **Teal** für Ersthelfer/innen und **Signalrot** für Sanitäter/innen. Medizinischer Touch durch EKG-Papier mit Herzschlag-Linie, Zahlen wie auf dem Patientenmonitor und Kreuz-Motive. Überschriften in *Bricolage Grotesque*, Lesetext in *Inter*. Details: [`docs/DESIGN.md`](docs/DESIGN.md). Frühere Varianten zum Vergleich: `/vorschau/leitstelle/` (dunkel) und `/vorschau/klar/` (hell, schlicht).

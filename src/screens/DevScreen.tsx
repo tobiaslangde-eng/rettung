@@ -1,3 +1,4 @@
+import { szenenFuer } from '../game/gefahren';
 import { ReactNode, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ambulance } from '../components/Ambulance';
@@ -70,6 +71,8 @@ export function DevScreen({
       knowBest: 10,
       cprBest: 100,
       ablaeufe: ablaeufeFuer(r.id).map((a) => a.id),
+      gefahrGeschafft: szenenFuer(r.id).map((x) => x.id),
+      kartenEinsaetze: Math.max(p.kartenEinsaetze, 10),
     };
     if (helfer) {
       Object.assign(base, {
@@ -103,6 +106,9 @@ export function DevScreen({
       notrufGeschafft: [],
       aedGeschafft: [],
       packGeschafft: [],
+      gefahrGeschafft: [],
+      kartenEinsaetze: 0,
+      urkundenDatum: {},
       bestStars: {},
       detectiveSolved: {},
       casesPlayed: 0,
