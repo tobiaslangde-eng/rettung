@@ -16,9 +16,9 @@ const index = readFileSync(join(exportDir, 'index.html'), 'utf8');
 const scriptSrc = index.match(/<script src="\/?([^"]+\.js)"/)?.[1];
 if (!scriptSrc) throw new Error('Kein Bundle-Script in index.html gefunden');
 
-// Nur die Schriftschnitte einbetten, die das Theme wirklich nutzt (z. B. 'Barlow_700Bold').
+// Nur die Schriftschnitte einbetten, die das Theme wirklich nutzt (z. B. '(?:Bricolage|Inter)_700Bold').
 const usedFonts = new Set(
-  [...readFileSync('src/theme.ts', 'utf8').matchAll(/'((?:BarlowCondensed|Barlow)_\w+)'/g)].map((m) => m[1]),
+  [...readFileSync('src/theme.ts', 'utf8').matchAll(/'((?:Bricolage|Inter)_\w+)'/g)].map((m) => m[1]),
 );
 
 let js = readFileSync(join(exportDir, scriptSrc), 'utf8');
@@ -37,7 +37,7 @@ const html = `<title>Einsatz 112</title>
   html, body { height: 100%; }
   /* Schnelles Tippen (z. B. Herzdruckmassage) soll nicht zoomen. */
   html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
-  body { overflow: hidden; background: #15181C; }
+  body { overflow: hidden; background: #0B1727; }
   #root { display: flex; height: 100%; flex: 1; }
   /* Desktop-App: eigene Titelleiste zum Verschieben des Fensters */
   #titlebar { -webkit-app-region: drag; user-select: none; }
@@ -45,7 +45,7 @@ const html = `<title>Einsatz 112</title>
   @media (hover: hover) and (pointer: fine) {
     [role="button"], [role="radio"] { cursor: pointer; }
     ::-webkit-scrollbar { width: 10px; height: 10px; }
-    ::-webkit-scrollbar-thumb { background: rgba(95, 102, 112, 0.45); border-radius: 5px; border: 2px solid transparent; background-clip: content-box; }
+    ::-webkit-scrollbar-thumb { background: rgba(143, 162, 186, 0.45); border-radius: 5px; border: 2px solid transparent; background-clip: content-box; }
     ::-webkit-scrollbar-track { background: transparent; }
   }
 </style>
@@ -61,7 +61,7 @@ const doc = fragment
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#15181C">
+<meta name="theme-color" content="#F4F5F7">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">

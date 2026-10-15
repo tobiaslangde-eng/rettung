@@ -1,6 +1,6 @@
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { LayoutChangeEvent, View } from 'react-native';
-import Svg, { Circle, ClipPath, Defs, G, LinearGradient, Line, Path, Polygon, RadialGradient, Rect, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, G, LinearGradient, Line, Path, Polygon, Rect, Stop } from 'react-native-svg';
 import { colors } from '../theme';
 
 function useWidth(initial = 360) {
@@ -81,7 +81,9 @@ export function WarnStripes({
       <Svg width={width} height={height}>
         {Array.from({ length: n }).map((_, i) => {
           const x = i * step - height;
-          return <Polygon key={i} points={`${x},${height} ${x + height},0 ${x + height * 2},0 ${x + height},${height}`} fill={color} />;
+          return (
+            <Polygon key={i} points={`${x},${height} ${x + height},0 ${x + height * 2},0 ${x + height},${height}`} fill={color} />
+          );
         })}
       </Svg>
     </View>
@@ -143,7 +145,15 @@ export function MonitorScene({ height = 240 }: { height?: number }) {
 }
 
 /** Grüne EKG-Kurve wie auf dem Monitor, als eigener Streifen (transparent). */
-export function EcgStrip({ height = 64, beats = 3, color = colors.monitorGruen }: { height?: number; beats?: number; color?: string }) {
+export function EcgStrip({
+  height = 64,
+  beats = 3,
+  color = colors.monitorGruen,
+}: {
+  height?: number;
+  beats?: number;
+  color?: string;
+}) {
   const W = 400;
   const H = 100;
   const mid = H * 0.78;
@@ -159,8 +169,17 @@ export function EcgStrip({ height = 64, beats = 3, color = colors.monitorGruen }
 }
 
 const BUILDINGS: [number, number, number][] = [
-  [0, 40, 70], [38, 34, 110], [70, 46, 84], [114, 30, 130], [142, 52, 96],
-  [192, 36, 150], [226, 44, 104], [268, 30, 124], [296, 50, 88], [344, 28, 116], [370, 40, 92],
+  [0, 40, 70],
+  [38, 34, 110],
+  [70, 46, 84],
+  [114, 30, 130],
+  [142, 52, 96],
+  [192, 36, 150],
+  [226, 44, 104],
+  [268, 30, 124],
+  [296, 50, 88],
+  [344, 28, 116],
+  [370, 40, 92],
 ];
 
 /** Stadt bei Nacht mit Straße – Kulisse für die Blaulichtfahrt. */
@@ -204,135 +223,96 @@ export function CityScene({ height = 240 }: { height?: number }) {
   );
 }
 
-/** Fünfzackiger Bewertungsstern. */
+/** Fünfzackiger Bewertungsstern (gelber Aufkleber mit Tinten-Umrandung). */
 export function RatingStar({ size = 32, filled }: { size?: number; filled: boolean }) {
   const c = size / 2;
   const pts = Array.from({ length: 10 })
     .map((_, i) => {
-      const r = i % 2 === 0 ? size / 2 : size / 4.6;
+      const r = i % 2 === 0 ? size / 2 - 2 : size / 4.4;
       const a = (Math.PI / 5) * i - Math.PI / 2;
-      return `${(c + r * Math.cos(a)).toFixed(1)},${(c + r * Math.sin(a)).toFixed(1)}`;
+      return `${(c + r * Math.cos(a)).toFixed(1)},${(c + 1 + r * Math.sin(a)).toFixed(1)}`;
     })
     .join(' ');
   return (
     <Svg width={size} height={size}>
       <Polygon
         points={pts}
-        fill={filled ? colors.warngelb : 'transparent'}
-        stroke={filled ? colors.warngelb : colors.grau500}
-        strokeWidth={1.5}
+        fill={filled ? colors.yellow : 'rgba(255,255,255,0.14)'}
+        stroke={filled ? colors.ink : 'rgba(255,255,255,0.6)'}
+        strokeWidth={filled ? 2.2 : 1.5}
         strokeLinejoin="round"
       />
     </Svg>
   );
 }
 
-/** Metallfarben der Dienstgrad-Abzeichen: Bronze, Silber, Gold, Blaulicht-Platin. */
-const BADGE_METALS = [
-  ['#F6C28B', '#B8733A', '#6E3D18'],
-  ['#FFFFFF', '#AEB6C1', '#5E6672'],
-  ['#FFF3A6', '#FFC21A', '#A87400'],
-  ['#E6F0FF', '#5C9DFF', '#1A47B8'],
-];
-
-function starPoints(cx: number, cy: number, r: number) {
-  return Array.from({ length: 10 })
-    .map((_, i) => {
-      const rr = i % 2 === 0 ? r : r / 2.4;
-      const a = (Math.PI / 5) * i - Math.PI / 2;
-      return `${(cx + rr * Math.cos(a)).toFixed(2)},${(cy + rr * Math.sin(a)).toFixed(2)}`;
-    })
-    .join(' ');
-}
+/** Farben der Dienstgrad-Abzeichen: Bronze, Silber, Gold, Blaulicht. */
+const BADGE_TIERS = ['#FFB27A', '#D9E4FF', '#FFE226', '#8FB0FF'];
 
 /**
- * Dienstgrad-Abzeichen als „Profilbild“: Metallring je Stufe (Bronze → Silber → Gold → Blaulicht),
- * Star of Life auf Nachtblau, Sterne am unteren Rand zeigen den Rang.
+ * Dienstgrad-Abzeichen als „Profilbild“: Aufkleber mit Tinten-Umrandung, Star of Life in der Mitte,
+ * kleine Punkte am unteren Rand zeigen den Rang (nur ab einer gewissen Größe).
  */
 export function RankBadge({ size = 72, level, maxLevel = 7 }: { size?: number; level: number; maxLevel?: number }) {
-  const id = useId().replace(/[^a-zA-Z0-9]/g, '');
-  const metal = BADGE_METALS[Math.min(BADGE_METALS.length - 1, Math.floor(level / 2))];
+  const tier = BADGE_TIERS[Math.min(BADGE_TIERS.length - 1, Math.floor(level / 2))];
   const c = size / 2;
-  const inner = size * 0.39;
-  // Star of Life (sechs Arme) mit Verlauf
-  const s = size * 0.5;
+  const sw = Math.max(2, size * 0.045);
+  const showPips = size >= 56;
+  const s = size * (showPips ? 0.5 : 0.58);
   const w = s * 0.3;
   const len = s * 0.92;
+  const o = Math.max(1.6, size * 0.03);
+  const shift = showPips ? -size * 0.04 : 0;
   const arms = (fill: string, grow = 0) =>
     [0, 60, 120].map((deg) => (
       <Rect
         key={`${fill}-${deg}`}
         x={c - w / 2 - grow}
-        y={c - len / 2 - grow}
+        y={c + shift - len / 2 - grow}
         width={w + grow * 2}
         height={len + grow * 2}
-        rx={s * 0.03}
+        rx={s * 0.05}
         fill={fill}
-        transform={`rotate(${deg} ${c} ${c})`}
+        transform={`rotate(${deg} ${c} ${c + shift})`}
       />
     ));
-  const top = c - len * 0.36;
-  const bottom = c + len * 0.36;
-  const sw = Math.max(1, s * 0.05);
-  // Rangsterne auf dem unteren Ringbogen
-  const ringR = size * 0.445;
-  const starR = size * 0.055;
+  const top = c + shift - len * 0.36;
+  const bottom = c + shift + len * 0.36;
+  const stroke = Math.max(1.2, s * 0.055);
+  const ringR = size * 0.38;
   const slots = Array.from({ length: maxLevel }, (_, i) => {
-    const a = ((150 - (120 / (maxLevel - 1)) * i) * Math.PI) / 180;
+    const a = ((140 - (100 / (maxLevel - 1)) * i) * Math.PI) / 180;
     return { x: c + ringR * Math.cos(a), y: c + ringR * Math.sin(a), on: i < level };
   });
   return (
     <Svg width={size} height={size}>
-      <Defs>
-        <LinearGradient id={`m${id}`} x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor={metal[0]} />
-          <Stop offset="0.5" stopColor={metal[1]} />
-          <Stop offset="1" stopColor={metal[2]} />
-        </LinearGradient>
-        <RadialGradient id={`d${id}`} cx="50%" cy="40%" r="60%">
-          <Stop offset="0" stopColor="#1F3E78" />
-          <Stop offset="1" stopColor="#07090D" />
-        </RadialGradient>
-        <LinearGradient id={`s${id}`} x1="0" y1={c - len / 2} x2="0" y2={c + len / 2} gradientUnits="userSpaceOnUse">
-          <Stop offset="0" stopColor="#5AA0FF" />
-          <Stop offset="1" stopColor="#123F9E" />
-        </LinearGradient>
-        <ClipPath id={`c${id}`}>{arms('#000')}</ClipPath>
-      </Defs>
-      <Circle cx={c} cy={c} r={c} fill={`url(#m${id})`} />
-      <Circle cx={c} cy={c} r={c - size * 0.025} fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth={size * 0.012} />
-      <Circle cx={c} cy={c} r={inner} fill={`url(#d${id})`} />
-      <Circle cx={c} cy={c} r={inner} fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth={size * 0.02} />
-      <Path
-        d={`M ${c - inner * 0.95} ${c} h ${inner * 0.35} l ${inner * 0.08} ${-inner * 0.08} l ${inner * 0.1} ${inner * 0.14} l ${inner * 0.12} ${-inner * 0.5} l ${inner * 0.1} ${inner * 0.62} l ${inner * 0.08} ${-inner * 0.18} h ${inner * 1.07}`}
-        stroke={colors.monitorGruen}
-        strokeWidth={size * 0.02}
-        fill="none"
-        strokeLinejoin="round"
-        opacity={0.8}
-      />
-      {arms(colors.weiss, size * 0.022)}
-      <Rect x={0} y={0} width={size} height={size} fill={`url(#s${id})`} clipPath={`url(#c${id})`} />
+      <Circle cx={c} cy={c} r={c - sw / 2} fill={tier} stroke={colors.ink} strokeWidth={sw} />
+      {arms(colors.ink, o)}
+      {arms(colors.white)}
       {size >= 32 && (
-        <G stroke={colors.weiss} strokeLinecap="round" fill="none">
-          <Line x1={c} y1={top} x2={c} y2={bottom} strokeWidth={sw} />
+        <G stroke={colors.ink} strokeLinecap="round" fill="none">
+          <Line x1={c} y1={top} x2={c} y2={bottom} strokeWidth={stroke} />
           <Path
-            d={`M ${c - s * 0.065} ${bottom - len * 0.08} C ${c + s * 0.13} ${bottom - len * 0.2}, ${c - s * 0.13} ${c - len * 0.02}, ${
+            d={`M ${c - s * 0.065} ${bottom - len * 0.08} C ${c + s * 0.13} ${bottom - len * 0.2}, ${c - s * 0.13} ${c + shift - len * 0.02}, ${
               c + s * 0.065
-            } ${c - len * 0.16} S ${c - s * 0.02} ${top + len * 0.04}, ${c - s * 0.055} ${top + len * 0.06}`}
-            strokeWidth={sw * 0.85}
+            } ${c + shift - len * 0.16} S ${c - s * 0.02} ${top + len * 0.04}, ${c - s * 0.055} ${top + len * 0.06}`}
+            strokeWidth={stroke * 0.85}
           />
         </G>
       )}
-      {slots.map((p, i) => (
-        <Polygon
-          key={i}
-          points={starPoints(p.x, p.y, starR)}
-          fill={p.on ? colors.weiss : 'rgba(0,0,0,0.35)'}
-          stroke={p.on ? metal[2] : 'none'}
-          strokeWidth={size * 0.006}
-        />
-      ))}
+      {showPips &&
+        slots.map((p, i) => (
+          <Circle
+            key={i}
+            cx={p.x}
+            cy={p.y}
+            r={size * 0.034}
+            fill={p.on ? colors.ink : 'transparent'}
+            stroke={colors.ink}
+            strokeOpacity={p.on ? 1 : 0.35}
+            strokeWidth={Math.max(1, size * 0.012)}
+          />
+        ))}
     </Svg>
   );
 }

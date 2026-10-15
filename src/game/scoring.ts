@@ -1,3 +1,4 @@
+import { aktiveRolle } from './rolle';
 import { MedCase } from '../data/cases';
 import { INCIDENTS, INCIDENT_POINTS } from '../data/incidents';
 import { Rating, VitalId, rateVital } from '../data/vitals';
@@ -193,12 +194,28 @@ export const RANKS: Rank[] = [
   { min: 14000, de: 'Rettungsdienst-Legende' },
 ];
 
+/** Ränge für Ersthelfer/innen */
+export const HELFER_RANKS: Rank[] = [
+  { min: 0, de: 'Neuling' },
+  { min: 200, de: 'Ersthelfer/in' },
+  { min: 600, de: 'Hilfsbereit' },
+  { min: 1200, de: 'Routinierte Hilfe' },
+  { min: 2200, de: 'Betriebshelfer/in' },
+  { min: 3800, de: 'Mobile/r Retter/in' },
+  { min: 6000, de: 'Lebensretter/in' },
+  { min: 9000, de: 'Erste-Hilfe-Vorbild' },
+];
+
+/** Ränge der aktiven Rolle */
+export const rankList = (): Rank[] => (aktiveRolle() === 'helfer' ? HELFER_RANKS : RANKS);
+
 export function rankFor(points: number): { rank: Rank; next?: Rank } {
+  const list = rankList();
   let idx = 0;
-  RANKS.forEach((r, i) => {
+  list.forEach((r, i) => {
     if (points >= r.min) idx = i;
   });
-  return { rank: RANKS[idx], next: RANKS[idx + 1] };
+  return { rank: list[idx], next: list[idx + 1] };
 }
 
 export function shuffle<T>(arr: T[]): T[] {

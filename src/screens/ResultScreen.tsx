@@ -1,14 +1,14 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Button, Card, Eyebrow, WarnStripes, TopBar } from '../components/UI';
-import { EcgStrip, MonitorScene, RankBadge, RatingStar } from '../components/Ems';
+import { Button, Card, Eyebrow, TopBar } from '../components/UI';
+import { EcgStrip, RankBadge, RatingStar } from '../components/Ems';
 import { INCIDENTS } from '../data/incidents';
 import { VITAL_BY_ID, formatVital, rateVital } from '../data/vitals';
 import { BADGE_BONUS, Badge } from '../game/achievements';
 import { DAILY_GOAL } from '../game/daily';
 import { DIFFICULTY_BY_ID } from '../game/difficulty';
-import { CaseRun, RANKS, ScoreResult, conditionOutcome } from '../game/scoring';
+import { CaseRun, ScoreResult, rankList, conditionOutcome } from '../game/scoring';
 import { Columns, useLayout } from '../layout';
-import { colors, spacing, type, fonts } from '../theme';
+import { colors, fonts, hardShadow, spacing, type } from '../theme';
 
 const PRAISE = ['Da geht noch was', 'Guter Versuch', 'Gut gemacht!', 'Ausgezeichnet!'];
 
@@ -41,26 +41,25 @@ export function ResultScreen({
     <View style={{ flex: 1 }}>
       <TopBar kicker="Einsatz beendet" title="Mein Einsatzbericht" onBack={onHome} />
       <ScrollView contentContainerStyle={[styles.content, L.wide && styles.contentWide]}>
-        <View style={[styles.hero, L.wide && { marginHorizontal: -spacing.xl, marginTop: -spacing.xl }]}>
-          <View style={StyleSheet.absoluteFill}>
-            <MonitorScene height={330} />
-          </View>
+        <View style={styles.hero}>
           <View style={styles.stars}>
             {[0, 1, 2].map((i) => (
-              <RatingStar key={i} size={i === 1 ? 52 : 40} filled={i < result.stars} />
+              <RatingStar key={i} size={i === 1 ? 58 : 44} filled={i < result.stars} />
             ))}
           </View>
           <Text style={styles.praise}>{PRAISE[result.stars]}</Text>
           <Text style={styles.points}>
             +{result.total} <Text style={styles.pointsMax}>Punkte</Text>
           </Text>
-          <Text style={styles.diff}>
-            {diff.label} {diff.icon}
-            {result.multiplier > 1 ? `  ·  ×${String(result.multiplier).replace('.', ',')}` : ''}
-            {streak >= 2 ? `  ·  🔥 ${streak}er-Serie` : ''}
-          </Text>
+          <View style={styles.diffPill}>
+            <Text style={styles.diff}>
+              {diff.label} {diff.icon}
+              {result.multiplier > 1 ? `  ·  ×${String(result.multiplier).replace('.', ',')}` : ''}
+              {streak >= 2 ? `  ·  🔥 ${streak}er-Serie` : ''}
+            </Text>
+          </View>
           <View style={styles.ecg}>
-            <EcgStrip height={56} beats={4} />
+            <EcgStrip height={40} beats={4} color={colors.red} />
           </View>
         </View>
         <Columns
@@ -69,7 +68,7 @@ export function ResultScreen({
             <>
               {promotion && (
                 <View style={styles.promo}>
-                  <RankBadge size={72} level={RANKS.findIndex((r) => r.de === promotion)} />
+                  <RankBadge size={72} level={rankList().findIndex((r) => r.de === promotion)} />
                   <View style={{ flex: 1 }}>
                     <Text style={styles.promoHead}>Befördert!</Text>
                     <Text style={styles.promoText}>Mein neuer Dienstgrad:</Text>
@@ -119,7 +118,7 @@ export function ResultScreen({
               )}
               <Card
                 style={{
-                  borderLeftColor: run.condition >= 70 ? colors.gruen : run.condition >= 40 ? colors.amber : colors.signalrot,
+                  borderLeftColor: run.condition >= 70 ? colors.mint : run.condition >= 40 ? colors.orange : colors.red,
                 }}
               >
                 <Eyebrow title="In der Klinik" />
@@ -128,7 +127,6 @@ export function ResultScreen({
                   {outcome.text}
                 </Text>
               </Card>
-              <WarnStripes />
 
               <Card>
                 <Eyebrow title="Meine Wertung" />
@@ -144,7 +142,7 @@ export function ResultScreen({
               </Card>
             </>,
             <>
-              <Card style={{ borderLeftColor: result.diagnosisCorrect ? colors.gruen : colors.signalrot }}>
+              <Card style={{ borderLeftColor: result.diagnosisCorrect ? colors.mint : colors.red }}>
                 <Eyebrow title="Diagnose" />
                 <Text style={[type.h2, { marginTop: spacing.xs }]}>{c.diagnosis}</Text>
                 {!result.diagnosisCorrect && (
@@ -164,7 +162,7 @@ export function ResultScreen({
               </Card>
 
               {INCIDENTS[c.id] && run.incidentCorrect !== undefined && (
-                <Card style={{ borderLeftColor: run.incidentCorrect ? colors.gruen : colors.signalrot }}>
+                <Card style={{ borderLeftColor: run.incidentCorrect ? colors.mint : colors.red }}>
                   <Eyebrow title="Zwischenfall" />
                   <Text style={[type.body, { marginTop: spacing.xs, fontFamily: fonts.italic }]}>{INCIDENTS[c.id].text}</Text>
                   <Text style={[type.body, { marginTop: spacing.sm, fontFamily: fonts.bold }]}>
@@ -175,7 +173,7 @@ export function ResultScreen({
                 </Card>
               )}
 
-              <Card style={{ borderLeftColor: colors.graphit }}>
+              <Card style={{ borderLeftColor: colors.ink }}>
                 <Eyebrow title="Meine Messwerte" />
                 {run.measured.map((m) => {
                   const truth = rateVital(m.id, c.vitals[m.id], c.patient.age);
@@ -185,7 +183,7 @@ export function ResultScreen({
                       <Text style={[type.body, { flex: 1 }]}>
                         {VITAL_BY_ID[m.id].short}: {formatVital(m.id, c.vitals[m.id])}
                       </Text>
-                      <Text style={{ color: ok ? colors.gruen : colors.signalrot, fontFamily: fonts.bold }}>
+                      <Text style={{ color: ok ? colors.mintDark : colors.red, fontFamily: fonts.bold }}>
                         {truth === null ? 'Befund' : ok ? `✓ ${truth}` : `✗ ${truth}`}
                       </Text>
                     </View>
@@ -209,7 +207,7 @@ export function ResultScreen({
                       <Text style={[type.small, { flex: 1, color: colors.graphit }]}>
                         {t.correct ? '✓' : '✗'} {t.text}
                       </Text>
-                      <Text style={{ fontSize: 11, color: ok ? colors.gruen : colors.signalrot, fontFamily: fonts.bold }}>
+                      <Text style={{ fontSize: 11, color: ok ? colors.mintDark : colors.red, fontFamily: fonts.bold }}>
                         {chosen ? 'gewählt' : 'nicht gewählt'}
                       </Text>
                     </View>
@@ -233,54 +231,76 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.lg,
-    backgroundColor: colors.warngelb,
-    borderRadius: 6,
+    backgroundColor: colors.yellowTint,
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: 24,
     padding: spacing.lg,
+    ...hardShadow(4),
   },
-  promoHead: { fontFamily: fonts.displayBlack, fontSize: 30, color: colors.graphit, textTransform: 'uppercase' },
-  promoText: { fontFamily: fonts.semibold, fontSize: 13, color: colors.graphit },
-  promoRank: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.graphit, textTransform: 'uppercase' },
-  badgeBox: { backgroundColor: colors.graphit, borderRadius: 6, padding: spacing.lg, gap: spacing.sm },
-  badgeHead: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.warngelb, textTransform: 'uppercase' },
+  promoHead: { fontFamily: fonts.displayBlack, fontSize: 32, lineHeight: 34, color: colors.ink, letterSpacing: -1 },
+  promoText: { fontFamily: fonts.mono, fontSize: 11, color: colors.ink, letterSpacing: 0.6, textTransform: 'uppercase' },
+  promoRank: { fontFamily: fonts.displayBlack, fontSize: 21, lineHeight: 24, color: colors.ink, letterSpacing: -0.5 },
+  badgeBox: {
+    backgroundColor: colors.surface,
+    borderRadius: 24,
+    padding: spacing.lg,
+    gap: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.line,
+    ...hardShadow(4, colors.blue),
+  },
+  badgeHead: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.ink, letterSpacing: -0.5 },
   badgeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   badgeIcon: { fontFamily: fonts.regular, fontSize: 30 },
-  badgeTitle: { fontFamily: fonts.bold, fontSize: 15, color: colors.weiss },
-  badgeDesc: { fontFamily: fonts.regular, fontSize: 12, color: colors.grau300 },
-  badgePts: { fontFamily: fonts.extrabold, fontSize: 16, color: colors.monitorGruen },
+  badgeTitle: { fontFamily: fonts.display, fontSize: 16, color: colors.ink, letterSpacing: -0.2 },
+  badgeDesc: { fontFamily: fonts.regular, fontSize: 12, color: colors.muted },
+  badgePts: { fontFamily: fonts.displayBlack, fontSize: 18, color: colors.monitorGruen, letterSpacing: -0.4 },
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   contentWide: { padding: spacing.xl, gap: spacing.lg },
   buttons: { gap: spacing.lg },
   buttonsWide: { flexDirection: 'row', gap: spacing.lg },
   hero: {
-    height: 330,
-    marginHorizontal: -spacing.lg,
-    marginTop: -spacing.lg,
     alignItems: 'center',
     overflow: 'hidden',
-    backgroundColor: colors.nacht,
-    justifyContent: 'center',
-    paddingTop: 0,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: 28,
+    paddingTop: spacing.xl,
+    gap: 2,
+    ...hardShadow(6),
   },
   ecg: { alignSelf: 'stretch', marginTop: spacing.md },
-  stars: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  stars: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.md },
   praise: {
-    color: colors.weiss,
-    fontSize: 30,
+    color: colors.ink,
+    fontSize: 32,
+    lineHeight: 36,
     fontFamily: fonts.displayBlack,
     marginTop: spacing.md,
-    textTransform: 'uppercase',
+    letterSpacing: -1,
   },
-  praiseDe: { color: colors.grau300, fontSize: 13, fontFamily: fonts.semibold, letterSpacing: 1.5, textTransform: 'uppercase' },
-  points: { color: colors.monitorGruen, fontSize: 44, fontFamily: fonts.displayBlack, marginTop: spacing.xs },
-  pointsMax: { fontSize: 16, color: colors.grau300, fontFamily: fonts.semibold },
-  diff: { color: colors.blaulichtLight, marginTop: spacing.xs, fontFamily: fonts.bold, fontSize: 13 },
+  points: { color: colors.ink, fontSize: 56, lineHeight: 62, fontFamily: fonts.displayBlack, letterSpacing: -2 },
+  pointsMax: { fontSize: 16, color: colors.muted, fontFamily: fonts.mono, letterSpacing: 0.5 },
+  diffPill: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 4,
+    marginTop: spacing.sm,
+  },
+  diff: { color: colors.ink, fontFamily: fonts.display, fontSize: 13 },
   line: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.grau200,
+    paddingVertical: 7,
+    borderBottomWidth: 1.5,
+    borderBottomColor: colors.line,
+    borderStyle: 'dashed',
   },
-  linePts: { fontFamily: fonts.extrabold, fontSize: 16 },
+  linePts: { fontFamily: fonts.displayBlack, fontSize: 17, letterSpacing: -0.3 },
 });

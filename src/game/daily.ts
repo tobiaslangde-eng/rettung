@@ -1,4 +1,5 @@
 import { CASES, MedCase } from '../data/cases';
+import { HELFER_FAELLE, HelferFall } from '../data/helfer';
 import { DIFFICULTY_BY_ID } from './difficulty';
 import { Progress } from './storage';
 
@@ -31,6 +32,13 @@ export function dailyCase(p: Progress, key = todayKey()): MedCase {
   let h = 0;
   for (const ch of key + p.difficulty) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
   return pool[h % pool.length];
+}
+
+/** Der „Notfall des Tages“ für Ersthelfer/innen */
+export function dailyHelferFall(key = todayKey()): HelferFall {
+  let h = 0;
+  for (const ch of key + 'helfer') h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return HELFER_FAELLE[h % HELFER_FAELLE.length];
 }
 
 export interface DayState {

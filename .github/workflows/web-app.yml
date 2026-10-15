@@ -6,20 +6,39 @@
 # „Deploy from a branch“ → Branch „gh-pages“ / „(root)“ wählen.
 name: Web-App veröffentlichen
 
+# Live geht nur, was in main liegt. Neue Funktionen entstehen in einem eigenen Branch und
+# kommen erst per Pull Request (Merge) in main – und damit auf die Webseite.
+# Der Arbeitsstand (claude/…-Branches) landet als Testversion unter https://rettung.tankard.de/vorschau/
+# – mit eigenem Spielstand, die Live-Version bleibt unberührt.
+#
+# Zum Vergleichen lässt sich per Hand auch ein älterer Stand unter einer eigenen Vorschau-Adresse veröffentlichen:
+# Actions → „Web-App veröffentlichen“ → Run workflow → bei „ref“ den Commit/Branch/Tag eintragen,
+# bei „ordner“ z. B. vorschau/apple (→ https://rettung.tankard.de/vorschau/apple/).
 on:
   push:
-    branches: [main, claude/medical-game-app-expo-nru897]
+    branches: [main, 'claude/**']
   workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Älterer Stand für eine Vorschau (Commit, Branch oder Tag) – leer lassen für den aktuellen Stand'
+        required: false
+        default: ''
+      ordner:
+        description: 'Vorschau-Adresse, z. B. vorschau/apple – leer lassen für die normale Veröffentlichung'
+        required: false
+        default: ''
 
 permissions:
   contents: write
 
+# Beide Jobs schreiben in gh-pages: nacheinander ausführen, nichts abbrechen.
 concurrency:
-  group: web-app
-  cancel-in-progress: true
+  group: gh-pages
+  cancel-in-progress: false
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main' && inputs.ordner == ''
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -57,5 +76,70 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: dist-pwa
           publish_branch: gh-pages
-          force_orphan: true
+          keep_files: true # der Ordner vorschau/ bleibt erhalten
           commit_message: Web-App aus ${{ github.sha }}
+
+  vorschau:
+    # Arbeitsstände (alles außer main) – oder per Hand ein beliebiger Stand unter eigener Adresse
+    if: github.ref != 'refs/heads/main' || inputs.ordner != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # Nur „vorschau“ oder „vorschau/<name>“ ist erlaubt – so kann ein Tippfehler die Live-Seite nie überschreiben.
+      - name: Vorschau-Adresse prüfen
+        if: inputs.ordner != ''
+        env:
+          ORDNER: ${{ inputs.ordner }}
+        run: |
+          if ! [[ "$ORDNER" =~ ^vorschau(/[a-z0-9-]+)?$ ]]; then
+            echo "::error::„ordner“ muss so aussehen: vorschau/apple (danach nur Kleinbuchstaben, Zahlen und Bindestrich)"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      # Ältere Stände werden mit dem heutigen Verpackungs-Skript fertig gebaut:
+      # so tragen alle Vorschauen dasselbe schmale gelbe Schild (z. B. „VORSCHAU APPLE“) und ihren eigenen Namen.
+      - name: Aktuelles Verpackungs-Skript holen
+        if: inputs.ref != ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: aktuell
+          sparse-checkout: scripts/build-pwa.mjs
+          sparse-checkout-cone-mode: false
+
+      - name: Aktuelles Verpackungs-Skript einsetzen
+        if: inputs.ref != ''
+        run: cp aktuell/scripts/build-pwa.mjs scripts/build-pwa.mjs
+
+      - name: Namen der Vorschau festlegen
+        if: inputs.ordner != '' && inputs.ordner != 'vorschau'
+        env:
+          ORDNER: ${{ inputs.ordner }}
+        run: echo "VORSCHAU_NAME=${ORDNER##*/}" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: Vorschau bauen
+        run: npm run build:pwa
+        env:
+          VORSCHAU: '1'
+
+      - name: Nach gh-pages/vorschau veröffentlichen
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist-pwa
+          publish_branch: gh-pages
+          destination_dir: ${{ inputs.ordner || 'vorschau' }}
+          keep_files: true # die Live-Version im Hauptordner bleibt erhalten
+          commit_message: Vorschau ${{ inputs.ordner || 'vorschau' }} aus ${{ inputs.ref || github.sha }}

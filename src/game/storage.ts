@@ -1,7 +1,31 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Difficulty } from './difficulty';
+import { Rolle } from './rolle';
 
-const KEY = 'kiirabi.progress.v1';
+// Die Vorschau-Version (rettung.tankard.de/vorschau/) hat einen eigenen Spielstand, damit Tests den echten nicht verändern.
+const PREVIEW = (globalThis as { E112_VORSCHAU?: boolean }).E112_VORSCHAU === true;
+const P = PREVIEW ? 'kiirabi.vorschau.' : 'kiirabi.';
+/** Jede Rolle hat einen eigenen Spielstand; der Sanitäter-Stand liegt (wie früher) unter dem alten Namen. */
+const KEYS: Record<Rolle, string> = { sani: P + 'progress.v1', helfer: P + 'helfer.progress.v1' };
+const ROLLE_KEY = P + 'rolle.v1';
+
+/** Zuletzt gewählte Rolle; null = noch nie gewählt (dann kommt die Auswahl beim Start) */
+export async function loadRolle(): Promise<Rolle | null> {
+  try {
+    const r = await AsyncStorage.getItem(ROLLE_KEY);
+    return r === 'sani' || r === 'helfer' ? r : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function saveRolle(r: Rolle): Promise<void> {
+  try {
+    await AsyncStorage.setItem(ROLLE_KEY, r);
+  } catch {
+    // optional
+  }
+}
 
 export interface Progress {
   totalPoints: number;
@@ -47,6 +71,32 @@ export interface Progress {
   budget: number;
   /** Ausrüstungsstufen (1–4) je Ausrüstung */
   equipment: Record<string, number>;
+  /** Detektiv-Akten: Stempel im Archiv je Fall (1 = gelöst, 2 = Meisterlösung) */
+  detectiveSolved: Record<string, 1 | 2>;
+  /** Detektiv-Akten: beste Punktzahl einer Ermittlung */
+  detectiveBest: number;
+  /** Detektiv-Akten: Anzahl Ermittlungen */
+  detectiveRounds: number;
+  /** Geschichte: Anzahl abgeschlossener Kapitel */
+  story: number;
+  /** Schritt für Schritt: richtig sortierte Abläufe (IDs) */
+  ablaeufe: string[];
+  /** Notruf üben: geschaffte Szenarien (IDs) */
+  notrufGeschafft: string[];
+  /** Was zuerst?: bestes Ergebnis (von 10) */
+  zuerstBest: number;
+  /** Gut gepackt: richtig gepackte Listen (IDs) */
+  packGeschafft: string[];
+  aedGeschafft: string[];
+  handgriffeBest: number;
+  mythenBest: number;
+  pruefungBest: number;
+  /** Ausbaustufen der Rettungswache (Sanitäter/in) */
+  wache: Record<string, number>;
+  /** Ausbaustufen des Hilfspunkts (Ersthelfer/in) */
+  hilfspunkt: Record<string, number>;
+  /** Spielweise: mit Geschichte oder frei; leer = noch nicht gewählt */
+  modus: 'story' | 'frei' | '';
 }
 
 export const EMPTY_PROGRESS: Progress = {
@@ -74,11 +124,26 @@ export const EMPTY_PROGRESS: Progress = {
   weekHistory: [],
   budget: 0,
   equipment: {},
+  detectiveSolved: {},
+  detectiveBest: 0,
+  detectiveRounds: 0,
+  story: 0,
+  ablaeufe: [],
+  notrufGeschafft: [],
+  zuerstBest: 0,
+  packGeschafft: [],
+  aedGeschafft: [],
+  handgriffeBest: 0,
+  mythenBest: 0,
+  pruefungBest: 0,
+  wache: {},
+  hilfspunkt: {},
+  modus: '',
 };
 
-export async function loadProgress(): Promise<Progress> {
+export async function loadProgress(rolle: Rolle): Promise<Progress> {
   try {
-    const raw = await AsyncStorage.getItem(KEY);
+    const raw = await AsyncStorage.getItem(KEYS[rolle]);
     if (!raw) return EMPTY_PROGRESS;
     const saved = JSON.parse(raw);
     // Ältere Spielstände kannten noch kein Budget: Startbudget = bisher gesammelte Punkte.
@@ -89,9 +154,9 @@ export async function loadProgress(): Promise<Progress> {
   }
 }
 
-export async function saveProgress(p: Progress): Promise<void> {
+export async function saveProgress(rolle: Rolle, p: Progress): Promise<void> {
   try {
-    await AsyncStorage.setItem(KEY, JSON.stringify(p));
+    await AsyncStorage.setItem(KEYS[rolle], JSON.stringify(p));
   } catch {
     // Fortschritt ist optional – Spiel läuft auch ohne Speicher weiter.
   }

@@ -62,8 +62,24 @@ Praxis sind ausdrücklich willkommen.
 
 ## So spielt es sich
 
-Erzählt wird in der **Ich-Perspektive**: Ich bin Sanitäter/in im Rettungsdienst und fahre mit meiner Kollegin Kati
-zu Einsätzen quer durch Deutschland.
+Beim ersten Start wähle ich meine **Rolle** – jede hat ihren eigenen Spielstand, gewechselt wird jederzeit unter „Mehr“:
+
+- **Ersthelfer/in:** alles, was im Erste-Hilfe-Kurs drankommt – ohne Krankheitsbilder-Detektivarbeit. 56 Notfälle (Herzstillstand im
+  Supermarkt, Unfall auf der Autobahn, Verschlucken im Restaurant, Kind im Badesee …) in vier Schritten: *Lage → Prüfen → Erkennen → Handeln*.
+  Dazu zehn Trainings: **Wissensfragen** (rund 130 Kursfragen), **Schritt für Schritt** (28 Abläufe), **Herzdruckmassage**, **Notruf üben**
+  (12 Leitstellen-Gespräche), **Mythos oder Wahrheit?** (50 Aussagen), **Was zuerst?** (40 Entscheidungen), **Gut gepackt**
+  (Verbandkasten, Hausapotheke …), **Handgriffe** (56 Fragen zu Lagern, Verbinden, Kühlen …), **Defi-Training** (8 AED-Szenarien) und die
+  **Erste-Hilfe-Prüfung** (20 Fragen, bestanden ab 16). Dazu ein Erste-Hilfe-Lexikon. Mit den Punkten rüste ich **mein eigenes Auto** aus: jede Ausrüstung hat eine eigene Wirkung (z. B. weniger Abzug bei Fehlern, mehr Punkte für wichtige Prüfungen, Hinweise durch das Licht), dazu gibt es **Ausrüstungs-Sets** mit Bonus und jeden Tag ein **Tagesangebot** mit 25 % Rabatt.
+- **Sanitäter/in:** das Rettungsdienst-Spiel mit Untersuchung, Messwerten, Diagnosen und dem eigenen Rettungswagen (unten).
+
+**Spielweise:** Nach der Rollenwahl entscheide ich, ob ich **mit Geschichte** spiele (Kati, Kapitel, Bereiche schalten sich nach und nach frei) oder **frei** (alles von Anfang an offen, keine Geschichte). Das lässt sich jederzeit unter „Mehr“ umstellen.
+
+**Die Geschichte:** Beide Rollen erzählen eine Geschichte (Sanitäter: elf, Ersthelfer: 20 Kapitel) mit Kati als Begleiterin – vom Erste-Hilfe-Kurs
+für den Führerschein bis zur Ersthelfer-App bzw. vom ersten Tag auf der Wache bis zur Praxisanleitung. Jedes Kapitel hat
+eine Aufgabe und schaltet neue Bereiche frei, so baut alles aufeinander auf. Am Ende der Ersthelfer-Geschichte wartet der
+Weg in den Rettungsdienst.
+
+**Als Sanitäter/in** wird in der **Ich-Perspektive** erzählt: Ich fahre mit meiner Kollegin Kati zu Einsätzen quer durch Deutschland.
 
 1. **Alarm:** Einsatzmeldung der Leitstelle (Köln, Heidelberg, Lübeck, Rügen, Müritz …), danach Blaulichtfahrt.
 2. **Untersuchung:** Anamnese und Sichtbefund lesen, Werte messen
@@ -89,6 +105,15 @@ zu Einsätzen quer durch Deutschland.
   (z. B. Kammerflimmern, Erbrechen, Status epilepticus) – ich muss sofort richtig reagieren
 - **Kinder-Einsätze:** 4 Fälle mit kleinen Patienten (Fieberkrampf, Pseudokrupp, verschluckte Erdnuss,
   Exsikkose); bewertet wird mit Kinder-Normwerten für Puls, Atmung und Blutdruck
+- **Detektiv-Akten – der Diagnose-Krimi:** Jede Akte ist ein Notfall, von dem anfangs nur die Meldung der Leitstelle
+  bekannt ist. Ich decke Hinweise auf (Person, Fundort, Aussagen, Befund, Messwerte) und stelle meinen Verdacht.
+  Je weniger Hinweise ich brauche, desto mehr Punkte: Combo bis ×2, „Geniestreich“ mit goldenem Stempel, ein Archiv
+  mit 196 Akten zum Sammeln und eigene Detektiv-Ränge bis „Meisterdetektiv/in“. Die Akten decken 82 Krankheits- und
+  Verletzungsbilder in acht Kategorien ab (Herz & Kreislauf, Atmung, Nerven & Psyche, Stoffwechsel & Bauch,
+  Verletzungen, Umwelt & Vergiftung, Kinder, Schwangerschaft & Geburt) – jedes Bild in mehreren Situationen:
+  anderer Ort, anderes Alter, typischer, untypischer oder irreführender Verlauf. Pro Ermittlung kommt jedes Bild nur
+  einmal vor und die Kategorien sind gemischt. Nach jeder Akte gibt es die Auflösung mit den Leitsymptomen – und alle
+  Punkte landen als Budget beim Rettungswagen
 - **Großeinsatz (MANV):** 8 Verletzte nach einem vereinfachten mSTaRT-Schema sichten (Rot, Gelb, Grün, Schwarz)
 - **Mein Rettungswagen (Fahrzeughalle):** Jeder Punkt bringt 1 € Budget. Damit rüste ich Fahrzeug,
   Patientenmonitor, Notfallrucksack, Beatmung, Trage, Funk und Einsatzkleidung in vier Stufen auf
@@ -103,13 +128,13 @@ zu Einsätzen quer durch Deutschland.
 - **Training Normwerte:** 10 zufällige Messwerte in Folge als niedrig, normal oder hoch einstufen
 - **Zustandsbalken** des Patienten: Jede Messung kostet Kraft, Fehler schaden, richtige Maßnahmen helfen
 - **Kati**, meine Kollegin, gibt Tipps und kann zwei falsche Diagnosen ausschließen (50:50)
-- **18 Abzeichen** (z. B. „Lehrbuchreif“, „Taktgefühl“, „Dienstwoche“) mit je 50 Bonuspunkten
+- **21 Abzeichen** (z. B. „Lehrbuchreif“, „Taktgefühl“, „Dienstwoche“) mit je 50 Bonuspunkten
 - **Bonuspunkte** für perfekte Einsätze und Serien 🔥, **8 Dienstgrade** von *Praktikant/in* bis zur
   *Rettungsdienst-Legende* – jede Beförderung wird im Einsatzbericht gefeiert
 - **Lexikon:** Normwerte, alle Krankheitsbilder und Rettungswissen – Notruf (5 W), Rettungskette, ABCDE,
   Wiederbelebung, Seitenlage, BE-FAST, SAMPLER, GCS, Schockzeichen, Sichtung, Kindernotfälle
 
-Der Spielstand wird nur lokal gespeichert. Über *Anleitung → Spielstand übertragen* lässt er sich als Code
+Der Spielstand wird nur lokal gespeichert. Über *Mehr → Spielstand übertragen* lässt er sich als Code
 auf ein anderes Gerät mitnehmen.
 
 ### Enthaltene Fälle (28)
@@ -122,7 +147,7 @@ auf ein anderes Gerät mitnehmen.
 
 Die Oberfläche passt sich an die Bildschirmgröße an:
 
-- **iPhone/Handy:** eine Spalte, alles mit dem Daumen erreichbar
+- **iPhone/Handy:** eine Spalte mit schwebender Tab-Leiste, alles mit dem Daumen erreichbar
 - **iPad hoch:** zwei Spalten; **iPad quer, PC und Mac:** feste Seitenleiste mit Dienstgrad, Budget und Menü,
   Startseite in drei Spalten, Untersuchung mit Patient links und Messwerten rechts, Lexikon als Kachel-Raster
 - **Desktop-App:** Fenster 1280 × 820, unter macOS mit Ampel-Knöpfen in der dunklen Titelleiste, unter Windows mit
@@ -134,16 +159,19 @@ Die Oberfläche passt sich an die Bildschirmgröße an:
 | **iPad quer** | **iPad hoch** |
 | ![iPad quer](docs/geraete/ipad-quer.png) | ![iPad hoch](docs/geraete/ipad-hoch.png) |
 
-## Design: Rettungsdienst
+## Design „Leitstelle“
 
-- **Patientenmonitor** als Startbild und im Einsatzbericht: dunkles Raster, grüne EKG-Kurve,
-  Vitalwerte in den typischen Monitorfarben (HF grün, SpO₂ cyan, RR rot …)
-- **Star of Life** – das internationale Rettungsdienst-Symbol – als Rangabzeichen und App-Icon
-- **Rot-weiße Warnmarkierung** wie am Heck eines Rettungswagens, **Reflexstreifen** (Gelb–Silber–Gelb)
-  wie an der Einsatzkleidung
-- Graphit, Signalrot und Blaulicht-Blau auf neutralem Grau; Schriften *Barlow Condensed* und *Barlow*
+Dunkel, technisch und professionell – wie eine moderne Leitstelle: Marineblau und Anthrazit als Grundton, Weiß für Text, **Rot**
+(Sanitäter/in, Alarm) und **Türkis** (Ersthelfer/in, Ausbau) als Akzente. Überschriften in *Bricolage Grotesque*, Lesetext in *Inter*.
+Der Patientenmonitor, die Fahrzeuge, die Notfall-Szenen und die **Rettungswache bei Nacht** sind eigene Illustrationen.
+Die Startseite ist von oben nach unten gegliedert: Geschichte, Hauptaktion, Heute, Training, Fahrzeug, Wache, Rang.
+Details: [`docs/DESIGN.md`](docs/DESIGN.md). Die helle Variante „Klar“ gibt es als Vergleich unter `/vorschau/klar/`.
 
-Die Grafiken sind Vektorgrafiken (`react-native-svg`) in `src/components/`.
+**Mein Hilfspunkt (Ersthelfer/in):** Das Gegenstück zur Wache – ein Vereinsheim als Erste-Hilfe-Stützpunkt mit Hausapotheke, Erste-Hilfe-Raum, Defi-Station, Helfer-Netzwerk und Kursraum (je drei Stufen). Jeder Bereich wirkt in Notfällen und Trainings. Auch die Auto-Ausrüstung hat für jede Stufe eine eigene Grafik.
+
+**Meine Rettungswache (Sanitäter/in):** Mit dem Budget aus Einsätzen und Trainings baue ich fünf Bereiche aus – Fahrzeughalle,
+Funkraum, Materiallager, Ruheraum und Schulungsraum, je drei Stufen. Das Bild der Wache wächst mit, und jeder Bereich wirkt im Einsatz
+(z. B. besserer Startzustand, langsamer sinkender Zustand, mehr Punkte).
 
 ## Spielen und herunterladen
 
@@ -215,8 +243,10 @@ src/game/achievements.ts Abzeichen
 src/game/manv.ts        Großeinsatz-Runden und Punkte
 src/game/weekly.ts      Wochenpunkte und Wochenrekord
 src/game/equipment.ts   Fahrzeughalle: Ausrüstungsstufen, Kosten und Wirkung
+src/game/detective.ts   Detektiv-Akten: Auswahl, Hinweise, Punkte, Combo, Archiv, Ränge
+src/data/akten/         Detektiv-Akten: Krankheitsbilder und Situationen (je Kategorie eine Datei)
 src/game/storage.ts     Speicherung (AsyncStorage) und Spielstand-Übertragung
-src/screens/            Start, Einsatz, Ergebnis, Training, Fahrzeughalle, Lexikon, Anleitung
+src/screens/            Start, Einsatz, Ergebnis, Training, Fahrzeughalle, Lexikon, Mehr (Anleitung)
 ```
 
 Neue Fälle lassen sich einfach in `src/data/cases.ts` ergänzen.

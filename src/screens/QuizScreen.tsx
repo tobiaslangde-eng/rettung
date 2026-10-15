@@ -1,16 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { EcgStrip, RatingStar, WarnStripes } from '../components/Ems';
-import { Button, Card, Eyebrow, TopBar } from '../components/UI';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { EcgStrip } from '../components/Ems';
+import { MonitorCard, ProgressTop, RateRow, ScoreHero } from '../components/Training';
+import { Button, Card, Eyebrow, StatChip, TopBar } from '../components/UI';
 import { Rating, VITAL_BY_ID, formatVital } from '../data/vitals';
 import { QUIZ_POINTS, QUIZ_ROUNDS, makeQuiz } from '../game/quiz';
 import { colors, fonts, monitor, spacing, type } from '../theme';
-
-const RATINGS: { value: Rating; label: string; symbol: string }[] = [
-  { value: 'niedrig', label: 'niedrig', symbol: '↓' },
-  { value: 'normal', label: 'normal', symbol: '✓' },
-  { value: 'hoch', label: 'hoch', symbol: '↑' },
-];
 
 /** Schnelltraining: 10 Messwerte nacheinander als niedrig, normal oder hoch einstufen. */
 export function QuizScreen({
@@ -66,24 +61,17 @@ export function QuizScreen({
       <View style={{ flex: 1 }}>
         <TopBar kicker="Schnelltraining" title="Ergebnis" onBack={onBack} />
         <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.monitor}>
-            <View style={styles.stars}>
-              {[0, 1, 2].map((i) => (
-                <RatingStar key={i} size={i === 1 ? 48 : 36} filled={i < stars} />
-              ))}
-            </View>
-            <Text style={styles.bigScore}>
-              {correctCount}
-              <Text style={styles.bigScoreOf}> / {QUIZ_ROUNDS}</Text>
-            </Text>
-            <Text style={styles.gain}>+{correctCount * QUIZ_POINTS} Punkte</Text>
-            <View style={{ alignSelf: 'stretch' }}>
-              <EcgStrip height={44} beats={4} />
-            </View>
-          </View>
-          <Text style={[type.small, { textAlign: 'center' }]}>
-            {correctCount > prevBest ? 'Neuer Bestwert!' : `Mein Bestwert: ${Math.max(prevBest, correctCount)} / ${QUIZ_ROUNDS}`}
-          </Text>
+          <ScoreHero
+            stars={stars}
+            big={String(correctCount)}
+            unit={`/ ${QUIZ_ROUNDS}`}
+            points={correctCount * QUIZ_POINTS}
+            note={
+              correctCount > prevBest
+                ? '🏆 Neuer Bestwert!'
+                : `Mein Bestwert: ${Math.max(prevBest, correctCount)} / ${QUIZ_ROUNDS}`
+            }
+          />
           <Card>
             <Eyebrow title="Auflösung" />
             {questions.map((qq, i) => {
@@ -93,7 +81,7 @@ export function QuizScreen({
                   <Text style={[type.body, { flex: 1 }]}>
                     {VITAL_BY_ID[qq.id].short}: {formatVital(qq.id, qq.value)}
                   </Text>
-                  <Text style={{ fontFamily: fonts.bold, color: ok ? colors.gruen : colors.signalrot }}>
+                  <Text style={{ fontFamily: fonts.bold, color: ok ? colors.mintDark : colors.red }}>
                     {ok ? `✓ ${qq.answer}` : `✗ ${qq.answer}`}
                   </Text>
                 </View>
@@ -101,7 +89,7 @@ export function QuizScreen({
             })}
           </Card>
           <Button label="Noch eine Runde" variant="alarm" onPress={restart} />
-          <Button label="Zum Hauptmenü" variant="outline" onPress={onBack} />
+          <Button label="Zurück" variant="outline" onPress={onBack} />
         </ScrollView>
       </View>
     );
@@ -116,65 +104,33 @@ export function QuizScreen({
         kicker="Schnelltraining"
         title={`Wert ${round + 1} von ${QUIZ_ROUNDS}`}
         onBack={onBack}
-        right={
-          <View style={styles.counter}>
-            <Text style={styles.counterValue}>{correctCount}</Text>
-            <Text style={styles.counterLabel}>richtig</Text>
-          </View>
-        }
+        right={<StatChip value={correctCount} label="richtig" color={colors.mintTint} />}
       />
-      <View style={styles.progress}>
-        <View style={[styles.progressFill, { width: `${((round + (given ? 1 : 0)) / QUIZ_ROUNDS) * 100}%` }]} />
-      </View>
+      <ProgressTop pct={(round + (given ? 1 : 0)) / QUIZ_ROUNDS} />
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={type.small}>Wie schätze ich diesen Wert bei einem Erwachsenen in Ruhe ein?</Text>
-        <View style={styles.monitor}>
+        <MonitorCard>
           <Text style={[styles.vitalShort, { color: monitor[q.id] }]}>{def.short}</Text>
           <Text style={styles.vitalName}>{def.name}</Text>
           <Text style={[styles.vitalValue, { color: monitor[q.id] }]}>{formatVital(q.id, q.value)}</Text>
           <View style={{ alignSelf: 'stretch' }}>
             <EcgStrip height={40} beats={4} color={monitor[q.id]} />
           </View>
-        </View>
+        </MonitorCard>
 
-        <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-          {RATINGS.map((r) => {
-            const chosen = given === r.value;
-            const isAnswer = given && q.answer === r.value;
-            return (
-              <Pressable
-                key={r.value}
-                disabled={!!given}
-                onPress={() => answer(r.value)}
-                style={[
-                  styles.rateBtn,
-                  isAnswer ? { backgroundColor: colors.gruen } : chosen ? { backgroundColor: colors.signalrot } : null,
-                  given && !chosen && !isAnswer ? { opacity: 0.4 } : null,
-                ]}
-              >
-                <Text style={styles.rateSymbol}>{r.symbol}</Text>
-                <Text style={styles.rateLabel}>{r.label}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <RateRow given={given} answer={q.answer} onPick={answer} />
 
         {given && (
           <>
-            <Card style={{ borderLeftColor: right ? colors.gruen : colors.signalrot }}>
-              <Text style={[type.body, { fontFamily: fonts.bold }]}>
+            <Card style={{ borderLeftColor: right ? colors.mint : colors.red }}>
+              <Text style={[type.headline, { marginTop: spacing.xs }]}>
                 {right ? `Richtig – ${q.answer}!` : `Leider falsch – der Wert ist ${q.answer}.`}
               </Text>
               <Text style={type.small}>Normalbereich: {def.normal}</Text>
             </Card>
-            <Button
-              label={round + 1 < QUIZ_ROUNDS ? 'Nächster Wert' : 'Auswertung'}
-              variant="dark"
-              onPress={next}
-            />
+            <Button label={round + 1 < QUIZ_ROUNDS ? 'Nächster Wert' : 'Auswertung'} variant="dark" onPress={next} />
           </>
         )}
-        <WarnStripes />
       </ScrollView>
     </View>
   );
@@ -182,40 +138,16 @@ export function QuizScreen({
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
-  progress: { height: 6, backgroundColor: colors.grau200 },
-  progressFill: { height: 6, backgroundColor: colors.signalrot },
-  counter: { alignItems: 'center', borderWidth: 1, borderColor: colors.blaulicht, paddingHorizontal: 8, paddingVertical: 2 },
-  counterValue: { color: colors.weiss, fontFamily: fonts.extrabold, fontSize: 16 },
-  counterLabel: { color: colors.grau300, fontFamily: fonts.regular, fontSize: 9, letterSpacing: 1 },
-  monitor: {
-    backgroundColor: colors.nacht,
-    borderRadius: 8,
-    paddingTop: spacing.lg,
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  vitalShort: { fontFamily: fonts.extrabold, fontSize: 14, letterSpacing: 2 },
+  vitalShort: { fontFamily: fonts.mono, fontSize: 14, letterSpacing: 3 },
   vitalName: { fontFamily: fonts.regular, fontSize: 14, color: colors.grau300, marginTop: 2 },
-  vitalValue: { fontFamily: fonts.displayBlack, fontSize: 56, lineHeight: 62, marginVertical: spacing.sm },
-  rateBtn: {
-    flex: 1,
-    backgroundColor: colors.blaulicht,
-    paddingVertical: spacing.lg,
-    alignItems: 'center',
-    borderRadius: 6,
-  },
-  rateSymbol: { color: colors.weiss, fontSize: 24, fontFamily: fonts.extrabold },
-  rateLabel: { color: colors.weiss, fontSize: 13, fontFamily: fonts.semibold },
-  stars: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  bigScore: { fontFamily: fonts.displayBlack, fontSize: 64, color: colors.weiss, marginTop: spacing.sm },
-  bigScoreOf: { fontSize: 28, color: colors.grau300 },
-  gain: { fontFamily: fonts.extrabold, fontSize: 16, color: colors.monitorGruen, marginBottom: spacing.sm },
+  vitalValue: { fontFamily: fonts.displayBlack, fontSize: 62, lineHeight: 68, marginVertical: spacing.sm, letterSpacing: -2 },
   line: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.grau200,
+    paddingVertical: 7,
+    borderBottomWidth: 1.5,
+    borderBottomColor: colors.line,
+    borderStyle: 'dashed',
   },
 });

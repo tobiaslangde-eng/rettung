@@ -7,10 +7,10 @@ import { colors } from '../theme';
 export type Triage = 'rot' | 'gelb' | 'gruen' | 'schwarz';
 
 export const TRIAGE: Record<Triage, { label: string; short: string; color: string; text: string }> = {
-  rot: { label: 'Rot', short: 'SK I', color: colors.signalrot, text: 'Sofort behandeln – akute Lebensgefahr' },
-  gelb: { label: 'Gelb', short: 'SK II', color: colors.warngelb, text: 'Dringend – schwer verletzt, aber stabil' },
-  gruen: { label: 'Grün', short: 'SK III', color: colors.gruen, text: 'Leicht verletzt – kann warten' },
-  schwarz: { label: 'Schwarz', short: 'ex', color: colors.graphit, text: 'Keine Atmung trotz freier Atemwege' },
+  rot: { label: 'Rot', short: 'SK I', color: colors.red, text: 'Sofort behandeln – akute Lebensgefahr' },
+  gelb: { label: 'Gelb', short: 'SK II', color: colors.yellow, text: 'Dringend – schwer verletzt, aber stabil' },
+  gruen: { label: 'Grün', short: 'SK III', color: '#3DD16F', text: 'Leicht verletzt – kann warten' },
+  schwarz: { label: 'Schwarz', short: 'ex', color: '#000000', text: 'Keine Atmung trotz freier Atemwege' },
 };
 
 export const TRIAGE_ORDER: Triage[] = ['rot', 'gelb', 'gruen', 'schwarz'];
