@@ -38,6 +38,7 @@ import { QuizScreen } from './src/screens/QuizScreen';
 import { DetectiveScreen } from './src/screens/DetectiveScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
 import { RolleScreen } from './src/screens/RolleScreen';
+import { DevScreen } from './src/screens/DevScreen';
 import { WacheScreen } from './src/screens/WacheScreen';
 import { NotrufScreen } from './src/screens/NotrufScreen';
 import { PackScreen } from './src/screens/PackScreen';
@@ -70,6 +71,7 @@ type Screen =
   | { name: 'helfer'; fall: HelferFall; daily: boolean; key: number }
   | { name: 'garage' }
   | { name: 'wache' }
+  | { name: 'dev' }
   | { name: 'case'; medCase: MedCase; daily: boolean; key: number }
   | {
       name: 'result';
@@ -95,6 +97,7 @@ const FRAME_MAX: Partial<Record<Screen['name'], number>> = {
   notruf: 760,
   zuerst: 760,
   pack: 760,
+  dev: 760,
   handgriffe: 760,
   mythen: 760,
   aed: 760,
@@ -111,6 +114,7 @@ const TAB_OF: Partial<Record<Screen['name'], TabId>> = {
   wache: 'garage',
   lexikon: 'lexikon',
   guide: 'guide',
+  dev: 'guide',
 };
 
 const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
@@ -579,6 +583,7 @@ export default function App() {
                         onReset={resetProgress}
                         onImport={importProgress}
                         onRolle={() => setScreen({ name: 'rolle' })}
+                        onDev={() => setScreen({ name: 'dev' })}
                         onUnlock={() => commit({ ...progress, story: Math.max(progress.story, KAPITEL[aktiv].length - 1) })}
                       />
                     )}
@@ -588,6 +593,7 @@ export default function App() {
                     {screen.name === 'wissen' && (
                       <KnowledgeScreen key={screen.key} best={progress.knowBest} onFinish={finishKnowledge} onBack={back} />
                     )}
+                    {screen.name === 'dev' && <DevScreen progress={progress} onChange={importProgress} onBack={() => setScreen({ name: 'guide' })} />}
                     {screen.name === 'wache' && <WacheScreen progress={progress} onBuild={baue} />}
                     {screen.name === 'garage' && <GarageScreen progress={progress} onUpgrade={upgrade} />}
                     {screen.name === 'manv' && (

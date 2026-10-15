@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Linking, Platform, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Linking, Platform, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Button, Card, IconTile, TopBar } from '../components/UI';
 import { KatiAvatar } from '../components/Kati';
 import { BADGE_BONUS } from '../game/achievements';
@@ -8,6 +8,7 @@ import { INCIDENT_POINTS } from '../data/incidents';
 import { MANV_PERFECT_BONUS, MANV_POINTS } from '../data/manv';
 import { DAILY_GOAL, dailyGoalBonus } from '../game/daily';
 import { QUIZ_POINTS } from '../game/quiz';
+import { devCodeStimmt, devFreigeschaltet, devMerken } from '../game/dev';
 import { KAPITEL } from '../game/story';
 import { useRolle } from '../game/rolle';
 import { DIFFICULTIES } from '../game/difficulty';
@@ -112,15 +113,38 @@ export function GuideScreen({
   onImport,
   onRolle,
   onUnlock,
+  onDev,
 }: {
   progress: Progress;
   onReset: () => void;
   onImport: (p: Progress) => void;
   onRolle: () => void;
   onUnlock: () => void;
+  onDev: () => void;
 }) {
   const [confirmReset, setConfirmReset] = useState(false);
   const r = useRolle();
+  const taps = useRef<number[]>([]);
+  const [codeOffen, setCodeOffen] = useState(false);
+  const [code, setCode] = useState('');
+  /** Versteckt: sieben Mal schnell auf Kati tippen */
+  const tippeKati = async () => {
+    const jetzt = Date.now();
+    taps.current = [...taps.current.filter((t) => jetzt - t < 5000), jetzt];
+    if (taps.current.length < 7) return;
+    taps.current = [];
+    if (await devFreigeschaltet()) onDev();
+    else setCodeOffen(true);
+  };
+  const pruefeCode = async (eingabe: string) => {
+    setCode(eingabe);
+    if (devCodeStimmt(eingabe)) {
+      await devMerken();
+      setCode('');
+      setCodeOffen(false);
+      onDev();
+    }
+  };
   const alleFrei = progress.story >= KAPITEL[r.id].length - 1;
   return (
     <View style={{ flex: 1 }}>
@@ -148,12 +172,28 @@ export function GuideScreen({
           />
         </Card>
         <View style={styles.intro}>
-          <KatiAvatar size={52} />
+          <Pressable onPress={tippeKati} accessibilityElementsHidden importantForAccessibility="no" style={{ opacity: 1 }}>
+            <KatiAvatar size={52} />
+          </Pressable>
           <Text style={[type.body, { flex: 1 }]}>
             Hi, ich bin Kati! Zusammen erkennen wir Krankheiten an Symptomen und Messwerten und treffen die richtigen
             Entscheidungen. Der Zustandsbalken zeigt, wie es unserem Patienten gerade geht.
           </Text>
         </View>
+        {codeOffen && (
+          <TextInput
+            value={code}
+            onChangeText={pruefeCode}
+            autoFocus
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+            placeholder="·"
+            placeholderTextColor={colors.muted}
+            accessibilityLabel="Code"
+            style={[styles.codeFeld]}
+          />
+        )}
 
         <Text style={type.h2}>So läuft ein Einsatz</Text>
         {STEPS.map((s, i) => (
@@ -307,6 +347,7 @@ function Row({ label, pts, text }: { label: string; pts: number; text?: string }
 }
 
 const styles = StyleSheet.create({
+  codeFeld: { alignSelf: 'center', width: 120, textAlign: 'center', fontFamily: fonts.regular, fontSize: 14, color: colors.ink, borderBottomWidth: 1, borderBottomColor: colors.line, paddingVertical: 4 },
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl + 8 },
   intro: {
     flexDirection: 'row',
