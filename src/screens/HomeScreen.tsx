@@ -50,7 +50,7 @@ export function HomeScreen({
   const sidebar = useSidebar();
   const r = useRolle();
   const now = new Date();
-  const kap = aktuellesKapitel(r.id, progress);
+  const kap = progress.modus === 'frei' ? null : aktuellesKapitel(r.id, progress);
   const day = dayState(progress);
   const { rank, next } = rankFor(progress.totalPoints);
   const rankPct = next ? (progress.totalPoints - rank.min) / (next.min - rank.min) : 1;
@@ -76,7 +76,7 @@ export function HomeScreen({
     </View>
   );
 
-  const story = kap ? (
+  const story = progress.modus === 'frei' ? null : kap ? (
     <Card style={{ gap: spacing.md }}>
       <View style={styles.storyTop}>
         <KatiAvatar size={44} />

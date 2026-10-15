@@ -95,6 +95,8 @@ export interface Progress {
   wache: Record<string, number>;
   /** Ausbaustufen des Hilfspunkts (Ersthelfer/in) */
   hilfspunkt: Record<string, number>;
+  /** Spielweise: mit Geschichte oder frei; leer = noch nicht gewählt */
+  modus: 'story' | 'frei' | '';
 }
 
 export const EMPTY_PROGRESS: Progress = {
@@ -136,6 +138,7 @@ export const EMPTY_PROGRESS: Progress = {
   pruefungBest: 0,
   wache: {},
   hilfspunkt: {},
+  modus: '',
 };
 
 export async function loadProgress(rolle: Rolle): Promise<Progress> {

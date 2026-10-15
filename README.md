@@ -72,6 +72,8 @@ Beim ersten Start wähle ich meine **Rolle** – jede hat ihren eigenen Spielsta
   **Erste-Hilfe-Prüfung** (20 Fragen, bestanden ab 16). Dazu ein Erste-Hilfe-Lexikon. Mit den Punkten rüste ich **mein eigenes Auto** aus: jede Ausrüstung hat eine eigene Wirkung (z. B. weniger Abzug bei Fehlern, mehr Punkte für wichtige Prüfungen, Hinweise durch das Licht), dazu gibt es **Ausrüstungs-Sets** mit Bonus und jeden Tag ein **Tagesangebot** mit 25 % Rabatt.
 - **Sanitäter/in:** das Rettungsdienst-Spiel mit Untersuchung, Messwerten, Diagnosen und dem eigenen Rettungswagen (unten).
 
+**Spielweise:** Nach der Rollenwahl entscheide ich, ob ich **mit Geschichte** spiele (Kati, Kapitel, Bereiche schalten sich nach und nach frei) oder **frei** (alles von Anfang an offen, keine Geschichte). Das lässt sich jederzeit unter „Mehr“ umstellen.
+
 **Die Geschichte:** Beide Rollen erzählen eine Geschichte (Sanitäter: elf, Ersthelfer: 20 Kapitel) mit Kati als Begleiterin – vom Erste-Hilfe-Kurs
 für den Führerschein bis zur Ersthelfer-App bzw. vom ersten Tag auf der Wache bis zur Praxisanleitung. Jedes Kapitel hat
 eine Aufgabe und schaltet neue Bereiche frei, so baut alles aufeinander auf. Am Ende der Ersthelfer-Geschichte wartet der

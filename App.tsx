@@ -39,6 +39,7 @@ import { QuizScreen } from './src/screens/QuizScreen';
 import { DetectiveScreen } from './src/screens/DetectiveScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
 import { RolleScreen } from './src/screens/RolleScreen';
+import { ModusScreen } from './src/screens/ModusScreen';
 import { DevScreen } from './src/screens/DevScreen';
 import { HilfspunktScreen } from './src/screens/HilfspunktScreen';
 import { WacheScreen } from './src/screens/WacheScreen';
@@ -409,7 +410,7 @@ export default function App() {
   };
 
   const resetProgress = () => {
-    const fresh = { ...EMPTY_PROGRESS, difficulty: progress.difficulty };
+    const fresh = { ...EMPTY_PROGRESS, difficulty: progress.difficulty, modus: progress.modus };
     setProgress(fresh);
     saveProgress(aktiv, fresh);
     lastCaseId.current = undefined;
@@ -450,11 +451,29 @@ export default function App() {
   const frameWidth = Math.min(available, frameMax ?? available);
   const tab = sidebar ? undefined : TAB_OF[screen.name];
 
+  // Spielweise noch nicht gewählt: mit Geschichte oder frei spielen
+  const modusFehlt = rolle !== undefined && rolle !== null && progress.modus === '';
+
   if ((!fontsLoaded && !fontError) || rolle === undefined) {
     return (
       <View style={styles.splash}>
         <StarOfLife size={64} color={colors.red} />
       </View>
+    );
+  }
+
+  if (modusFehlt) {
+    return (
+      <SafeAreaProvider>
+        <View style={styles.paper}>
+          <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
+            <StatusBar style="light" />
+            <RolleContext.Provider value={aktiv}>
+              <ModusScreen onWahl={(m) => importProgress({ ...progress, modus: m })} />
+            </RolleContext.Provider>
+          </SafeAreaView>
+        </View>
+      </SafeAreaProvider>
     );
   }
 
@@ -604,6 +623,7 @@ export default function App() {
                         onImport={importProgress}
                         onRolle={() => setScreen({ name: 'rolle' })}
                         onDev={() => setScreen({ name: 'dev' })}
+                        onModus={(m) => importProgress({ ...progress, modus: m })}
                       />
                     )}
                     {screen.name === 'quiz' && (

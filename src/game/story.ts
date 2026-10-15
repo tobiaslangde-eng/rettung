@@ -302,6 +302,7 @@ export function freiAb(rolle: Rolle, b: Bereich): number {
 
 /** Ist ein Bereich schon frei? Freigeschaltet wird mit dem Beginn des Kapitels, in dem er eingeführt wird. */
 export function istFrei(rolle: Rolle, p: Progress, b: Bereich): boolean {
+  if (p.modus === 'frei') return true;
   const ab = freiAb(rolle, b);
   return ab > 0 && p.story + 1 >= ab;
 }

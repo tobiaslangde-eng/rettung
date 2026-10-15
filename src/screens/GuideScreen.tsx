@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Linking, Platform, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Button, Card, IconTile, TopBar } from '../components/UI';
+import { Button, Card, IconTile, Segmented, TopBar } from '../components/UI';
 import { KatiAvatar } from '../components/Kati';
 import { BADGE_BONUS } from '../game/achievements';
 import { CPR_POINTS } from '../game/cpr';
@@ -112,12 +112,14 @@ export function GuideScreen({
   onImport,
   onRolle,
   onDev,
+  onModus,
 }: {
   progress: Progress;
   onReset: () => void;
   onImport: (p: Progress) => void;
   onRolle: () => void;
   onDev: () => void;
+  onModus: (m: 'story' | 'frei') => void;
 }) {
   const [confirmReset, setConfirmReset] = useState(false);
   const r = useRolle();
@@ -153,6 +155,22 @@ export function GuideScreen({
           </Text>
           <Text style={type.small}>Jede Rolle hat einen eigenen Spielstand. Beim Wechsel geht nichts verloren.</Text>
           <Button label="Rolle wechseln" variant="outline" onPress={onRolle} />
+        </Card>
+        <Card style={{ gap: spacing.sm }}>
+          <Text style={type.eyebrow}>Spielweise</Text>
+          <Segmented
+            options={[
+              { id: 'story', label: '📖 Mit Geschichte' },
+              { id: 'frei', label: '🧭 Frei spielen' },
+            ]}
+            value={progress.modus === 'frei' ? 'frei' : 'story'}
+            onChange={onModus}
+          />
+          <Text style={type.small}>
+            {progress.modus === 'frei'
+              ? 'Alles ist offen, es gibt keine Geschichte. Dein Fortschritt in der Geschichte bleibt gespeichert.'
+              : 'Kati führt dich durch Kapitel, die nach und nach neue Bereiche freischalten.'}
+          </Text>
         </Card>
         <View style={styles.intro}>
           <Pressable onPress={tippeKati} accessibilityElementsHidden importantForAccessibility="no" style={{ opacity: 1 }}>
