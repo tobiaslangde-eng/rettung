@@ -4,26 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Datenschutz – Einsatz 112</title>
-<meta name="theme-color" content="#15181C">
+<meta name="theme-color" content="#FFF3EE">
 <link rel="icon" type="image/png" href="icon-192.png">
 <style>
-  :root { color-scheme: light dark; --bg: #F2F3F5; --card: #FFFFFF; --text: #15181C; --muted: #5F6670; --line: #DADDE2; --accent: #E3262B; }
-  @media (prefers-color-scheme: dark) { :root { --bg: #0B0E12; --card: #15181C; --text: #F2F3F5; --muted: #A7ADB5; --line: #262B31; } }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  header { background: #15181C; color: #fff; padding: 28px 16px 20px; }
+  /* Gleiches Design wie die App: EKG-Papier, Tinte, Sticker-Karten */
+  :root { color-scheme: light; --paper: #FFF3EE; --ink: #14173A; --muted: #666A8F; --red: #E4262F; --yellow: #FFE226; }
+  body { margin: 0; color: var(--ink); font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--paper);
+    background-image: linear-gradient(#F4BFB3 1.5px, transparent 1.5px), linear-gradient(90deg, #F4BFB3 1.5px, transparent 1.5px), linear-gradient(#FADCD4 1px, transparent 1px), linear-gradient(90deg, #FADCD4 1px, transparent 1px);
+    background-size: 40px 40px, 40px 40px, 8px 8px, 8px 8px; }
+  header { background: var(--ink); color: #fff; padding: 28px 16px 20px; }
   header .wrap { display: flex; align-items: center; gap: 14px; }
-  header img { width: 56px; height: 56px; border-radius: 13px; }
-  header h1 { margin: 0; font-size: 24px; letter-spacing: .5px; text-transform: uppercase; }
-  header p { margin: 2px 0 0; color: #A7ADB5; font-size: 14px; }
-  .stripes { height: 10px; background: repeating-linear-gradient(-45deg, #E3262B 0 12px, #fff 12px 24px); }
+  header img { width: 56px; height: 56px; border-radius: 14px; border: 2px solid #fff; }
+  header h1 { margin: 0; font-size: 28px; letter-spacing: -.5px; font-weight: 800; }
+  header p { margin: 2px 0 0; color: #C9CCF5; font-size: 14px; }
+  .stripes { height: 16px; background-color: var(--yellow);
+    background-image: linear-gradient(45deg, var(--red) 25%, transparent 25%, transparent 75%, var(--red) 75%), linear-gradient(45deg, var(--red) 25%, transparent 25%, transparent 75%, var(--red) 75%);
+    background-size: 16px 16px; background-position: 0 0, 8px 8px; border-bottom: 2px solid var(--ink); }
   .wrap { max-width: 720px; margin: 0 auto; }
-  main { padding: 20px 16px 48px; }
-  section { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; margin-bottom: 14px; }
-  h2 { margin: 0 0 6px; font-size: 13px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--accent); }
+  main { padding: 24px 16px 48px; }
+  section { background: #fff; border: 2px solid var(--ink); border-radius: 20px; box-shadow: 0 4px 0 var(--ink); padding: 16px 18px; margin-bottom: 18px; }
+  h2 { margin: 0 0 6px; font: 600 12px/1.2 ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); }
   p, li { margin: 6px 0; }
   ul { padding-left: 20px; }
   small, .muted { color: var(--muted); }
-  a { color: #1F6FEB; }
+  a { color: #2F5BFF; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -44,7 +49,7 @@
     <h2>Spielstand</h2>
     <p>Punkte, Dienstgrad, Abzeichen und Einstellungen werden <strong>nur auf deinem Gerät</strong> gespeichert
       und nicht übertragen. Wenn du die App löschst, ist auch der Spielstand gelöscht. In der App kannst du ihn
-      jederzeit unter <em>Anleitung → Fortschritt zurücksetzen</em> löschen.</p>
+      jederzeit unter <em>Mehr → Fortschritt zurücksetzen</em> löschen.</p>
   </section>
   <section>
     <h2>Berechtigungen</h2>
