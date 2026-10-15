@@ -1,4 +1,4 @@
-import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ambulance } from '../components/Ambulance';
 import { Car } from '../components/Car';
 import { RankBadge } from '../components/Ems';
@@ -34,7 +34,6 @@ export function HomeScreen({
   onStory,
   onStoryDone,
   onModus,
-  onWelt,
 }: {
   progress: Progress;
   onStart: () => void;
@@ -49,8 +48,6 @@ export function HomeScreen({
   onStoryDone: () => void;
   /** Spielweise ändern (Geschichte oder frei) */
   onModus: () => void;
-  /** 3D-Welt öffnen (nur Web) */
-  onWelt: () => void;
 }) {
   const L = useLayout();
   const sidebar = useSidebar();
@@ -231,21 +228,6 @@ export function HomeScreen({
   const ausbauStufen = helfer ? hilfGesamt(progress) : wacheGesamt(progress);
   const ausbauMax = helfer ? HILF_GESAMT_MAX : WACHE_GESAMT_MAX;
 
-  const welt = Platform.OS === 'web' && (
-    <Tile size="lg" tint="ink" onPress={onWelt} accessibilityLabel="3D-Welt">
-      <TileLabel icon="🌍" text="Einsatz-Welt in 3D" tint="ink" />
-      <View style={styles.actionTop}>
-        <View style={{ flex: 1, gap: 4 }}>
-          <Text style={[type.headline, { color: colors.onDark }]}>Laufe in Ego-Perspektive durch die Stadt</Text>
-          <Text style={[type.small, { color: colors.onDarkSoft }]}>
-            Mit Inventar: {helfer ? 'Handy, Warnweste, Warndreieck, Verbandkasten …' : 'Funkgerät, Rucksack, Monitor, Beatmungsbeutel …'} Folge dem roten Licht zum Notfall!
-          </Text>
-        </View>
-        <Text style={{ fontSize: 44 }}>🌍</Text>
-      </View>
-    </Tile>
-  );
-
   const vehicle = (
     <Tile size="md" tint="slate" onPress={garageFrei ? onGarage : undefined} disabled={!garageFrei} accessibilityLabel={r.fahrzeug}>
       <TileLabel icon={helfer ? '🚗' : '🚑'} text={r.fahrzeug} tint="teal" />
@@ -322,7 +304,6 @@ export function HomeScreen({
         {today}
         {training}
         <BentoTitle>Ausbau</BentoTitle>
-        {welt}
         {vehicle}
         {ausbau}
         {profile}

@@ -159,14 +159,6 @@ Die Oberfläche passt sich an die Bildschirmgröße an:
 | **iPad quer** | **iPad hoch** |
 | ![iPad quer](docs/geraete/ipad-quer.png) | ![iPad hoch](docs/geraete/ipad-hoch.png) |
 
-## Einsatz-Welt in 3D
-
-Im Browser (Web-App) kann ich in **Ego-Perspektive** durch eine kleine Stadt laufen – mit Tag und Nacht, Fußgängern, Verkehr und einem **Inventar**, das aus der eigenen Ausrüstung kommt (Ersthelfer/in: Handy, Warnweste, Warndreieck, Verbandkasten, Taschenlampe, Rettungsdecke, Defibrillator; Sanitäter/in: Funkgerät, Weste, Notfallrucksack, Monitor-Defi, Beatmungsbeutel, Taschenlampe). Irgendwo in der Stadt passiert ein Notfall (rotes Licht). Wer sich richtig vorbereitet (Weste an, Stelle absichern, Hilfe rufen, Material bereitstellen), bekommt beim anschließenden Notfall Bonuspunkte. Nach dem Einsatz geht es zurück in die Welt.
-
-- **PC/Mac:** W A S D laufen, Umschalt rennen, Maus umsehen, 1–9 Gegenstand wählen, F benutzen, E helfen, Tab Inventar
-- **Handy/iPad:** links Joystick, rechts wischen zum Umsehen, unten Gegenstände und „Nutzen“
-- Technik: three.js (WebGL), alles ohne Bilddateien – Texturen, Gebäude und Fahrzeuge entstehen im Code (`src/world/`)
-
 ## Design „Puls“
 
 Hell, frisch und klinisch-sauber: ein **Bento-Raster** aus bunten Pastell-Kacheln auf Mintweiß, tiefes Petrolgrün als Tinte, **Teal** für Ersthelfer/innen und **Signalrot** für Sanitäter/innen. Medizinischer Touch durch EKG-Papier mit Herzschlag-Linie, Zahlen wie auf dem Patientenmonitor und Kreuz-Motive. Überschriften in *Bricolage Grotesque*, Lesetext in *Inter*. Details: [`docs/DESIGN.md`](docs/DESIGN.md). Frühere Varianten zum Vergleich: `/vorschau/leitstelle/` (dunkel) und `/vorschau/klar/` (hell, schlicht).

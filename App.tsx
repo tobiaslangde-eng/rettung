@@ -51,9 +51,6 @@ import { SchritteScreen } from './src/screens/SchritteScreen';
 import { TrainingScreen } from './src/screens/TrainingScreen';
 import { FrameWidthProvider, SIDEBAR_FROM, SIDEBAR_WIDTH, SidebarProvider, desktopShell } from './src/layout';
 import { colors, fonts } from './src/theme';
-import { WeltScreen } from './src/screens/WeltScreen';
-import { weltBus } from './src/world/bus';
-import { HelfenInfo } from './src/world/engine';
 
 type Screen =
   | { name: 'home' }
@@ -78,7 +75,6 @@ type Screen =
   | { name: 'garage' }
   | { name: 'wache' }
   | { name: 'hilfspunkt' }
-  | { name: 'welt' }
   | { name: 'dev' }
   | { name: 'case'; medCase: MedCase; daily: boolean; key: number }
   | {
@@ -253,11 +249,6 @@ export default function App() {
       result.lines.push({ label: 'Einsatz des Tages (+50 %)', points: extra });
       result.total += extra;
     }
-    if (weltBonus.current > 0) {
-      result.lines.push({ label: 'Vorbereitung in der Einsatz-Welt', points: weltBonus.current });
-      result.total += weltBonus.current;
-      weltBonus.current = 0;
-    }
     const day = registerDailyCase(progress, daily);
     if (day.goalBonus > 0) {
       result.lines.push({
@@ -302,9 +293,7 @@ export default function App() {
   /** Ersthelfer-Notfall abgeschlossen: Punkte, Sterne, Tagesziel */
   const finishHelfer = (e: HelferErgebnis, punkte: number, daily: boolean): HelferAbschluss => {
     const day = registerDailyCase(progress, daily);
-    const welt = weltBonus.current;
-    weltBonus.current = 0;
-    const total = punkte + welt + day.goalBonus;
+    const total = punkte + day.goalBonus;
     const { newBadges, promotion } = commit({
       ...day.progress,
       streak: e.sterne >= 2 ? progress.streak + 1 : 0,
@@ -434,31 +423,7 @@ export default function App() {
     saveProgress(aktiv, p);
   };
 
-  // 3D-Welt: bleibt im Hintergrund erhalten; nach einem Notfall geht es zurück in die Welt
-  const [weltOffen, setWeltOffen] = useState(false);
-  const weltRueck = useRef(false);
-  const weltBonus = useRef(0);
-  const weltBonusLetzt = useRef(0);
-  const home = () => {
-    if (weltRueck.current) {
-      weltRueck.current = false;
-      weltBonus.current = 0;
-      setScreen({ name: 'welt' });
-      weltBus.erledigt?.(true, weltBonusLetzt.current);
-      return;
-    }
-    setScreen({ name: 'home' });
-  };
-  const oeffneWelt = () => {
-    setWeltOffen(true);
-    setScreen({ name: 'welt' });
-  };
-  const weltHelfen = (info: HelfenInfo) => {
-    weltRueck.current = true;
-    weltBonus.current = info.bonus;
-    weltBonusLetzt.current = info.bonus;
-    startCase();
-  };
+  const home = () => setScreen({ name: 'home' });
   /** Zurück zum Bereich, aus dem ein Training gestartet wurde (Startseite oder Training-Tab) */
   const lastTop = useRef<'home' | 'training'>('home');
   if (screen.name === 'home' || screen.name === 'training') lastTop.current = screen.name;
@@ -473,7 +438,6 @@ export default function App() {
   const openTraining = (t: TrainingId) => setScreen({ name: t, key: Date.now() } as Screen);
 
   const navigate = (t: NavTarget) => {
-    if (t === 'welt') return oeffneWelt();
     if (t === 'start') return startCase();
     if (['quiz', 'wissen', 'cpr', 'manv', 'detektiv', 'schritte', 'notruf', 'zuerst', 'pack', 'handgriffe', 'mythen', 'aed', 'pruefung'].includes(t))
       return setScreen({ name: t, key: Date.now() } as Screen);
@@ -564,7 +528,6 @@ export default function App() {
                         onWache={() => setScreen(aktiv === 'helfer' ? { name: 'hilfspunkt' } : { name: 'wache' })}
                         onStory={storyAktion}
                         onModus={() => setModusOffen(true)}
-                        onWelt={oeffneWelt}
                         onStoryDone={storyDone}
                       />
                     )}
@@ -735,19 +698,6 @@ export default function App() {
             </View>
           </View>
         </SafeAreaView>
-        {weltOffen && (
-          <WeltScreen
-            key={`${aktiv}-${JSON.stringify(progress.equipment)}`}
-            rolle={aktiv}
-            progress={progress}
-            visible={screen.name === 'welt'}
-            onExit={() => {
-              weltRueck.current = false;
-              setScreen({ name: 'home' });
-            }}
-            onHelfen={weltHelfen}
-          />
-        )}
       </View>
       </RolleContext.Provider>
     </SafeAreaProvider>

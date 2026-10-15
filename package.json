@@ -12,12 +12,10 @@
     "react-native": "0.86.3",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-svg": "15.15.4",
-    "react-native-web": "~0.21.0",
-    "three": "^0.160.0"
+    "react-native-web": "~0.21.0"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
-    "@types/three": "^0.160.0",
     "typescript": "~6.0.3"
   },
   "scripts": {
