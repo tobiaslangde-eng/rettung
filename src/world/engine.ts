@@ -121,8 +121,6 @@ export class WorldEngine {
   private bob = 0;
   private keys = new Set<string>();
   private sprint = false;
-  private stick = { id: -1, x: 0, y: 0, cx: 0, cy: 0 };
-  private look = { id: -1, x: 0, y: 0 };
   private lookDelta = { x: 0, y: 0 };
   private touchMode = false;
   private locked = false;
@@ -369,49 +367,13 @@ export class WorldEngine {
     if (!this.locked) this.renderer.domElement.requestPointerLock?.();
   };
 
-  /** Touch: eigene Touch-Ereignisse (auf dem iPhone zuverlässiger als Pointer-Ereignisse) */
-  private touchPos(t: Touch) {
-    const rect = this.container.getBoundingClientRect();
-    return { x: t.clientX - rect.left, y: t.clientY - rect.top, w: rect.width };
-  }
-  private onTouchStart = (e: TouchEvent) => {
+  /** Umsehen per Wischen (kommt von der Wisch-Fläche der Oberfläche) */
+  addLook(dx: number, dy: number) {
     if (this.paused) return;
-    e.preventDefault();
-    this.startAudio();
     this.touchMode = true;
-    for (const t of Array.from(e.changedTouches)) {
-      const { x, y, w } = this.touchPos(t);
-      if (x < w * 0.5 && this.stick.id < 0) this.stick = { id: t.identifier, x: 0, y: 0, cx: x, cy: y };
-      else if (this.look.id < 0) this.look = { id: t.identifier, x: t.clientX, y: t.clientY };
-    }
-  };
-  private onTouchMove = (e: TouchEvent) => {
-    if (this.paused) return;
-    e.preventDefault();
-    for (const t of Array.from(e.changedTouches)) {
-      if (t.identifier === this.stick.id) {
-        const { x, y } = this.touchPos(t);
-        const dx = x - this.stick.cx;
-        const dy = y - this.stick.cy;
-        const m = Math.min(1, Math.hypot(dx, dy) / 50);
-        const a = Math.atan2(dy, dx);
-        this.stick.x = Math.cos(a) * m;
-        this.stick.y = Math.sin(a) * m;
-      } else if (t.identifier === this.look.id) {
-        this.lookDelta.x += (t.clientX - this.look.x) * 1.6;
-        this.lookDelta.y += (t.clientY - this.look.y) * 1.6;
-        this.look.x = t.clientX;
-        this.look.y = t.clientY;
-      }
-    }
-  };
-  private onTouchEnd = (e: TouchEvent) => {
-    e.preventDefault();
-    for (const t of Array.from(e.changedTouches)) {
-      if (t.identifier === this.stick.id) this.stick = { id: -1, x: 0, y: 0, cx: 0, cy: 0 };
-      if (t.identifier === this.look.id) this.look = { id: -1, x: 0, y: 0 };
-    }
-  };
+    this.lookDelta.x += dx * 1.6;
+    this.lookDelta.y += dy * 1.6;
+  }
   private onLockChange = () => {
     this.locked = document.pointerLockElement === this.renderer.domElement;
   };
@@ -425,11 +387,6 @@ export class WorldEngine {
     document.addEventListener('pointerlockchange', this.onLockChange);
     const el = this.renderer.domElement;
     el.addEventListener('pointerdown', this.onPointerDown);
-    const po = { passive: false } as AddEventListenerOptions;
-    el.addEventListener('touchstart', this.onTouchStart, po);
-    el.addEventListener('touchmove', this.onTouchMove, po);
-    el.addEventListener('touchend', this.onTouchEnd, po);
-    el.addEventListener('touchcancel', this.onTouchEnd, po);
   }
 
   private resize() {
@@ -450,8 +407,6 @@ export class WorldEngine {
     this.paused = p;
     if (p) {
       this.keys.clear();
-      this.stick = { id: -1, x: 0, y: 0, cx: 0, cy: 0 };
-      this.look = { id: -1, x: 0, y: 0 };
       if (document.pointerLockElement) document.exitPointerLock?.();
       this.stopSiren();
       cancelAnimationFrame(this.raf);
@@ -921,10 +876,6 @@ export class WorldEngine {
     if (this.keys.has('d')) fx += 1;
     if (this.keys.has('arrowleft')) this.yaw += 1.8 * dt;
     if (this.keys.has('arrowright')) this.yaw -= 1.8 * dt;
-    if (this.stick.id >= 0) {
-      fx += this.stick.x;
-      fz += this.stick.y;
-    }
     fx += this.pad.x;
     fz += this.pad.z;
     this.yaw -= this.padLook.x * 1.9 * dt;
@@ -1101,24 +1052,6 @@ export class WorldEngine {
     const w = this.container.clientWidth;
     const h = this.container.clientHeight;
     g.clearRect(0, 0, w, h);
-    // Joystick
-    if (this.touchMode && this.stick.id >= 0) {
-      const sx = this.stick.id >= 0 ? this.stick.cx : 90;
-      const sy = this.stick.id >= 0 ? this.stick.cy : h - 130;
-      g.globalAlpha = this.stick.id >= 0 ? 0.9 : 0.35;
-      g.fillStyle = 'rgba(255,255,255,0.18)';
-      g.strokeStyle = 'rgba(255,255,255,0.7)';
-      g.lineWidth = 2;
-      g.beginPath();
-      g.arc(sx, sy, 56, 0, TAU);
-      g.fill();
-      g.stroke();
-      g.fillStyle = 'rgba(255,255,255,0.85)';
-      g.beginPath();
-      g.arc(sx + this.stick.x * 40, sy + this.stick.y * 40, 24, 0, TAU);
-      g.fill();
-      g.globalAlpha = 1;
-    }
     // Karte
     const S = this.o.mobile ? 104 : 140;
     const cx = w - S / 2 - 14;

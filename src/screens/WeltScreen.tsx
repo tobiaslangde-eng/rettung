@@ -55,6 +55,24 @@ export function WeltScreen({ rolle, progress, visible, onExit, onHelfen }: Props
   const [inv, setInv] = useState(false);
   const [intro, setIntro] = useState(!introGezeigt);
   const [fehler, setFehler] = useState<string | null>(null);
+  // Wischen: pro Finger merken, wo er zuletzt war
+  const finger = useRef<Record<string | number, { x: number; y: number }>>({});
+  const wischStart = (ts: ReadonlyArray<{ identifier: string | number; pageX: number; pageY: number }>) => {
+    for (const t of Array.from(ts)) finger.current[t.identifier] = { x: t.pageX, y: t.pageY };
+  };
+  const wischBewegt = (ts: ReadonlyArray<{ identifier: string | number; pageX: number; pageY: number }>) => {
+    for (const t of Array.from(ts)) {
+      const f = finger.current[t.identifier];
+      if (!f) continue;
+      engine.current?.addLook(t.pageX - f.x, t.pageY - f.y);
+      f.x = t.pageX;
+      f.y = t.pageY;
+    }
+  };
+  const wischEnde = (ts: ReadonlyArray<{ identifier: string | number }>) => {
+    for (const t of Array.from(ts)) delete finger.current[t.identifier];
+  };
+
   const helfenRef = useRef(onHelfen);
   helfenRef.current = onHelfen;
 
@@ -139,13 +157,23 @@ export function WeltScreen({ rolle, progress, visible, onExit, onHelfen }: Props
   const dunkel = (hud?.nacht ?? 0) > 0.5;
 
   return (
-    <View style={[S.root, !visible && S.hidden]} pointerEvents={visible ? 'auto' : 'none'}>
+    <View style={[S.root, !visible && S.hidden, { touchAction: 'none' } as object]} pointerEvents={visible ? 'auto' : 'none'}>
       <View ref={host} style={S.canvas} />
       {fehler && (
         <View style={[StyleSheet.absoluteFill, S.center, { backgroundColor: '#08181B' }]}>
           <Text style={S.big}>😕</Text>
           <Text style={S.sub}>{fehler}</Text>
         </View>
+      )}
+      {/* Wisch-Fläche: Umsehen mit dem Finger (liegt unter den Knöpfen) */}
+      {!fehler && !intro && !inv && (
+        <View
+          style={[StyleSheet.absoluteFill, { touchAction: 'none' } as object]}
+          onTouchStart={(e) => wischStart(e.nativeEvent.changedTouches)}
+          onTouchMove={(e) => wischBewegt(e.nativeEvent.changedTouches)}
+          onTouchEnd={(e) => wischEnde(e.nativeEvent.changedTouches)}
+          onTouchCancel={(e) => wischEnde(e.nativeEvent.changedTouches)}
+        />
       )}
       <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
         {/* Oben links */}
@@ -197,7 +225,7 @@ export function WeltScreen({ rolle, progress, visible, onExit, onHelfen }: Props
 
         {/* Hilfe-Hinweis am Notfall */}
         {nah && (
-          <View style={[S.prompt, hud?.touch && { bottom: 322 }]} pointerEvents="box-none">
+          <View style={[S.prompt, hud?.touch && { bottom: 262 }]} pointerEvents="box-none">
             <Text style={S.promptHead}>{nah.art === 'unfall' ? '🚗 Verkehrsunfall' : '🧍 Person am Boden'}</Text>
             <Text style={S.promptSub}>
               {nah.abgesichert ? '✓ abgesichert  ' : '○ absichern  '}
@@ -210,7 +238,7 @@ export function WeltScreen({ rolle, progress, visible, onExit, onHelfen }: Props
           </View>
         )}
 
-        {/* Pfeile zum Laufen (links) und Umsehen (rechts) */}
+        {/* Pfeile zum Laufen */}
         {hud?.touch && (
           <>
             <View style={S.padWalk} pointerEvents="box-none">
@@ -239,33 +267,6 @@ export function WeltScreen({ rolle, progress, visible, onExit, onHelfen }: Props
                 onAus={() => engine.current?.setPad(0, 0)}
               />
               <Text style={S.padLabel}>LAUFEN</Text>
-            </View>
-            <View style={S.padLook} pointerEvents="box-none">
-              <PadKnopf
-                pfeil="▲"
-                style={{ left: 40, top: 0 }}
-                onAn={() => engine.current?.setPadLook(0, 1)}
-                onAus={() => engine.current?.setPadLook(0, 0)}
-              />
-              <PadKnopf
-                pfeil="◀"
-                style={{ left: 0, top: 40 }}
-                onAn={() => engine.current?.setPadLook(-1, 0)}
-                onAus={() => engine.current?.setPadLook(0, 0)}
-              />
-              <PadKnopf
-                pfeil="▶"
-                style={{ left: 80, top: 40 }}
-                onAn={() => engine.current?.setPadLook(1, 0)}
-                onAus={() => engine.current?.setPadLook(0, 0)}
-              />
-              <PadKnopf
-                pfeil="▼"
-                style={{ left: 40, top: 80 }}
-                onAn={() => engine.current?.setPadLook(0, -1)}
-                onAus={() => engine.current?.setPadLook(0, 0)}
-              />
-              <Text style={S.padLabel}>UMSEHEN</Text>
             </View>
           </>
         )}
@@ -377,8 +378,8 @@ export function WeltScreen({ rolle, progress, visible, onExit, onHelfen }: Props
             <View style={{ gap: 6, marginTop: 8 }}>
               {mobile ? (
                 <>
-                  <Text style={S.help}>📱 Linke Bildschirmhälfte: Joystick zum Laufen</Text>
-                  <Text style={S.help}>👆 Rechte Hälfte: wischen zum Umsehen</Text>
+                  <Text style={S.help}>📱 Pfeile unten links: Laufen</Text>
+                  <Text style={S.help}>👆 Mit dem Finger über das Bild wischen: Umsehen</Text>
                   <Text style={S.help}>🎒 Unten wählst du einen Gegenstand, „Nutzen“ setzt ihn ein</Text>
                 </>
               ) : (
@@ -508,7 +509,6 @@ const S = StyleSheet.create({
   roundSm: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(255,255,255,0.28)' },
   roundT: { fontFamily: fonts.bold, fontSize: 13, color: '#08181B' },
   padWalk: { position: 'absolute', left: 14, bottom: 86, width: 160, height: 166 },
-  padLook: { position: 'absolute', right: 14, bottom: 184, width: 130, height: 126 },
   pad: {
     position: 'absolute',
     width: 52,
