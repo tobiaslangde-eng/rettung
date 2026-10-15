@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Rating } from '../data/vitals';
 import { colors, fonts, hardShadow, spacing } from '../theme';
 import { EcgStrip, RatingStar } from './Ems';
-import { Bar, Tap } from './UI';
+import { Bar, Tap, shade } from './UI';
 
 /** Konfetti-Teilchen (feste Positionen in %, damit die Anzeige immer gleich aussieht) */
 const CONFETTI: { x: number; y: number; s: number; c: string; r: number; shape: 'sq' | 'dot' | 'bar' }[] = [
@@ -122,7 +122,7 @@ export function AnswerOption({
       accessibilityLabel={text}
       style={[
         styles.answer,
-        { backgroundColor: bg },
+        { backgroundColor: bg, borderBottomWidth: 4, borderBottomColor: shade(state === 'idle' || state === 'dim' ? '#D9E5E0' : bg, state === 'idle' || state === 'dim' ? 0.1 : 0.22) },
         state === 'dim' && { opacity: 0.45 },
         pressedIn && { transform: [{ translateY: 3 }] },
       ]}

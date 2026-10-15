@@ -468,7 +468,7 @@ export default function App() {
       <SafeAreaProvider>
         <View style={styles.paper}>
           <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
-            <StatusBar style="light" />
+            <StatusBar style="dark" />
             <RolleContext.Provider value={aktiv}>
               <ModusScreen
                 aktuell={progress.modus}
@@ -491,7 +491,7 @@ export default function App() {
       <SafeAreaProvider>
         <View style={styles.paper}>
           <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
-            <StatusBar style="light" />
+            <StatusBar style="dark" />
             <RolleScreen onWahl={waehleRolle} />
           </SafeAreaView>
         </View>
@@ -504,7 +504,7 @@ export default function App() {
       <RolleContext.Provider value={aktiv}>
       <View style={styles.paper}>
         <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
-          <StatusBar style="light" />
+          <StatusBar style="dark" />
           {desktopShell && (
             <View nativeID="titlebar" style={[styles.titlebar, desktopShell === 'mac' ? styles.titlebarMac : styles.titlebarWin]}>
               <StarOfLife size={14} />

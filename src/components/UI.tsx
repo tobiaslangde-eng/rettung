@@ -73,6 +73,15 @@ export function Card({ children, style }: { children: ReactNode; style?: StylePr
   );
 }
 
+/** Dunklere Farbe für die „dicke Unterkante“ (wie bei Duolingo-Knöpfen) */
+export function shade(hex: string, amount = 0.22): string {
+  const m = /^#?([0-9a-f]{6})/i.exec(hex);
+  if (!m) return hex;
+  const n = parseInt(m[1], 16);
+  const f = (c: number) => Math.max(0, Math.round(c * (1 - amount)));
+  return `#${[(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) => f(c).toString(16).padStart(2, '0')).join('')}`;
+}
+
 type BtnVariant = 'primary' | 'dark' | 'outline' | 'alarm' | 'tinted' | 'mint';
 
 /** Klarer Knopf: Hauptaktion in der Farbe der Rolle, sonst weiß oder hell getönt */
@@ -106,7 +115,12 @@ export function Button({
       onPress={onPress}
       disabled={disabled}
       accessibilityLabel={label}
-      style={[styles.btn, { backgroundColor: bg, opacity: disabled ? 0.45 : 1 }, border ? { borderWidth: 1, borderColor: border } : null, style]}
+      style={[
+        styles.btn,
+        { backgroundColor: bg, opacity: disabled ? 0.45 : 1, borderBottomWidth: 4, borderBottomColor: border ? '#C3D5CE' : shade(bg) },
+        border ? { borderWidth: 1, borderColor: border, borderBottomWidth: 4, borderBottomColor: '#C3D5CE' } : null,
+        style,
+      ]}
     >
       <View style={styles.btnInner}>
         <Text style={[styles.btnLabel, { color: fg }]}>{label}</Text>
@@ -341,14 +355,14 @@ const styles = StyleSheet.create({
   sectionTitle: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: spacing.sm },
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radius.md,
+    borderRadius: 24,
     borderWidth: 1,
     borderColor: colors.line,
     padding: spacing.lg,
     overflow: 'hidden',
   },
   status: { position: 'absolute', top: 0, bottom: 0, left: 0, width: 4 },
-  btn: { borderRadius: 12, minHeight: 50, justifyContent: 'center' },
+  btn: { borderRadius: 18, minHeight: 52, justifyContent: 'center' },
   btnInner: { paddingVertical: 12, paddingHorizontal: spacing.lg, alignItems: 'center' },
   btnLabel: { fontSize: 16, lineHeight: 21, fontFamily: fonts.semibold },
   btnSub: { fontFamily: fonts.medium, fontSize: 12, marginTop: 2, opacity: 0.85 },

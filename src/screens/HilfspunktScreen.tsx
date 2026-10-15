@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { HilfspunktBild } from '../components/Hilfspunkt';
+import { BentoGrid, Tile } from '../components/Bento';
 import { Bar, Button, StatChip, TopBar } from '../components/UI';
 import { euro } from '../game/equipment';
 import { HILFPUNKT, HILF_GESAMT_MAX, HILF_MAX, HilfId, hilfGesamt, hilfKosten, hilfLevel } from '../game/hilfspunkt';
@@ -36,12 +37,13 @@ export function HilfspunktScreen({ progress, onBuild }: { progress: Progress; on
             <Text style={type.small}>Dein Hilfspunkt ist der Treffpunkt für Erste Hilfe in deiner Nachbarschaft.</Text>
           </View>
         </View>
-        {HILFPUNKT.map((h) => {
+        <BentoGrid>
+        {HILFPUNKT.map((h, i) => {
           const l = lv(h.id);
           const kosten = hilfKosten(progress, h.id);
           const fehlt = kosten !== null && progress.budget < kosten;
           return (
-            <View key={h.id} style={styles.card}>
+            <Tile key={h.id} size="md" tint={(['teal', 'blue', 'violet', 'amber', 'green'] as const)[i % 5]}>
               <View style={styles.head}>
                 <View style={styles.icon}>
                   <Text style={{ fontSize: 24, fontFamily: fonts.regular }}>{h.icon}</Text>
@@ -79,9 +81,10 @@ export function HilfspunktScreen({ progress, onBuild }: { progress: Progress; on
                   Es fehlen noch {euro(kosten! - progress.budget)} – sammle Punkte bei Notfällen und Trainings.
                 </Text>
               )}
-            </View>
+            </Tile>
           );
         })}
+        </BentoGrid>
       </ScrollView>
     </View>
   );
@@ -89,10 +92,10 @@ export function HilfspunktScreen({ progress, onBuild }: { progress: Progress; on
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
-  wide: { padding: spacing.xl, maxWidth: 760, alignSelf: 'center', width: '100%' },
+  wide: { padding: spacing.xl, maxWidth: 1000, alignSelf: 'center', width: '100%' },
   bild: {
     alignItems: 'center',
-    borderRadius: 16,
+    borderRadius: 26,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.line,
@@ -125,7 +128,7 @@ const styles = StyleSheet.create({
   },
   stufe: { fontFamily: fonts.semibold, fontSize: 12.5, color: colors.tuerkisDark, marginTop: 2 },
   pips: { flexDirection: 'row', gap: 4 },
-  pip: { width: 10, height: 10, borderRadius: 5, borderWidth: 1.5, borderColor: colors.line },
+  pip: { width: 10, height: 10, borderRadius: 5, borderWidth: 1.5, borderColor: 'rgba(15,42,46,0.25)' },
   wirkung: { fontFamily: fonts.semibold, fontSize: 13, color: colors.inkSoft },
   fertig: { fontFamily: fonts.semibold, fontSize: 14, color: colors.mintDark },
 });

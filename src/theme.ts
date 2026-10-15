@@ -1,4 +1,4 @@
-// Design „Leitstelle“ – dunkel, technisch, professionell (Marineblau, Anthrazit, Weiß, Rot und Türkis als Akzente)
+// Design „Puls“ – hell, frisch, klinisch-sauber: Mintweiß, tiefes Petrolgrün, bunte Pastell-Kacheln im Bento-Raster
 //
 // - Ruhiger, hellgrauer Hintergrund, weiße Flächen mit feiner Linie, keine Schatten
 // - Eine Akzentfarbe je Rolle: Sanitäter/in Rot, Ersthelfer/in Grün (siehe src/game/rolle.ts)
@@ -7,70 +7,73 @@
 // Die alten Farbnamen bleiben als Alias bestehen und zeigen auf die ruhigen Werte.
 export const colors = {
   // Basis (dunkel: Marineblau / Anthrazit)
-  ink: '#EAF0F8', // Haupttext (hell auf dunkel)
-  inkSoft: '#C3CEDD',
-  onBright: '#08121F', // Text auf hellen Flächen (Türkis, Gelb, Weiß)
-  navy: '#050D18', // tiefste Fläche (Monitor, Tafeln)
-  monitorBg: '#050D18',
-  paper: '#0B1727', // Hintergrund (Marine)
-  paperLine: '#13253D',
-  paperLineStrong: '#1C3252',
-  surface: '#13233A', // Karten (Anthrazit-Marine)
-  surface2: '#1A2E4A', // zweite Ebene
+  ink: '#0F2A2E', // Haupttext (hell auf dunkel)
+  inkSoft: '#35504F',
+  onBright: '#0F2A2E', // Text auf hellen Flächen (Türkis, Gelb, Weiß)
+  navy: '#0F2A2E', // tiefste Fläche (Monitor, Tafeln)
+  monitorBg: '#08181B',
+  paper: '#EDF4F1', // Hintergrund (Marine)
+  paperLine: '#E1ECE8',
+  paperLineStrong: '#D3E2DC',
+  surface: '#FFFFFF', // Karten (Anthrazit-Marine)
+  surface2: '#F3F8F6', // zweite Ebene
   white: '#FFFFFF',
-  muted: '#8FA2BA', // Zweittext
-  line: '#243C5A', // Linien, Rahmen, leere Balken
+  // Text auf dunklen Flächen (Monitor, Pager, Tafeln)
+  onDark: '#E9F5F2',
+  onDarkSoft: '#9FBDB7',
+  muted: '#5A7370', // Zweittext
+  line: '#D9E5E0', // Linien, Rahmen, leere Balken
 
   // Signalfarben
-  red: '#E5383B',
-  redDark: '#FF7A7D',
-  redTint: '#3A1A25',
-  blue: '#3B82F6',
-  blueDark: '#7FB0FF',
-  blueTint: '#14305A',
-  yellow: '#F7C948', // Belohnung, Auswahl
-  yellowTint: '#3A3218',
-  mint: '#14664A', // richtig (Fläche)
-  mintDark: '#4ADE9A', // richtig (Text, Linie)
-  mintTint: '#0F3A2E',
+  red: '#E0393E',
+  redDark: '#B42327',
+  redTint: '#FFE1E0',
+  blue: '#2F6FED',
+  blueDark: '#1F55BA',
+  blueTint: '#DCE8FF',
+  yellow: '#FFC531', // Belohnung, Auswahl
+  yellowTint: '#FFF1C2',
+  mint: '#BDEBD7', // richtig (Fläche)
+  mintDark: '#0B7A55', // richtig (Text, Linie)
+  mintTint: '#DDF5EA',
 
   // Bereichsfarben
-  lilac: '#1F2750',
-  violet: '#8B8CFF',
-  pinkTint: '#3B1B30',
-  pinkStrong: '#FF6FAE',
-  peach: '#3A261A',
-  orange: '#FF8A3D',
-  sky: '#0F3048',
-  skyStrong: '#2DD4E8',
-  butter: '#222A33',
+  lilac: '#E6E0FF',
+  violet: '#6D5BD0',
+  pinkTint: '#FFDDEA',
+  pinkStrong: '#C2347A',
+  peach: '#FFE6C7',
+  orange: '#E8731A',
+  sky: '#D6ECFB',
+  skyStrong: '#1C86C9',
+  butter: '#FFF6D6',
 
   // Akzent Türkis
-  tuerkis: '#2DD4BF',
-  tuerkisDark: '#5EEAD4',
-  tuerkisTint: '#0E3A3C',
+  tuerkis: '#0A9A88',
+  tuerkisDark: '#075F55',
+  tuerkisTint: '#D5F2EB',
 
   // Alte Namen (Alias)
-  graphit: '#EAF0F8',
-  graphitSoft: '#C3CEDD',
-  nacht: '#050D18',
+  graphit: '#0F2A2E',
+  graphitSoft: '#35504F',
+  nacht: '#08181B',
   weiss: '#FFFFFF',
-  grau50: '#0B1727',
-  grau200: '#C3CEDD',
-  grau300: '#8FA2BA',
-  grau500: '#8FA2BA',
-  signalrot: '#E5383B',
-  leuchtorange: '#FF8A3D',
-  warngelb: '#F7C948',
-  blaulicht: '#3B82F6',
-  blaulichtDark: '#7FB0FF',
-  blaulichtLight: '#14305A',
-  gruen: '#4ADE9A',
-  amber: '#FF8A3D',
+  grau50: '#EDF4F1',
+  grau200: '#C9DAD4',
+  grau300: '#8EA6A0',
+  grau500: '#5A7370',
+  signalrot: '#E0393E',
+  leuchtorange: '#E8731A',
+  warngelb: '#FFC531',
+  blaulicht: '#2F6FED',
+  blaulichtDark: '#1F55BA',
+  blaulichtLight: '#DCE8FF',
+  gruen: '#0B7A55',
+  amber: '#E8731A',
   monitorGruen: '#2BE38B',
-  indigo: '#8B8CFF',
-  lila: '#A99BFF',
-  pink: '#FF6FAE',
+  indigo: '#6D5BD0',
+  lila: '#8B7CF6',
+  pink: '#C2347A',
 };
 
 /** Farben wie auf einem Patientenmonitor (auf dunklem Grund) */
@@ -102,9 +105,23 @@ export const fonts = {
   artBlack: 'Inter_800ExtraBold',
 };
 
+/** Kacheln im Bento-Raster: Hintergrund, Rand und Akzent je Farbwelt (alle auf dunklem Marine) */
+export const tiles = {
+  slate: { bg: '#FFFFFF', edge: '#D9E5E0', accent: '#4D6663' },
+  teal: { bg: '#D3F1E9', edge: '#B4E2D5', accent: '#07685D' },
+  red: { bg: '#FFDDD9', edge: '#FFC2BB', accent: '#B02C27' },
+  violet: { bg: '#E4DEFF', edge: '#CDC3FA', accent: '#5240B5' },
+  amber: { bg: '#FFEFC0', edge: '#F7DC88', accent: '#855800' },
+  blue: { bg: '#D8E7FF', edge: '#BAD2FA', accent: '#1E53B5' },
+  green: { bg: '#DDF3D2', edge: '#C0E5B2', accent: '#2C6B1C' },
+  pink: { bg: '#FFDDEA', edge: '#FBC1D5', accent: '#A3285B' },
+  ink: { bg: '#0F2A2E', edge: '#1D4247', accent: '#5EEAD4' },
+};
+export type TileTint = keyof typeof tiles;
+
 export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 };
 
-export const radius = { sm: 10, md: 14, lg: 18, pill: 999 };
+export const radius = { sm: 12, md: 18, lg: 24, xl: 28, pill: 999 };
 
 /** Früher harte Schatten – im Design „Klar“ gibt es keine Schatten. Bleibt als Funktion, damit alte Stellen funktionieren. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

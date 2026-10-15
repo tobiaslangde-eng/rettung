@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { WacheBild } from '../components/Wache';
+import { BentoGrid, Tile } from '../components/Bento';
 import { Bar, Button, StatChip, TopBar } from '../components/UI';
 import { euro } from '../game/equipment';
 import { WACHE, WACHE_GESAMT_MAX, WACHE_MAX, wacheGesamt, wacheKosten, wacheLevel } from '../game/wache';
@@ -36,12 +37,13 @@ export function WacheScreen({ progress, onBuild }: { progress: Progress; onBuild
             <Bar pct={gesamt / WACHE_GESAMT_MAX} color={colors.tuerkis} />
           </View>
         </View>
-        {WACHE.map((w) => {
+        <BentoGrid>
+        {WACHE.map((w, i) => {
           const l = lv(w.id);
           const kosten = wacheKosten(progress, w.id);
           const fehlt = kosten !== null && progress.budget < kosten;
           return (
-            <View key={w.id} style={styles.card}>
+            <Tile key={w.id} size="md" tint={(['teal', 'blue', 'violet', 'amber', 'green'] as const)[i % 5]}>
               <View style={styles.head}>
                 <View style={styles.icon}>
                   <Text style={{ fontSize: 24, fontFamily: fonts.regular }}>{w.icon}</Text>
@@ -79,9 +81,10 @@ export function WacheScreen({ progress, onBuild }: { progress: Progress; onBuild
                   Es fehlen noch {euro(kosten! - progress.budget)} – sammle Punkte bei Einsätzen und Trainings.
                 </Text>
               )}
-            </View>
+            </Tile>
           );
         })}
+        </BentoGrid>
       </ScrollView>
     </View>
   );
@@ -89,10 +92,10 @@ export function WacheScreen({ progress, onBuild }: { progress: Progress; onBuild
 
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
-  wide: { padding: spacing.xl, maxWidth: 760, alignSelf: 'center', width: '100%' },
+  wide: { padding: spacing.xl, maxWidth: 1000, alignSelf: 'center', width: '100%' },
   bild: {
     alignItems: 'center',
-    borderRadius: 16,
+    borderRadius: 26,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.line,
@@ -125,7 +128,7 @@ const styles = StyleSheet.create({
   },
   stufe: { fontFamily: fonts.semibold, fontSize: 12.5, color: colors.tuerkisDark, marginTop: 2 },
   pips: { flexDirection: 'row', gap: 4 },
-  pip: { width: 10, height: 10, borderRadius: 5, borderWidth: 1.5, borderColor: colors.line },
+  pip: { width: 10, height: 10, borderRadius: 5, borderWidth: 1.5, borderColor: 'rgba(15,42,46,0.25)' },
   wirkung: { fontFamily: fonts.semibold, fontSize: 13, color: colors.inkSoft },
   fertig: { fontFamily: fonts.semibold, fontSize: 14, color: colors.mintDark },
 });

@@ -159,13 +159,9 @@ Die Oberfläche passt sich an die Bildschirmgröße an:
 | **iPad quer** | **iPad hoch** |
 | ![iPad quer](docs/geraete/ipad-quer.png) | ![iPad hoch](docs/geraete/ipad-hoch.png) |
 
-## Design „Leitstelle“
+## Design „Puls“
 
-Dunkel, technisch und professionell – wie eine moderne Leitstelle: Marineblau und Anthrazit als Grundton, Weiß für Text, **Rot**
-(Sanitäter/in, Alarm) und **Türkis** (Ersthelfer/in, Ausbau) als Akzente. Überschriften in *Bricolage Grotesque*, Lesetext in *Inter*.
-Der Patientenmonitor, die Fahrzeuge, die Notfall-Szenen und die **Rettungswache bei Nacht** sind eigene Illustrationen.
-Die Startseite ist von oben nach unten gegliedert: Geschichte, Hauptaktion, Heute, Training, Fahrzeug, Wache, Rang.
-Details: [`docs/DESIGN.md`](docs/DESIGN.md). Die helle Variante „Klar“ gibt es als Vergleich unter `/vorschau/klar/`.
+Hell, frisch und klinisch-sauber: ein **Bento-Raster** aus bunten Pastell-Kacheln auf Mintweiß, tiefes Petrolgrün als Tinte, **Teal** für Ersthelfer/innen und **Signalrot** für Sanitäter/innen. Medizinischer Touch durch EKG-Papier mit Herzschlag-Linie, Zahlen wie auf dem Patientenmonitor und Kreuz-Motive. Überschriften in *Bricolage Grotesque*, Lesetext in *Inter*. Details: [`docs/DESIGN.md`](docs/DESIGN.md). Frühere Varianten zum Vergleich: `/vorschau/leitstelle/` (dunkel) und `/vorschau/klar/` (hell, schlicht).
 
 **Mein Hilfspunkt (Ersthelfer/in):** Das Gegenstück zur Wache – ein Vereinsheim als Erste-Hilfe-Stützpunkt mit Hausapotheke, Erste-Hilfe-Raum, Defi-Station, Helfer-Netzwerk und Kursraum (je drei Stufen). Jeder Bereich wirkt in Notfällen und Trainings. Auch die Auto-Ausrüstung hat für jede Stufe eine eigene Grafik.
 
