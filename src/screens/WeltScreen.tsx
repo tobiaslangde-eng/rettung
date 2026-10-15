@@ -20,6 +20,9 @@ const INK = 'rgba(8,24,27,0.72)';
 const LINE = 'rgba(255,255,255,0.22)';
 const TEAL = '#2dd4bf';
 
+/** Anleitung nur einmal pro Sitzung zeigen (auch wenn die Welt nach einem Ausrüstungs-Upgrade neu aufgebaut wird) */
+let introGezeigt = false;
+
 function webglOk(): boolean {
   try {
     const c = document.createElement('canvas');
@@ -35,7 +38,7 @@ export function WeltScreen({ rolle, progress, visible, onExit, onHelfen }: Props
   const engine = useRef<WorldEngine | null>(null);
   const [hud, setHud] = useState<HudState | null>(null);
   const [inv, setInv] = useState(false);
-  const [intro, setIntro] = useState(true);
+  const [intro, setIntro] = useState(!introGezeigt);
   const [fehler, setFehler] = useState<string | null>(null);
   const helfenRef = useRef(onHelfen);
   helfenRef.current = onHelfen;
@@ -307,6 +310,7 @@ export function WeltScreen({ rolle, progress, visible, onExit, onHelfen }: Props
             <Pressable
               style={[S.btn, { marginTop: 14 }]}
               onPress={() => {
+                introGezeigt = true;
                 setIntro(false);
                 setTimeout(() => {
                   engine.current?.setPaused(false);

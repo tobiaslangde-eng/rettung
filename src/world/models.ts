@@ -119,10 +119,15 @@ export function signTexture(text: string, bg: string, fg = '#ffffff', icon?: str
       g.fillStyle = 'rgba(255,255,255,0.18)';
       g.fillRect(0, 0, w, 10);
       g.fillStyle = fg;
-      g.font = 'bold 66px sans-serif';
+      const label = (icon ? icon + ' ' : '') + text;
+      let size = 66;
+      g.font = `bold ${size}px sans-serif`;
+      const breite = g.measureText(label).width;
+      if (breite > w - 40) size = Math.floor((size * (w - 40)) / breite);
+      g.font = `bold ${size}px sans-serif`;
       g.textAlign = 'center';
       g.textBaseline = 'middle';
-      g.fillText((icon ? icon + ' ' : '') + text, w / 2, h / 2 + 4);
+      g.fillText(label, w / 2, h / 2 + 4);
     },
     false,
   );

@@ -737,6 +737,7 @@ export default function App() {
         </SafeAreaView>
         {weltOffen && (
           <WeltScreen
+            key={`${aktiv}-${JSON.stringify(progress.equipment)}`}
             rolle={aktiv}
             progress={progress}
             visible={screen.name === 'welt'}

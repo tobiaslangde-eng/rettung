@@ -1128,6 +1128,10 @@ export class WorldEngine {
     g.fill();
   }
 
+  /** Zeit vorspulen ohne zu zeichnen (Tests) */
+  simulate(sekunden: number) {
+    for (let t = 0; t < sekunden; t += 0.05) this.update(0.05, performance.now() / 1000 + t);
+  }
   /** Einmal rendern (Tests) */
   renderOnce() {
     this.update(0.016, performance.now() / 1000);
