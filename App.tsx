@@ -19,7 +19,7 @@ import { EquipmentId, helferEffekteFuer, ausruestung, buyUpgrade, equipmentEffec
 import { ArchiveStamp, mergeArchive } from './src/game/detective';
 import { HelferErgebnis } from './src/game/helfer';
 import { Rolle, RolleContext, setAktiveRolle } from './src/game/rolle';
-import { KAPITEL, KAPITEL_BONUS, StoryAktion, istFrei } from './src/game/story';
+import { KAPITEL_BONUS, StoryAktion, istFrei } from './src/game/story';
 import { TrainingId } from './src/game/trainings';
 import { manvPoints } from './src/game/manv';
 import { QUIZ_POINTS } from './src/game/quiz';
@@ -604,7 +604,6 @@ export default function App() {
                         onImport={importProgress}
                         onRolle={() => setScreen({ name: 'rolle' })}
                         onDev={() => setScreen({ name: 'dev' })}
-                        onUnlock={() => commit({ ...progress, story: Math.max(progress.story, KAPITEL[aktiv].length - 1) })}
                       />
                     )}
                     {screen.name === 'quiz' && (
