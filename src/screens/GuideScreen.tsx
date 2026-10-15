@@ -8,6 +8,7 @@ import { INCIDENT_POINTS } from '../data/incidents';
 import { MANV_PERFECT_BONUS, MANV_POINTS } from '../data/manv';
 import { DAILY_GOAL, dailyGoalBonus } from '../game/daily';
 import { QUIZ_POINTS } from '../game/quiz';
+import { KAPITEL } from '../game/story';
 import { useRolle } from '../game/rolle';
 import { DIFFICULTIES } from '../game/difficulty';
 import { POINTS } from '../game/scoring';
@@ -110,14 +111,17 @@ export function GuideScreen({
   onReset,
   onImport,
   onRolle,
+  onUnlock,
 }: {
   progress: Progress;
   onReset: () => void;
   onImport: (p: Progress) => void;
   onRolle: () => void;
+  onUnlock: () => void;
 }) {
   const [confirmReset, setConfirmReset] = useState(false);
   const r = useRolle();
+  const alleFrei = progress.story >= KAPITEL[r.id].length - 1;
   return (
     <View style={{ flex: 1 }}>
       <TopBar kicker="Anleitung & Spielstand" title="Mehr" />
@@ -129,6 +133,19 @@ export function GuideScreen({
           </Text>
           <Text style={type.small}>Jede Rolle hat einen eigenen Spielstand. Beim Wechsel geht nichts verloren.</Text>
           <Button label="Rolle wechseln" variant="outline" onPress={onRolle} />
+        </Card>
+        <Card style={{ gap: spacing.sm }}>
+          <Text style={type.eyebrow}>Zum Testen</Text>
+          <Text style={type.small}>
+            Schaltet alle Bereiche dieser Rolle frei, auch die, die sonst erst durch die Geschichte kommen. Dein Spielstand und deine Punkte
+            bleiben erhalten.
+          </Text>
+          <Button
+            label={alleFrei ? '✓ Alles freigeschaltet' : 'Alle Bereiche freischalten'}
+            variant="outline"
+            disabled={alleFrei}
+            onPress={onUnlock}
+          />
         </Card>
         <View style={styles.intro}>
           <KatiAvatar size={52} />
