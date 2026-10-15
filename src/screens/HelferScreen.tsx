@@ -285,7 +285,7 @@ function Zeile({ label, wert }: { label: string; wert: number }) {
 }
 
 const styles = StyleSheet.create({
-  licht: { fontFamily: fonts.semibold, fontSize: 13, color: colors.yellow },
+  licht: { fontFamily: fonts.semibold, fontSize: 13, color: '#855800' },
   szene: { alignItems: 'center', borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: colors.line },
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   contentWide: { padding: spacing.xl, maxWidth: 760, alignSelf: 'center', width: '100%' },

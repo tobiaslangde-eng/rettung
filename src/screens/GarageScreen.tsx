@@ -5,6 +5,7 @@ import { AutoDeviceArt, hatAutoArt } from '../components/AutoDevices';
 import { Car } from '../components/Car';
 import { DeviceArt, Sparkles } from '../components/Devices';
 import { FirstPersonInterior } from '../components/FirstPersonInterior';
+import { BentoGrid, Tile, TileLabel } from '../components/Bento';
 import { Bar, Button, Segmented, StatChip, Tap, TopBar } from '../components/UI';
 import {
   ausruestung,
@@ -352,26 +353,32 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
               )}
 
               <Text style={[type.eyebrow, { marginTop: spacing.sm }]}>Gesamte Ausrüstung</Text>
-              {ausruestung().map((e) => {
-                const l = levels[e.id];
-                const can = upgradable.includes(e.id);
-                return (
-                  <Tap key={e.id} onPress={() => setSheet(e.id)} offset={3} accessibilityLabel={e.title} style={styles.row}>
-                    <View style={styles.rowArt}>
-                      <Art id={e.id} level={l} size={e.id === 'rtw' || e.id === 'auto' ? 36 : 44} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.rowKicker}>{e.title}</Text>
-                      <Text style={styles.rowName} numberOfLines={1}>
-                        {e.tiers[l - 1].name}
-                      </Text>
-                      <Pips level={l} />
-                    </View>
-                    {can && <Text style={styles.rowUp}>↑ Aufrüsten</Text>}
-                    <Text style={styles.rowArrow}>›</Text>
-                  </Tap>
-                );
-              })}
+              <BentoGrid>
+                {ausruestung().map((e, i) => {
+                  const l = levels[e.id];
+                  const can = upgradable.includes(e.id);
+                  const tint = (['teal', 'violet', 'amber', 'blue', 'pink', 'green', 'red'] as const)[i % 7];
+                  return (
+                    <Tile key={e.id} size="half" tint={tint} onPress={() => setSheet(e.id)} accessibilityLabel={e.title} style={{ minHeight: 190, justifyContent: 'space-between' }}>
+                      <TileLabel text={e.title} tint={tint} />
+                      <View style={styles.tileArt}>
+                        <Art id={e.id} level={l} size={e.id === 'rtw' || e.id === 'auto' ? 56 : 66} />
+                      </View>
+                      <View style={{ gap: 4 }}>
+                        <Text style={[styles.rowName, { fontSize: 14.5, lineHeight: 18 }]} numberOfLines={2}>
+                          {e.tiers[l - 1].name}
+                        </Text>
+                        <Pips level={l} />
+                        {can && (
+                          <Text style={[styles.rowUp, { alignSelf: 'flex-start' }]} numberOfLines={1}>
+                            ↑ Aufrüsten
+                          </Text>
+                        )}
+                      </View>
+                    </Tile>
+                  );
+                })}
+              </BentoGrid>
             </View>,
           ]}
         />
@@ -393,9 +400,10 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
 }
 
 const styles = StyleSheet.create({
+  tileArt: { alignItems: 'center', justifyContent: 'center', height: 70 },
   angebot: { backgroundColor: colors.yellowTint, borderWidth: 1.5, borderColor: colors.yellow, borderRadius: 16, padding: spacing.md, gap: spacing.sm },
-  angebotBadge: { fontFamily: fonts.mono, fontSize: 11, letterSpacing: 1, color: colors.yellow },
-  angebotPreis: { fontFamily: fonts.bold, fontSize: 14, color: colors.yellow, marginTop: 2 },
+  angebotBadge: { fontFamily: fonts.mono, fontSize: 11, letterSpacing: 1, color: '#855800' },
+  angebotPreis: { fontFamily: fonts.bold, fontSize: 14, color: '#855800', marginTop: 2 },
   setRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.sm, opacity: 0.9 },
   setRowOn: { opacity: 1 },
   setBonus: { fontFamily: fonts.displayBlack, fontSize: 15, color: colors.muted },

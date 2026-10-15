@@ -25,7 +25,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   const akten = archiveCount(p);
   const detektiv: TrainingInfo = {
     id: 'detektiv',
-    farbe: '#1F2750',
+    farbe: '#E4DEFF',
     icon: '🔍',
     title: 'Detektiv-Akten',
     sub: rolle === 'helfer' ? 'Woran erkennst du, was los ist? Je weniger Hinweise, desto mehr Punkte.' : 'Der Diagnose-Krimi – je weniger Hinweise, desto mehr Punkte.',
@@ -33,7 +33,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const schritte: TrainingInfo = {
     id: 'schritte',
-    farbe: '#2A2150',
+    farbe: '#E4DEFF',
     icon: '🧩',
     title: 'Schritt für Schritt',
     sub: rolle === 'helfer' ? 'Notruf, Seitenlage, Unfallstelle: die richtige Reihenfolge.' : 'ABCDE, SAMPLER, Übergabe: Abläufe, die sitzen müssen.',
@@ -41,7 +41,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const cpr: TrainingInfo = {
     id: 'cpr',
-    farbe: '#3A1A25',
+    farbe: '#FFDDD9',
     icon: '❤️',
     title: 'Herzdruckmassage',
     sub: 'Im richtigen Takt drücken – 100 bis 120 Mal pro Minute.',
@@ -49,7 +49,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const wissen: TrainingInfo = {
     id: 'wissen',
-    farbe: '#3A3218',
+    farbe: '#FFEFC0',
     icon: '💡',
     title: 'Wissensfragen',
     sub: rolle === 'helfer' ? 'Erste Hilfe im Alltag, mit Erklärung nach jeder Antwort.' : 'Notruf, ABCDE, Krankheitsbilder – mit Erklärung.',
@@ -57,7 +57,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const quiz: TrainingInfo = {
     id: 'quiz',
-    farbe: '#14305A',
+    farbe: '#D8E7FF',
     icon: '📈',
     title: 'Normwerte',
     sub: 'Ist der Messwert niedrig, normal oder hoch?',
@@ -65,7 +65,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const manv: TrainingInfo = {
     id: 'manv',
-    farbe: '#3A261A',
+    farbe: '#FFE6C7',
     icon: '🚨',
     title: 'Großeinsatz',
     sub: 'Viele Verletzte: richtig sichten in Rot, Gelb, Grün, Schwarz.',
@@ -73,7 +73,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const notruf: TrainingInfo = {
     id: 'notruf',
-    farbe: '#0F3048',
+    farbe: '#D8E7FF',
     icon: '📞',
     title: 'Notruf üben',
     sub: 'Die Leitstelle fragt – du antwortest ruhig und klar.',
@@ -81,7 +81,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const zuerst: TrainingInfo = {
     id: 'zuerst',
-    farbe: '#3A261A',
+    farbe: '#FFE6C7',
     icon: '⚡',
     title: 'Was zuerst?',
     sub: 'Schnelle Entscheidungen: Was tust du als Erstes?',
@@ -89,7 +89,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const pack: TrainingInfo = {
     id: 'pack',
-    farbe: '#0F3A2E',
+    farbe: '#D3F1E9',
     icon: '🧰',
     title: 'Gut gepackt',
     sub: 'Was gehört in Verbandkasten, Rucksack und Hausapotheke?',
@@ -97,7 +97,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const handgriffe: TrainingInfo = {
     id: 'handgriffe',
-    farbe: '#0F3A2E',
+    farbe: '#D3F1E9',
     icon: '🩹',
     title: 'Handgriffe',
     sub: 'Lagern, verbinden, kühlen: Wie genau machst du es richtig?',
@@ -105,7 +105,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const mythen: TrainingInfo = {
     id: 'mythen',
-    farbe: '#3A3218',
+    farbe: '#FFEFC0',
     icon: '🧐',
     title: 'Mythos oder Wahrheit?',
     sub: 'Was Laien oft glauben – und was wirklich stimmt.',
@@ -113,7 +113,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const aed: TrainingInfo = {
     id: 'aed',
-    farbe: '#3A1A25',
+    farbe: '#FFDDD9',
     icon: '🔋',
     title: 'Defi-Training',
     sub: 'Das Gerät spricht mit dir: Pads, Analyse, Schock.',
@@ -121,7 +121,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const pruefung: TrainingInfo = {
     id: 'pruefung',
-    farbe: '#1F2750',
+    farbe: '#E4DEFF',
     icon: '🎓',
     title: 'Erste-Hilfe-Prüfung',
     sub: '20 Fragen aus dem ganzen Kurs – bestanden ab 16.',

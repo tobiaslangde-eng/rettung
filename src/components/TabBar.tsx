@@ -84,7 +84,7 @@ export function TabBar({
             accessibilityRole="tab"
             accessibilityLabel={label}
             accessibilityState={{ selected: on }}
-            style={styles.tab}
+            style={[styles.tab, on && { backgroundColor: r.akzentTint, borderRadius: 22 }]}
           >
             <View>
               <TabIcon id={t.id} color={color} size={24} auto={r.id === 'helfer'} />
@@ -105,11 +105,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignSelf: 'stretch',
     backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.line,
-    paddingTop: 6,
-    paddingBottom: 4,
-    ...(Platform.OS === 'web' ? ({} as object) : null),
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: 30,
+    marginHorizontal: 10,
+    marginBottom: 6,
+    paddingTop: 8,
+    paddingBottom: 6,
+    paddingHorizontal: 6,
+    ...(Platform.OS === 'web' ? ({ boxShadow: '0 6px 24px rgba(15,42,46,0.12)' } as object) : null),
   },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2, paddingVertical: 2 },
   label: { fontFamily: fonts.medium, fontSize: 11 },

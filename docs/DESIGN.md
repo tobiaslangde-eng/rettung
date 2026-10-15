@@ -1,31 +1,29 @@
-# Design „Leitstelle“
+# Design „Puls“
 
-Dunkel, technisch, professionell – angelehnt an moderne Leitstellen, Patientenmonitore und Rettungsdienst-Simulationen.
+Hell, frisch und klinisch-sauber – ein Bento-Raster aus bunten Pastell-Kacheln auf Mintweiß, mit medizinischen Motiven.
+
+## Idee
+- **Bento-Raster:** Jeder Bereich ist eine abgerundete Kachel (26 px) in einer eigenen Farbwelt. Handy: 2 Spalten, Tablet/PC: 4 Spalten. Große Kacheln für Geschichte und Aktion, kleine für Zahlen, Trainings und Ausrüstung.
+- **Medizinischer Touch:** EKG-Papier mit Herzschlag-Linie im Kopf der Startseite, Zahlen wie auf dem Patientenmonitor, Kreuz- und Kapselformen, Monitor und Pager bleiben tiefschwarz-grün wie im echten Rettungswagen.
+- **Für Jugendliche und Erwachsene:** klare Struktur, große Zahlen, freundliche Farben, kein Kinder-Look.
 
 ## Farben (`src/theme.ts`)
 | Rolle | Wert |
 |---|---|
-| Hintergrund (Marineblau) | `#0B1727` |
-| Karten (Anthrazit-Marine) | `#13233A`, zweite Ebene `#1A2E4A` |
-| Linien | `#243C5A` |
-| Text | `#EAF0F8`, Zweittext `#8FA2BA` |
-| Akzent Rot (Sanitäter, Alarm, Warnung) | `#E5383B` |
-| Akzent Türkis (Ersthelfer, Ausbau, Technik) | `#2DD4BF` |
-| Richtig / Fortschritt | Grün `#4ADE9A` |
-| Belohnung | Gelb `#F7C948` |
+| Hintergrund (Mintweiß) | `#EDF4F1` |
+| Karten | `#FFFFFF`, Linie `#D9E5E0` |
+| Tinte (tiefes Petrolgrün) | `#0F2A2E`, Zweittext `#5A7370` |
+| Ersthelfer-Akzent (Teal) | `#0A8576` |
+| Sanitäter-Akzent (Signalrot) | `#E0393E` |
+| Kacheln | Mint `#D3F1E9`, Koralle `#FFDDD9`, Lila `#E4DEFF`, Butter `#FFEFC0`, Himmel `#D8E7FF`, Grün `#DDF3D2`, Rosa `#FFDDEA` |
+| Monitor / Pager | `#08181B` mit Neon-Grün |
 
-Text auf hellen Flächen (Türkis, Gelb, Pastell) ist immer dunkel (`colors.onBright`). `onColor(bg)` wählt automatisch.
+Text auf hellen Flächen ist immer dunkel (`colors.onBright`), auf dunklen Flächen hell (`colors.onDark`). `onColor(bg)` wählt automatisch.
 
 ## Schrift
-Bricolage Grotesque für Überschriften und Zahlen, Inter zum Lesen. Kleine Etiketten in Großbuchstaben mit Abstand.
+Bricolage Grotesque für Überschriften und große Zahlen, Inter zum Lesen.
 
 ## Bausteine
-Karten mit 1 px Linie, keine Schatten, abgerundete Ecken. Patientenmonitor, Pager und Tafeln bleiben tiefschwarz (`colors.navy`). Eigene Illustrationen als SVG: Rettungswagen, Auto, Szenen bei Notfällen (`Scene`), Rettungswache bei Nacht (`WacheBild`).
+`src/components/Bento.tsx`: `BentoGrid`, `Tile`, `TileLabel`, `BigNumber`, `Ring`, `Ecg`, `EcgPaper`. Illustrationen als SVG: Rettungswagen, Auto, Szenen bei Notfällen, Rettungswache und Hilfspunkt bei Nacht.
 
-## Bereiche
-- **Einsatz:** Alarm → Untersuchung → Diagnose → Maßnahmen, mit Zwischenfällen, die auf Entscheidungen reagieren.
-- **Fahrzeug:** RTW (oder Auto) in vier Stufen je Gerät.
-- **Rettungswache:** fünf Bereiche in drei Stufen; Wirkung im Einsatz.
-- **Karriere:** Dienstgrade, Abzeichen, Geschichte in Kapiteln.
-
-Die frühere helle Variante „Klar“ ist unter `/vorschau/klar/` als Vergleich erreichbar.
+Die dunkle Variante „Leitstelle“ liegt unter `/vorschau/leitstelle/`, die erste helle Variante „Klar“ unter `/vorschau/klar/`.
