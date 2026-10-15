@@ -1,4 +1,5 @@
 import { ABLAEUFE, Ablauf } from '../data/schritte';
+import { ABLAEUFE_2 } from '../data/schritte2';
 import { Rolle } from './rolle';
 import { shuffle } from './scoring';
 
@@ -9,7 +10,7 @@ export const ABLAUF_PUNKTE = 30;
 export const FEHLER_ABZUG = 6;
 export const ABLAUF_MIN = 6;
 
-export const ablaeufeFuer = (rolle: Rolle): Ablauf[] => ABLAEUFE.filter((a) => a.rolle === rolle || a.rolle === 'beide');
+export const ablaeufeFuer = (rolle: Rolle): Ablauf[] => [...ABLAEUFE, ...ABLAEUFE_2].filter((a) => a.rolle === rolle || a.rolle === 'beide');
 
 /** Wählt Abläufe für eine Runde – zuerst die, die noch nie richtig sortiert wurden */
 export function makeSchritteRunde(rolle: Rolle, geloest: string[]): Ablauf[] {

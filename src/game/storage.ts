@@ -81,6 +81,12 @@ export interface Progress {
   story: number;
   /** Schritt für Schritt: richtig sortierte Abläufe (IDs) */
   ablaeufe: string[];
+  /** Notruf üben: geschaffte Szenarien (IDs) */
+  notrufGeschafft: string[];
+  /** Was zuerst?: bestes Ergebnis (von 10) */
+  zuerstBest: number;
+  /** Gut gepackt: richtig gepackte Listen (IDs) */
+  packGeschafft: string[];
 }
 
 export const EMPTY_PROGRESS: Progress = {
@@ -113,6 +119,9 @@ export const EMPTY_PROGRESS: Progress = {
   detectiveRounds: 0,
   story: 0,
   ablaeufe: [],
+  notrufGeschafft: [],
+  zuerstBest: 0,
+  packGeschafft: [],
 };
 
 export async function loadProgress(rolle: Rolle): Promise<Progress> {

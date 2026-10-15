@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Scene, sceneFor } from '../components/Scene';
 import { AnswerOption } from '../components/Training';
 import { Button, Card, Pill, Tap, TopBar } from '../components/UI';
 import { HelferFall } from '../data/helfer';
@@ -48,6 +49,7 @@ export function HelferScreen({
   onHome: () => void;
 }) {
   const L = useLayout();
+  const r = useRolle();
   const rolle = useRolle();
   const scroll = useRef<ScrollView>(null);
   const [phase, setPhase] = useState<Phase>('lage');
@@ -95,6 +97,9 @@ export function HelferScreen({
       <ScrollView ref={scroll} contentContainerStyle={[styles.content, L.wide && styles.contentWide]}>
         {phase === 'lage' && (
           <>
+            <View style={styles.szene}>
+              <Scene {...sceneFor(fall.location, `${fall.situation} ${fall.titel}`)} seed={fall.id} accent={r.akzent} width={L.wide ? 520 : 358} />
+            </View>
             <Card style={{ gap: spacing.sm }}>
               <Text style={type.eyebrow}>📍 {fall.location}</Text>
               <Text style={styles.lead}>{fall.situation}</Text>
@@ -262,6 +267,7 @@ function Zeile({ label, wert }: { label: string; wert: number }) {
 }
 
 const styles = StyleSheet.create({
+  szene: { alignItems: 'center', borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: colors.line },
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   contentWide: { padding: spacing.xl, maxWidth: 760, alignSelf: 'center', width: '100%' },
   steps: { flexDirection: 'row', gap: 6, paddingHorizontal: spacing.lg, paddingBottom: spacing.sm },

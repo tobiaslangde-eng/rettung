@@ -64,14 +64,16 @@ Praxis sind ausdrücklich willkommen.
 
 Beim ersten Start wähle ich meine **Rolle** – jede hat ihren eigenen Spielstand, gewechselt wird jederzeit unter „Mehr“:
 
-- **Ersthelfer/in:** Erste Hilfe im Alltag, ohne Messgeräte. 26 Notfälle (Herzstillstand im Supermarkt, Unfall auf der
+- **Ersthelfer/in:** Erste Hilfe im Alltag, ohne Messgeräte. 56 Notfälle (Herzstillstand im Supermarkt, Unfall auf der
   Autobahn, Verschlucken im Restaurant, Kind im Badesee …) in vier Schritten: *Lage → Prüfen → Erkennen → Handeln*.
-  Dazu Wissensfragen (auch Alltagsfragen wie Warndreieck oder Rettungsgasse), „Schritt für Schritt“, Herzdruckmassage
-  und Detektiv-Akten ohne Messwerte. Mit den Punkten rüste ich **mein eigenes Auto** aus: Verbandkasten, Warnausrüstung,
+  Dazu Wissensfragen (auch Alltagsfragen wie Warndreieck oder Rettungsgasse), „Schritt für Schritt“ (28 Abläufe),
+  Herzdruckmassage, **„Notruf üben“** (die Leitstelle fragt, ich antworte), **„Was zuerst?“** (40 Schnellentscheidungen),
+  **„Gut gepackt“** (Verbandkasten, Hausapotheke, Wanderrucksack …), ein Erste-Hilfe-Lexikon und Detektiv-Akten ohne Messwerte.
+  Jeder Notfall beginnt mit einer kleinen Szene (Straße, Wohnung, Natur, Wasser …). Mit den Punkten rüste ich **mein eigenes Auto** aus: Verbandkasten, Warnausrüstung,
   Decken, Licht, Defibrillator und Ausbildung.
 - **Sanitäter/in:** das Rettungsdienst-Spiel mit Untersuchung, Messwerten, Diagnosen und dem eigenen Rettungswagen (unten).
 
-**Die Geschichte:** Beide Rollen erzählen eine Geschichte in elf Kapiteln mit Kati als Begleiterin – vom Erste-Hilfe-Kurs
+**Die Geschichte:** Beide Rollen erzählen eine Geschichte (Sanitäter: elf, Ersthelfer: 16 Kapitel) mit Kati als Begleiterin – vom Erste-Hilfe-Kurs
 für den Führerschein bis zur Ersthelfer-App bzw. vom ersten Tag auf der Wache bis zur Praxisanleitung. Jedes Kapitel hat
 eine Aufgabe und schaltet neue Bereiche frei, so baut alles aufeinander auf. Am Ende der Ersthelfer-Geschichte wartet der
 Weg in den Rettungsdienst.

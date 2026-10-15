@@ -3,7 +3,7 @@
 // - Ruhiger, hellgrauer Hintergrund, weiße Flächen mit feiner Linie, keine Schatten
 // - Eine Akzentfarbe je Rolle: Sanitäter/in Rot, Ersthelfer/in Grün (siehe src/game/rolle.ts)
 // - Farben nur mit Bedeutung: Grün = richtig, Rot = falsch/Alarm, Bernstein = Belohnung
-// - Eine Schrift: Inter
+// - Zwei Schriften: Bricolage Grotesque für Überschriften, Inter zum Lesen
 // Die alten Farbnamen bleiben als Alias bestehen und zeigen auf die ruhigen Werte.
 export const colors = {
   // Basis
@@ -78,9 +78,9 @@ export const monitor = {
 };
 
 export const fonts = {
-  /** Eine Schrift für alles: Inter */
-  display: 'Inter_700Bold',
-  displayBlack: 'Inter_800ExtraBold',
+  /** Überschriften und Zahlen: Bricolage Grotesque – freundlich mit Charakter; Lesetext: Inter */
+  display: 'Bricolage_700Bold',
+  displayBlack: 'Bricolage_800ExtraBold',
   regular: 'Inter_400Regular',
   italic: 'Inter_400Regular_Italic',
   medium: 'Inter_500Medium',
@@ -115,10 +115,10 @@ export const stickerFlat = {
 export const sticker = { borderWidth: 1, borderColor: colors.line };
 
 export const type = {
-  largeTitle: { fontSize: 30, lineHeight: 36, fontFamily: fonts.bold, letterSpacing: -0.6, color: colors.ink },
-  title: { fontSize: 24, lineHeight: 30, fontFamily: fonts.bold, letterSpacing: -0.4, color: colors.ink },
-  h2: { fontSize: 19, lineHeight: 25, fontFamily: fonts.bold, letterSpacing: -0.2, color: colors.ink },
-  headline: { fontSize: 16, lineHeight: 21, fontFamily: fonts.semibold, letterSpacing: -0.1, color: colors.ink },
+  largeTitle: { fontSize: 32, lineHeight: 36, fontFamily: fonts.displayBlack, letterSpacing: -0.9, color: colors.ink },
+  title: { fontSize: 26, lineHeight: 30, fontFamily: fonts.displayBlack, letterSpacing: -0.7, color: colors.ink },
+  h2: { fontSize: 20, lineHeight: 25, fontFamily: fonts.displayBlack, letterSpacing: -0.4, color: colors.ink },
+  headline: { fontSize: 16.5, lineHeight: 21, fontFamily: fonts.display, letterSpacing: -0.2, color: colors.ink },
   /** Kleines Etikett in Großbuchstaben über Abschnitten */
   eyebrow: {
     fontSize: 12,

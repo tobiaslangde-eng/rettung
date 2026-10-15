@@ -36,6 +36,9 @@ import { QuizScreen } from './src/screens/QuizScreen';
 import { DetectiveScreen } from './src/screens/DetectiveScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
 import { RolleScreen } from './src/screens/RolleScreen';
+import { NotrufScreen } from './src/screens/NotrufScreen';
+import { PackScreen } from './src/screens/PackScreen';
+import { ZuerstScreen } from './src/screens/ZuerstScreen';
 import { SchritteScreen } from './src/screens/SchritteScreen';
 import { TrainingScreen } from './src/screens/TrainingScreen';
 import { FrameWidthProvider, SIDEBAR_FROM, SIDEBAR_WIDTH, SidebarProvider, desktopShell } from './src/layout';
@@ -52,6 +55,9 @@ type Screen =
   | { name: 'manv'; key: number }
   | { name: 'detektiv'; key: number }
   | { name: 'schritte'; key: number }
+  | { name: 'notruf'; key: number }
+  | { name: 'zuerst'; key: number }
+  | { name: 'pack'; key: number }
   | { name: 'rolle' }
   | { name: 'helfer'; fall: HelferFall; daily: boolean; key: number }
   | { name: 'garage' }
@@ -77,6 +83,9 @@ const FRAME_MAX: Partial<Record<Screen['name'], number>> = {
   manv: 860,
   detektiv: 980,
   schritte: 760,
+  notruf: 760,
+  zuerst: 760,
+  pack: 760,
   helfer: 820,
   rolle: 760,
 };
@@ -97,6 +106,9 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   manv: 'manv',
   detektiv: 'detektiv',
   schritte: 'schritte',
+  notruf: 'notruf',
+  zuerst: 'zuerst',
+  pack: 'pack',
   helfer: 'home',
   cpr: 'cpr',
   wissen: 'wissen',
@@ -134,6 +146,8 @@ export default function App() {
   const aktiv: Rolle = rolle ?? 'sani';
   const [fontsLoaded, fontError] = useFonts({
     // Schriften (SIL Open Font License), auf die benötigten Zeichen verkleinert – siehe assets/fonts/
+    Bricolage_700Bold: require('./assets/fonts/Bricolage_700Bold.ttf'),
+    Bricolage_800ExtraBold: require('./assets/fonts/Bricolage_800ExtraBold.ttf'),
     Inter_400Regular: require('./assets/fonts/Inter_400Regular.ttf'),
     Inter_400Regular_Italic: require('./assets/fonts/Inter_400Regular_Italic.ttf'),
     Inter_500Medium: require('./assets/fonts/Inter_500Medium.ttf'),
@@ -262,6 +276,26 @@ export default function App() {
       ...progress,
       totalPoints: progress.totalPoints + punkte,
       ablaeufe: [...new Set([...progress.ablaeufe, ...ids])],
+    });
+  };
+
+  const finishNotruf = (punkte: number, id: string | null) => {
+    commit({
+      ...progress,
+      totalPoints: progress.totalPoints + punkte,
+      notrufGeschafft: id ? [...new Set([...progress.notrufGeschafft, id])] : progress.notrufGeschafft,
+    });
+  };
+
+  const finishZuerst = (richtig: number, punkte: number) => {
+    commit({ ...progress, totalPoints: progress.totalPoints + punkte, zuerstBest: Math.max(progress.zuerstBest, richtig) });
+  };
+
+  const finishPack = (punkte: number, id: string | null) => {
+    commit({
+      ...progress,
+      totalPoints: progress.totalPoints + punkte,
+      packGeschafft: id ? [...new Set([...progress.packGeschafft, id])] : progress.packGeschafft,
     });
   };
 
@@ -441,6 +475,15 @@ export default function App() {
                         onFinish={finishSchritte}
                         onBack={back}
                       />
+                    )}
+                    {screen.name === 'notruf' && (
+                      <NotrufScreen key={screen.key} geloest={progress.notrufGeschafft} onFinish={finishNotruf} onBack={back} />
+                    )}
+                    {screen.name === 'zuerst' && (
+                      <ZuerstScreen key={screen.key} best={progress.zuerstBest} onFinish={finishZuerst} onBack={back} />
+                    )}
+                    {screen.name === 'pack' && (
+                      <PackScreen key={screen.key} geloest={progress.packGeschafft} onFinish={finishPack} onBack={back} />
                     )}
                     {screen.name === 'training' && <TrainingScreen progress={progress} onTraining={openTraining} />}
                     {screen.name === 'lexikon' && <LexikonScreen progress={progress} />}

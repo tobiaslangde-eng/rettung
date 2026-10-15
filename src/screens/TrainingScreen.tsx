@@ -26,7 +26,7 @@ export function TrainingScreen({ progress, onTraining }: { progress: Progress; o
               accessibilityLabel={t.title}
               style={styles.card}
             >
-              <View style={[styles.icon, { backgroundColor: frei ? r.akzentTint : colors.paper }]}>
+              <View style={[styles.icon, { backgroundColor: frei ? t.farbe : colors.paper }]}>
                 <Text style={{ fontSize: 24, fontFamily: fonts.regular }}>{t.icon}</Text>
               </View>
               <View style={{ flex: 1, gap: 3 }}>

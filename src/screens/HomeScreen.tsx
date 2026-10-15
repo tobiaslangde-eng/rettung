@@ -173,7 +173,9 @@ export function HomeScreen({
               accessibilityLabel={t.title}
               style={[styles.listRow, i > 0 && styles.listDivider]}
             >
-              <Text style={[styles.listIcon, !frei && { opacity: 0.4 }]}>{t.icon}</Text>
+              <View style={[styles.listIconBox, { backgroundColor: frei ? t.farbe : colors.paper }]}>
+                <Text style={[styles.listIcon, !frei && { opacity: 0.4 }]}>{t.icon}</Text>
+              </View>
               <View style={{ flex: 1 }}>
                 <Text style={[type.headline, !frei && { color: colors.muted }]}>{t.title}</Text>
                 <Text style={type.small} numberOfLines={2}>
@@ -313,7 +315,8 @@ const styles = StyleSheet.create({
   list: { backgroundColor: colors.white, borderWidth: 1, borderColor: colors.line, borderRadius: 14, overflow: 'hidden' },
   listRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
   listDivider: { borderTopWidth: 1, borderTopColor: colors.line },
-  listIcon: { fontSize: 22, width: 28, textAlign: 'center', fontFamily: fonts.regular },
+  listIconBox: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  listIcon: { fontSize: 20, textAlign: 'center', fontFamily: fonts.regular },
   chevron: { fontFamily: fonts.regular, fontSize: 22, color: colors.grau300 },
   profile: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
   locked: { backgroundColor: colors.paper, borderRadius: 10, padding: spacing.md },

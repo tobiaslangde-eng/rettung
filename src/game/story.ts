@@ -4,10 +4,10 @@ import { Rolle } from './rolle';
 import { Progress } from './storage';
 
 /** Was der Knopf eines Kapitels öffnet */
-export type StoryAktion = 'einsatz' | 'wissen' | 'schritte' | 'cpr' | 'garage' | 'detektiv' | 'quiz' | 'manv' | 'rolle';
+export type StoryAktion = 'einsatz' | 'wissen' | 'schritte' | 'cpr' | 'garage' | 'detektiv' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack' | 'rolle';
 
 /** Bereiche, die durch die Geschichte nach und nach freigeschaltet werden */
-export type Bereich = 'einsatz' | 'wissen' | 'schritte' | 'cpr' | 'garage' | 'detektiv' | 'quiz' | 'manv';
+export type Bereich = 'einsatz' | 'wissen' | 'schritte' | 'cpr' | 'garage' | 'detektiv' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack';
 
 export interface Kapitel {
   titel: string;
@@ -56,6 +56,14 @@ const HELFER: Kapitel[] = [
     frei: ['cpr'],
   },
   {
+    titel: 'Der wichtigste Anruf',
+    text: 'Kati hält ein altes Telefon hoch: „Die meisten Fehler passieren nicht beim Helfen, sondern beim Anruf. Wo? Was? Wie viele? Welche Verletzungen? Und dann: Warten auf Rückfragen. Üben wir das!“',
+    ziel: 'Übe 2 Notrufe mit der Leitstelle.',
+    aktion: 'notruf',
+    stand: (p) => anteil(p.notrufGeschafft.length, 2),
+    frei: ['notruf'],
+  },
+  {
     titel: 'Der erste Ernstfall',
     text: 'Zwei Wochen später, auf dem Heimweg. Vor dir bleibt jemand stehen, dann wird es laut. Dein Herz klopft – aber du weißt, was zu tun ist.',
     ziel: 'Hilf bei deinem ersten Notfall.',
@@ -64,12 +72,28 @@ const HELFER: Kapitel[] = [
     frei: ['einsatz'],
   },
   {
+    titel: 'Was zuerst?',
+    text: 'Abends gehst du den Tag durch. Du hast gezögert – wen zuerst ansprechen? Erst den Notruf oder erst die Blutung? Kati schreibt dir: „Entscheidungen werden schneller, wenn man sie geübt hat.“',
+    ziel: 'Schaffe bei „Was zuerst?“ mindestens 7 von 10.',
+    aktion: 'zuerst',
+    stand: (p) => anteil(p.zuerstBest, 7),
+    frei: ['zuerst'],
+  },
+  {
     titel: 'Ein Blick in den Kofferraum',
-    text: 'Abends schaust du in dein Auto: Der Verbandkasten ist von 2009, die Warnweste liegt ganz hinten. Mit deinen Punkten kannst du dein Auto besser ausstatten.',
+    text: 'Du schaust in dein Auto: Der Verbandkasten ist von 2009, die Warnweste liegt ganz hinten. Mit deinen Punkten kannst du dein Auto besser ausstatten.',
     ziel: 'Rüste dein Auto einmal auf.',
     aktion: 'garage',
     stand: (p) => anteil(aufgeruestet(p), 1),
     frei: ['garage'],
+  },
+  {
+    titel: 'Gut gepackt',
+    text: 'Vor der Wanderung am Wochenende packst du die Hausapotheke. Kati sieht dir über die Schulter: „Franzbranntwein auf die Wunde? Lieber nicht. Was wirklich hineingehört, lernst du jetzt.“',
+    ziel: 'Packe 2 Listen richtig.',
+    aktion: 'pack',
+    stand: (p) => anteil(p.packGeschafft.length, 2),
+    frei: ['pack'],
   },
   {
     titel: 'Was ist mit Herrn Berger?',
@@ -88,6 +112,14 @@ const HELFER: Kapitel[] = [
     frei: [],
   },
   {
+    titel: 'Sicher am Telefon',
+    text: 'Nachts klingelt dein Telefon: Eine Freundin hat Brustschmerzen und weiß nicht, was sie sagen soll. Du bleibst ruhig und führst sie durch das Gespräch mit der Leitstelle.',
+    ziel: 'Schließe 5 Notruf-Szenarien ab.',
+    aktion: 'notruf',
+    stand: (p) => anteil(p.notrufGeschafft.length, 5),
+    frei: [],
+  },
+  {
     titel: 'Gut ausgerüstet',
     text: 'Ein Unfall auf der Landstraße hat dir gezeigt, wie wertvoll gute Ausrüstung ist: Licht, Warnleuchte, warme Decken. Du baust dein Auto zum rollenden Erste-Hilfe-Koffer aus.',
     ziel: 'Bringe 3 Ausrüstungen auf Stufe 3.',
@@ -101,6 +133,14 @@ const HELFER: Kapitel[] = [
     ziel: 'Schaffe die Herzdruckmassage mit mindestens 85 % und löse 10 Akten.',
     aktion: 'cpr',
     stand: (p) => (anteil(p.cprBest, 85) + anteil(akten(p), 10)) / 2,
+    frei: [],
+  },
+  {
+    titel: 'Alles im Griff',
+    text: 'Beim Straßenfest kippt jemand um, ein Kind schneidet sich, ein Mann hat Atemnot – gleichzeitig. Du sortierst, verteilst Aufgaben und behältst den Überblick.',
+    ziel: 'Schaffe „Was zuerst?“ mit 9 von 10 und packe 4 Listen richtig.',
+    aktion: 'zuerst',
+    stand: (p) => (anteil(p.zuerstBest, 9) + anteil(p.packGeschafft.length, 4)) / 2,
     frei: [],
   },
   {
