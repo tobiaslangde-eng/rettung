@@ -5,7 +5,7 @@ import { AnswerOption } from '../components/Training';
 import { Button, Card, Pill, Tap, TopBar } from '../components/UI';
 import { HelferFall } from '../data/helfer';
 import { Badge } from '../game/achievements';
-import { HelferErgebnis, bewerteHelfer } from '../game/helfer';
+import { HelferBonus, HelferErgebnis, bewerteHelfer } from '../game/helfer';
 import { useRolle } from '../game/rolle';
 import { shuffle } from '../game/scoring';
 import { useLayout } from '../layout';
@@ -36,6 +36,8 @@ export function HelferScreen({
   fall,
   daily,
   pointsPct,
+  bonus,
+  lichtHinweis = 0,
   onFinish,
   onNext,
   onHome,
@@ -44,6 +46,10 @@ export function HelferScreen({
   daily: boolean;
   /** Punkteaufschlag durch die Ausrüstung */
   pointsPct: number;
+  /** Wirkung der Ausrüstung auf die Bewertung */
+  bonus?: HelferBonus;
+  /** Licht: 0 kein Hinweis, 1 Anzahl, 2 Anzahl offen, 3 Sterne */
+  lichtHinweis?: 0 | 1 | 2 | 3;
   onFinish: (e: HelferErgebnis, punkte: number) => HelferAbschluss;
   onNext: () => void;
   onHome: () => void;
@@ -60,13 +66,16 @@ export function HelferScreen({
   const optionen = useMemo(() => shuffle([fall.diagnose, ...fall.falsch]), [fall]);
   const reihenfolge = useMemo(() => shuffle(fall.massnahmen.map((_, i) => i)), [fall]);
 
+  const wichtigGesamt = fall.checks.filter((c) => c.wichtig).length;
+  const wichtigOffen = fall.checks.filter((c, i) => c.wichtig && !gepruefte.includes(i)).length;
+
   const go = (p: Phase) => {
     setPhase(p);
     scroll.current?.scrollTo({ y: 0, animated: false });
   };
 
   const abschliessen = () => {
-    const e = bewerteHelfer(fall, gepruefte, antwort ?? '', gewaehlt);
+    const e = bewerteHelfer(fall, gepruefte, antwort ?? '', gewaehlt, bonus);
     const extra = Math.round((e.punkte * pointsPct) / 100);
     const tagesBonus = daily ? Math.round(e.punkte * 0.5) : 0;
     const a = onFinish(e, e.punkte + extra + tagesBonus);
@@ -120,6 +129,12 @@ export function HelferScreen({
           <>
             <Text style={type.h2}>Was prüfst du?</Text>
             <Text style={type.small}>Tippe an, was du prüfen möchtest. Wichtiges zu vergessen kostet Punkte.</Text>
+            {lichtHinweis > 0 && (
+              <Text style={styles.licht}>
+                🔦 Dein Licht zeigt: {wichtigGesamt} wichtige Prüfungen
+                {lichtHinweis >= 2 ? `, noch ${wichtigOffen} offen` : ''}.
+              </Text>
+            )}
             <View style={{ gap: spacing.sm }}>
               {fall.checks.map((c, i) => {
                 const offen = gepruefte.includes(i);
@@ -132,7 +147,10 @@ export function HelferScreen({
                   >
                     <Text style={styles.rowIcon}>{offen ? '✓' : '○'}</Text>
                     <View style={{ flex: 1, gap: 4 }}>
-                      <Text style={type.headline}>{c.label}</Text>
+                      <Text style={type.headline}>
+                        {lichtHinweis >= 3 && c.wichtig ? '★ ' : ''}
+                        {c.label}
+                      </Text>
                       {offen && <Text style={type.body}>{c.befund}</Text>}
                     </View>
                   </Tap>
@@ -267,6 +285,7 @@ function Zeile({ label, wert }: { label: string; wert: number }) {
 }
 
 const styles = StyleSheet.create({
+  licht: { fontFamily: fonts.semibold, fontSize: 13, color: colors.yellow },
   szene: { alignItems: 'center', borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: colors.line },
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   contentWide: { padding: spacing.xl, maxWidth: 760, alignSelf: 'center', width: '100%' },

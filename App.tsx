@@ -14,7 +14,7 @@ import { DAILY_CASE_BONUS, dailyCase, dailyHelferFall, registerDailyCase } from 
 import { DIFFICULTY_BY_ID, Difficulty } from './src/game/difficulty';
 import { WacheId, wacheKaufen } from './src/game/wache';
 import { PRUEFUNG_BESTANDEN, handgriffePunkte, makeHandgriffe, makePruefung, makeZuerstFragen, pruefungPunkte, zuerstPunkte } from './src/game/helferTraining';
-import { EquipmentId, ausruestung, buyUpgrade, equipmentEffects, levelOf, upgradeBlock } from './src/game/equipment';
+import { EquipmentId, helferEffekteFuer, ausruestung, buyUpgrade, equipmentEffects, levelOf, upgradeBlock } from './src/game/equipment';
 import { ArchiveStamp, mergeArchive } from './src/game/detective';
 import { HelferErgebnis } from './src/game/helfer';
 import { Rolle, RolleContext, setAktiveRolle } from './src/game/rolle';
@@ -277,6 +277,13 @@ export default function App() {
     });
   };
 
+  /** Ausrüstungsbonus auf Trainings (nur Ersthelfer/in): Ausbildung für alle, Defibrillator für Herz-Trainings */
+  const trainingPunkte = (basis: number, art: 'allg' | 'herz' = 'allg') => {
+    if (aktiv !== 'helfer') return basis;
+    const fx = helferEffekteFuer(progress);
+    return Math.round(basis * (1 + (fx.trainingPct + (art === 'herz' ? fx.herzPct : 0)) / 100));
+  };
+
   /** Ersthelfer-Notfall abgeschlossen: Punkte, Sterne, Tagesziel */
   const finishHelfer = (e: HelferErgebnis, punkte: number, daily: boolean): HelferAbschluss => {
     const day = registerDailyCase(progress, daily);
@@ -297,7 +304,7 @@ export default function App() {
   const finishSchritte = (punkte: number, ids: string[]) => {
     commit({
       ...progress,
-      totalPoints: progress.totalPoints + punkte,
+      totalPoints: progress.totalPoints + trainingPunkte(punkte),
       ablaeufe: [...new Set([...progress.ablaeufe, ...ids])],
     });
   };
@@ -305,19 +312,19 @@ export default function App() {
   const finishNotruf = (punkte: number, id: string | null) => {
     commit({
       ...progress,
-      totalPoints: progress.totalPoints + punkte,
+      totalPoints: progress.totalPoints + trainingPunkte(punkte),
       notrufGeschafft: id ? [...new Set([...progress.notrufGeschafft, id])] : progress.notrufGeschafft,
     });
   };
 
   const finishZuerst = (richtig: number, punkte: number) => {
-    commit({ ...progress, totalPoints: progress.totalPoints + punkte, zuerstBest: Math.max(progress.zuerstBest, richtig) });
+    commit({ ...progress, totalPoints: progress.totalPoints + trainingPunkte(punkte), zuerstBest: Math.max(progress.zuerstBest, richtig) });
   };
 
   const finishPack = (punkte: number, id: string | null) => {
     commit({
       ...progress,
-      totalPoints: progress.totalPoints + punkte,
+      totalPoints: progress.totalPoints + trainingPunkte(punkte),
       packGeschafft: id ? [...new Set([...progress.packGeschafft, id])] : progress.packGeschafft,
     });
   };
@@ -345,7 +352,7 @@ export default function App() {
   const finishKnowledge = (correct: number) => {
     commit({
       ...progress,
-      totalPoints: progress.totalPoints + correct * QUIZ_POINTS,
+      totalPoints: progress.totalPoints + trainingPunkte(correct * QUIZ_POINTS),
       knowBest: Math.max(progress.knowBest, correct),
     });
   };
@@ -385,7 +392,7 @@ export default function App() {
   const finishCpr = (r: CprResult) => {
     commit({
       ...progress,
-      totalPoints: progress.totalPoints + r.points,
+      totalPoints: progress.totalPoints + trainingPunkte(r.points, 'herz'),
       cprBest: Math.max(progress.cprBest, r.accuracy),
     });
   };
@@ -492,6 +499,8 @@ export default function App() {
                         fall={screen.fall}
                         daily={screen.daily}
                         pointsPct={equipmentEffects(progress).pointsPct}
+                        bonus={helferEffekteFuer(progress)}
+                        lichtHinweis={helferEffekteFuer(progress).lichtHinweis}
                         onFinish={(e, punkte) => finishHelfer(e, punkte, screen.daily)}
                         onNext={() => startCase()}
                         onHome={home}
@@ -531,7 +540,7 @@ export default function App() {
                         erzeuge={makeHandgriffe}
                         best={progress.handgriffeBest}
                         punkte={handgriffePunkte}
-                        onFinish={(richtig, punkte) => commit({ ...progress, totalPoints: progress.totalPoints + punkte, handgriffeBest: Math.max(progress.handgriffeBest, richtig) })}
+                        onFinish={(richtig, punkte) => commit({ ...progress, totalPoints: progress.totalPoints + trainingPunkte(punkte), handgriffeBest: Math.max(progress.handgriffeBest, richtig) })}
                         onBack={back}
                       />
                     )}
@@ -545,7 +554,7 @@ export default function App() {
                         best={progress.pruefungBest}
                         bestehen={PRUEFUNG_BESTANDEN}
                         punkte={pruefungPunkte}
-                        onFinish={(richtig, punkte) => commit({ ...progress, totalPoints: progress.totalPoints + punkte, pruefungBest: Math.max(progress.pruefungBest, richtig) })}
+                        onFinish={(richtig, punkte) => commit({ ...progress, totalPoints: progress.totalPoints + trainingPunkte(punkte), pruefungBest: Math.max(progress.pruefungBest, richtig) })}
                         onBack={back}
                       />
                     )}
@@ -553,7 +562,7 @@ export default function App() {
                       <MythenScreen
                         key={screen.key}
                         best={progress.mythenBest}
-                        onFinish={(richtig, punkte) => commit({ ...progress, totalPoints: progress.totalPoints + punkte, mythenBest: Math.max(progress.mythenBest, richtig) })}
+                        onFinish={(richtig, punkte) => commit({ ...progress, totalPoints: progress.totalPoints + trainingPunkte(punkte), mythenBest: Math.max(progress.mythenBest, richtig) })}
                         onBack={back}
                       />
                     )}
@@ -565,7 +574,7 @@ export default function App() {
                         onFinish={(punkte, id) =>
                           commit({
                             ...progress,
-                            totalPoints: progress.totalPoints + punkte,
+                            totalPoints: progress.totalPoints + trainingPunkte(punkte, 'herz'),
                             aedGeschafft: id ? [...new Set([...progress.aedGeschafft, id])] : progress.aedGeschafft,
                           })
                         }

@@ -1,6 +1,7 @@
 import { aktiveRolle } from './rolle';
 import { rankFor, rankList } from './scoring';
 import { Progress } from './storage';
+import { AUTO_IDS, AutoId, HELFER_TEXT, RABATT, helferEffekte, tagesangebot, heuteKey } from './helferAusruestung';
 import { wacheEffekte } from './wache';
 
 /**
@@ -150,8 +151,6 @@ export const RTW_AUSRUESTUNG: EquipmentDef[] = [
   },
 ];
 
-const HELFER_PUNKTE = (l: number) => (l === 1 ? 'Keine Wirkung' : `Gut vorbereitet: +${2 * STEP(l)} % Punkte`);
-
 /** Mein Auto (Ersthelfer/in) */
 export const AUTO_AUSRUESTUNG: EquipmentDef[] = [
   {
@@ -160,7 +159,7 @@ export const AUTO_AUSRUESTUNG: EquipmentDef[] = [
     icon: '🚗',
     wissen: 'Bei einem Unfall gilt: Warnblinker an, Warnweste anziehen, dann aussteigen – und erst danach das Warndreieck aufstellen.',
     cost: [0, 300, 900, 2400],
-    effect: HELFER_PUNKTE,
+    effect: HELFER_TEXT.auto,
     tiers: [
       { name: 'Alter Kleinwagen', year: 2004, text: 'Klein, laut, zuverlässig – im Kofferraum ist kaum Platz.', facts: ['Kofferraum: winzig', 'Warnblinker funktioniert'] },
       { name: 'Kompaktwagen', year: 2015, text: 'Genug Platz für Verbandkasten, Decke und Einkäufe.', facts: ['Fach unter dem Kofferraumboden', 'Notrufknopf (eCall) noch nicht drin'] },
@@ -174,7 +173,7 @@ export const AUTO_AUSRUESTUNG: EquipmentDef[] = [
     icon: '🩹',
     wissen: 'Der Kfz-Verbandkasten (DIN 13164) gehört ins Auto. Seit 2022 sind zwei Mund-Nasen-Masken Pflicht. Auf das Ablaufdatum der sterilen Teile achten!',
     cost: [0, 150, 500, 1200],
-    effect: HELFER_PUNKTE,
+    effect: HELFER_TEXT.verbandkasten,
     tiers: [
       { name: 'Abgelaufener Verbandkasten', year: 2009, text: 'Irgendwo unter der Rückbank, die Pflaster kleben nicht mehr.', facts: ['Ablaufdatum längst vorbei', 'Folie ist brüchig'] },
       { name: 'Neuer Kfz-Verbandkasten', year: 2022, text: 'Nach aktueller Norm, mit Masken, Handschuhen und Rettungsdecke.', facts: ['DIN 13164:2022', 'Zwei Masken, vier Paar Handschuhe'] },
@@ -188,7 +187,7 @@ export const AUTO_AUSRUESTUNG: EquipmentDef[] = [
     icon: '🦺',
     wissen: 'Warndreieck aufstellen: in der Stadt etwa 50 m, auf der Landstraße 100 m und auf der Autobahn 200 m vor der Unfallstelle.',
     cost: [0, 150, 500, 1200],
-    effect: HELFER_PUNKTE,
+    effect: HELFER_TEXT.warn,
     tiers: [
       { name: 'Warndreieck und eine Weste', year: 2010, text: 'Das Pflicht-Minimum – die Weste liegt aber im Kofferraum.', facts: ['Weste im Kofferraum: schlecht', 'Warndreieck ist Pflicht'] },
       { name: 'Westen für alle Plätze', year: 2018, text: 'In jeder Tür eine Warnweste – griffbereit vor dem Aussteigen.', facts: ['Weste vor dem Aussteigen anziehen', 'Für jede Person im Auto'] },
@@ -202,7 +201,7 @@ export const AUTO_AUSRUESTUNG: EquipmentDef[] = [
     icon: '🧣',
     wissen: 'Verletzte kühlen schnell aus, auch im Sommer. Die Rettungsdecke schützt vor Wind und Nässe – welche Seite außen ist, spielt kaum eine Rolle.',
     cost: [0, 150, 500, 1200],
-    effect: HELFER_PUNKTE,
+    effect: HELFER_TEXT.waerme,
     tiers: [
       { name: 'Eine Rettungsdecke', year: 2012, text: 'Liegt im Verbandkasten – mehr nicht.', facts: ['Dünn, aber winddicht', 'Nur eine Person'] },
       { name: 'Wolldecke dazu', year: 2017, text: 'Eine warme Decke im Kofferraum, auch für lange Wartezeiten.', facts: ['Warm auch bei Nässe', 'Unter den Patienten legen'] },
@@ -216,7 +215,7 @@ export const AUTO_AUSRUESTUNG: EquipmentDef[] = [
     icon: '🔦',
     wissen: 'Nachts ist gutes Licht Eigenschutz: Du siehst Gefahren, und andere sehen dich.',
     cost: [0, 150, 500, 1200],
-    effect: HELFER_PUNKTE,
+    effect: HELFER_TEXT.licht,
     tiers: [
       { name: 'Handy-Taschenlampe', year: 2015, text: 'Hilft kurz – aber dann fehlt das Handy für den Notruf.', facts: ['Akku wird knapp', 'Hände nicht frei'] },
       { name: 'Taschenlampe', year: 2018, text: 'Hell und robust, im Handschuhfach.', facts: ['Batterie regelmäßig prüfen', 'Handy bleibt frei'] },
@@ -230,7 +229,7 @@ export const AUTO_AUSRUESTUNG: EquipmentDef[] = [
     icon: '❤️',
     wissen: 'Jede Minute ohne Herzdruckmassage senkt die Überlebenschance. Ersthelfer-Apps alarmieren Helfer in der Nähe, damit sie vor dem Rettungsdienst da sind.',
     cost: [0, 200, 700, 1800],
-    effect: HELFER_PUNKTE,
+    effect: HELFER_TEXT.defi,
     tiers: [
       { name: 'Nur das Handy', year: 2016, text: 'Notruf 112 geht immer – auch ohne Guthaben und Entsperren.', facts: ['112 ist kostenlos', 'Standort teilen in der Notruf-App'] },
       { name: 'Defi-Karte in der App', year: 2020, text: 'Zeigt, wo der nächste öffentliche Defibrillator (AED) hängt.', facts: ['AED-Standorte in der Nähe', 'Jemanden losschicken!'] },
@@ -244,7 +243,7 @@ export const AUTO_AUSRUESTUNG: EquipmentDef[] = [
     icon: '🎓',
     wissen: 'Erste-Hilfe-Wissen verblasst: Eine Auffrischung alle zwei Jahre hält dich sicher – Betriebshelfer/innen müssen das sogar.',
     cost: [0, 200, 700, 1800],
-    effect: HELFER_PUNKTE,
+    effect: HELFER_TEXT.kurs,
     tiers: [
       { name: 'Führerschein-Kurs', year: 2015, text: 'Ein Tag Erste Hilfe – lange her.', facts: ['9 Unterrichtseinheiten', 'Vieles schon vergessen'] },
       { name: 'Auffrischungskurs', year: 2022, text: 'Wiederbelebung und Seitenlage wieder frisch geübt.', facts: ['Alle zwei Jahre empfohlen', 'Viel praktisches Üben'] },
@@ -290,8 +289,7 @@ export interface EquipmentEffects {
 export function equipmentEffects(p: Progress): EquipmentEffects {
   const l = (id: EquipmentId) => STEP(levelOf(p, id));
   if (aktiveRolle() === 'helfer') {
-    const steps = AUTO_AUSRUESTUNG.reduce((n, e) => n + l(e.id), 0);
-    return { startBonus: 0, measureFactor: 1, drainFactor: 1, endBonus: 0, pointsPct: 2 * steps };
+    return { startBonus: 0, measureFactor: 1, drainFactor: 1, endBonus: 0, pointsPct: helferEffekteFuer(p).pointsPct };
   }
   const w = wacheEffekte(p);
   return {
@@ -301,6 +299,23 @@ export function equipmentEffects(p: Progress): EquipmentEffects {
     endBonus: 2 * (l('trage') + l('beatmung')) + w.endBonus,
     pointsPct: 3 * (l('rucksack') + l('psa')) + w.pointsPct,
   };
+}
+
+/** Wirkung meines Autos (Ersthelfer/in) – Stufen aus dem Spielstand */
+export const helferEffekteFuer = (p: Progress) => helferEffekte((id: AutoId) => levelOf(p, id as EquipmentId));
+
+/** Tagesangebot (nur Ersthelfer/in): welche Ausrüstung heute 25 % günstiger ist */
+export function angebotHeute(p: Progress): EquipmentId | null {
+  if (aktiveRolle() !== 'helfer') return null;
+  const frei = AUTO_IDS.filter((id) => levelOf(p, id as EquipmentId) < MAX_LEVEL);
+  return tagesangebot(heuteKey(), frei) as EquipmentId | null;
+}
+
+/** Preis der nächsten Stufe – mit Tagesangebot */
+export function kostenFuer(p: Progress, id: EquipmentId): number {
+  const next = levelOf(p, id) + 1;
+  const basis = EQUIPMENT_BY_ID[id].cost[next - 1] ?? 0;
+  return angebotHeute(p) === id ? Math.round(basis * (1 - RABATT)) : basis;
 }
 
 export type UpgradeBlock = { reason: 'max' } | { reason: 'rank'; rank: string } | { reason: 'budget'; missing: number };
@@ -313,7 +328,7 @@ export function upgradeBlock(p: Progress, id: EquipmentId): UpgradeBlock | null 
   const minRank = TIER_MIN_RANK[next - 1];
   const rankIndex = rankList().indexOf(rankFor(p.totalPoints).rank);
   if (rankIndex < minRank) return { reason: 'rank', rank: rankList()[minRank].de };
-  const cost = EQUIPMENT_BY_ID[id].cost[next - 1];
+  const cost = kostenFuer(p, id);
   if (p.budget < cost) return { reason: 'budget', missing: cost - p.budget };
   return null;
 }
@@ -323,7 +338,7 @@ export function buyUpgrade(p: Progress, id: EquipmentId): Progress {
   const next = levelOf(p, id) + 1;
   return {
     ...p,
-    budget: p.budget - EQUIPMENT_BY_ID[id].cost[next - 1],
+    budget: p.budget - kostenFuer(p, id),
     equipment: { ...p.equipment, [id]: next },
   };
 }

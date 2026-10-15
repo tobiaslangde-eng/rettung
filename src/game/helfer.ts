@@ -26,7 +26,16 @@ export interface HelferErgebnis {
 }
 
 /** Bewertet einen Ersthelfer-Notfall */
-export function bewerteHelfer(f: HelferFall, gepruefte: number[], antwort: string, gewaehlt: number[]): HelferErgebnis {
+export interface HelferBonus {
+  falschWeniger: number;
+  pruefungPlus: number;
+  richtigPlus: number;
+}
+
+export function bewerteHelfer(f: HelferFall, gepruefte: number[], antwort: string, gewaehlt: number[], bonus?: HelferBonus): HelferErgebnis {
+  const pPruef = HELFER_PUNKTE.pruefung + (bonus?.pruefungPlus ?? 0);
+  const pRichtig = HELFER_PUNKTE.richtig + (bonus?.richtigPlus ?? 0);
+  const pFalsch = Math.max(3, HELFER_PUNKTE.falsch - (bonus?.falschWeniger ?? 0));
   const wichtig = f.checks.map((c, i) => (c.wichtig ? i : -1)).filter((i) => i >= 0);
   const gemacht = wichtig.filter((i) => gepruefte.includes(i)).length;
   const erkannt = antwort === f.diagnose;
@@ -36,11 +45,11 @@ export function bewerteHelfer(f: HelferFall, gepruefte: number[], antwort: strin
   const verpasst = richtigeIdx.length - richtig;
   const k = FAKTOR[f.difficulty];
   const zeilen = [
-    { label: `Wichtige Prüfungen (${gemacht} von ${wichtig.length})`, punkte: gemacht * HELFER_PUNKTE.pruefung },
+    { label: `Wichtige Prüfungen (${gemacht} von ${wichtig.length})`, punkte: gemacht * pPruef },
     { label: erkannt ? 'Richtig erkannt' : 'Nicht richtig erkannt', punkte: erkannt ? HELFER_PUNKTE.erkannt : 0 },
-    { label: `Richtige Maßnahmen (${richtig} von ${richtigeIdx.length})`, punkte: richtig * HELFER_PUNKTE.richtig },
+    { label: `Richtige Maßnahmen (${richtig} von ${richtigeIdx.length})`, punkte: richtig * pRichtig },
   ];
-  if (falsch > 0) zeilen.push({ label: `Falsche Maßnahmen (${falsch})`, punkte: -falsch * HELFER_PUNKTE.falsch });
+  if (falsch > 0) zeilen.push({ label: `Falsche Maßnahmen (${falsch})`, punkte: -falsch * pFalsch });
   const roh = Math.max(0, zeilen.reduce((n, z) => n + z.punkte, 0));
   const max = wichtig.length * HELFER_PUNKTE.pruefung + HELFER_PUNKTE.erkannt + richtigeIdx.length * HELFER_PUNKTE.richtig;
   const anteil = roh / max;

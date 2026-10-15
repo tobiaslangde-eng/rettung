@@ -69,7 +69,7 @@ Beim ersten Start wähle ich meine **Rolle** – jede hat ihren eigenen Spielsta
   Dazu zehn Trainings: **Wissensfragen** (rund 130 Kursfragen), **Schritt für Schritt** (28 Abläufe), **Herzdruckmassage**, **Notruf üben**
   (12 Leitstellen-Gespräche), **Mythos oder Wahrheit?** (50 Aussagen), **Was zuerst?** (40 Entscheidungen), **Gut gepackt**
   (Verbandkasten, Hausapotheke …), **Handgriffe** (56 Fragen zu Lagern, Verbinden, Kühlen …), **Defi-Training** (8 AED-Szenarien) und die
-  **Erste-Hilfe-Prüfung** (20 Fragen, bestanden ab 16). Dazu ein Erste-Hilfe-Lexikon. Mit den Punkten rüste ich **mein eigenes Auto** aus.
+  **Erste-Hilfe-Prüfung** (20 Fragen, bestanden ab 16). Dazu ein Erste-Hilfe-Lexikon. Mit den Punkten rüste ich **mein eigenes Auto** aus: jede Ausrüstung hat eine eigene Wirkung (z. B. weniger Abzug bei Fehlern, mehr Punkte für wichtige Prüfungen, Hinweise durch das Licht), dazu gibt es **Ausrüstungs-Sets** mit Bonus und jeden Tag ein **Tagesangebot** mit 25 % Rabatt.
 - **Sanitäter/in:** das Rettungsdienst-Spiel mit Untersuchung, Messwerten, Diagnosen und dem eigenen Rettungswagen (unten).
 
 **Die Geschichte:** Beide Rollen erzählen eine Geschichte (Sanitäter: elf, Ersthelfer: 20 Kapitel) mit Kati als Begleiterin – vom Erste-Hilfe-Kurs

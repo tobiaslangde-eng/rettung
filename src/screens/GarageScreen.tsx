@@ -10,12 +10,16 @@ import {
   EQUIPMENT_BY_ID,
   EquipmentId,
   MAX_LEVEL,
+  angebotHeute,
   equipmentEffects,
+  helferEffekteFuer,
+  kostenFuer,
   euro,
   levelOf,
   totalLevel,
   upgradeBlock,
 } from '../game/equipment';
+import { RABATT, setsStand } from '../game/helferAusruestung';
 import { useRolle } from '../game/rolle';
 import { Progress } from '../game/storage';
 import { Columns, useLayout } from '../layout';
@@ -163,7 +167,7 @@ function Steckbrief({
                   <Text style={styles.locked}>🔒 Freigeschaltet ab Dienstgrad „{block.rank}“</Text>
                 ) : (
                   <Button
-                    label={`Aufrüsten · ${euro(def.cost[level])}`}
+                    label={`Aufrüsten · ${euro(kostenFuer(progress, id))}${angebotHeute(progress) === id ? ` (−${Math.round(RABATT * 100)} % heute)` : ''}`}
                     variant={block ? 'outline' : 'alarm'}
                     disabled={!!block}
                     onPress={() => onUpgrade(id)}
@@ -214,7 +218,20 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
   const fx = equipmentEffects(progress);
   const total = totalLevel(progress);
   const maxTotal = ausruestung().length * MAX_LEVEL;
-  const effects = [
+  const hfx = helferEffekteFuer(progress);
+  const angebot = helfer ? angebotHeute(progress) : null;
+  const sets = helfer ? setsStand((id) => levels[id as EquipmentId] ?? 1) : [];
+  const effects = helfer
+    ? ([
+        hfx.pointsPct > 0 && `+${hfx.pointsPct} % Punkte bei Notfällen`,
+        hfx.falschWeniger > 0 && `Falsche Maßnahmen −${hfx.falschWeniger} Abzug`,
+        hfx.pruefungPlus > 0 && `+${hfx.pruefungPlus} je wichtiger Prüfung`,
+        hfx.richtigPlus > 0 && `+${hfx.richtigPlus} je richtiger Maßnahme`,
+        hfx.lichtHinweis > 0 && 'Licht: Prüf-Hinweise',
+        hfx.trainingPct > 0 && `+${hfx.trainingPct} % in Trainings`,
+        hfx.herzPct > 0 && `+${hfx.herzPct} % bei Herz & Defi`,
+      ].filter(Boolean) as string[])
+    : [
     fx.startBonus > 0 && `+${fx.startBonus} % Startzustand`,
     fx.measureFactor < 1 && `Messungen −${Math.round((1 - fx.measureFactor) * 100)} %`,
     fx.endBonus > 0 && `+${fx.endBonus} % Zustand am Ende`,
@@ -291,6 +308,46 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
                 <Text style={[type.small, { marginTop: 4 }]}>Für jeden Punkt bekommst du 1 € Budget.</Text>
               </View>
 
+              {helfer && angebot && (
+                <Tap onPress={() => setSheet(angebot)} offset={3} accessibilityLabel="Tagesangebot" style={styles.angebot}>
+                  <Text style={styles.angebotBadge}>TAGESANGEBOT −{Math.round(RABATT * 100)} %</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+                    <View style={styles.rowArt}>
+                      <Art id={angebot} level={Math.min(MAX_LEVEL, levels[angebot] + 1)} size={angebot === 'auto' ? 36 : 44} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.rowKicker}>{EQUIPMENT_BY_ID[angebot].title}</Text>
+                      <Text style={styles.rowName} numberOfLines={1}>
+                        {EQUIPMENT_BY_ID[angebot].tiers[levels[angebot]].name}
+                      </Text>
+                      <Text style={styles.angebotPreis}>
+                        {euro(EQUIPMENT_BY_ID[angebot].cost[levels[angebot]])} → {euro(kostenFuer(progress, angebot))}
+                      </Text>
+                    </View>
+                    <Text style={styles.rowArrow}>›</Text>
+                  </View>
+                  <Text style={type.small}>Nur heute günstiger – morgen gibt es ein anderes Angebot.</Text>
+                </Tap>
+              )}
+
+              {helfer && (
+                <View style={styles.summary}>
+                  <Text style={type.eyebrow}>Ausrüstungs-Sets</Text>
+                  <Text style={type.small}>Bringe mehrere Dinge auf eine Mindeststufe – das Set gibt dauerhaft Zusatzpunkte.</Text>
+                  {sets.map(({ set, erfuellt, fertig, gesamt }) => (
+                    <View key={set.id} style={[styles.setRow, erfuellt && styles.setRowOn]}>
+                      <Text style={{ fontSize: 24, fontFamily: fonts.regular }}>{set.icon}</Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.rowKicker}>{set.title}</Text>
+                        <Text style={type.small}>{set.text}</Text>
+                        <Bar pct={fertig / gesamt} color={erfuellt ? colors.mintDark : colors.tuerkis} style={{ marginTop: 6 }} />
+                      </View>
+                      <Text style={[styles.setBonus, erfuellt && { color: colors.mintDark }]}>{erfuellt ? '✓ ' : ''}+{set.bonusPct} %</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+
               <Text style={[type.eyebrow, { marginTop: spacing.sm }]}>Gesamte Ausrüstung</Text>
               {ausruestung().map((e) => {
                 const l = levels[e.id];
@@ -333,6 +390,12 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
 }
 
 const styles = StyleSheet.create({
+  angebot: { backgroundColor: colors.yellowTint, borderWidth: 1.5, borderColor: colors.yellow, borderRadius: 16, padding: spacing.md, gap: spacing.sm },
+  angebotBadge: { fontFamily: fonts.mono, fontSize: 11, letterSpacing: 1, color: colors.yellow },
+  angebotPreis: { fontFamily: fonts.bold, fontSize: 14, color: colors.yellow, marginTop: 2 },
+  setRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.sm, opacity: 0.9 },
+  setRowOn: { opacity: 1 },
+  setBonus: { fontFamily: fonts.displayBlack, fontSize: 15, color: colors.muted },
   hall: {
     marginHorizontal: spacing.lg,
     backgroundColor: colors.surface,
