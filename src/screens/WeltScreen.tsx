@@ -32,6 +32,21 @@ function webglOk(): boolean {
   }
 }
 
+/** Runder Pfeil-Knopf: hält man ihn gedrückt, wirkt er (zum Laufen und Umsehen auf dem Handy) */
+function PadKnopf({ pfeil, onAn, onAus, style }: { pfeil: string; onAn: () => void; onAus: () => void; style?: object }) {
+  return (
+    <Pressable
+      onPressIn={onAn}
+      onPressOut={onAus}
+      delayLongPress={0}
+      style={({ pressed }) => [S.pad, pressed && S.padOn, style]}
+      accessibilityLabel={`Pfeil ${pfeil}`}
+    >
+      <Text style={S.padT}>{pfeil}</Text>
+    </Pressable>
+  );
+}
+
 /** 3D-Welt in Ego-Perspektive – läuft im Browser (Web/PWA). Auf dem Handy: links Joystick, rechts umsehen. */
 export function WeltScreen({ rolle, progress, visible, onExit, onHelfen }: Props) {
   const host = useRef<View>(null);
@@ -182,7 +197,7 @@ export function WeltScreen({ rolle, progress, visible, onExit, onHelfen }: Props
 
         {/* Hilfe-Hinweis am Notfall */}
         {nah && (
-          <View style={S.prompt} pointerEvents="box-none">
+          <View style={[S.prompt, hud?.touch && { bottom: 322 }]} pointerEvents="box-none">
             <Text style={S.promptHead}>{nah.art === 'unfall' ? '🚗 Verkehrsunfall' : '🧍 Person am Boden'}</Text>
             <Text style={S.promptSub}>
               {nah.abgesichert ? '✓ abgesichert  ' : '○ absichern  '}
@@ -192,6 +207,73 @@ export function WeltScreen({ rolle, progress, visible, onExit, onHelfen }: Props
             <Pressable style={S.helpBtn} onPress={() => engine.current?.interact()}>
               <Text style={S.helpBtnT}>{hud?.touch ? 'Tippen: Helfen' : 'E drücken: Helfen'}</Text>
             </Pressable>
+          </View>
+        )}
+
+        {/* Pfeile zum Laufen (links) und Umsehen (rechts) */}
+        {hud?.touch && (
+          <>
+            <View style={S.padWalk} pointerEvents="box-none">
+              <PadKnopf
+                pfeil="▲"
+                style={{ left: 54, top: 0 }}
+                onAn={() => engine.current?.setPad(0, -1)}
+                onAus={() => engine.current?.setPad(0, 0)}
+              />
+              <PadKnopf
+                pfeil="◀"
+                style={{ left: 0, top: 54 }}
+                onAn={() => engine.current?.setPad(-1, 0)}
+                onAus={() => engine.current?.setPad(0, 0)}
+              />
+              <PadKnopf
+                pfeil="▶"
+                style={{ left: 108, top: 54 }}
+                onAn={() => engine.current?.setPad(1, 0)}
+                onAus={() => engine.current?.setPad(0, 0)}
+              />
+              <PadKnopf
+                pfeil="▼"
+                style={{ left: 54, top: 108 }}
+                onAn={() => engine.current?.setPad(0, 1)}
+                onAus={() => engine.current?.setPad(0, 0)}
+              />
+              <Text style={S.padLabel}>LAUFEN</Text>
+            </View>
+            <View style={S.padLook} pointerEvents="box-none">
+              <PadKnopf
+                pfeil="▲"
+                style={{ left: 40, top: 0 }}
+                onAn={() => engine.current?.setPadLook(0, 1)}
+                onAus={() => engine.current?.setPadLook(0, 0)}
+              />
+              <PadKnopf
+                pfeil="◀"
+                style={{ left: 0, top: 40 }}
+                onAn={() => engine.current?.setPadLook(-1, 0)}
+                onAus={() => engine.current?.setPadLook(0, 0)}
+              />
+              <PadKnopf
+                pfeil="▶"
+                style={{ left: 80, top: 40 }}
+                onAn={() => engine.current?.setPadLook(1, 0)}
+                onAus={() => engine.current?.setPadLook(0, 0)}
+              />
+              <PadKnopf
+                pfeil="▼"
+                style={{ left: 40, top: 80 }}
+                onAn={() => engine.current?.setPadLook(0, -1)}
+                onAus={() => engine.current?.setPadLook(0, 0)}
+              />
+              <Text style={S.padLabel}>UMSEHEN</Text>
+            </View>
+          </>
+        )}
+
+        {/* Bildrate / Fehler (zur Fehlersuche) */}
+        {!!hud && (
+          <View style={S.diag} pointerEvents="none">
+            <Text style={S.diagT}>{hud.fehler ? `⚠ ${hud.fehler}` : `${hud.fps} FPS`}</Text>
           </View>
         )}
 
@@ -412,7 +494,7 @@ const S = StyleSheet.create({
   },
   helpBtn: { backgroundColor: '#e0393e', borderRadius: 14, paddingVertical: 11, paddingHorizontal: 22 },
   helpBtnT: { fontFamily: fonts.bold, fontSize: 16, color: '#fff' },
-  touchBtns: { position: 'absolute', right: 16, bottom: 116, alignItems: 'flex-end', gap: 10 },
+  touchBtns: { position: 'absolute', right: 14, bottom: 84, flexDirection: 'row', alignItems: 'flex-end', gap: 10 },
   round: {
     width: 84,
     height: 84,
@@ -425,6 +507,34 @@ const S = StyleSheet.create({
   },
   roundSm: { width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(255,255,255,0.28)' },
   roundT: { fontFamily: fonts.bold, fontSize: 13, color: '#08181B' },
+  padWalk: { position: 'absolute', left: 14, bottom: 86, width: 160, height: 166 },
+  padLook: { position: 'absolute', right: 14, bottom: 184, width: 130, height: 126 },
+  pad: {
+    position: 'absolute',
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    borderColor: 'rgba(255,255,255,0.7)',
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  padOn: { backgroundColor: 'rgba(45,212,191,0.85)' },
+  padT: { color: '#fff', fontSize: 20 },
+  padLabel: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 70,
+    textAlign: 'center',
+    fontFamily: fonts.bold,
+    fontSize: 9,
+    letterSpacing: 1,
+    color: 'rgba(255,255,255,0.8)',
+  },
+  diag: { position: 'absolute', left: 14, bottom: 4 },
+  diagT: { fontFamily: fonts.medium, fontSize: 10, color: 'rgba(255,255,255,0.6)' },
   hotbar: {
     position: 'absolute',
     bottom: 22,

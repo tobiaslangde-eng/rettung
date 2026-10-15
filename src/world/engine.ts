@@ -29,6 +29,8 @@ export interface HudState {
   aufgaben: Aufgabe[];
   geholfen: number;
   gesperrt: boolean;
+  fps: number;
+  fehler: string;
   touch: boolean;
 }
 export interface HelfenInfo {
@@ -859,14 +861,32 @@ export class WorldEngine {
   }
 
   // ---------------------------------------------------------------- Hauptschleife
+  private fps = 0;
+  private fehler = '';
+  private pad = { x: 0, z: 0 };
+  private padLook = { x: 0, y: 0 };
+  /** Bildschirm-Pfeile: Laufen (x = links/rechts, z = vor/zurück, -1…1) */
+  setPad(x: number, z: number) {
+    this.pad = { x, z };
+  }
+  /** Bildschirm-Pfeile: Umsehen (x = links/rechts, y = hoch/runter, -1…1) */
+  setPadLook(x: number, y: number) {
+    this.padLook = { x, y };
+  }
   private loop = (now: number) => {
     if (this.disposed || this.paused) return;
     this.raf = requestAnimationFrame(this.loop);
-    const dt = Math.min(0.05, (now - this.last) / 1000);
+    const raw = (now - this.last) / 1000;
+    const dt = Math.min(0.05, raw);
     this.last = now;
-    this.update(dt, now / 1000);
-    this.renderer.render(this.scene, this.camera);
-    this.drawOverlay();
+    if (raw > 0) this.fps = this.fps * 0.9 + (1 / raw) * 0.1;
+    try {
+      this.update(dt, now / 1000);
+      this.renderer.render(this.scene, this.camera);
+      this.drawOverlay();
+    } catch (err) {
+      this.fehler = String((err as Error)?.message ?? err).slice(0, 120);
+    }
   };
 
   private update(dt: number, t: number) {
@@ -905,6 +925,10 @@ export class WorldEngine {
       fx += this.stick.x;
       fz += this.stick.y;
     }
+    fx += this.pad.x;
+    fz += this.pad.z;
+    this.yaw -= this.padLook.x * 1.9 * dt;
+    this.pitch = clamp(this.pitch + this.padLook.y * 1.4 * dt, -1.3, 1.3);
     const mag = Math.min(1, Math.hypot(fx, fz));
     const moving = mag > 0.05;
     if (moving) {
@@ -1065,6 +1089,8 @@ export class WorldEngine {
       aufgaben: this.aufgaben.map((a) => ({ ...a })),
       geholfen: this.geholfen,
       gesperrt: false,
+      fps: Math.round(this.fps),
+      fehler: this.fehler,
       touch: this.touchMode,
     });
     if (n) this.lastHelfenId = n.em.id;
@@ -1076,7 +1102,7 @@ export class WorldEngine {
     const h = this.container.clientHeight;
     g.clearRect(0, 0, w, h);
     // Joystick
-    if (this.touchMode) {
+    if (this.touchMode && this.stick.id >= 0) {
       const sx = this.stick.id >= 0 ? this.stick.cx : 90;
       const sy = this.stick.id >= 0 ? this.stick.cy : h - 130;
       g.globalAlpha = this.stick.id >= 0 ? 0.9 : 0.35;
