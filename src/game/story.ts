@@ -4,10 +4,10 @@ import { Rolle } from './rolle';
 import { Progress } from './storage';
 
 /** Was der Knopf eines Kapitels öffnet */
-export type StoryAktion = 'einsatz' | 'wissen' | 'schritte' | 'cpr' | 'garage' | 'detektiv' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack' | 'rolle';
+export type StoryAktion = 'einsatz' | 'wissen' | 'schritte' | 'cpr' | 'garage' | 'detektiv' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack' | 'handgriffe' | 'mythen' | 'aed' | 'pruefung' | 'rolle';
 
 /** Bereiche, die durch die Geschichte nach und nach freigeschaltet werden */
-export type Bereich = 'einsatz' | 'wissen' | 'schritte' | 'cpr' | 'garage' | 'detektiv' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack';
+export type Bereich = 'einsatz' | 'wissen' | 'schritte' | 'cpr' | 'garage' | 'detektiv' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack' | 'handgriffe' | 'mythen' | 'aed' | 'pruefung';
 
 export interface Kapitel {
   titel: string;
@@ -64,6 +64,14 @@ const HELFER: Kapitel[] = [
     frei: ['notruf'],
   },
   {
+    titel: 'Mythos oder Wahrheit?',
+    text: 'In der Kaffeepause erzählt jemand, bei Nasenbluten müsse man den Kopf in den Nacken legen. Kati schüttelt den Kopf: „So halten sich Irrtümer jahrelang. Prüfen wir, was stimmt.“',
+    ziel: 'Schaffe bei „Mythos oder Wahrheit?“ mindestens 7 von 10.',
+    aktion: 'mythen',
+    stand: (p) => anteil(p.mythenBest, 7),
+    frei: ['mythen'],
+  },
+  {
     titel: 'Der erste Ernstfall',
     text: 'Zwei Wochen später, auf dem Heimweg. Vor dir bleibt jemand stehen, dann wird es laut. Dein Herz klopft – aber du weißt, was zu tun ist.',
     ziel: 'Hilf bei deinem ersten Notfall.',
@@ -96,12 +104,20 @@ const HELFER: Kapitel[] = [
     frei: ['pack'],
   },
   {
-    titel: 'Was ist mit Herrn Berger?',
-    text: 'Dein Nachbar wirkt seit Tagen anders. Kati erklärt dir beim Kaffee: „Krankheiten sehen nicht immer aus wie im Lehrbuch. Achte auf kleine Hinweise.“',
-    ziel: 'Löse 3 Detektiv-Akten.',
-    aktion: 'detektiv',
-    stand: (p) => anteil(akten(p), 3),
-    frei: ['detektiv'],
+    titel: 'Handgriffe, die sitzen',
+    text: 'Beim Sommerfest schneidet sich ein Kind an einer Scherbe. Du denkst: Druckverband – aber wie genau? Kati zeigt dir später in Ruhe, wie man lagert, verbindet und kühlt.',
+    ziel: 'Schaffe bei „Handgriffe“ mindestens 7 von 10.',
+    aktion: 'handgriffe',
+    stand: (p) => anteil(p.handgriffeBest, 7),
+    frei: ['handgriffe'],
+  },
+  {
+    titel: 'Der Defibrillator',
+    text: 'Im Supermarkt hängt ein Gerät mit grünem Herz an der Wand. „Davor hat jeder Angst“, sagt Kati, „dabei spricht es mit dir und sagt dir genau, was du tun sollst. Üben wir es.“',
+    ziel: 'Schließe 2 Defi-Trainings ab.',
+    aktion: 'aed',
+    stand: (p) => anteil(p.aedGeschafft.length, 2),
+    frei: ['aed'],
   },
   {
     titel: 'Die, die man ruft',
@@ -130,9 +146,9 @@ const HELFER: Kapitel[] = [
   {
     titel: 'Ersthelfer-App',
     text: 'Kati schickt dir einen Link: „Melde dich bei der Ersthelfer-App an. Wenn in deiner Nähe jemand einen Herzstillstand hat, kannst du vor dem Rettungsdienst da sein.“',
-    ziel: 'Schaffe die Herzdruckmassage mit mindestens 85 % und löse 10 Akten.',
+    ziel: 'Schaffe die Herzdruckmassage mit mindestens 85 % und 4 Defi-Trainings.',
     aktion: 'cpr',
-    stand: (p) => (anteil(p.cprBest, 85) + anteil(akten(p), 10)) / 2,
+    stand: (p) => (anteil(p.cprBest, 85) + anteil(p.aedGeschafft.length, 4)) / 2,
     frei: [],
   },
   {
@@ -144,11 +160,27 @@ const HELFER: Kapitel[] = [
     frei: [],
   },
   {
+    titel: 'Die Prüfung',
+    text: 'Zum Abschluss des Kurses wartet ein Test mit 20 Fragen. Kati lächelt: „Wer ruhig bleibt und das Gelernte anwendet, besteht. Ich traue dir das zu.“',
+    ziel: 'Bestehe die Erste-Hilfe-Prüfung mit mindestens 16 von 20.',
+    aktion: 'pruefung',
+    stand: (p) => anteil(p.pruefungBest, 16),
+    frei: ['pruefung'],
+  },
+  {
     titel: 'Lebensretter/in',
     text: 'Es ist passiert: Die App hat dich alarmiert, du hast gedrückt, bis der Rettungsdienst kam. Später erfährst du, dass der Mann lebt. Du bist stolz – und willst noch besser werden.',
     ziel: 'Löse 5 Notfälle mit 3 Sternen.',
     aktion: 'einsatz',
     stand: (p) => anteil(p.perfectRuns, 5),
+    frei: [],
+  },
+  {
+    titel: 'Meister/in der Ersten Hilfe',
+    text: 'Du hast alles geübt, was im Kurs dran kommt – und mehr. Bei der Nachbarschaftsfeier erklärst du anderen, wie man den Notruf richtig absetzt. Kati ist stolz auf dich.',
+    ziel: 'Schaffe „Mythos oder Wahrheit?“ mit 9 und „Handgriffe“ mit 9 von 10.',
+    aktion: 'handgriffe',
+    stand: (p) => (anteil(p.mythenBest, 9) + anteil(p.handgriffeBest, 9)) / 2,
     frei: [],
   },
   {

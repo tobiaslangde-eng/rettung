@@ -1,3 +1,4 @@
+import { HELFER_FRAGEN_2 } from '../data/helferFragen2';
 import { HELFER_FRAGEN } from '../data/helferFragen';
 import { KnowledgeQuestion, QUESTIONS } from '../data/questions';
 import { aktiveRolle } from './rolle';
@@ -75,7 +76,7 @@ export interface KnowledgeRound {
 /** 10 zufällige Wissensfragen mit gemischten Antworten. */
 /** Ersthelfer/innen bekommen die allgemeinen Fragen plus Alltagsfragen, Sanitäter/innen die allgemeinen Fragen */
 export function makeKnowledgeQuiz(): KnowledgeRound[] {
-  return shuffle(aktiveRolle() === 'helfer' ? [...QUESTIONS, ...HELFER_FRAGEN] : QUESTIONS)
+  return shuffle(aktiveRolle() === 'helfer' ? [...QUESTIONS, ...HELFER_FRAGEN, ...HELFER_FRAGEN_2] : QUESTIONS)
     .slice(0, QUIZ_ROUNDS)
     .map((q) => {
       const options = shuffle(q.answers);

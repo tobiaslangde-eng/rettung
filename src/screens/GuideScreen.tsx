@@ -231,8 +231,9 @@ export function GuideScreen({
             <Row label="Herzdruckmassage (ohne Taktgeber doppelt)" pts={CPR_POINTS} text={`bis +${CPR_POINTS * 2}`} />
           </View>
           <Text style={[type.small, { marginTop: spacing.sm }]}>
-            Auf „Mittel“ zählen alle Punkte eines Einsatzes ×1,5, auf „Schwer“ ×2. Die Detektiv-Akten haben ein eigenes
-            Punktesystem (siehe dort).
+            {r.id === 'helfer'
+              ? 'Alle Trainings (Notruf, Was zuerst?, Handgriffe, Mythen, Defi, Prüfung) geben Punkte für richtige Antworten und einen Bonus für fehlerfreie Runden.'
+              : 'Auf „Mittel“ zählen alle Punkte eines Einsatzes ×1,5, auf „Schwer“ ×2. Die Detektiv-Akten haben ein eigenes Punktesystem (siehe dort).'}
           </Text>
         </Card>
 

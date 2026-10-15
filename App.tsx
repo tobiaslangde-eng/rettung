@@ -13,6 +13,7 @@ import { CprResult } from './src/game/cpr';
 import { DAILY_CASE_BONUS, dailyCase, dailyHelferFall, registerDailyCase } from './src/game/daily';
 import { DIFFICULTY_BY_ID, Difficulty } from './src/game/difficulty';
 import { WacheId, wacheKaufen } from './src/game/wache';
+import { PRUEFUNG_BESTANDEN, handgriffePunkte, makeHandgriffe, makePruefung, makeZuerstFragen, pruefungPunkte, zuerstPunkte } from './src/game/helferTraining';
 import { EquipmentId, ausruestung, buyUpgrade, equipmentEffects, levelOf, upgradeBlock } from './src/game/equipment';
 import { ArchiveStamp, mergeArchive } from './src/game/detective';
 import { HelferErgebnis } from './src/game/helfer';
@@ -40,7 +41,8 @@ import { RolleScreen } from './src/screens/RolleScreen';
 import { WacheScreen } from './src/screens/WacheScreen';
 import { NotrufScreen } from './src/screens/NotrufScreen';
 import { PackScreen } from './src/screens/PackScreen';
-import { ZuerstScreen } from './src/screens/ZuerstScreen';
+import { FragenScreen } from './src/screens/FragenScreen';
+import { MythenScreen } from './src/screens/MythenScreen';
 import { SchritteScreen } from './src/screens/SchritteScreen';
 import { TrainingScreen } from './src/screens/TrainingScreen';
 import { FrameWidthProvider, SIDEBAR_FROM, SIDEBAR_WIDTH, SidebarProvider, desktopShell } from './src/layout';
@@ -60,6 +62,10 @@ type Screen =
   | { name: 'notruf'; key: number }
   | { name: 'zuerst'; key: number }
   | { name: 'pack'; key: number }
+  | { name: 'handgriffe'; key: number }
+  | { name: 'mythen'; key: number }
+  | { name: 'aed'; key: number }
+  | { name: 'pruefung'; key: number }
   | { name: 'rolle' }
   | { name: 'helfer'; fall: HelferFall; daily: boolean; key: number }
   | { name: 'garage' }
@@ -89,6 +95,10 @@ const FRAME_MAX: Partial<Record<Screen['name'], number>> = {
   notruf: 760,
   zuerst: 760,
   pack: 760,
+  handgriffe: 760,
+  mythen: 760,
+  aed: 760,
+  pruefung: 760,
   helfer: 820,
   rolle: 760,
 };
@@ -114,6 +124,10 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   notruf: 'notruf',
   zuerst: 'zuerst',
   pack: 'pack',
+  handgriffe: 'handgriffe',
+  mythen: 'mythen',
+  aed: 'aed',
+  pruefung: 'pruefung',
   helfer: 'home',
   cpr: 'cpr',
   wissen: 'wissen',
@@ -402,7 +416,7 @@ export default function App() {
 
   const navigate = (t: NavTarget) => {
     if (t === 'start') return startCase();
-    if (t === 'quiz' || t === 'wissen' || t === 'cpr' || t === 'manv' || t === 'detektiv' || t === 'schritte')
+    if (['quiz', 'wissen', 'cpr', 'manv', 'detektiv', 'schritte', 'notruf', 'zuerst', 'pack', 'handgriffe', 'mythen', 'aed', 'pruefung'].includes(t))
       return setScreen({ name: t, key: Date.now() } as Screen);
     setScreen({ name: t } as Screen);
   };
@@ -492,7 +506,67 @@ export default function App() {
                       <NotrufScreen key={screen.key} geloest={progress.notrufGeschafft} onFinish={finishNotruf} onBack={back} />
                     )}
                     {screen.name === 'zuerst' && (
-                      <ZuerstScreen key={screen.key} best={progress.zuerstBest} onFinish={finishZuerst} onBack={back} />
+                      <FragenScreen
+                        key={screen.key}
+                        kicker="Was zuerst?"
+                        titel="Erste Handlung"
+                        frageText="Was machst du als Erstes?"
+                        erzeuge={makeZuerstFragen}
+                        best={progress.zuerstBest}
+                        punkte={zuerstPunkte}
+                        onFinish={finishZuerst}
+                        onBack={back}
+                      />
+                    )}
+                    {screen.name === 'handgriffe' && (
+                      <FragenScreen
+                        key={screen.key}
+                        kicker="Handgriffe"
+                        titel="Richtig gemacht"
+                        frageText="Wie machst du es richtig?"
+                        erzeuge={makeHandgriffe}
+                        best={progress.handgriffeBest}
+                        punkte={handgriffePunkte}
+                        onFinish={(richtig, punkte) => commit({ ...progress, totalPoints: progress.totalPoints + punkte, handgriffeBest: Math.max(progress.handgriffeBest, richtig) })}
+                        onBack={back}
+                      />
+                    )}
+                    {screen.name === 'pruefung' && (
+                      <FragenScreen
+                        key={screen.key}
+                        kicker="Erste-Hilfe-Prüfung"
+                        titel="Kursabschluss"
+                        frageText="Wähle die richtige Antwort"
+                        erzeuge={makePruefung}
+                        best={progress.pruefungBest}
+                        bestehen={PRUEFUNG_BESTANDEN}
+                        punkte={pruefungPunkte}
+                        onFinish={(richtig, punkte) => commit({ ...progress, totalPoints: progress.totalPoints + punkte, pruefungBest: Math.max(progress.pruefungBest, richtig) })}
+                        onBack={back}
+                      />
+                    )}
+                    {screen.name === 'mythen' && (
+                      <MythenScreen
+                        key={screen.key}
+                        best={progress.mythenBest}
+                        onFinish={(richtig, punkte) => commit({ ...progress, totalPoints: progress.totalPoints + punkte, mythenBest: Math.max(progress.mythenBest, richtig) })}
+                        onBack={back}
+                      />
+                    )}
+                    {screen.name === 'aed' && (
+                      <NotrufScreen
+                        key={screen.key}
+                        modus="aed"
+                        geloest={progress.aedGeschafft}
+                        onFinish={(punkte, id) =>
+                          commit({
+                            ...progress,
+                            totalPoints: progress.totalPoints + punkte,
+                            aedGeschafft: id ? [...new Set([...progress.aedGeschafft, id])] : progress.aedGeschafft,
+                          })
+                        }
+                        onBack={back}
+                      />
                     )}
                     {screen.name === 'pack' && (
                       <PackScreen key={screen.key} geloest={progress.packGeschafft} onFinish={finishPack} onBack={back} />

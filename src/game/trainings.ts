@@ -1,4 +1,5 @@
 import { NOTRUF_SZENARIEN } from '../data/notruf';
+import { AED_SZENARIEN } from '../data/aed';
 import { PACKLISTEN } from '../data/packlisten';
 import { ablaeufeFuer } from './schritte';
 import { archiveCount } from './detective';
@@ -6,7 +7,7 @@ import { Rolle } from './rolle';
 import { Bereich } from './story';
 import { Progress } from './storage';
 
-export type TrainingId = 'detektiv' | 'schritte' | 'cpr' | 'wissen' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack';
+export type TrainingId = 'detektiv' | 'schritte' | 'cpr' | 'wissen' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack' | 'handgriffe' | 'mythen' | 'aed' | 'pruefung';
 
 export interface TrainingInfo {
   id: TrainingId & Bereich;
@@ -94,5 +95,37 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
     sub: 'Was gehört in Verbandkasten, Rucksack und Hausapotheke?',
     stand: p.packGeschafft.length > 0 ? `${p.packGeschafft.length}/${PACKLISTEN.length} Listen` : undefined,
   };
-  return rolle === 'helfer' ? [wissen, schritte, cpr, notruf, zuerst, pack, detektiv] : [quiz, wissen, cpr, schritte, detektiv, manv];
+  const handgriffe: TrainingInfo = {
+    id: 'handgriffe',
+    farbe: '#0F3A2E',
+    icon: '🩹',
+    title: 'Handgriffe',
+    sub: 'Lagern, verbinden, kühlen: Wie genau machst du es richtig?',
+    stand: p.handgriffeBest > 0 ? `Bestwert ${p.handgriffeBest}/10` : undefined,
+  };
+  const mythen: TrainingInfo = {
+    id: 'mythen',
+    farbe: '#3A3218',
+    icon: '🧐',
+    title: 'Mythos oder Wahrheit?',
+    sub: 'Was Laien oft glauben – und was wirklich stimmt.',
+    stand: p.mythenBest > 0 ? `Bestwert ${p.mythenBest}/10` : undefined,
+  };
+  const aed: TrainingInfo = {
+    id: 'aed',
+    farbe: '#3A1A25',
+    icon: '🔋',
+    title: 'Defi-Training',
+    sub: 'Das Gerät spricht mit dir: Pads, Analyse, Schock.',
+    stand: p.aedGeschafft.length > 0 ? `${p.aedGeschafft.length}/${AED_SZENARIEN.length} Szenarien` : undefined,
+  };
+  const pruefung: TrainingInfo = {
+    id: 'pruefung',
+    farbe: '#1F2750',
+    icon: '🎓',
+    title: 'Erste-Hilfe-Prüfung',
+    sub: '20 Fragen aus dem ganzen Kurs – bestanden ab 16.',
+    stand: p.pruefungBest > 0 ? `Bestwert ${p.pruefungBest}/20${p.pruefungBest >= 16 ? ' · bestanden' : ''}` : undefined,
+  };
+  return rolle === 'helfer' ? [wissen, schritte, cpr, notruf, mythen, zuerst, pack, handgriffe, aed, pruefung] : [quiz, wissen, cpr, schritte, detektiv, manv];
 }

@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AnswerOption } from '../components/Training';
 import { Button, Card, TopBar } from '../components/UI';
 import { NotrufSzenario } from '../data/helferTraining';
-import { NOTRUF_GESCHAFFT_AB, notrufPunkte, waehleNotruf } from '../game/helferTraining';
+import { NOTRUF_GESCHAFFT_AB, notrufPunkte, waehleAed, waehleNotruf } from '../game/helferTraining';
 import { useRolle } from '../game/rolle';
 import { shuffle } from '../game/scoring';
 import { useLayout } from '../layout';
@@ -12,19 +12,25 @@ import { colors, fonts, spacing, type } from '../theme';
 const LETTERS = ['A', 'B', 'C'];
 
 /** Notruf üben: Die Leitstelle fragt, du wählst die beste Antwort. */
+/** Notruf üben und Defi-Training: ein Gegenüber stellt Fragen, du wählst die beste Antwort. */
 export function NotrufScreen({
+  modus = 'notruf',
   geloest,
   onFinish,
   onBack,
 }: {
+  modus?: 'notruf' | 'aed';
   geloest: string[];
   onFinish: (punkte: number, id: string | null) => void;
   onBack: () => void;
 }) {
   const L = useLayout();
   const r = useRolle();
+  const aed = modus === 'aed';
+  const kicker = aed ? 'Defi-Training' : 'Notruf üben';
+  const gegenueber = aed ? 'Gerät' : 'Leitstelle';
   const [lauf, setLauf] = useState(0);
-  const sz: NotrufSzenario = useMemo(() => waehleNotruf(geloest), [lauf]); // eslint-disable-line react-hooks/exhaustive-deps
+  const sz: NotrufSzenario = useMemo(() => (modus === 'aed' ? waehleAed(geloest) : waehleNotruf(geloest)), [lauf]); // eslint-disable-line react-hooks/exhaustive-deps
   const ordnung = useMemo(() => sz.schritte.map(() => shuffle([0, 1, 2])), [sz]);
   const [phase, setPhase] = useState<'lage' | 'ruf' | 'ende'>('lage');
   const [schritt, setSchritt] = useState(0);
@@ -63,7 +69,7 @@ export function NotrufScreen({
     const punkte = notrufPunkte(richtig, sz.schritte.length);
     return (
       <View style={{ flex: 1 }}>
-        <TopBar kicker="Notruf üben" title="Anruf beendet" onBack={onBack} />
+        <TopBar kicker={kicker} title={aed ? 'Geschafft' : 'Anruf beendet'} onBack={onBack} />
         <ScrollView contentContainerStyle={[styles.content, L.wide && styles.wide]}>
           <Card style={{ alignItems: 'center', gap: spacing.sm }}>
             <Text style={styles.emoji}>
@@ -75,16 +81,16 @@ export function NotrufScreen({
             </Text>
           </Card>
           <Card style={{ gap: spacing.md }}>
-            <Text style={type.eyebrow}>Dein Gespräch</Text>
+            <Text style={type.eyebrow}>{aed ? 'Dein Ablauf' : 'Dein Gespräch'}</Text>
             {sz.schritte.map((s, i) => (
               <View key={i} style={{ gap: 4 }}>
-                <Bubble von="leitstelle" text={s.frage} />
+                <Bubble von="leitstelle" text={s.frage} name={gegenueber} />
                 <Bubble von="du" text={s.antworten[gewaehlt[i]]} gut={gewaehlt[i] === 0} akzent={r.akzent} />
                 {gewaehlt[i] !== 0 && <Bubble von="tipp" text={`Besser: ${s.antworten[0]}`} />}
               </View>
             ))}
           </Card>
-          <Button label="Nächster Notruf" onPress={neu} />
+          <Button label={aed ? 'Nächstes Szenario' : 'Nächster Notruf'} onPress={neu} />
           <Button label="Zurück" variant="outline" onPress={onBack} />
         </ScrollView>
       </View>
@@ -93,7 +99,7 @@ export function NotrufScreen({
 
   return (
     <View style={{ flex: 1 }}>
-      <TopBar kicker="Notruf üben" title={sz.titel} onBack={onBack} />
+      <TopBar kicker={kicker} title={sz.titel} onBack={onBack} />
       <ScrollView contentContainerStyle={[styles.content, L.wide && styles.wide]}>
         {phase === 'lage' ? (
           <>
@@ -103,11 +109,12 @@ export function NotrufScreen({
             </Card>
             <Card style={styles.tip}>
               <Text style={type.small}>
-                Du wählst die 112. Die Leitstelle stellt dir ein paar Fragen – antworte ruhig, konkret und der Reihe nach. Wo?
-                Was? Wie viele? Welche Beschwerden? Dann: warten auf Rückfragen.
+                {aed
+                  ? 'Der Defibrillator (AED) führt dich mit Ansagen durch die Wiederbelebung. Hör zu, schau auf die Lage und wähle bei jedem Schritt, was du tust.'
+                  : 'Du wählst die 112. Die Leitstelle stellt dir ein paar Fragen – antworte ruhig, konkret und der Reihe nach. Wo? Was? Wie viele? Welche Beschwerden? Dann: warten auf Rückfragen.'}
               </Text>
             </Card>
-            <Button label="📞  112 wählen" onPress={() => setPhase('ruf')} />
+            <Button label={aed ? '🔋  Defi einschalten' : '📞  112 wählen'} onPress={() => setPhase('ruf')} />
           </>
         ) : (
           <>
@@ -118,11 +125,11 @@ export function NotrufScreen({
             </View>
             {sz.schritte.slice(0, schritt).map((s, i) => (
               <View key={i} style={{ gap: 4 }}>
-                <Bubble von="leitstelle" text={s.frage} />
+                <Bubble von="leitstelle" text={s.frage} name={gegenueber} />
                 <Bubble von="du" text={s.antworten[gewaehlt[i]]} gut={gewaehlt[i] === 0} akzent={r.akzent} />
               </View>
             ))}
-            <Bubble von="leitstelle" text={st.frage} />
+            <Bubble von="leitstelle" text={st.frage} name={gegenueber} />
             <View style={{ gap: spacing.sm }}>
               {ordnung[schritt].map((idx, n) => (
                 <AnswerOption
@@ -141,7 +148,7 @@ export function NotrufScreen({
                   <Text style={type.headline}>{picked === 0 ? 'Genau so!' : 'Besser so:'}</Text>
                   <Text style={type.body}>{picked === 0 ? st.erklaerung : `${st.antworten[0]} – ${st.erklaerung}`}</Text>
                 </Card>
-                <Button label={schritt + 1 < sz.schritte.length ? 'Weiter' : 'Auflegen'} onPress={weiter} />
+                <Button label={schritt + 1 < sz.schritte.length ? 'Weiter' : aed ? 'Fertig' : 'Auflegen'} onPress={weiter} />
               </>
             )}
           </>
@@ -151,7 +158,7 @@ export function NotrufScreen({
   );
 }
 
-function Bubble({ von, text, gut, akzent }: { von: 'leitstelle' | 'du' | 'tipp'; text: string; gut?: boolean; akzent?: string }) {
+function Bubble({ von, text, gut, akzent, name = 'Leitstelle' }: { von: 'leitstelle' | 'du' | 'tipp'; text: string; gut?: boolean; akzent?: string; name?: string }) {
   if (von === 'tipp') return <Text style={[type.small, { marginLeft: spacing.xl, color: colors.mintDark }]}>{text}</Text>;
   const du = von === 'du';
   return (
@@ -167,7 +174,7 @@ function Bubble({ von, text, gut, akzent }: { von: 'leitstelle' | 'du' | 'tipp';
             : { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderBottomLeftRadius: 4 },
         ]}
       >
-        <Text style={styles.bubbleWho}>{du ? 'Du' : 'Leitstelle'}</Text>
+        <Text style={styles.bubbleWho}>{du ? 'Du' : name}</Text>
         <Text style={type.body}>{text}</Text>
       </View>
     </View>

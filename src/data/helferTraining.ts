@@ -68,3 +68,14 @@ export interface HelferLexikonEintrag {
   /** Ein Satz zum Merken */
   merke?: string;
 }
+
+/** Mythos oder Wahrheit: eine Aussage, die stimmt oder nicht */
+export interface Mythos {
+  /** Eindeutig, Präfix 'm-' */
+  id: string;
+  /** Die Aussage, so wie Laien sie oft sagen („Bei Nasenbluten legt man den Kopf in den Nacken.“) */
+  aussage: string;
+  stimmt: boolean;
+  /** Warum richtig oder falsch, mit dem richtigen Vorgehen (1–2 Sätze) */
+  erklaerung: string;
+}

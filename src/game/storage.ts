@@ -87,6 +87,10 @@ export interface Progress {
   zuerstBest: number;
   /** Gut gepackt: richtig gepackte Listen (IDs) */
   packGeschafft: string[];
+  aedGeschafft: string[];
+  handgriffeBest: number;
+  mythenBest: number;
+  pruefungBest: number;
   /** Ausbaustufen der Rettungswache (Sanitäter/in) */
   wache: Record<string, number>;
 }
@@ -124,6 +128,10 @@ export const EMPTY_PROGRESS: Progress = {
   notrufGeschafft: [],
   zuerstBest: 0,
   packGeschafft: [],
+  aedGeschafft: [],
+  handgriffeBest: 0,
+  mythenBest: 0,
+  pruefungBest: 0,
   wache: {},
 };
 
