@@ -452,7 +452,8 @@ export default function App() {
   const tab = sidebar ? undefined : TAB_OF[screen.name];
 
   // Spielweise noch nicht gewählt: mit Geschichte oder frei spielen
-  const modusFehlt = rolle !== undefined && rolle !== null && progress.modus === '';
+  const [modusOffen, setModusOffen] = useState(false);
+  const modusFehlt = rolle !== undefined && rolle !== null && (progress.modus === '' || modusOffen);
 
   if ((!fontsLoaded && !fontError) || rolle === undefined) {
     return (
@@ -469,7 +470,14 @@ export default function App() {
           <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
             <StatusBar style="light" />
             <RolleContext.Provider value={aktiv}>
-              <ModusScreen onWahl={(m) => importProgress({ ...progress, modus: m })} />
+              <ModusScreen
+                aktuell={progress.modus}
+                onWahl={(m) => {
+                  importProgress({ ...progress, modus: m });
+                  setModusOffen(false);
+                }}
+                onZurueck={modusOffen ? () => setModusOffen(false) : undefined}
+              />
             </RolleContext.Provider>
           </SafeAreaView>
         </View>
@@ -519,6 +527,7 @@ export default function App() {
                         onGarage={() => setScreen({ name: 'garage' })}
                         onWache={() => setScreen(aktiv === 'helfer' ? { name: 'hilfspunkt' } : { name: 'wache' })}
                         onStory={storyAktion}
+                        onModus={() => setModusOffen(true)}
                         onStoryDone={storyDone}
                       />
                     )}

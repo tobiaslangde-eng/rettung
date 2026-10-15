@@ -33,6 +33,7 @@ export function HomeScreen({
   onWache,
   onStory,
   onStoryDone,
+  onModus,
 }: {
   progress: Progress;
   onStart: () => void;
@@ -45,6 +46,8 @@ export function HomeScreen({
   onStory: (a: StoryAktion) => void;
   /** Kapitel abschließen und Belohnung holen */
   onStoryDone: () => void;
+  /** Spielweise ändern (Geschichte oder frei) */
+  onModus: () => void;
 }) {
   const L = useLayout();
   const sidebar = useSidebar();
@@ -68,6 +71,9 @@ export function HomeScreen({
         <Text style={[type.small, { color: r.akzentDunkel }]}>
           {r.icon} {r.titel} · {rank.de}
         </Text>
+        <Tap onPress={onModus} accessibilityLabel="Spielweise ändern" style={styles.modusChip}>
+          <Text style={styles.modusText}>{progress.modus === 'frei' ? '🧭 Frei spielen' : '📖 Mit Geschichte'} · ändern ›</Text>
+        </Tap>
       </View>
       <View style={styles.headerStats}>
         <Mini value={progress.totalPoints.toLocaleString('de-DE')} label="Punkte" />
@@ -330,6 +336,8 @@ function Locked({ kapitel }: { kapitel: number }) {
 }
 
 const styles = StyleSheet.create({
+  modusChip: { alignSelf: 'flex-start', marginTop: 6, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface },
+  modusText: { fontFamily: fonts.semibold, fontSize: 12, color: colors.inkSoft },
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   contentWide: { padding: spacing.xl, maxWidth: 1100, alignSelf: 'center', width: '100%' },
   cols: { flexDirection: 'row', gap: spacing.xl, alignItems: 'flex-start' },

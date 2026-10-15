@@ -7,7 +7,7 @@ import { colors, fonts, spacing, type } from '../theme';
 export type Modus = 'story' | 'frei';
 
 /** Spielweise wählen: mit Geschichte oder frei spielen */
-export function ModusScreen({ onWahl }: { onWahl: (m: Modus) => void }) {
+export function ModusScreen({ aktuell, onWahl, onZurueck }: { aktuell?: Modus | ''; onWahl: (m: Modus) => void; onZurueck?: () => void }) {
   const r = useRolle();
   return (
     <ScrollView contentContainerStyle={styles.content}>
@@ -17,23 +17,29 @@ export function ModusScreen({ onWahl }: { onWahl: (m: Modus) => void }) {
           {r.icon} {r.titel}
         </Text>
         <Text style={[type.title, { textAlign: 'center' }]}>Wie möchtest du spielen?</Text>
-        <Text style={[type.body, { textAlign: 'center', color: colors.muted }]}>Du kannst das jederzeit unter „Mehr“ ändern. Dein Fortschritt bleibt erhalten.</Text>
+        <Text style={[type.body, { textAlign: 'center', color: colors.muted }]}>Du kannst das jederzeit ändern – auf der Startseite oder unter „Mehr“. Dein Fortschritt bleibt erhalten.</Text>
       </View>
-      <Tap onPress={() => onWahl('story')} accessibilityLabel="Mit Geschichte spielen" style={[styles.card, { borderColor: r.akzent }]}>
+      <Tap onPress={() => onWahl('story')} accessibilityLabel="Mit Geschichte spielen" style={[styles.card, aktuell !== 'frei' && { borderColor: r.akzent }]}>
         <Text style={styles.icon}>📖</Text>
         <View style={{ flex: 1, gap: 4 }}>
           <Text style={type.headline}>Mit Geschichte</Text>
           <Text style={type.small}>Kati begleitet dich durch Kapitel mit Aufgaben. Mit jedem Kapitel schalten sich neue Bereiche frei – so baut alles aufeinander auf.</Text>
-          <Text style={[styles.tag, { color: r.akzentDunkel }]}>Empfohlen für den Einstieg</Text>
+          <Text style={[styles.tag, { color: r.akzentDunkel }]}>{aktuell === 'story' ? '✓ Gerade aktiv' : 'Empfohlen für den Einstieg'}</Text>
         </View>
       </Tap>
-      <Tap onPress={() => onWahl('frei')} accessibilityLabel="Frei spielen" style={styles.card}>
+      <Tap onPress={() => onWahl('frei')} accessibilityLabel="Frei spielen" style={[styles.card, aktuell === 'frei' && { borderColor: r.akzent }]}>
         <Text style={styles.icon}>🧭</Text>
         <View style={{ flex: 1, gap: 4 }}>
           <Text style={type.headline}>Frei spielen</Text>
           <Text style={type.small}>Alles ist von Anfang an offen, es gibt keine Geschichte und keine Kapitel. Du übst, was du willst, in deiner Reihenfolge.</Text>
+          {aktuell === 'frei' && <Text style={[styles.tag, { color: r.akzentDunkel }]}>✓ Gerade aktiv</Text>}
         </View>
       </Tap>
+      {onZurueck && (
+        <Tap onPress={onZurueck} accessibilityLabel="Abbrechen" style={{ alignItems: 'center', padding: spacing.md }}>
+          <Text style={[type.body, { color: colors.muted }]}>Abbrechen</Text>
+        </Tap>
+      )}
     </ScrollView>
   );
 }
