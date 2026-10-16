@@ -4,6 +4,7 @@ import { SvgXml } from 'react-native-svg';
 import { Button, Card, Tap, TopBar } from '../components/UI';
 import { useRolle } from '../game/rolle';
 import { Progress } from '../game/storage';
+import { zaehle } from '../analytics';
 import { teileUrkunde } from '../game/teilen';
 import { datumDeutsch, neueUrkunden, urkundeSvg, urkundenFuer } from '../game/urkunden';
 import { useLayout } from '../layout';
@@ -56,6 +57,7 @@ export function UrkundenScreen({
             onPress={async () => {
               try {
                 const erg = await teileUrkunde(svg, `urkunde-${aktuell.id}.png`, aktuell.titel);
+                if (erg !== 'abgebrochen') zaehle('urkunde-' + erg);
                 setHinweis(
                   erg === 'gespeichert' ? 'Gespeichert – schau in deine Downloads.' : erg === 'geteilt' ? 'Geteilt.' : '',
                 );

@@ -6,7 +6,7 @@ der Google Play Console als Datenschutz-URL eintragen.
 
 - Die App erhebt **keine personenbezogenen Daten** und überträgt keine Daten an Server.
 - Kein Benutzerkonto, keine Werbung, keine In-App-Käufe. In den **Apps** (App Store, Google Play) keine Analyse- oder Tracking-Dienste.
-- **Nur die Web-Version** (rettung.tankard.de) zählt anonym Besuche und grobe Ereignisse mit GoatCounter (ohne Cookies, ohne Profile, ohne Spielstand; Do-Not-Track wird beachtet; nicht in der Vorschau). Siehe `src/analytics.ts`.
+- **Nur die Web-Version** (rettung.tankard.de) zählt anonym Besuche und grobe Ereignisse mit GoatCounter (ohne Cookies, ohne Profile, ohne Spielstand; gezählt werden Besuche, grobe Ereignisse, Spielzeit-Stufen und neu/wiederkehrend; Do-Not-Track wird beachtet; nicht in der Vorschau). Siehe `src/analytics.ts`.
 - Der Spielstand wird **nur lokal auf dem Gerät** gespeichert.
 - Keine Berechtigungen (keine Kamera, kein Standort, keine Kontakte).
 - Die Web-Version wird über GitHub Pages ausgeliefert; GitHub verarbeitet dabei technisch notwendige
