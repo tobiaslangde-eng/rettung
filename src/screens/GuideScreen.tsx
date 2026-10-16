@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
 import { Linking, Platform, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
-import { zeigeDatenschutzEinstellungen } from '../analytics';
 import { Button, Card, IconTile, Segmented, TopBar } from '../components/UI';
 import { KatiAvatar } from '../components/Kati';
 import { BADGE_BONUS } from '../game/achievements';
@@ -293,16 +292,6 @@ export function GuideScreen({
             onPress={() => Linking.openURL(PRIVACY_URL)}
             style={{ marginTop: spacing.md }}
           />
-          {Platform.OS === 'web' && (
-            <Button
-              label="Datenschutz-Einstellungen (Statistik)"
-              variant="outline"
-              onPress={() => {
-                if (!zeigeDatenschutzEinstellungen()) Linking.openURL(PRIVACY_URL);
-              }}
-              style={{ marginTop: spacing.sm }}
-            />
-          )}
         </Card>
         <Card>
           <Head icon="🗑️" color={colors.line} title="Neu anfangen" />
