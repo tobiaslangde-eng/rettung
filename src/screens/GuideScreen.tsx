@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { Linking, Platform, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
+import { zeigeDatenschutzEinstellungen } from '../analytics';
 import { Button, Card, IconTile, Segmented, TopBar } from '../components/UI';
 import { KatiAvatar } from '../components/Kati';
 import { BADGE_BONUS } from '../game/achievements';
@@ -283,7 +284,8 @@ export function GuideScreen({
         <Card>
           <Head icon="🔒" color={colors.lilac} title="Datenschutz" />
           <Text style={[type.small, { marginTop: spacing.sm }]}>
-            Einsatz 112 sammelt keine persönlichen Daten. Der Spielstand bleibt auf diesem Gerät.
+            Einsatz 112 sammelt keine persönlichen Daten. Der Spielstand bleibt auf diesem Gerät. Die Web-Version zählt anonym,
+            wie oft sie genutzt wird; Details und Einstellungen findest du hier.
           </Text>
           <Button
             label="Datenschutzerklärung"
@@ -291,6 +293,16 @@ export function GuideScreen({
             onPress={() => Linking.openURL(PRIVACY_URL)}
             style={{ marginTop: spacing.md }}
           />
+          {Platform.OS === 'web' && (
+            <Button
+              label="Datenschutz-Einstellungen (Statistik)"
+              variant="outline"
+              onPress={() => {
+                if (!zeigeDatenschutzEinstellungen()) Linking.openURL(PRIVACY_URL);
+              }}
+              style={{ marginTop: spacing.sm }}
+            />
+          )}
         </Card>
         <Card>
           <Head icon="🗑️" color={colors.line} title="Neu anfangen" />
@@ -348,7 +360,17 @@ function Row({ label, pts, text }: { label: string; pts: number; text?: string }
 }
 
 const styles = StyleSheet.create({
-  codeFeld: { alignSelf: 'center', width: 120, textAlign: 'center', fontFamily: fonts.regular, fontSize: 14, color: colors.ink, borderBottomWidth: 1, borderBottomColor: colors.line, paddingVertical: 4 },
+  codeFeld: {
+    alignSelf: 'center',
+    width: 120,
+    textAlign: 'center',
+    fontFamily: fonts.regular,
+    fontSize: 14,
+    color: colors.ink,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+    paddingVertical: 4,
+  },
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl + 8 },
   intro: {
     flexDirection: 'row',
