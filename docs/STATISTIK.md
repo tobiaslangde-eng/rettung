@@ -29,3 +29,8 @@ Quelle: `src/analytics.ts` und die `zaehle(...)`-Aufrufe in `App.tsx`.
 Zusätzlich läuft Matomo Cloud (Container in `src/analytics.ts`, Konto `tankard.matomo.cloud`). Die Ereignisse oben werden auch dort gemeldet:
 als Matomo-Ereignis (Kategorie `Spiel`, Aktion = Name) und als Daten-Ebene-Ereignis `_mtm.push({event: Name})` für Auslöser im Tag Manager.
 Seitenaufrufe kommen aus dem Container (Tag „Matomo Analytics“ mit Auslöser „Seitenaufruf“, Version veröffentlicht).
+
+## Google Analytics 4
+Mess-ID in `src/analytics.ts`. Alle Ereignisse werden auch dorthin gemeldet; Bindestriche im Namen werden zu Unterstrichen
+(`einsatz-gestartet` → `einsatz_gestartet`), weil Google keine Bindestriche erlaubt. Einwilligungsmodus „abgelehnt“, keine Google-Signale.
+In Google Analytics unter „Berichte → Echtzeit“ siehst du, wer gerade da ist.
