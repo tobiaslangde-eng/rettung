@@ -261,6 +261,7 @@ export default function App() {
   };
 
   const finishCase = (run: CaseRun, daily: boolean) => {
+    zaehle('einsatz-beendet');
     const scored = scoreRun(run, progress.streak);
     const result: ScoreResult = { ...scored, lines: [...scored.lines] };
     const { pointsPct } = equipmentEffects(progress);
@@ -326,6 +327,7 @@ export default function App() {
 
   /** Ersthelfer-Notfall abgeschlossen: Punkte, Sterne, Tagesziel */
   const finishHelfer = (e: HelferErgebnis, punkte: number, daily: boolean): HelferAbschluss => {
+    zaehle('einsatz-beendet');
     const day = registerDailyCase(progress, daily);
     const kb = karteBonus.current;
     karteBonus.current = 0;
@@ -374,6 +376,7 @@ export default function App() {
 
   /** Kapitel der Geschichte abschließen */
   const storyDone = () => {
+    zaehle('kapitel-' + String(progress.story + 1).padStart(2, '0') + '-geschafft');
     commit({ ...progress, story: progress.story + 1, totalPoints: progress.totalPoints + KAPITEL_BONUS });
   };
 
@@ -497,6 +500,7 @@ export default function App() {
   const back = () => setScreen({ name: lastTop.current } as Screen);
 
   const setDifficulty = (difficulty: Difficulty) => {
+    zaehle('schwierigkeit-' + difficulty);
     const next = { ...progress, difficulty };
     setProgress(next);
     saveProgress(aktiv, next);
@@ -546,6 +550,7 @@ export default function App() {
               <ModusScreen
                 aktuell={progress.modus}
                 onWahl={(m) => {
+                  zaehle('modus-' + (m || 'unbekannt'));
                   importProgress({ ...progress, modus: m });
                   setModusOffen(false);
                 }}
@@ -668,7 +673,10 @@ export default function App() {
                         best={progress.pruefungBest}
                         bestehen={PRUEFUNG_BESTANDEN}
                         punkte={pruefungPunkte}
-                        onFinish={(richtig, punkte) => commit({ ...progress, totalPoints: progress.totalPoints + trainingPunkte(punkte), pruefungBest: Math.max(progress.pruefungBest, richtig) })}
+                        onFinish={(richtig, punkte) => {
+                          zaehle(richtig >= 16 ? 'pruefung-bestanden' : 'pruefung-nicht-bestanden');
+                          commit({ ...progress, totalPoints: progress.totalPoints + trainingPunkte(punkte), pruefungBest: Math.max(progress.pruefungBest, richtig) });
+                        }}
                         onBack={back}
                       />
                     )}
@@ -687,13 +695,14 @@ export default function App() {
                       <GefahrScreen
                         key={screen.key}
                         geloest={progress.gefahrGeschafft}
-                        onFinish={(punkte, szenen) =>
+                        onFinish={(punkte, szenen) => {
+                          zaehle('gefahren-check-beendet');
                           commit({
                             ...progress,
                             totalPoints: progress.totalPoints + trainingPunkte(punkte),
                             gefahrGeschafft: [...new Set([...progress.gefahrGeschafft, ...szenen])],
-                          })
-                        }
+                          });
+                        }}
                         onBack={back}
                       />
                     )}

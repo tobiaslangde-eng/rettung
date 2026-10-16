@@ -27,6 +27,45 @@ export function startAnalytics(): void {
   s.dataset.goatcounter = `https://${GOATCOUNTER_NAME}.goatcounter.com/count`;
   s.onload = () => warteschlange.splice(0).forEach(zaehle);
   document.head.appendChild(s);
+  merkeBesucher();
+  messeSpielzeit();
+}
+
+/** Neu oder wiederkehrend? Nur ein Merker im eigenen Browser (Datum des ersten Besuchs) – wird nicht übertragen. */
+function merkeBesucher(): void {
+  try {
+    const heute = new Date().toISOString().slice(0, 10);
+    const erster = localStorage.getItem('e112.erster-besuch');
+    if (!erster) {
+      localStorage.setItem('e112.erster-besuch', heute);
+      zaehle('besucher-neu');
+    } else if (erster < heute) {
+      zaehle('besucher-wiederkehrend');
+    }
+  } catch {
+    // ohne Speicher: einfach nichts zählen
+  }
+}
+
+/** Aktive Spielzeit in Stufen (1, 5, 10, 20, 30, 60 Minuten): nur wenn die Seite sichtbar ist und etwas angetippt wurde */
+const STUFEN = [1, 5, 10, 20, 30, 60];
+function messeSpielzeit(): void {
+  let aktivSek = 0;
+  let zuletzt = Date.now();
+  const merke = () => (zuletzt = Date.now());
+  for (const e of ['pointerdown', 'keydown', 'touchstart', 'wheel']) window.addEventListener(e, merke, { passive: true });
+  const gemeldet = new Set<number>();
+  setInterval(() => {
+    if (document.visibilityState !== 'visible') return;
+    if (Date.now() - zuletzt > 60000) return; // länger als eine Minute nichts getan: zählt nicht
+    aktivSek += 5;
+    for (const m of STUFEN) {
+      if (aktivSek >= m * 60 && !gemeldet.has(m)) {
+        gemeldet.add(m);
+        zaehle(`aktiv-${String(m).padStart(2, '0')}-min`);
+      }
+    }
+  }, 5000);
 }
 
 /** Ein Ereignis zählen, z. B. 'einsatz-gestartet' (erscheint im GoatCounter unter „Events“) */
