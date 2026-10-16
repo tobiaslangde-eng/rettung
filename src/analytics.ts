@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 
 /**
- * Anonyme Besucherzählung nur für die öffentliche Web-Version (GoatCounter und Matomo).
+ * Anonyme Besucherzählung nur für die öffentliche Web-Version (GoatCounter, Matomo und Google Analytics).
  * Der Name des eigenen GoatCounter-Kontos kommt hierhin (z. B. 'einsatz112' → einsatz112.goatcounter.com).
  * Solange er leer ist, wird nichts gezählt und nichts geladen.
  */
@@ -11,18 +11,25 @@ const GOATCOUNTER_NAME = 'einsatz112';
  * Der Container (Tags und Auslöser) wird im Matomo-Konto verwaltet.
  */
 const MATOMO_CONTAINER = 'https://cdn.matomo.cloud/tankard.matomo.cloud/container_ms2Pb8UE.js';
+/**
+ * Zusätzlich Google Analytics 4 (Mess-ID). Leer lassen, um es auszuschalten.
+ * Datensparsam eingestellt: Einwilligungsmodus „abgelehnt“ (keine Analyse-Cookies), keine Werbefunktionen.
+ */
+const GA_ID = 'G-PYE3LZXMRD';
 /** Gezählt wird nur auf der echten Seite – nicht in der Vorschau, in Apps oder lokal */
 const HOSTS = ['rettung.tankard.de'];
 
 type GC = { count?: (v: { path: string; title?: string; event?: boolean }) => void };
 const gc = () => (globalThis as { goatcounter?: GC }).goatcounter;
-type Fenster = { _paq?: unknown[]; _mtm?: unknown[] };
+type Fenster = { _paq?: unknown[]; _mtm?: unknown[]; dataLayer?: unknown[] };
 const fenster = () => globalThis as unknown as Fenster;
 let aktiv = false;
+let gtag: ((...a: unknown[]) => void) | null = null;
 const warteschlange: string[] = [];
 
 export function startAnalytics(): void {
-  if (aktiv || (!GOATCOUNTER_NAME && !MATOMO_CONTAINER) || Platform.OS !== 'web' || typeof document === 'undefined') return;
+  if (aktiv || (!GOATCOUNTER_NAME && !MATOMO_CONTAINER && !GA_ID) || Platform.OS !== 'web' || typeof document === 'undefined')
+    return;
   if ((globalThis as { E112_VORSCHAU?: boolean }).E112_VORSCHAU === true) return;
   if (!HOSTS.includes(location.hostname)) return;
   // „Do Not Track“ im Browser wird respektiert
@@ -45,6 +52,28 @@ export function startAnalytics(): void {
     m.async = true;
     m.src = MATOMO_CONTAINER;
     document.head.appendChild(m);
+  }
+  if (GA_ID) {
+    const w = fenster();
+    w.dataLayer = w.dataLayer || [];
+    const layer = w.dataLayer;
+    // Google verlangt hier ein „arguments“-Objekt, kein Array
+    gtag = function () {
+      // eslint-disable-next-line prefer-rest-params
+      layer.push(arguments);
+    };
+    gtag('consent', 'default', {
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied',
+    });
+    gtag('js', new Date());
+    gtag('config', GA_ID, { allow_google_signals: false, allow_ad_personalization_signals: false });
+    const g = document.createElement('script');
+    g.async = true;
+    g.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+    document.head.appendChild(g);
   }
   merkeBesucher();
   messeSpielzeit();
@@ -104,4 +133,6 @@ export function zaehle(ereignis: string): void {
     (w._paq = w._paq || []).push(['trackEvent', 'Spiel', ereignis]);
     (w._mtm = w._mtm || []).push({ event: ereignis });
   }
+  // Google erlaubt in Ereignisnamen keine Bindestriche
+  if (gtag) gtag('event', ereignis.replace(/-/g, '_'));
 }
