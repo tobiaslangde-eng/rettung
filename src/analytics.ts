@@ -5,7 +5,7 @@ import { Platform } from 'react-native';
  * Der Name des eigenen GoatCounter-Kontos kommt hierhin (z. B. 'einsatz112' → einsatz112.goatcounter.com).
  * Solange er leer ist, wird nichts gezählt und nichts geladen.
  */
-const GOATCOUNTER_NAME = '';
+const GOATCOUNTER_NAME = 'einsatz112';
 /** Gezählt wird nur auf der echten Seite – nicht in der Vorschau, in Apps oder lokal */
 const HOSTS = ['rettung.tankard.de'];
 
