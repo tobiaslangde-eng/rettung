@@ -30,12 +30,7 @@ Zusätzlich läuft (nach Zustimmung im Usercentrics-Dialog) Matomo Cloud (Contai
 als Matomo-Ereignis (Kategorie `Spiel`, Aktion = Name) und als Daten-Ebene-Ereignis `_mtm.push({event: Name})` für Auslöser im Tag Manager.
 Seitenaufrufe kommen aus dem Container (Tag „Matomo Analytics“ mit Auslöser „Seitenaufruf“, Version veröffentlicht).
 
-## Google Analytics 4
-Mess-ID in `src/analytics.ts`. Alle Ereignisse werden auch dorthin gemeldet; Bindestriche im Namen werden zu Unterstrichen
-(`einsatz-gestartet` → `einsatz_gestartet`), weil Google keine Bindestriche erlaubt. Wird erst nach Zustimmung im Usercentrics-Dialog geladen; keine Google-Signale.
-In Google Analytics unter „Berichte → Echtzeit“ siehst du, wer gerade da ist.
-
 ## Einwilligungs-Dialog (Usercentrics)
-Einstellungs-ID in `src/analytics.ts`. Google Analytics und Matomo starten erst, wenn im Dialog ein Dienst zugestimmt wurde,
-dessen **Name** „Google Analytics“ bzw. „Matomo“ enthält. Diese beiden Dienste müssen in Usercentrics angelegt sein
+Einstellungs-ID in `src/analytics.ts`. Matomo startet erst, wenn im Dialog ein Dienst zugestimmt wurde,
+dessen **Name** „Matomo“ enthält. Dieser Dienst muss in Usercentrics angelegt sein
 (Admin → Dienste). GoatCounter läuft ohne Einwilligung.

@@ -3,11 +3,10 @@ import { Platform } from 'react-native';
 /**
  * Besucherzählung nur für die öffentliche Web-Version.
  * – GoatCounter: ohne Cookies und Profile, läuft sofort.
- * – Google Analytics und Matomo: laden erst, wenn der Besucher im Einwilligungs-Dialog (Usercentrics) zugestimmt hat.
+ * – Matomo: lädt erst, wenn der Besucher im Einwilligungs-Dialog (Usercentrics) zugestimmt hat.
  * Leer lassen, um den jeweiligen Dienst auszuschalten.
  */
 const GOATCOUNTER_NAME = 'einsatz112';
-const GA_ID = 'G-PYE3LZXMRD';
 const MATOMO_CONTAINER = 'https://cdn.matomo.cloud/tankard.matomo.cloud/container_ms2Pb8UE.js';
 const USERCENTRICS_ID = 'hlPVhzX9f0-cjo';
 /** Gezählt wird nur auf der echten Seite – nicht in der Vorschau, in Apps oder lokal */
@@ -20,15 +19,12 @@ type UC = {
   getServicesBaseInfo?: () => Dienst[] | Promise<Dienst[]>;
   showSecondLayer?: () => void;
 };
-type Fenster = { _paq?: unknown[]; _mtm?: unknown[]; dataLayer?: unknown[]; goatcounter?: GC; UC_UI?: UC };
+type Fenster = { _paq?: unknown[]; _mtm?: unknown[]; goatcounter?: GC; UC_UI?: UC };
 const fenster = () => globalThis as unknown as Fenster;
 
 let aktiv = false;
 const gcPuffer: string[] = [];
-let gtag: ((...a: unknown[]) => void) | null = null;
-let gaGestartet = false;
 let matomoGestartet = false;
-const gaPuffer: string[] = [];
 const PUFFER_MAX = 60;
 
 export function startAnalytics(): void {
@@ -39,7 +35,7 @@ export function startAnalytics(): void {
   if (navigator.doNotTrack === '1') return;
   aktiv = true;
   if (GOATCOUNTER_NAME) starteGoatCounter();
-  if (GA_ID || MATOMO_CONTAINER) {
+  if (MATOMO_CONTAINER) {
     ladeEinwilligung();
     pruefeEinwilligung();
   }
@@ -73,8 +69,8 @@ function ladeEinwilligung(): void {
 }
 
 /**
- * Wartet, bis der Besucher im Dialog zugestimmt hat. Dienste im Dialog müssen „Google Analytics“ bzw. „Matomo“ heißen.
- * Ohne Dialog (z. B. blockiert) werden Google Analytics und Matomo nicht geladen.
+ * Wartet, bis der Besucher im Dialog zugestimmt hat. Der Dienst im Dialog muss „Matomo“ im Namen haben.
+ * Ohne Dialog (z. B. blockiert) wird Matomo nicht geladen.
  */
 function pruefeEinwilligung(): void {
   const timer = setInterval(() => {
@@ -85,36 +81,12 @@ function pruefeEinwilligung(): void {
         for (const d of liste ?? []) {
           if (d?.consent?.status !== true) continue;
           const name = d.name ?? '';
-          if (GA_ID && /google/i.test(name) && /analytics/i.test(name)) starteGoogle();
           if (MATOMO_CONTAINER && /matomo/i.test(name)) starteMatomo();
         }
-        if ((!GA_ID || gaGestartet) && (!MATOMO_CONTAINER || matomoGestartet)) clearInterval(timer);
+        if (matomoGestartet) clearInterval(timer);
       })
       .catch(() => undefined);
   }, 3000);
-}
-
-function starteGoogle(): void {
-  if (gaGestartet) return;
-  gaGestartet = true;
-  const w = fenster();
-  w.dataLayer = w.dataLayer || [];
-  const layer = w.dataLayer;
-  // Google verlangt hier ein „arguments“-Objekt, kein Array
-  gtag = function () {
-    // eslint-disable-next-line prefer-rest-params
-    layer.push(arguments);
-  };
-  gtag('consent', 'default', {
-    ad_storage: 'denied',
-    ad_user_data: 'denied',
-    ad_personalization: 'denied',
-    analytics_storage: 'granted',
-  });
-  gtag('js', new Date());
-  gtag('config', GA_ID, { allow_google_signals: false, allow_ad_personalization_signals: false });
-  skript(`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`);
-  gaPuffer.splice(0).forEach(zaehleGoogle);
 }
 
 function starteMatomo(): void {
@@ -180,11 +152,6 @@ function zaehleGoatCounter(ereignis: string): void {
   else gcPuffer.push(ereignis);
 }
 
-function zaehleGoogle(ereignis: string): void {
-  // Google erlaubt in Ereignisnamen keine Bindestriche
-  if (gtag) gtag('event', ereignis.replace(/-/g, '_'));
-}
-
 function zaehleMatomo(ereignis: string): void {
   const w = fenster();
   (w._paq = w._paq || []).push(['trackEvent', 'Spiel', ereignis]);
@@ -199,10 +166,6 @@ const nachPuffern = (liste: string[], e: string) => {
 export function zaehle(ereignis: string): void {
   if (!aktiv) return;
   if (GOATCOUNTER_NAME) zaehleGoatCounter(ereignis);
-  if (GA_ID) {
-    if (gaGestartet) zaehleGoogle(ereignis);
-    else nachPuffern(gaPuffer, ereignis);
-  }
   if (MATOMO_CONTAINER) {
     if (matomoGestartet) zaehleMatomo(ereignis);
     else nachPuffern(matomoPuffer, ereignis);
