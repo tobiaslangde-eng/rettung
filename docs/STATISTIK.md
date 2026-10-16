@@ -24,13 +24,3 @@ Besuche pro Tag/Woche, Herkunft (Referrer), Geräte, Browser, Länder.
 | `urkunde-geteilt` / `urkunde-gespeichert` | Urkunde als Bild geteilt bzw. gespeichert |
 
 Quelle: `src/analytics.ts` und die `zaehle(...)`-Aufrufe in `App.tsx`.
-
-## Matomo
-Zusätzlich läuft (nach Zustimmung im Usercentrics-Dialog) Matomo Cloud (Container in `src/analytics.ts`, Konto `tankard.matomo.cloud`). Die Ereignisse oben werden auch dort gemeldet:
-als Matomo-Ereignis (Kategorie `Spiel`, Aktion = Name) und als Daten-Ebene-Ereignis `_mtm.push({event: Name})` für Auslöser im Tag Manager.
-Seitenaufrufe kommen aus dem Container (Tag „Matomo Analytics“ mit Auslöser „Seitenaufruf“, Version veröffentlicht).
-
-## Einwilligungs-Dialog (Usercentrics)
-Einstellungs-ID in `src/analytics.ts`. Matomo startet erst, wenn im Dialog ein Dienst zugestimmt wurde,
-dessen **Name** „Matomo“ enthält. Dieser Dienst muss in Usercentrics angelegt sein
-(Admin → Dienste). GoatCounter läuft ohne Einwilligung.
