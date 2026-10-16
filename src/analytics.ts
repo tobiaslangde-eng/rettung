@@ -59,6 +59,8 @@ function messeSpielzeit(): void {
     if (document.visibilityState !== 'visible') return;
     if (Date.now() - zuletzt > 60000) return; // länger als eine Minute nichts getan: zählt nicht
     aktivSek += 5;
+    // Lebenszeichen alle 2 Minuten aktiver Spielzeit (Anzahl pro Stunde ÷ 30 ≈ Leute, die gerade durchgehend spielen)
+    if (aktivSek % 120 === 0) zaehle('online-puls');
     for (const m of STUFEN) {
       if (aktivSek >= m * 60 && !gemeldet.has(m)) {
         gemeldet.add(m);

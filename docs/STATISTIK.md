@@ -11,6 +11,7 @@ Besuche pro Tag/Woche, Herkunft (Referrer), Geräte, Browser, Länder.
 |---|---|
 | `besucher-neu` / `besucher-wiederkehrend` | Erster Besuch bzw. an einem späteren Tag wieder da |
 | `aktiv-01-min` … `aktiv-60-min` | Aktive Spielzeit erreicht (1, 5, 10, 20, 30, 60 Minuten; nur sichtbar und bedient) |
+| `online-puls` | Lebenszeichen alle 2 Minuten aktiver Spielzeit. Pulse pro Stunde ÷ 30 ≈ wie viele Leute in dieser Stunde durchgehend gespielt haben (Ansicht „Last day“, „View by: hour“, Filter `online-puls`) |
 | `rolle-helfer` / `rolle-sani` | Rolle gewählt |
 | `modus-story` / `modus-frei` | Spielweise gewählt |
 | `schwierigkeit-leicht/mittel/schwer` | Schwierigkeit umgestellt |
