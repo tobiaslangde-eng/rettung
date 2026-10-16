@@ -46,6 +46,7 @@ import { WacheScreen } from './src/screens/WacheScreen';
 import { NotrufScreen } from './src/screens/NotrufScreen';
 import { PackScreen } from './src/screens/PackScreen';
 import { FragenScreen } from './src/screens/FragenScreen';
+import { startAnalytics, zaehle } from './src/analytics';
 import { KarteScreen } from './src/screens/KarteScreen';
 import { KartenPin, BONUS_KUERZESTE, fuelleKarte } from './src/game/karte';
 import { UrkundenScreen } from './src/screens/UrkundenScreen';
@@ -185,6 +186,9 @@ export default function App() {
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
   /** Gewählte Rolle; null = Auswahl anzeigen, undefined = wird noch geladen */
   const [rolle, setRolle] = useState<Rolle | null | undefined>(undefined);
+  useEffect(() => {
+    startAnalytics();
+  }, []);
   const lastCaseId = useRef<string | undefined>(undefined);
   // Stadtkarte: offene Einsätze, Rückkehr zur Karte nach dem Einsatz und Bonus für kurze Anfahrt
   const [kartenPins, setKartenPins] = useState<KartenPin[]>([]);
@@ -215,6 +219,7 @@ export default function App() {
   /** Rolle wählen oder wechseln: lädt den Spielstand dieser Rolle */
   const waehleRolle = async (r: Rolle) => {
     saveRolle(r);
+    zaehle('rolle-' + r);
     setAktiveRolle(r);
     const p = await loadProgress(r);
     lastCaseId.current = undefined;
@@ -224,6 +229,7 @@ export default function App() {
   };
 
   const startCase = (daily = false) => {
+    zaehle('einsatz-gestartet');
     karteRueck.current = false;
     karteBonus.current = 0;
     if (aktiv === 'helfer') {
@@ -469,6 +475,8 @@ export default function App() {
   };
   /** Einsatz von der Karte starten */
   const fahreEinsatz = (pin: KartenPin, kuerzeste: boolean) => {
+    zaehle('einsatz-gestartet');
+    zaehle('stadtkarte-einsatz');
     karteRueck.current = true;
     karteBonus.current = kuerzeste ? BONUS_KUERZESTE : 0;
     lastCaseId.current = pin.fallId;
@@ -494,13 +502,18 @@ export default function App() {
     saveProgress(aktiv, next);
   };
 
-  const openTraining = (t: TrainingId) => setScreen({ name: t, key: Date.now() } as Screen);
+  const openTraining = (t: TrainingId) => {
+    zaehle('training-' + t);
+    setScreen({ name: t, key: Date.now() } as Screen);
+  };
 
   const navigate = (t: NavTarget) => {
     if (t === 'karte') return oeffneKarte();
     if (t === 'start') return startCase();
-    if (['quiz', 'wissen', 'cpr', 'manv', 'detektiv', 'schritte', 'notruf', 'zuerst', 'pack', 'handgriffe', 'mythen', 'aed', 'pruefung', 'gefahr'].includes(t))
+    if (['quiz', 'wissen', 'cpr', 'manv', 'detektiv', 'schritte', 'notruf', 'zuerst', 'pack', 'handgriffe', 'mythen', 'aed', 'pruefung', 'gefahr'].includes(t)) {
+      zaehle('training-' + t);
       return setScreen({ name: t, key: Date.now() } as Screen);
+    }
     setScreen({ name: t } as Screen);
   };
 
