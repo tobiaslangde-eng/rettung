@@ -1,4 +1,6 @@
 import { szenenFuer } from '../game/gefahren';
+import { LEITSTELLE_SZENARIEN } from '../data/leitstelle/szenarien';
+import { fehlerSzenarienFuer } from '../game/fehler';
 import { ReactNode, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ambulance } from '../components/Ambulance';
@@ -73,6 +75,10 @@ export function DevScreen({
       ablaeufe: ablaeufeFuer(r.id).map((a) => a.id),
       gefahrGeschafft: szenenFuer(r.id).map((x) => x.id),
       kartenEinsaetze: Math.max(p.kartenEinsaetze, 10),
+      leitstelleGeschafft: LEITSTELLE_SZENARIEN.map((x) => x.id),
+      fehlerGeschafft: fehlerSzenarienFuer(r.id).map((x) => x.id),
+      laborGeschafft: ['druckverband', 'seitenlage'],
+      schichten: Math.max(p.schichten, 3),
     };
     if (helfer) {
       Object.assign(base, {
@@ -108,6 +114,14 @@ export function DevScreen({
       packGeschafft: [],
       gefahrGeschafft: [],
       kartenEinsaetze: 0,
+      leitstelleGeschafft: [],
+      fehlerGeschafft: [],
+      laborGeschafft: [],
+      schichten: 0,
+      duellGespielt: 0,
+      duellSiege: 0,
+      spickGesehen: [],
+      serieBelohnt: [],
       urkundenDatum: {},
       bestStars: {},
       detectiveSolved: {},

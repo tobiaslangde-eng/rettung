@@ -52,3 +52,29 @@ export async function teileBild(
   a.remove();
   return 'gespeichert';
 }
+
+/** Link mit Text teilen (Teilen-Menü) oder in die Zwischenablage kopieren */
+export async function teileLink(text: string, url: string, titel: string): Promise<'geteilt' | 'kopiert' | 'abgebrochen'> {
+  if (Platform.OS !== 'web') {
+    try {
+      await Share.share({ message: `${text} ${url}` });
+      return 'geteilt';
+    } catch {
+      return 'abgebrochen';
+    }
+  }
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: titel, text, url });
+      return 'geteilt';
+    } catch {
+      return 'abgebrochen';
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(`${text} ${url}`);
+    return 'kopiert';
+  } catch {
+    return 'abgebrochen';
+  }
+}

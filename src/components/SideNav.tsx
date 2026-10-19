@@ -29,6 +29,7 @@ export type NavTarget =
   | 'gefahr'
   | 'leitstelle'
   | 'fehler'
+  | 'labor'
   | 'aed'
   | 'pruefung'
   | 'manv'

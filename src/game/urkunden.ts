@@ -67,6 +67,14 @@ const gemeinsam = (rolle: Rolle): Urkunde[] => [
     erreicht: (p) => p.bestDayStreak >= 30,
   },
   {
+    id: 'duell',
+    icon: '⚔️',
+    titel: 'Duell-Champion',
+    text: 'hat 3 Duelle gegen Freunde gewonnen.',
+    bedingung: '3 Duelle gewinnen',
+    erreicht: (p) => p.duellSiege >= 3,
+  },
+  {
     id: 'karte',
     icon: '🗺️',
     titel: 'Einsatzleitung Stadtkarte',

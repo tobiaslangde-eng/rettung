@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AnswerOption } from '../components/Training';
+import { TonKnopf } from '../components/TonKnopf';
+import { sprich, stoppe } from '../game/sprache';
 import { Button, Card, TopBar } from '../components/UI';
 import { NotrufSzenario } from '../data/helferTraining';
 import { NOTRUF_GESCHAFFT_AB, notrufPunkte, waehleAed, waehleNotruf } from '../game/helferTraining';
@@ -39,6 +41,12 @@ export function NotrufScreen({
 
   const richtig = gewaehlt.filter((g) => g === 0).length;
   const st = sz.schritte[schritt];
+
+  // Sprachausgabe: Leitstelle bzw. Gerät sprechen die Frage (nur mit „Ton an“)
+  useEffect(() => {
+    if (phase === 'ruf') sprich(st.frage, { geraet: aed });
+    return () => stoppe();
+  }, [phase, schritt, sz]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const antworte = (i: number) => {
     if (picked !== null) return;
@@ -101,6 +109,7 @@ export function NotrufScreen({
     <View style={{ flex: 1 }}>
       <TopBar kicker={kicker} title={sz.titel} onBack={onBack} />
       <ScrollView contentContainerStyle={[styles.content, L.wide && styles.wide]}>
+        <TonKnopf />
         {phase === 'lage' ? (
           <>
             <Card style={{ gap: spacing.sm }}>
