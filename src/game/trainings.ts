@@ -3,6 +3,7 @@ import { AED_SZENARIEN } from '../data/aed';
 import { PACKLISTEN } from '../data/packlisten';
 import { GEFAHREN_HELFER } from '../data/gefahren/helfer';
 import { GEFAHREN_SANI } from '../data/gefahren/sani';
+import { LABOR_UEBUNGEN } from '../data/labor';
 import { LEITSTELLE_SZENARIEN } from '../data/leitstelle/szenarien';
 import { fehlerSzenarienFuer } from './fehler';
 import { ablaeufeFuer } from './schritte';
@@ -10,6 +11,9 @@ import { archiveCount } from './detective';
 import { Rolle } from './rolle';
 import { Bereich } from './story';
 import { Progress } from './storage';
+
+/** Übungen im Handgriff-Labor (Druckverband und Seitenlage plus die Schritt-Übungen) */
+export const LABOR_ANZAHL = 2 + LABOR_UEBUNGEN.length;
 
 export type TrainingId =
   | 'detektiv'
@@ -196,7 +200,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
     icon: '🧪',
     title: 'Handgriff-Labor',
     sub: 'Druckverband und stabile Seitenlage zum Selbermachen: ziehen, wickeln, tippen.',
-    stand: p.laborGeschafft.length > 0 ? `${p.laborGeschafft.length}/2 Übungen` : undefined,
+    stand: p.laborGeschafft.length > 0 ? `${p.laborGeschafft.length}/${LABOR_ANZAHL} Übungen` : undefined,
   };
   return rolle === 'helfer'
     ? [wissen, schritte, cpr, notruf, mythen, zuerst, gefahr, pack, handgriffe, labor, fehler, leitstelle, aed, pruefung]

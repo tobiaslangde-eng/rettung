@@ -53,7 +53,7 @@ import { Toast } from './src/components/Toast';
 import { SpickScreen } from './src/screens/SpickScreen';
 import { spickNeuBeiKapitel } from './src/game/spickzettel';
 import { KarteScreen } from './src/screens/KarteScreen';
-import { KartenPin, BONUS_KUERZESTE, fuelleKarte } from './src/game/karte';
+import { KartenPin, BONUS_KUERZESTE, BONUS_ROUTE, fuelleKarte } from './src/game/karte';
 import { UrkundenScreen } from './src/screens/UrkundenScreen';
 import { mitUrkundenDatum } from './src/game/urkunden';
 import { DuellScreen } from './src/screens/DuellScreen';
@@ -246,6 +246,8 @@ export default function App() {
   const [kartenPins, setKartenPins] = useState<KartenPin[]>([]);
   const karteRueck = useRef(false);
   const karteBonus = useRef(0);
+  const karteBonusText = useRef('');
+  const karteRoute = useRef(false);
   // Spiel-Logik (Ränge, Ausrüstung, Abzeichen) richtet sich nach der aktiven Rolle
   setAktiveRolle(rolle ?? 'sani');
   const aktiv: Rolle = rolle ?? 'sani';
@@ -294,6 +296,7 @@ export default function App() {
   const startCase = (daily = false) => {
     karteRueck.current = false;
     karteBonus.current = 0;
+    karteRoute.current = false;
     schichtRueck.current = false;
     startCaseIntern(daily);
   };
@@ -301,6 +304,7 @@ export default function App() {
   const schichtEinsatz = () => {
     karteRueck.current = false;
     karteBonus.current = 0;
+    karteRoute.current = false;
     schichtRueck.current = true;
     startCaseIntern(false);
   };
@@ -352,7 +356,7 @@ export default function App() {
       result.total += extra;
     }
     if (karteBonus.current > 0) {
-      result.lines.push({ label: 'Kürzeste Anfahrt gewählt', points: karteBonus.current });
+      result.lines.push({ label: karteBonusText.current, points: karteBonus.current });
       result.total += karteBonus.current;
       karteBonus.current = 0;
     }
@@ -378,6 +382,7 @@ export default function App() {
       perfectRuns: progress.perfectRuns + (result.stars === 3 ? 1 : 0),
       hardWins: progress.hardWins + (run.difficulty === 'schwer' && result.stars >= 2 ? 1 : 0),
       kartenEinsaetze: progress.kartenEinsaetze + (karteRueck.current ? 1 : 0),
+      kartenRouten: progress.kartenRouten + (karteRoute.current ? 1 : 0),
     };
     const { newBadges, promotion, weekRecord } = commit(updated);
     setScreen({
@@ -415,6 +420,7 @@ export default function App() {
       bestStars: { ...progress.bestStars, [e.fallId]: Math.max(progress.bestStars[e.fallId] ?? 0, e.sterne) },
       perfectRuns: progress.perfectRuns + (e.sterne === 3 ? 1 : 0),
       kartenEinsaetze: progress.kartenEinsaetze + (karteRueck.current ? 1 : 0),
+      kartenRouten: progress.kartenRouten + (karteRoute.current ? 1 : 0),
     });
     return { punkte: total, ausruestung: 0, goalBonus: day.goalBonus, newBadges, promotion };
   };
@@ -557,11 +563,14 @@ export default function App() {
     setScreen({ name: 'karte' });
   };
   /** Einsatz von der Karte starten */
-  const fahreEinsatz = (pin: KartenPin, kuerzeste: boolean) => {
+  const fahreEinsatz = (pin: KartenPin, bonus: { kuerzeste: boolean; route: boolean }) => {
     zaehle('einsatz-gestartet');
     zaehle('stadtkarte-einsatz');
+    if (bonus.route) zaehle('stadtkarte-stau-umfahren');
     karteRueck.current = true;
-    karteBonus.current = kuerzeste ? BONUS_KUERZESTE : 0;
+    karteBonus.current = (bonus.kuerzeste ? BONUS_KUERZESTE : 0) + (bonus.route ? BONUS_ROUTE : 0);
+    karteBonusText.current = bonus.kuerzeste && bonus.route ? 'Schnellster Einsatz, Staus umfahren' : bonus.route ? 'Staus clever umfahren' : 'Kürzeste Anfahrt gewählt';
+    karteRoute.current = bonus.route;
     lastCaseId.current = pin.fallId;
     setKartenPins(kartenPins.filter((q) => q.id !== pin.id));
     if (aktiv === 'helfer') {
@@ -790,7 +799,7 @@ export default function App() {
                       />
                     )}
                     {screen.name === 'karte' && (
-                      <KarteScreen pins={kartenPins} angefahren={progress.kartenEinsaetze} onFahre={fahreEinsatz} onBack={() => setScreen({ name: 'home' })} />
+                      <KarteScreen pins={kartenPins} angefahren={progress.kartenEinsaetze} routenRichtig={progress.kartenRouten} onFahre={fahreEinsatz} onBack={() => setScreen({ name: 'home' })} />
                     )}
                     {screen.name === 'urkunden' && (
                       <UrkundenScreen

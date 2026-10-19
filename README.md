@@ -168,7 +168,8 @@ Die Oberfläche passt sich an die Bildschirmgröße an:
 ## Weitere Spielmodi und Werkzeuge
 
 - **Tagesserie** mit Belohnung, **Schichtmodus** (vier Einsätze am Stück mit Dienstbilanz), **Duell mit Freunden** (gleiche fünf Fragen per Link, ohne Server).
-- **Leitstelle spielen**, **Fehler finden**, **Handgriff-Labor** (Druckverband und Seitenlage zum Selbermachen).
+- **Leitstelle spielen**, **Fehler finden**, **Handgriff-Labor** mit 8 Übungen (Druckverband, Seitenlage, Bewusstsein und Atmung prüfen, Verbrennung, Armschlinge, Verschlucken, Tourniquet, Rettungsdecke).
+- **Stadtkarte** mit Orten, Staus und Baustellen: zwei Routen zur Wahl, Bonus fürs Umfahren.
 - **Spickzettel** je Rolle, **Ergebnis als Bild teilen**, **Sprachausgabe** beim Notruf (Browser-Stimme, abschaltbar).
 - **Darstellung** (Mehr): größere Schrift und dunkler Modus (Beta, nur Web) sowie **Rückmeldung geben**.
 - Nicht enthalten: eine englische Version (Texte und medizinische Inhalte sind durchgehend deutsch).

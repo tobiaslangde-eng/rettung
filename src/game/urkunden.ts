@@ -8,6 +8,7 @@ import { KAPITEL } from './story';
 import { Progress } from './storage';
 import { PRUEFUNG_BESTANDEN } from './helferTraining';
 import { todayKey } from './daily';
+import { LABOR_ANZAHL } from './trainings';
 
 export interface Urkunde {
   id: string;
@@ -73,6 +74,22 @@ const gemeinsam = (rolle: Rolle): Urkunde[] => [
     text: 'hat 3 Duelle gegen Freunde gewonnen.',
     bedingung: '3 Duelle gewinnen',
     erreicht: (p) => p.duellSiege >= 3,
+  },
+  {
+    id: 'labor',
+    icon: '🧪',
+    titel: 'Handgriff-Meister',
+    text: 'hat im Handgriff-Labor alle Übungen gemeistert: vom Druckverband bis zur Rettungsdecke.',
+    bedingung: 'Alle Übungen im Handgriff-Labor schaffen',
+    erreicht: (p) => p.laborGeschafft.length >= LABOR_ANZAHL,
+  },
+  {
+    id: 'staulotse',
+    icon: '🚦',
+    titel: 'Staulotse',
+    text: 'hat auf der Stadtkarte zehnmal Staus und Baustellen clever umfahren.',
+    bedingung: 'Auf der Stadtkarte 10-mal die schnellste Route wählen',
+    erreicht: (p) => p.kartenRouten >= 10,
   },
   {
     id: 'karte',

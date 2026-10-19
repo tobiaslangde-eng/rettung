@@ -105,6 +105,8 @@ export interface Progress {
   spielerName: string;
   /** Stadtkarte: angefahrene Einsätze */
   kartenEinsaetze: number;
+  /** Wie oft die schnellere Route gewählt wurde (Staus umfahren) */
+  kartenRouten: number;
   /** Tagesserie: Meilensteine (Tage), für die die Belohnung schon vergeben wurde */
   serieBelohnt: number[];
   /** Leitstelle spielen: gelöste Szenarien (IDs) */
@@ -168,6 +170,7 @@ export const EMPTY_PROGRESS: Progress = {
   urkundenDatum: {},
   spielerName: '',
   kartenEinsaetze: 0,
+  kartenRouten: 0,
   serieBelohnt: [],
   leitstelleGeschafft: [],
   fehlerGeschafft: [],

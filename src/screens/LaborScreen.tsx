@@ -4,6 +4,8 @@ import Svg, { Circle, G, Line, Path, Rect } from 'react-native-svg';
 import { zaehle } from '../analytics';
 import { Ziehbar } from '../components/Ziehbar';
 import { Button, Card, Tap, TopBar } from '../components/UI';
+import { LABOR_UEBUNGEN } from '../data/labor';
+import { LaborSchritte } from './LaborSchritte';
 import { useRolle } from '../game/rolle';
 import { useLayout } from '../layout';
 import { colors, fonts, spacing, type } from '../theme';
@@ -23,12 +25,13 @@ export function LaborScreen({
 }) {
   const L = useLayout();
   const r = useRolle();
-  const [uebung, setUebung] = useState<'druck' | 'lage' | null>(null);
+  const [uebung, setUebung] = useState<string | null>(null);
   const [fertigPunkte, setFertigPunkte] = useState<number | null>(null);
   const [zieht, setZieht] = useState(false);
 
-  const fertig = (id: 'druckverband' | 'seitenlage') => {
-    const punkte = geloest.includes(id) ? 10 : 40;
+  const fertig = (id: string, fehlerfrei = false) => {
+    const neu = !geloest.includes(id);
+    const punkte = (neu ? 40 : 10) + (neu && fehlerfrei ? 10 : 0);
     onFinish(punkte, id);
     zaehle('labor-' + id);
     setFertigPunkte(punkte);
@@ -42,36 +45,27 @@ export function LaborScreen({
           <Text style={type.body}>
             Übe Handgriffe wirklich mit den Fingern: ziehen, wickeln, tippen – Schritt für Schritt in der richtigen Reihenfolge.
           </Text>
-          {[
-            {
-              id: 'druck' as const,
-              icon: '🩹',
-              titel: 'Druckverband anlegen',
-              sub: 'Wundauflage, Polster, Binde wickeln, Durchblutung prüfen',
-              ok: geloest.includes('druckverband'),
-            },
-            {
-              id: 'lage' as const,
-              icon: '🛌',
-              titel: 'Stabile Seitenlage',
-              sub: 'Arm, Arm, Bein, Drehen, Kopf überstrecken',
-              ok: geloest.includes('seitenlage'),
-            },
-          ].map((u) => (
-            <Tap
-              key={u.id}
-              onPress={() => setUebung(u.id)}
-              accessibilityLabel={u.titel}
-              style={[styles.zeile, u.ok && { backgroundColor: r.akzentTint, borderColor: r.akzent }]}
-            >
-              <Text style={styles.zeichen}>{u.icon}</Text>
-              <View style={{ flex: 1, gap: 2 }}>
-                <Text style={[type.headline, { fontSize: 15 }]}>{u.titel}</Text>
-                <Text style={type.small}>{u.sub}</Text>
-              </View>
-              <Text style={[styles.zeichen, { fontSize: 18 }]}>{u.ok ? '✓' : '›'}</Text>
-            </Tap>
-          ))}
+          {LABOR_LISTE.map((u) => {
+            const ok = geloest.includes(u.id);
+            return (
+              <Tap
+                key={u.id}
+                onPress={() => setUebung(u.id)}
+                accessibilityLabel={u.titel}
+                style={[styles.zeile, ok && { backgroundColor: r.akzentTint, borderColor: r.akzent }]}
+              >
+                <Text style={styles.zeichen}>{u.icon}</Text>
+                <View style={{ flex: 1, gap: 2 }}>
+                  <Text style={[type.headline, { fontSize: 15 }]}>{u.titel}</Text>
+                  <Text style={type.small}>{u.sub}</Text>
+                </View>
+                <Text style={[styles.zeichen, { fontSize: 18 }]}>{ok ? '✓' : '›'}</Text>
+              </Tap>
+            );
+          })}
+          <Text style={[type.small, { textAlign: 'center' }]}>
+            {geloest.filter((id) => LABOR_LISTE.some((u) => u.id === id)).length} von {LABOR_LISTE.length} Übungen geschafft
+          </Text>
         </ScrollView>
       </View>
     );
@@ -81,24 +75,40 @@ export function LaborScreen({
     setUebung(null);
     setFertigPunkte(null);
   };
+  const aktuell = LABOR_LISTE.find((u) => u.id === uebung);
+  const stufen = LABOR_UEBUNGEN.find((u) => u.id === uebung);
   return (
     <View style={{ flex: 1 }}>
       <TopBar
         kicker="Handgriff-Labor"
-        title={uebung === 'druck' ? 'Druckverband anlegen' : 'Stabile Seitenlage'}
+        title={aktuell?.titel ?? ''}
         onBack={zurueck}
       />
       <ScrollView scrollEnabled={!zieht} contentContainerStyle={[styles.content, L.wide && styles.wide]}>
-        {uebung === 'druck' ? (
+        {uebung === 'druckverband' && (
           <Druckverband onZiehen={setZieht} onFertig={() => fertig('druckverband')} fertigPunkte={fertigPunkte} />
-        ) : (
-          <Seitenlage onFertig={() => fertig('seitenlage')} fertigPunkte={fertigPunkte} />
+        )}
+        {uebung === 'seitenlage' && <Seitenlage onFertig={() => fertig('seitenlage')} fertigPunkte={fertigPunkte} />}
+        {stufen && (
+          <LaborSchritte
+            key={stufen.id}
+            uebung={stufen}
+            onFertig={(fehler) => fertig(stufen.id, fehler === 0)}
+            fertigPunkte={fertigPunkte}
+          />
         )}
         <Button label="Zurück zur Auswahl" variant="outline" onPress={zurueck} />
       </ScrollView>
     </View>
   );
 }
+
+/** Alle Übungen in der Reihenfolge der Auswahl */
+export const LABOR_LISTE = [
+  { id: 'druckverband', icon: '🩹', titel: 'Druckverband anlegen', sub: 'Wundauflage, Polster, Binde wickeln, Durchblutung prüfen' },
+  { id: 'seitenlage', icon: '🛌', titel: 'Stabile Seitenlage', sub: 'Arm, Arm, Bein, Drehen, Kopf überstrecken' },
+  ...LABOR_UEBUNGEN.map((u) => ({ id: u.id, icon: u.icon, titel: u.titel, sub: u.sub })),
+];
 
 // ---------------------------------------------------------------- Druckverband
 const BW = 320;
