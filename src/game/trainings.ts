@@ -3,13 +3,31 @@ import { AED_SZENARIEN } from '../data/aed';
 import { PACKLISTEN } from '../data/packlisten';
 import { GEFAHREN_HELFER } from '../data/gefahren/helfer';
 import { GEFAHREN_SANI } from '../data/gefahren/sani';
+import { LEITSTELLE_SZENARIEN } from '../data/leitstelle/szenarien';
+import { fehlerSzenarienFuer } from './fehler';
 import { ablaeufeFuer } from './schritte';
 import { archiveCount } from './detective';
 import { Rolle } from './rolle';
 import { Bereich } from './story';
 import { Progress } from './storage';
 
-export type TrainingId = 'detektiv' | 'schritte' | 'cpr' | 'wissen' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack' | 'handgriffe' | 'mythen' | 'aed' | 'pruefung' | 'gefahr';
+export type TrainingId =
+  | 'detektiv'
+  | 'schritte'
+  | 'cpr'
+  | 'wissen'
+  | 'quiz'
+  | 'manv'
+  | 'notruf'
+  | 'zuerst'
+  | 'pack'
+  | 'handgriffe'
+  | 'mythen'
+  | 'aed'
+  | 'pruefung'
+  | 'gefahr'
+  | 'leitstelle'
+  | 'fehler';
 
 export interface TrainingInfo {
   id: TrainingId & Bereich;
@@ -30,7 +48,10 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
     farbe: '#E4DEFF',
     icon: '🔍',
     title: 'Detektiv-Akten',
-    sub: rolle === 'helfer' ? 'Woran erkennst du, was los ist? Je weniger Hinweise, desto mehr Punkte.' : 'Der Diagnose-Krimi – je weniger Hinweise, desto mehr Punkte.',
+    sub:
+      rolle === 'helfer'
+        ? 'Woran erkennst du, was los ist? Je weniger Hinweise, desto mehr Punkte.'
+        : 'Der Diagnose-Krimi – je weniger Hinweise, desto mehr Punkte.',
     stand: akten.solved > 0 ? `${akten.solved}/${akten.total} Akten` : undefined,
   };
   const schritte: TrainingInfo = {
@@ -38,7 +59,10 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
     farbe: '#E4DEFF',
     icon: '🧩',
     title: 'Schritt für Schritt',
-    sub: rolle === 'helfer' ? 'Notruf, Seitenlage, Unfallstelle: die richtige Reihenfolge.' : 'ABCDE, SAMPLER, Übergabe: Abläufe, die sitzen müssen.',
+    sub:
+      rolle === 'helfer'
+        ? 'Notruf, Seitenlage, Unfallstelle: die richtige Reihenfolge.'
+        : 'ABCDE, SAMPLER, Übergabe: Abläufe, die sitzen müssen.',
     stand: p.ablaeufe.length > 0 ? `${p.ablaeufe.length}/${ablaeufeFuer(rolle).length} Abläufe` : undefined,
   };
   const cpr: TrainingInfo = {
@@ -54,7 +78,10 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
     farbe: '#FFEFC0',
     icon: '💡',
     title: 'Wissensfragen',
-    sub: rolle === 'helfer' ? 'Erste Hilfe im Alltag, mit Erklärung nach jeder Antwort.' : 'Notruf, ABCDE, Krankheitsbilder – mit Erklärung.',
+    sub:
+      rolle === 'helfer'
+        ? 'Erste Hilfe im Alltag, mit Erklärung nach jeder Antwort.'
+        : 'Notruf, ABCDE, Krankheitsbilder – mit Erklärung.',
     stand: p.knowBest > 0 ? `Bestwert ${p.knowBest}/10` : undefined,
   };
   const quiz: TrainingInfo = {
@@ -134,10 +161,35 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
     farbe: '#FFE6C7',
     icon: '⚠️',
     title: 'Gefahren-Check',
-    sub: rolle === 'helfer' ? 'Eigenschutz zuerst: Finde alle Gefahren an der Einsatzstelle.' : 'Eigensicherung: Finde alle Gefahren, bevor du zum Patienten gehst.',
-    stand: p.gefahrGeschafft.length > 0 ? `${p.gefahrGeschafft.length}/${(rolle === 'helfer' ? GEFAHREN_HELFER : GEFAHREN_SANI).length} Szenen` : undefined,
+    sub:
+      rolle === 'helfer'
+        ? 'Eigenschutz zuerst: Finde alle Gefahren an der Einsatzstelle.'
+        : 'Eigensicherung: Finde alle Gefahren, bevor du zum Patienten gehst.',
+    stand:
+      p.gefahrGeschafft.length > 0
+        ? `${p.gefahrGeschafft.length}/${(rolle === 'helfer' ? GEFAHREN_HELFER : GEFAHREN_SANI).length} Szenen`
+        : undefined,
+  };
+  const leitstelle: TrainingInfo = {
+    id: 'leitstelle',
+    farbe: '#D8E7FF',
+    icon: '🎧',
+    title: 'Leitstelle spielen',
+    sub: 'Du nimmst den Notruf an: richtig nachfragen und die passenden Fahrzeuge losschicken.',
+    stand: p.leitstelleGeschafft.length > 0 ? `${p.leitstelleGeschafft.length}/${LEITSTELLE_SZENARIEN.length} Anrufe` : undefined,
+  };
+  const fehler: TrainingInfo = {
+    id: 'fehler',
+    farbe: '#FFDDEA',
+    icon: '🚩',
+    title: 'Fehler finden',
+    sub:
+      rolle === 'helfer'
+        ? 'Was macht der Helfer falsch? Finde die Fehler im Ablauf.'
+        : 'Was macht der Kollege falsch? Finde die Fehler im Ablauf.',
+    stand: p.fehlerGeschafft.length > 0 ? `${p.fehlerGeschafft.length}/${fehlerSzenarienFuer(rolle).length} Szenen` : undefined,
   };
   return rolle === 'helfer'
-    ? [wissen, schritte, cpr, notruf, mythen, zuerst, gefahr, pack, handgriffe, aed, pruefung]
-    : [quiz, wissen, cpr, gefahr, schritte, detektiv, manv];
+    ? [wissen, schritte, cpr, notruf, mythen, zuerst, gefahr, pack, handgriffe, fehler, leitstelle, aed, pruefung]
+    : [quiz, wissen, cpr, gefahr, schritte, fehler, detektiv, leitstelle, manv];
 }

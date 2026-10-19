@@ -47,10 +47,16 @@ import { NotrufScreen } from './src/screens/NotrufScreen';
 import { PackScreen } from './src/screens/PackScreen';
 import { FragenScreen } from './src/screens/FragenScreen';
 import { startAnalytics, zaehle } from './src/analytics';
+import { mitSerienBonus } from './src/game/serie';
+import { Toast } from './src/components/Toast';
+import { SpickScreen } from './src/screens/SpickScreen';
+import { spickNeuBeiKapitel } from './src/game/spickzettel';
 import { KarteScreen } from './src/screens/KarteScreen';
 import { KartenPin, BONUS_KUERZESTE, fuelleKarte } from './src/game/karte';
 import { UrkundenScreen } from './src/screens/UrkundenScreen';
 import { mitUrkundenDatum } from './src/game/urkunden';
+import { LeitstelleScreen } from './src/screens/LeitstelleScreen';
+import { FehlerScreen } from './src/screens/FehlerScreen';
 import { GefahrScreen } from './src/screens/GefahrScreen';
 import { MythenScreen } from './src/screens/MythenScreen';
 import { SchritteScreen } from './src/screens/SchritteScreen';
@@ -75,6 +81,8 @@ type Screen =
   | { name: 'handgriffe'; key: number }
   | { name: 'mythen'; key: number }
   | { name: 'gefahr'; key: number }
+  | { name: 'leitstelle'; key: number }
+  | { name: 'fehler'; key: number }
   | { name: 'aed'; key: number }
   | { name: 'pruefung'; key: number }
   | { name: 'rolle' }
@@ -84,6 +92,7 @@ type Screen =
   | { name: 'hilfspunkt' }
   | { name: 'urkunden' }
   | { name: 'karte' }
+  | { name: 'spick' }
   | { name: 'dev' }
   | { name: 'case'; medCase: MedCase; daily: boolean; key: number }
   | {
@@ -114,8 +123,11 @@ const FRAME_MAX: Partial<Record<Screen['name'], number>> = {
   handgriffe: 760,
   mythen: 760,
   gefahr: 760,
+  leitstelle: 760,
+  fehler: 760,
   urkunden: 760,
   karte: 760,
+  spick: 760,
   aed: 760,
   pruefung: 760,
   helfer: 820,
@@ -131,6 +143,7 @@ const TAB_OF: Partial<Record<Screen['name'], TabId>> = {
   hilfspunkt: 'garage',
   urkunden: 'home',
   karte: 'home',
+  spick: 'home',
   lexikon: 'lexikon',
   guide: 'guide',
   dev: 'guide',
@@ -144,6 +157,7 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   hilfspunkt: 'hilfspunkt',
   urkunden: 'urkunden',
   karte: 'karte',
+  spick: 'spick',
   manv: 'manv',
   detektiv: 'detektiv',
   schritte: 'schritte',
@@ -153,6 +167,8 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   handgriffe: 'handgriffe',
   mythen: 'mythen',
   gefahr: 'gefahr',
+  leitstelle: 'leitstelle',
+  fehler: 'fehler',
   aed: 'aed',
   pruefung: 'pruefung',
   helfer: 'home',
@@ -191,6 +207,14 @@ export default function App() {
   }, []);
   const lastCaseId = useRef<string | undefined>(undefined);
   // Stadtkarte: offene Einsätze, Rückkehr zur Karte nach dem Einsatz und Bonus für kurze Anfahrt
+  // Kurze Meldung oben (z. B. Serie, neue Urkunde)
+  const [meldung, setMeldung] = useState<string | null>(null);
+  const meldeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const melde = (t: string) => {
+    setMeldung(t);
+    if (meldeTimer.current) clearTimeout(meldeTimer.current);
+    meldeTimer.current = setTimeout(() => setMeldung(null), 4500);
+  };
   const [kartenPins, setKartenPins] = useState<KartenPin[]>([]);
   const karteRueck = useRef(false);
   const karteBonus = useRef(0);
@@ -248,7 +272,10 @@ export default function App() {
     const newBadges = awarded.newBadges;
     const earned = Math.max(0, awarded.progress.totalPoints - progress.totalPoints);
     const week = addWeekPoints(awarded.progress, earned);
-    const next = mitUrkundenDatum(aktiv, { ...week.progress, budget: week.progress.budget + earned });
+    const mitBudget = { ...week.progress, budget: week.progress.budget + earned };
+    const serie = mitSerienBonus(mitBudget);
+    if (serie.bonus > 0) melde(`🔥 ${serie.tage} Tage in Folge! +${serie.bonus} Punkte`);
+    const next = mitUrkundenDatum(aktiv, serie.progress);
     const before = rankFor(progress.totalPoints).rank;
     const after = rankFor(next.totalPoints).rank;
     setProgress(next);
@@ -378,6 +405,8 @@ export default function App() {
   const storyDone = () => {
     zaehle('kapitel-' + String(progress.story + 1).padStart(2, '0') + '-geschafft');
     commit({ ...progress, story: progress.story + 1, totalPoints: progress.totalPoints + KAPITEL_BONUS });
+    const neuSpick = spickNeuBeiKapitel(aktiv, progress.story + 2);
+    if (neuSpick.length > 0) melde(`📌 Neuer Spickzettel: ${neuSpick[0].titel}`);
   };
 
   const storyAktion = (a: StoryAktion) => {
@@ -514,7 +543,7 @@ export default function App() {
   const navigate = (t: NavTarget) => {
     if (t === 'karte') return oeffneKarte();
     if (t === 'start') return startCase();
-    if (['quiz', 'wissen', 'cpr', 'manv', 'detektiv', 'schritte', 'notruf', 'zuerst', 'pack', 'handgriffe', 'mythen', 'aed', 'pruefung', 'gefahr'].includes(t)) {
+    if (['quiz', 'wissen', 'cpr', 'manv', 'detektiv', 'schritte', 'notruf', 'zuerst', 'pack', 'handgriffe', 'mythen', 'aed', 'pruefung', 'gefahr', 'leitstelle', 'fehler'].includes(t)) {
       zaehle('training-' + t);
       return setScreen({ name: t, key: Date.now() } as Screen);
     }
@@ -608,6 +637,7 @@ export default function App() {
                         onModus={() => setModusOffen(true)}
                         onKarte={oeffneKarte}
                         onUrkunden={() => setScreen({ name: 'urkunden' })}
+                        onSpick={() => setScreen({ name: 'spick' })}
                         onStoryDone={storyDone}
                       />
                     )}
@@ -680,6 +710,16 @@ export default function App() {
                         onBack={back}
                       />
                     )}
+                    {screen.name === 'spick' && (
+                      <SpickScreen
+                        progress={progress}
+                        onGesehen={(id) => {
+                          if (!progress.spickGesehen.includes(id)) importProgress({ ...progress, spickGesehen: [...progress.spickGesehen, id] });
+                          zaehle('spickzettel-' + id);
+                        }}
+                        onBack={home}
+                      />
+                    )}
                     {screen.name === 'karte' && (
                       <KarteScreen pins={kartenPins} angefahren={progress.kartenEinsaetze} onFahre={fahreEinsatz} onBack={() => setScreen({ name: 'home' })} />
                     )}
@@ -689,6 +729,34 @@ export default function App() {
                         onName={(spielerName) => importProgress({ ...progress, spielerName })}
                         onDatum={() => importProgress(mitUrkundenDatum(aktiv, progress))}
                         onBack={home}
+                      />
+                    )}
+                    {screen.name === 'leitstelle' && (
+                      <LeitstelleScreen
+                        key={screen.key}
+                        geloest={progress.leitstelleGeschafft}
+                        onFinish={(punkte, id) =>
+                          commit({
+                            ...progress,
+                            totalPoints: progress.totalPoints + trainingPunkte(punkte),
+                            leitstelleGeschafft: id ? [...new Set([...progress.leitstelleGeschafft, id])] : progress.leitstelleGeschafft,
+                          })
+                        }
+                        onBack={back}
+                      />
+                    )}
+                    {screen.name === 'fehler' && (
+                      <FehlerScreen
+                        key={screen.key}
+                        geloest={progress.fehlerGeschafft}
+                        onFinish={(punkte, szenen) =>
+                          commit({
+                            ...progress,
+                            totalPoints: progress.totalPoints + trainingPunkte(punkte),
+                            fehlerGeschafft: [...new Set([...progress.fehlerGeschafft, ...szenen])],
+                          })
+                        }
+                        onBack={back}
                       />
                     )}
                     {screen.name === 'gefahr' && (
@@ -807,6 +875,7 @@ export default function App() {
             </View>
           </View>
         </SafeAreaView>
+        {meldung && <Toast text={meldung} />}
       </View>
       </RolleContext.Provider>
     </SafeAreaProvider>

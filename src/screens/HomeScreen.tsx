@@ -13,6 +13,8 @@ import { HILF_GESAMT_MAX, hilfGesamt } from '../game/hilfspunkt';
 import { WACHE_GESAMT_MAX, wacheGesamt } from '../game/wache';
 import { useRolle } from '../game/rolle';
 import { urkundenFuer } from '../game/urkunden';
+import { spickFrei, spickFuer } from '../game/spickzettel';
+import { SERIE_MEILENSTEINE, naechsterMeilenstein } from '../game/serie';
 import { rankFor, rankList } from '../game/scoring';
 import { KAPITEL, KAPITEL_BONUS, StoryAktion, aktuellesKapitel, freiAb, istFrei } from '../game/story';
 import { Progress } from '../game/storage';
@@ -37,6 +39,7 @@ export function HomeScreen({
   onModus,
   onKarte,
   onUrkunden,
+  onSpick,
 }: {
   progress: Progress;
   onStart: () => void;
@@ -55,6 +58,8 @@ export function HomeScreen({
   onKarte: () => void;
   /** Urkunden öffnen */
   onUrkunden: () => void;
+  /** Spickzettel öffnen */
+  onSpick: () => void;
 }) {
   const L = useLayout();
   const sidebar = useSidebar();
@@ -253,6 +258,17 @@ export function HomeScreen({
     </Tile>
   );
 
+  const spickListe = spickFuer(r.id);
+  const spickFreie = spickListe.filter((x) => spickFrei(r.id, progress, x));
+  const spickNeu = spickFreie.filter((x) => !progress.spickGesehen.includes(x.id)).length;
+  const spick = (
+    <Tile size="md" tint="teal" onPress={onSpick} accessibilityLabel="Spickzettel">
+      <TileLabel icon="📌" text="Spickzettel" tint="teal" />
+      <BigNumber value={`${spickFreie.length}`} unit={`von ${spickListe.length} frei`} size={28} />
+      <Text style={type.small}>{spickNeu > 0 ? `${spickNeu} neu – zum Speichern und Teilen` : 'Merkkarten zum Speichern und Teilen'}</Text>
+    </Tile>
+  );
+
   const urkunden = (
     <Tile size="md" tint="amber" onPress={onUrkunden} accessibilityLabel="Urkunden">
       <TileLabel icon="📜" text="Urkunden" tint="amber" />
@@ -296,6 +312,28 @@ export function HomeScreen({
     </Tile>
   );
 
+  const serieTage = day.streak;
+  const naechster = naechsterMeilenstein(serieTage);
+  const serie = (
+    <Tile size="md" tint="pink" accessibilityLabel="Tagesserie">
+      <TileLabel icon="🔥" text="Tagesserie" tint="pink" />
+      <BigNumber value={`${serieTage}`} unit={serieTage === 1 ? 'Tag in Folge' : 'Tage in Folge'} size={30} />
+      <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
+        {SERIE_MEILENSTEINE.map((m) => {
+          const ok = progress.bestDayStreak >= m.tage;
+          return (
+            <View key={m.tage} style={[styles.serieChip, ok && { backgroundColor: tiles.pink.accent }]}>
+              <Text style={[styles.serieChipText, ok && { color: '#fff' }]}>{m.tage} T · +{m.punkte}</Text>
+            </View>
+          );
+        })}
+      </View>
+      <Text style={type.small}>
+        {naechster ? `Noch ${naechster.tage - serieTage} Tage bis +${naechster.punkte} Punkte` : 'Alle Serien-Belohnungen geholt'}
+      </Text>
+    </Tile>
+  );
+
   const badgeList = badgesFuerRolle();
   const profile = (
     <Tile size="lg" tint="slate">
@@ -334,10 +372,12 @@ export function HomeScreen({
         {stats}
         {story}
         {action}
+        {serie}
         {today}
         {training}
         <BentoTitle>Unterwegs</BentoTitle>
         {karte}
+        {spick}
         {urkunden}
         <BentoTitle>Ausbau</BentoTitle>
         {vehicle}
@@ -372,6 +412,8 @@ function Locked({ kapitel }: { kapitel: number }) {
 }
 
 const styles = StyleSheet.create({
+  serieChip: { borderRadius: 999, paddingHorizontal: 9, paddingVertical: 4, backgroundColor: 'rgba(255,255,255,0.75)' },
+  serieChipText: { fontFamily: fonts.semibold, fontSize: 11, color: tiles.pink.accent },
   mini: { gap: 2, paddingHorizontal: 12, paddingVertical: 14, minHeight: 104 },
   miniIcon: { fontSize: 18, fontFamily: fonts.regular },
   miniLabel: { fontFamily: fonts.semibold, fontSize: 11, letterSpacing: 0.4 },

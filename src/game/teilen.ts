@@ -1,14 +1,19 @@
 import { Platform, Share } from 'react-native';
 
 /** Urkunde als PNG teilen oder speichern (Web); sonst als Text teilen */
-export async function teileUrkunde(
+export const teileUrkunde = (svg: string, dateiname: string, titel: string) => teileBild(svg, dateiname, titel, 1600, 1132);
+
+/** Beliebiges SVG-Bild als PNG teilen oder speichern (Web); sonst als Text teilen */
+export async function teileBild(
   svg: string,
   dateiname: string,
   titel: string,
+  breite: number,
+  hoehe: number,
 ): Promise<'geteilt' | 'gespeichert' | 'abgebrochen'> {
   if (Platform.OS !== 'web') {
     try {
-      await Share.share({ message: `Meine Urkunde in Einsatz 112: ${titel}` });
+      await Share.share({ message: `${titel} – gespielt in Einsatz 112: https://rettung.tankard.de` });
       return 'geteilt';
     } catch {
       return 'abgebrochen';
@@ -22,8 +27,8 @@ export async function teileUrkunde(
     img.src = url;
   });
   const canvas = document.createElement('canvas');
-  canvas.width = 1600;
-  canvas.height = 1132;
+  canvas.width = breite;
+  canvas.height = hoehe;
   const g = canvas.getContext('2d');
   if (!g) return 'abgebrochen';
   g.drawImage(img, 0, 0, canvas.width, canvas.height);

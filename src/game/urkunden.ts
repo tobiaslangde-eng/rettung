@@ -51,6 +51,22 @@ const gemeinsam = (rolle: Rolle): Urkunde[] => [
     erreicht: (p) => szenenFuer(rolle).every((s) => p.gefahrGeschafft.includes(s.id)),
   },
   {
+    id: 'serie-7',
+    icon: '🔥',
+    titel: '7 Tage in Folge',
+    text: 'hat 7 Tage hintereinander das Tagesziel erreicht und regelmäßig geübt.',
+    bedingung: '7 Tage in Folge das Tagesziel schaffen',
+    erreicht: (p) => p.bestDayStreak >= 7,
+  },
+  {
+    id: 'serie-30',
+    icon: '🏆',
+    titel: '30 Tage in Folge',
+    text: 'hat 30 Tage hintereinander das Tagesziel erreicht – das ist echte Ausdauer.',
+    bedingung: '30 Tage in Folge das Tagesziel schaffen',
+    erreicht: (p) => p.bestDayStreak >= 30,
+  },
+  {
     id: 'karte',
     icon: '🗺️',
     titel: 'Einsatzleitung Stadtkarte',

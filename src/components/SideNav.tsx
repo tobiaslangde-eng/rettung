@@ -15,6 +15,7 @@ export type NavTarget =
   | 'start'
   | 'garage'
   | 'urkunden'
+  | 'spick'
   | 'karte'
   | 'wache'
   | 'hilfspunkt'
@@ -26,6 +27,8 @@ export type NavTarget =
   | 'handgriffe'
   | 'mythen'
   | 'gefahr'
+  | 'leitstelle'
+  | 'fehler'
   | 'aed'
   | 'pruefung'
   | 'manv'
@@ -52,6 +55,7 @@ export function SideNav({
     { id: 'home', icon: '🏠', label: 'Start' },
     { id: 'garage', icon: r.id === 'helfer' ? '🚗' : '🚑', label: r.fahrzeug, bereich: 'garage' },
     { id: 'karte' as NavTarget, icon: '🗺️', label: 'Stadtkarte', bereich: 'einsatz' },
+    { id: 'spick' as NavTarget, icon: '📌', label: 'Spickzettel' },
     { id: 'urkunden' as NavTarget, icon: '📜', label: 'Urkunden' },
     r.id === 'sani' ? { id: 'wache' as NavTarget, icon: '🏥', label: 'Meine Wache' } : { id: 'hilfspunkt' as NavTarget, icon: '💚', label: 'Mein Hilfspunkt' },
     ...trainingsFuer(r.id, progress).map((t, i) => ({
