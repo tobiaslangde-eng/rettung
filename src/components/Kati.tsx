@@ -17,29 +17,29 @@ export function KatiAvatar({ size = 44 }: { size?: number }) {
         <Circle cx={22} cy={22} r={20} fill="#CFE0FF" />
         <G clipPath="url(#katiClip)">
           {/* Schultern mit Warnweste */}
-          <Path d="M2 46 C2 34 10 31 22 31 C34 31 42 34 42 46 Z" fill={colors.yellow} stroke={colors.ink} strokeWidth={2} />
-          <Path d="M16 31 L22 40 L28 31" fill="none" stroke={colors.ink} strokeWidth={2} strokeLinejoin="round" />
+          <Path d="M2 46 C2 34 10 31 22 31 C34 31 42 34 42 46 Z" fill={colors.yellow} stroke={colors.outline} strokeWidth={2} />
+          <Path d="M16 31 L22 40 L28 31" fill="none" stroke={colors.outline} strokeWidth={2} strokeLinejoin="round" />
           {/* Haare hinten */}
-          <Ellipse cx={22} cy={19} rx={11.5} ry={12} fill="#3B2A33" stroke={colors.ink} strokeWidth={2} />
+          <Ellipse cx={22} cy={19} rx={11.5} ry={12} fill="#3B2A33" stroke={colors.outline} strokeWidth={2} />
           {/* Hals und Gesicht */}
           <Rect x={19} y={26} width={6} height={6} fill="#F2B591" />
-          <Circle cx={22} cy={21.5} r={8.6} fill="#FFD2B3" stroke={colors.ink} strokeWidth={2} />
+          <Circle cx={22} cy={21.5} r={8.6} fill="#FFD2B3" stroke={colors.outline} strokeWidth={2} />
           {/* Pony */}
           <Path
             d="M13.2 20 C14 13 19 11.5 23 12 C27.5 12.5 30.5 15.5 30.8 20 C27.5 18.5 25 16.5 23.5 14.5 C21.5 17.5 17 19 13.2 20 Z"
             fill="#3B2A33"
-            stroke={colors.ink}
+            stroke={colors.outline}
             strokeWidth={1.6}
             strokeLinejoin="round"
           />
           {/* Gesicht */}
           <Circle cx={18.6} cy={22.6} r={1.2} fill={colors.navy} />
           <Circle cx={25.4} cy={22.6} r={1.2} fill={colors.navy} />
-          <Path d="M19 26.2 Q22 28.4 25 26.2" fill="none" stroke={colors.ink} strokeWidth={1.5} strokeLinecap="round" />
+          <Path d="M19 26.2 Q22 28.4 25 26.2" fill="none" stroke={colors.outline} strokeWidth={1.5} strokeLinecap="round" />
           <Circle cx={16.2} cy={25.4} r={1.5} fill="#FF9DA8" opacity={0.8} />
           <Circle cx={27.8} cy={25.4} r={1.5} fill="#FF9DA8" opacity={0.8} />
         </G>
-        <Circle cx={22} cy={22} r={20} fill="none" stroke={colors.ink} strokeWidth={2.4} />
+        <Circle cx={22} cy={22} r={20} fill="none" stroke={colors.outline} strokeWidth={2.4} />
       </Svg>
     </View>
   );

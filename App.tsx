@@ -708,6 +708,7 @@ export default function App() {
                         onUrkunden={() => setScreen({ name: 'urkunden' })}
                         onSpick={() => setScreen({ name: 'spick' })}
                         onFeedback={() => setScreen({ name: 'feedback' })}
+                        onAlleTrainings={() => setScreen({ name: 'training' })}
                         onSchicht={() => {
                           setSchicht(null);
                           setScreen({ name: 'schicht' });

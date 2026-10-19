@@ -20,7 +20,7 @@ import { KAPITEL, KAPITEL_BONUS, StoryAktion, aktuellesKapitel, freiAb, istFrei 
 import { Progress } from '../game/storage';
 import { TrainingId, trainingsFuer } from '../game/trainings';
 import { useLayout, useSidebar } from '../layout';
-import { colors, fonts, spacing, tiles, type } from '../theme';
+import { TileTint, colors, fonts, spacing, tiles, type } from '../theme';
 
 const WOCHENTAGE = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 const MONATE = [
@@ -56,6 +56,7 @@ export function HomeScreen({
   onDuell,
   onSchicht,
   onFeedback,
+  onAlleTrainings,
 }: {
   progress: Progress;
   onStart: () => void;
@@ -82,6 +83,8 @@ export function HomeScreen({
   onSchicht: () => void;
   /** Rückmeldung geben */
   onFeedback: () => void;
+  /** Training-Tab öffnen */
+  onAlleTrainings: () => void;
 }) {
   const L = useLayout();
   const sidebar = useSidebar();
@@ -99,7 +102,7 @@ export function HomeScreen({
   const heroTitle = sidebar ? 'Hallo!' : 'Einsatz 112';
 
   const hero = (
-    <Tile size="lg" tint="ink" paper style={{ paddingBottom: 56 }}>
+    <Tile size="lg" tint="ink" paper ecgOben ecgOpacity={0.55} style={{ gap: 14 }}>
       <View style={styles.heroTop}>
         <View style={{ flex: 1, gap: 2 }}>
           <Text style={[type.eyebrow, { color: colors.onDarkSoft }]}>
@@ -109,12 +112,17 @@ export function HomeScreen({
           <Text style={[type.small, { color: helfer ? '#5EEAD4' : '#FF9C98' }]}>
             {r.icon} {r.titel} · {rank.de}
           </Text>
-          <Tap onPress={onModus} accessibilityLabel="Spielweise ändern" style={styles.modusChip}>
-            <Text style={styles.modusText}>{progress.modus === 'frei' ? '🧭 Frei spielen' : '📖 Mit Geschichte'} · ändern ›</Text>
-          </Tap>
         </View>
         <RankBadge size={64} level={rankList().indexOf(rank)} />
       </View>
+      <View style={styles.heroStats}>
+        <HeroStat icon="⭐" value={progress.totalPoints.toLocaleString('de-DE')} label="Punkte" />
+        <HeroStat icon="💶" value={euro(progress.budget)} label="Budget" />
+        <HeroStat icon="🔥" value={`${day.streak}`} label={day.streak === 1 ? 'Tag' : 'Tage'} />
+      </View>
+      <Tap onPress={onModus} accessibilityLabel="Spielweise ändern" style={styles.modusChip}>
+        <Text style={styles.modusText}>{progress.modus === 'frei' ? '🧭 Frei spielen' : '📖 Mit Geschichte'} · ändern ›</Text>
+      </Tap>
     </Tile>
   );
 
@@ -123,21 +131,6 @@ export function HomeScreen({
 
   const stats = (
     <>
-      <Tile size="third" tint="amber" style={styles.mini}>
-        <Text style={styles.miniIcon}>⭐</Text>
-        <BigNumber value={progress.totalPoints.toLocaleString('de-DE')} color={tiles.amber.accent} size={24} />
-        <Text style={[styles.miniLabel, { color: tiles.amber.accent }]}>Punkte</Text>
-      </Tile>
-      <Tile size="third" tint="green" style={styles.mini}>
-        <Text style={styles.miniIcon}>💶</Text>
-        <BigNumber value={euro(progress.budget)} color={tiles.green.accent} size={24} />
-        <Text style={[styles.miniLabel, { color: tiles.green.accent }]}>Budget</Text>
-      </Tile>
-      <Tile size="third" tint="pink" style={styles.mini}>
-        <Text style={styles.miniIcon}>🔥</Text>
-        <BigNumber value={`${day.streak}`} color={tiles.pink.accent} size={24} />
-        <Text style={[styles.miniLabel, { color: tiles.pink.accent }]}>Tage am Stück</Text>
-      </Tile>
       <Tile size="lg" tint="slate">
         <TileLabel icon="📈" text="Heute im Überblick" tint="teal" />
         <View style={styles.rings}>
@@ -188,7 +181,7 @@ export function HomeScreen({
             <Bar
               pct={kap.kapitel.stand(progress)}
               color={tiles.violet.accent}
-              track="rgba(15,42,46,0.1)"
+              track={colors.track}
               style={{ marginTop: 4 }}
             />
           )}
@@ -212,7 +205,7 @@ export function HomeScreen({
     );
 
   const action = (
-    <Tile size="md" tint={helferTint}>
+    <Tile size={progress.modus === 'frei' ? 'lg' : 'md'} tint={helferTint}>
       <TileLabel icon={helfer ? '🩹' : '🚑'} text={helfer ? 'Notfall' : 'Einsatz'} tint={helferTint} />
       <View style={styles.actionTop}>
         <View style={{ flex: 1, gap: 2 }}>
@@ -251,7 +244,7 @@ export function HomeScreen({
 
   const today = einsatzFrei ? (
     <>
-      <Tile size="lg" tint="pink" onPress={day.dailyCaseDone ? undefined : onDaily} accessibilityLabel={`${r.einsatz} des Tages`}>
+      <Tile size="md" tint="pink" onPress={day.dailyCaseDone ? undefined : onDaily} accessibilityLabel={`${r.einsatz} des Tages`}>
         <TileLabel icon="⭐" text="Des Tages" tint="pink" />
         <Text style={type.headline}>{r.einsatz} des Tages</Text>
         <Text style={type.small}>
@@ -262,41 +255,47 @@ export function HomeScreen({
     </>
   ) : null;
 
+  const alleTrainings = trainingsFuer(r.id, progress);
+  const empfohlen = [
+    ...alleTrainings.filter((t) => istFrei(r.id, progress, t.id) && !t.stand),
+    ...alleTrainings.filter((t) => istFrei(r.id, progress, t.id) && t.stand),
+  ].slice(0, 4);
   const training = (
     <>
-      <BentoTitle>Training</BentoTitle>
-      {trainingsFuer(r.id, progress).map((t) => {
-        const frei = istFrei(r.id, progress, t.id);
-        return (
-          <Tile
-            key={t.id}
-            size="sm"
-            bg={frei ? t.farbe : colors.surface}
-            onPress={frei ? () => onTraining(t.id) : undefined}
-            disabled={!frei}
-            accessibilityLabel={t.title}
-            style={{ minHeight: 132, justifyContent: 'space-between' }}
-          >
-            <View style={styles.trainTop}>
-              <View style={[styles.listIconBox, { backgroundColor: 'rgba(15,42,46,0.1)' }]}>
-                <Text style={[styles.listIcon, !frei && { opacity: 0.4 }]}>{t.icon}</Text>
-              </View>
-              {!frei && <Text style={styles.lock}>🔒</Text>}
+      <BentoTitle
+        right={
+          <Tap onPress={onAlleTrainings} accessibilityLabel="Alle Trainings">
+            <Text style={styles.alle}>Alle {alleTrainings.length} ›</Text>
+          </Tap>
+        }
+      >
+        Für dich zum Üben
+      </BentoTitle>
+      {empfohlen.map((t) => (
+        <Tile
+          key={t.id}
+          size="sm"
+          bg={t.farbe}
+          onPress={() => onTraining(t.id)}
+          accessibilityLabel={t.title}
+          style={{ minHeight: 132, justifyContent: 'space-between' }}
+        >
+          <View style={styles.trainTop}>
+            <View style={[styles.listIconBox, { backgroundColor: colors.track }]}>
+              <Text style={styles.listIcon}>{t.icon}</Text>
             </View>
-            <View style={{ gap: 2 }}>
-              <Text
-                style={[type.headline, { fontSize: 13.5, letterSpacing: -0.3 }, !frei && { color: colors.muted }]}
-                numberOfLines={2}
-              >
-                {t.title}
-              </Text>
-              <Text style={styles.trainSub} numberOfLines={2}>
-                {frei ? (t.stand ?? t.sub) : `Ab Kapitel ${freiAb(r.id, t.id)}`}
-              </Text>
-            </View>
-          </Tile>
-        );
-      })}
+            {!t.stand && <Text style={styles.neu}>NEU</Text>}
+          </View>
+          <View style={{ gap: 2 }}>
+            <Text style={[type.headline, { fontSize: 13.5, letterSpacing: -0.3 }]} numberOfLines={2}>
+              {t.title}
+            </Text>
+            <Text style={styles.trainSub} numberOfLines={2}>
+              {t.stand ?? t.sub}
+            </Text>
+          </View>
+        </Tile>
+      ))}
     </>
   );
 
@@ -306,34 +305,38 @@ export function HomeScreen({
   const ausbauStufen = helfer ? hilfGesamt(progress) : wacheGesamt(progress);
   const ausbauMax = helfer ? HILF_GESAMT_MAX : WACHE_GESAMT_MAX;
 
+  const spickListe = spickFuer(r.id);
+  const spickFreie = spickListe.filter((x) => spickFrei(r.id, progress, x));
+  const spickNeu = spickFreie.filter((x) => !progress.spickGesehen.includes(x.id)).length;
   const urkundenListe = urkundenFuer(r.id);
   const urkundenErreicht = urkundenListe.filter((u) => u.erreicht(progress)).length;
   const kartenFrei = istFrei(r.id, progress, 'einsatz');
 
-  const karte = (
-    <Tile size="md" tint="blue" onPress={kartenFrei ? onKarte : undefined} disabled={!kartenFrei} accessibilityLabel="Stadtkarte">
-      <TileLabel icon="🗺️" text="Stadtkarte" tint="blue" />
-      {kartenFrei ? (
-        <>
-          <BigNumber value={`${progress.kartenEinsaetze}`} unit="Einsätze angefahren" size={28} />
-          <Text style={type.small}>Wähle den Einsatz mit der kürzesten Anfahrt</Text>
-        </>
-      ) : (
-        <Text style={type.small}>Wird in Kapitel {freiAb(r.id, 'einsatz')} freigeschaltet</Text>
-      )}
-    </Tile>
-  );
-
-  const spickListe = spickFuer(r.id);
-  const spickFreie = spickListe.filter((x) => spickFrei(r.id, progress, x));
-  const spickNeu = spickFreie.filter((x) => !progress.spickGesehen.includes(x.id)).length;
-  const spick = (
-    <Tile size="md" tint="teal" onPress={onSpick} accessibilityLabel="Spickzettel">
-      <TileLabel icon="📌" text="Spickzettel" tint="teal" />
-      <BigNumber value={`${spickFreie.length}`} unit={`von ${spickListe.length} frei`} size={28} />
-      <Text style={type.small}>
-        {spickNeu > 0 ? `${spickNeu} neu – zum Speichern und Teilen` : 'Merkkarten zum Speichern und Teilen'}
-      </Text>
+  const schnell = (
+    <Tile size="lg" tint="slate" style={{ paddingVertical: 14, paddingHorizontal: 8 }}>
+      <View style={styles.schnellReihe}>
+        <Schnell icon="🗺️" tint="blue" label="Karte" sub={`${progress.kartenEinsaetze} gefahren`} name="Stadtkarte" locked={!kartenFrei} onPress={onKarte} />
+        <Schnell
+          icon="⏱️"
+          tint="teal"
+          label={helfer ? 'Dienst' : 'Schicht'}
+          sub={`${progress.schichten} geschafft`}
+          name={helfer ? 'Bereitschaftsdienst' : 'Schicht'}
+          locked={!kartenFrei}
+          onPress={onSchicht}
+        />
+        <Schnell icon="⚔️" tint="violet" label="Duell" sub={`${progress.duellSiege} Siege`} name="Duell mit Freunden" onPress={onDuell} />
+        <Schnell
+          icon="📌"
+          tint="amber"
+          label="Spickzettel"
+          sub={spickNeu > 0 ? `${spickNeu} neu` : `${spickFreie.length} frei`}
+          name="Spickzettel"
+          badge={spickNeu > 0}
+          onPress={onSpick}
+        />
+        <Schnell icon="📜" tint="pink" label="Urkunden" sub={`${urkundenErreicht}/${urkundenListe.length}`} name="Urkunden" onPress={onUrkunden} />
+      </View>
     </Tile>
   );
 
@@ -344,46 +347,6 @@ export function HomeScreen({
         <Text style={type.body}>Zwei kurze Fragen, ganz ohne Namen – das hilft, das Spiel besser zu machen.</Text>
       </Tile>
     ) : null;
-
-  const schichtKachel = (
-    <Tile
-      size="md"
-      tint="blue"
-      onPress={kartenFrei ? onSchicht : undefined}
-      disabled={!kartenFrei}
-      accessibilityLabel={helfer ? 'Bereitschaftsdienst' : 'Schicht'}
-    >
-      <TileLabel icon="⏱️" text={helfer ? 'Bereitschaftsdienst' : 'Schichtmodus'} tint="blue" />
-      {kartenFrei ? (
-        <>
-          <BigNumber
-            value={`${progress.schichten}`}
-            unit={progress.schichten === 1 ? 'Schicht geschafft' : 'Schichten geschafft'}
-            size={28}
-          />
-          <Text style={type.small}>4 Einsätze am Stück, Check-Fragen und Bilanz</Text>
-        </>
-      ) : (
-        <Text style={type.small}>Wird in Kapitel {freiAb(r.id, 'einsatz')} freigeschaltet</Text>
-      )}
-    </Tile>
-  );
-
-  const duell = (
-    <Tile size="md" tint="violet" onPress={onDuell} accessibilityLabel="Duell mit Freunden">
-      <TileLabel icon="⚔️" text="Duell mit Freunden" tint="violet" />
-      <BigNumber value={`${progress.duellSiege}`} unit={`Siege · ${progress.duellGespielt} Duelle`} size={28} />
-      <Text style={type.small}>5 Fragen, ein Link – wer schlägt dich?</Text>
-    </Tile>
-  );
-
-  const urkunden = (
-    <Tile size="md" tint="amber" onPress={onUrkunden} accessibilityLabel="Urkunden">
-      <TileLabel icon="📜" text="Urkunden" tint="amber" />
-      <BigNumber value={`${urkundenErreicht}`} unit={`von ${urkundenListe.length} erreicht`} size={28} />
-      <Text style={type.small}>Mit deinem Namen – zum Teilen</Text>
-    </Tile>
-  );
 
   const vehicle = (
     <Tile
@@ -399,7 +362,7 @@ export function HomeScreen({
           {garageFrei ? (
             <>
               <BigNumber value={`${total}`} unit={`von ${maxTotal} Stufen`} size={28} />
-              <Bar pct={total / maxTotal} color={tiles.teal.accent} track="rgba(15,42,46,0.1)" />
+              <Bar pct={total / maxTotal} color={tiles.teal.accent} track={colors.track} />
               <Text style={type.small}>{upgradable ? '⬆ Aufrüsten möglich!' : 'Ausrüstung ansehen'}</Text>
             </>
           ) : (
@@ -427,7 +390,7 @@ export function HomeScreen({
       {garageFrei ? (
         <>
           <BigNumber value={`${ausbauStufen}`} unit={`von ${ausbauMax} Stufen`} size={28} />
-          <Bar pct={ausbauStufen / ausbauMax} color={tiles.green.accent} track="rgba(15,42,46,0.1)" />
+          <Bar pct={ausbauStufen / ausbauMax} color={tiles.green.accent} track={colors.track} />
           <Text style={type.small}>{helfer ? 'Apotheke, Defi, Kursraum …' : 'Halle, Funk, Lager, Ruheraum …'} ausbauen</Text>
         </>
       ) : (
@@ -500,23 +463,18 @@ export function HomeScreen({
     <ScrollView contentContainerStyle={[styles.content, L.wide && styles.contentWide]}>
       <BentoGrid>
         {hero}
-        {stats}
         {story}
         {action}
-        {feedback}
-        {serie}
+        {schnell}
         {today}
+        {serie}
+        {stats}
         {training}
-        <BentoTitle>Unterwegs</BentoTitle>
-        {karte}
-        {schichtKachel}
-        {duell}
-        {spick}
-        {urkunden}
         <BentoTitle>Ausbau</BentoTitle>
         {vehicle}
         {ausbau}
         {profile}
+        {feedback}
       </BentoGrid>
       <Text style={styles.note}>Lernspiel – ersetzt keinen Erste-Hilfe-Kurs und keine Ausbildung. Im Notfall: 112.</Text>
     </ScrollView>
@@ -549,6 +507,56 @@ function RingStat({
   );
 }
 
+function HeroStat({ icon, value, label }: { icon: string; value: string; label: string }) {
+  return (
+    <View style={styles.heroStat}>
+      <Text style={styles.heroStatValue} numberOfLines={1} adjustsFontSizeToFit>
+        {value}
+      </Text>
+      <Text style={styles.heroStatLabel} numberOfLines={1}>
+        {icon} {label}
+      </Text>
+    </View>
+  );
+}
+
+/** Kleine Abkürzung zu einem Bereich (Stadtkarte, Schicht, Duell, Spickzettel, Urkunden) */
+function Schnell({
+  icon,
+  tint,
+  label,
+  sub,
+  name,
+  locked,
+  badge,
+  onPress,
+}: {
+  icon: string;
+  tint: TileTint;
+  label: string;
+  sub: string;
+  name: string;
+  locked?: boolean;
+  badge?: boolean;
+  onPress: () => void;
+}) {
+  const t = tiles[tint];
+  return (
+    <Tap onPress={locked ? undefined : onPress} disabled={locked} accessibilityLabel={name} style={styles.schnell}>
+      <View style={[styles.schnellIcon, { backgroundColor: t.bg, borderColor: t.edge }, locked && { opacity: 0.5 }]}>
+        <Text style={styles.schnellEmoji}>{locked ? '🔒' : icon}</Text>
+        {badge && <View style={[styles.schnellPunkt, { backgroundColor: colors.red, borderColor: colors.surface }]} />}
+      </View>
+      <Text style={[styles.schnellLabel, locked && { color: colors.muted }]} numberOfLines={1}>
+        {label}
+      </Text>
+      <Text style={styles.schnellSub} numberOfLines={1}>
+        {locked ? 'gesperrt' : sub}
+      </Text>
+    </Tap>
+  );
+}
+
 function Locked({ kapitel }: { kapitel: number }) {
   return (
     <View style={styles.locked}>
@@ -558,7 +566,29 @@ function Locked({ kapitel }: { kapitel: number }) {
 }
 
 const styles = StyleSheet.create({
-  serieChip: { borderRadius: 999, paddingHorizontal: 9, paddingVertical: 4, backgroundColor: 'rgba(255,255,255,0.75)' },
+  heroStats: { flexDirection: 'row', gap: 8 },
+  heroStat: {
+    flex: 1,
+    gap: 1,
+    paddingHorizontal: 11,
+    paddingVertical: 9,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+  },
+  heroStatValue: { fontFamily: fonts.displayBlack, fontSize: 18, lineHeight: 22, color: '#FFFFFF', letterSpacing: -0.5 },
+  heroStatLabel: { fontFamily: fonts.semibold, fontSize: 10.5, color: colors.onDarkSoft, letterSpacing: 0.3 },
+  schnellReihe: { flexDirection: 'row', justifyContent: 'space-between' },
+  schnell: { flex: 1, alignItems: 'center', gap: 3 },
+  schnellIcon: { width: 50, height: 50, borderRadius: 17, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  schnellEmoji: { fontSize: 24, fontFamily: fonts.regular },
+  schnellPunkt: { position: 'absolute', top: -2, right: -2, width: 12, height: 12, borderRadius: 6, borderWidth: 2 },
+  schnellLabel: { fontFamily: fonts.bold, fontSize: 11.5, color: colors.ink, marginTop: 2 },
+  schnellSub: { fontFamily: fonts.regular, fontSize: 10.5, color: colors.muted },
+  alle: { fontFamily: fonts.semibold, fontSize: 13, color: colors.tuerkis },
+  neu: { fontFamily: fonts.extrabold, fontSize: 10, letterSpacing: 0.8, color: colors.onBright, backgroundColor: colors.yellow, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2, overflow: 'hidden' },
+  serieChip: { borderRadius: 999, paddingHorizontal: 9, paddingVertical: 4, backgroundColor: colors.veil },
   serieChipText: { fontFamily: fonts.semibold, fontSize: 11, color: tiles.pink.accent },
   mini: { gap: 2, paddingHorizontal: 12, paddingVertical: 14, minHeight: 104 },
   miniIcon: { fontSize: 18, fontFamily: fonts.regular },
@@ -570,7 +600,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(15,42,46,0.06)',
+    backgroundColor: colors.veilFaint,
     borderWidth: 1,
     borderColor: 'transparent',
     alignItems: 'center',
@@ -593,7 +623,7 @@ const styles = StyleSheet.create({
   heroTop: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
   storyTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   storyText: { ...type.body, color: colors.inkSoft },
-  goal: { borderRadius: 16, padding: spacing.md, gap: 4, backgroundColor: 'rgba(255,255,255,0.6)' },
+  goal: { borderRadius: 16, padding: spacing.md, gap: 4, backgroundColor: colors.veilSoft },
   goalLabel: { fontFamily: fonts.semibold, fontSize: 12, letterSpacing: 0.3, textTransform: 'uppercase' },
   actionTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   streak: { fontFamily: fonts.displayBlack, fontSize: 22, color: colors.ink },
@@ -604,7 +634,7 @@ const styles = StyleSheet.create({
   lock: { fontSize: 14, fontFamily: fonts.regular },
   listIconBox: { width: 42, height: 42, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   listIcon: { fontSize: 22, textAlign: 'center', fontFamily: fonts.regular },
-  locked: { backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: 12, padding: spacing.md },
+  locked: { backgroundColor: colors.veilSoft, borderRadius: 12, padding: spacing.md },
   lockedText: { ...type.small, color: colors.inkSoft },
   note: { ...type.small, textAlign: 'center', marginTop: spacing.lg },
 });

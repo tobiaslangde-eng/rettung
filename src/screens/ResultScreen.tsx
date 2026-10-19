@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { TeilenKnopf } from '../components/TeilenKnopf';
+import { Konfetti } from '../components/Konfetti';
 import { Button, Card, Eyebrow, TopBar } from '../components/UI';
 import { ergebnisKarteSvg } from '../game/karten';
 import { useRolle } from '../game/rolle';
@@ -43,6 +44,7 @@ export function ResultScreen({
   const outcome = conditionOutcome(run.condition, c.patient.name.split(' ')[0]);
   return (
     <View style={{ flex: 1 }}>
+      {(result.stars === 3 || !!promotion) && <Konfetti />}
       <TopBar kicker="Einsatz beendet" title="Mein Einsatzbericht" onBack={onHome} />
       <ScrollView contentContainerStyle={[styles.content, L.wide && styles.contentWide]}>
         <View style={styles.hero}>

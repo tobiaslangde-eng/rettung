@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react';
+import { DUNKEL } from '../theme';
 
 /** Wer spielt: Sanitäter/in im Rettungsdienst oder Ersthelfer/in im Alltag. Jede Rolle hat einen eigenen Spielstand. */
 export type Rolle = 'sani' | 'helfer';
@@ -28,8 +29,8 @@ export const ROLLEN: Record<Rolle, RollenInfo> = {
     icon: '🩹',
     beschreibung: 'Erste Hilfe im Alltag: richtig prüfen, Notruf, Seitenlage, Wiederbelebung. Du rüstest dein eigenes Auto aus.',
     akzent: '#0A8576',
-    akzentDunkel: '#075F55',
-    akzentTint: '#D5F2EB',
+    akzentDunkel: DUNKEL ? '#7FE6D7' : '#075F55',
+    akzentTint: DUNKEL ? '#113A36' : '#D5F2EB',
     fahrzeug: 'Mein Auto',
     fahrzeugKurz: 'Auto',
     einsatz: 'Notfall',
@@ -41,8 +42,8 @@ export const ROLLEN: Record<Rolle, RollenInfo> = {
     icon: '🚑',
     beschreibung: 'Rettungsdienst: Patienten untersuchen, Werte messen, Diagnosen stellen. Du rüstest deinen Rettungswagen aus.',
     akzent: '#E0393E',
-    akzentDunkel: '#B42327',
-    akzentTint: '#FFE1E0',
+    akzentDunkel: DUNKEL ? '#FF9B9E' : '#B42327',
+    akzentTint: DUNKEL ? '#3A1B1E' : '#FFE1E0',
     fahrzeug: 'Mein Rettungswagen',
     fahrzeugKurz: 'Fahrzeug',
     einsatz: 'Einsatz',

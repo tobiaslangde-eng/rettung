@@ -294,7 +294,7 @@ export function KarteScreen({
                 style={[
                   styles.pin,
                   { left: p.x * f - 19, top: p.y * f - 38 },
-                  aktiv && { backgroundColor: colors.redDark, transform: [{ scale: 1.2 }], borderColor: colors.yellow },
+                  aktiv && { backgroundColor: '#B42327', transform: [{ scale: 1.2 }], borderColor: colors.yellow },
                   weg && { opacity: 0.6 },
                 ]}
               >
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: fonts.bold,
     fontSize: 10.5,
-    color: colors.ink,
+    color: colors.outline,
     backgroundColor: 'rgba(255,255,255,0.92)',
     paddingHorizontal: 5,
     borderRadius: 6,

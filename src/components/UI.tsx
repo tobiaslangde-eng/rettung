@@ -53,7 +53,7 @@ export function Tap({
       accessibilityState={{ disabled, ...accessibilityState }}
       style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
         style,
-        offset > 0 && !disabled && (pressed || hovered) ? { opacity: pressed ? 0.6 : 0.85 } : null,
+        offset > 0 && !disabled && (pressed || hovered) ? { opacity: pressed ? 0.7 : 0.9, transform: [{ scale: pressed ? 0.975 : 1 }] } : null,
       ]}
     >
       {children}
@@ -117,8 +117,8 @@ export function Button({
       accessibilityLabel={label}
       style={[
         styles.btn,
-        { backgroundColor: bg, opacity: disabled ? 0.45 : 1, borderBottomWidth: 4, borderBottomColor: border ? '#C3D5CE' : shade(bg) },
-        border ? { borderWidth: 1, borderColor: border, borderBottomWidth: 4, borderBottomColor: '#C3D5CE' } : null,
+        { backgroundColor: bg, opacity: disabled ? 0.45 : 1, borderBottomWidth: 4, borderBottomColor: border ? colors.paperLineStrong : shade(bg) },
+        border ? { borderWidth: 1, borderColor: border, borderBottomWidth: 4, borderBottomColor: colors.paperLineStrong } : null,
         style,
       ]}
     >
@@ -183,7 +183,7 @@ export function StatChip({ value, label, color = colors.surface2 }: { value: str
   return (
     <View style={[styles.statChip, { backgroundColor: color }]}>
       <Text style={[styles.statValue, bright && { color: colors.onBright }]}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
+      <Text style={[styles.statLabel, bright && { color: colors.onBright }]}>{label}</Text>
     </View>
   );
 }

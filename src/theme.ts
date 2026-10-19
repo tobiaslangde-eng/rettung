@@ -1,3 +1,5 @@
+import { istDunkel } from './game/darstellung';
+
 // Design „Puls“ – hell, frisch, klinisch-sauber: Mintweiß, tiefes Petrolgrün, bunte Pastell-Kacheln im Bento-Raster
 //
 // - Ruhiger, hellgrauer Hintergrund, weiße Flächen mit feiner Linie, keine Schatten
@@ -5,7 +7,7 @@
 // - Farben nur mit Bedeutung: Grün = richtig, Rot = falsch/Alarm, Bernstein = Belohnung
 // - Zwei Schriften: Bricolage Grotesque für Überschriften, Inter zum Lesen
 // Die alten Farbnamen bleiben als Alias bestehen und zeigen auf die ruhigen Werte.
-export const colors = {
+const HELL = {
   // Basis (dunkel: Marineblau / Anthrazit)
   ink: '#0F2A2E', // Haupttext (hell auf dunkel)
   inkSoft: '#35504F',
@@ -23,6 +25,14 @@ export const colors = {
   onDarkSoft: '#9FBDB7',
   muted: '#5A7370', // Zweittext
   line: '#D9E5E0', // Linien, Rahmen, leere Balken
+
+  // Überzüge: leere Balken/Ringe, helle Chips auf farbigen Kacheln, Hintergrund-Schleier
+  track: 'rgba(15,42,46,0.1)',
+  veil: 'rgba(255,255,255,0.75)',
+  veilSoft: 'rgba(255,255,255,0.6)',
+  veilFaint: 'rgba(15,42,46,0.06)',
+  /** Kontur in Grafiken (Kati, Abzeichen) – bleibt in beiden Modi dunkel */
+  outline: '#0F2A2E',
 
   // Signalfarben
   red: '#E0393E',
@@ -76,6 +86,68 @@ export const colors = {
   pink: '#C2347A',
 };
 
+/** Dunkle Palette: tiefes Petrol, gedämpfte Kacheln, helle Schrift */
+const DUNKEL_PALETTE: typeof HELL = {
+  ...HELL,
+  ink: '#EAF4F1',
+  inkSoft: '#B7CCC7',
+  onBright: '#0F2A2E',
+  navy: '#0B1A1D',
+  monitorBg: '#050D0F',
+  paper: '#0A1315',
+  paperLine: '#14252A',
+  paperLineStrong: '#1C3239',
+  surface: '#121F23',
+  surface2: '#192A2F',
+  muted: '#8FABA6',
+  line: '#233639',
+  track: 'rgba(255,255,255,0.12)',
+  veil: 'rgba(255,255,255,0.1)',
+  veilSoft: 'rgba(255,255,255,0.07)',
+  veilFaint: 'rgba(255,255,255,0.06)',
+  red: '#EF5155',
+  redDark: '#FF9B9E',
+  redTint: '#3A1B1E',
+  blue: '#5B8DF5',
+  blueDark: '#9DBDFF',
+  blueTint: '#18284A',
+  yellow: '#FFC531',
+  yellowTint: '#3B3114',
+  mint: '#1E4A3B',
+  mintDark: '#4FD6A3',
+  mintTint: '#12332A',
+  lilac: '#2A2550',
+  violet: '#A99BFF',
+  pinkTint: '#3B1E2D',
+  pinkStrong: '#FF7EB6',
+  peach: '#3D2A17',
+  orange: '#FF9A4A',
+  sky: '#12303F',
+  skyStrong: '#59BBF0',
+  butter: '#352E14',
+  tuerkis: '#2CC5B1',
+  tuerkisDark: '#7FE6D7',
+  tuerkisTint: '#113A36',
+  graphit: '#EAF4F1',
+  graphitSoft: '#B7CCC7',
+  nacht: '#050D0F',
+  grau50: '#0A1315',
+  grau200: '#2C4246',
+  grau300: '#6F8B86',
+  grau500: '#8FABA6',
+  gruen: '#4FD6A3',
+  amber: '#FF9A4A',
+  blaulicht: '#5B8DF5',
+  blaulichtDark: '#9DBDFF',
+  blaulichtLight: '#18284A',
+  indigo: '#A99BFF',
+  pink: '#FF7EB6',
+};
+
+/** Ist der dunkle Modus an? Wird einmal beim Start entschieden (Umschalten lädt die Seite neu). */
+export const DUNKEL = istDunkel();
+export const colors: typeof HELL = DUNKEL ? DUNKEL_PALETTE : HELL;
+
 /** Farben wie auf einem Patientenmonitor (auf dunklem Grund) */
 export const monitor = {
   puls: '#2BE38B',
@@ -106,7 +178,7 @@ export const fonts = {
 };
 
 /** Kacheln im Bento-Raster: Hintergrund, Rand und Akzent je Farbwelt (alle auf dunklem Marine) */
-export const tiles = {
+const TILES_HELL = {
   slate: { bg: '#FFFFFF', edge: '#D9E5E0', accent: '#4D6663' },
   teal: { bg: '#D3F1E9', edge: '#B4E2D5', accent: '#07685D' },
   red: { bg: '#FFDDD9', edge: '#FFC2BB', accent: '#B02C27' },
@@ -117,6 +189,18 @@ export const tiles = {
   pink: { bg: '#FFDDEA', edge: '#FBC1D5', accent: '#A3285B' },
   ink: { bg: '#0F2A2E', edge: '#1D4247', accent: '#5EEAD4' },
 };
+const TILES_DUNKEL: typeof TILES_HELL = {
+  slate: { bg: '#121F23', edge: '#233639', accent: '#9DB8B3' },
+  teal: { bg: '#0F332F', edge: '#1A4A44', accent: '#5ED6C4' },
+  red: { bg: '#3A1B1E', edge: '#55272B', accent: '#FF8A8E' },
+  violet: { bg: '#231F47', edge: '#38326B', accent: '#B5A8FF' },
+  amber: { bg: '#382C10', edge: '#554218', accent: '#FFC857' },
+  blue: { bg: '#15294A', edge: '#223E6E', accent: '#8DB4FF' },
+  green: { bg: '#16301A', edge: '#24502A', accent: '#8FDB7B' },
+  pink: { bg: '#381A2A', edge: '#58283F', accent: '#FF88B5' },
+  ink: { bg: '#0B1A1D', edge: '#17333A', accent: '#5EEAD4' },
+};
+export const tiles: typeof TILES_HELL = DUNKEL ? TILES_DUNKEL : TILES_HELL;
 export type TileTint = keyof typeof tiles;
 
 export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 };

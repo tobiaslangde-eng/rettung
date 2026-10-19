@@ -171,12 +171,12 @@ Die Oberfläche passt sich an die Bildschirmgröße an:
 - **Leitstelle spielen**, **Fehler finden**, **Handgriff-Labor** mit 8 Übungen (Druckverband, Seitenlage, Bewusstsein und Atmung prüfen, Verbrennung, Armschlinge, Verschlucken, Tourniquet, Rettungsdecke).
 - **Stadtkarte** mit Orten, Staus und Baustellen: zwei Routen zur Wahl, Bonus fürs Umfahren.
 - **Spickzettel** je Rolle, **Ergebnis als Bild teilen**, **Sprachausgabe** beim Notruf (Browser-Stimme, abschaltbar).
-- **Darstellung** (Mehr): größere Schrift und dunkler Modus (Beta, nur Web) sowie **Rückmeldung geben**.
+- **Darstellung** (Mehr): Farbmodus Auto/Hell/Dunkel (Auto folgt dem Gerät) und größere Schrift (nur Web) sowie **Rückmeldung geben**.
 - Nicht enthalten: eine englische Version (Texte und medizinische Inhalte sind durchgehend deutsch).
 
 ## Design „Puls“
 
-Hell, frisch und klinisch-sauber: ein **Bento-Raster** aus bunten Pastell-Kacheln auf Mintweiß, tiefes Petrolgrün als Tinte, **Teal** für Ersthelfer/innen und **Signalrot** für Sanitäter/innen. Medizinischer Touch durch EKG-Papier mit Herzschlag-Linie, Zahlen wie auf dem Patientenmonitor und Kreuz-Motive. Überschriften in *Bricolage Grotesque*, Lesetext in *Inter*. Details: [`docs/DESIGN.md`](docs/DESIGN.md). Frühere Varianten zum Vergleich: `/vorschau/leitstelle/` (dunkel) und `/vorschau/klar/` (hell, schlicht).
+Hell oder dunkel (echtes Farbsystem in `src/theme.ts`, Wechsel unter „Mehr“), frisch und klinisch-sauber: ein **Bento-Raster** aus bunten Pastell-Kacheln auf Mintweiß, tiefes Petrolgrün als Tinte, **Teal** für Ersthelfer/innen und **Signalrot** für Sanitäter/innen. Medizinischer Touch durch EKG-Papier mit Herzschlag-Linie, Zahlen wie auf dem Patientenmonitor und Kreuz-Motive. Überschriften in *Bricolage Grotesque*, Lesetext in *Inter*. Details: [`docs/DESIGN.md`](docs/DESIGN.md). Die Startseite ist ein „Heute“-Hub: Hauptaktion zuerst, Schnellzugriff-Leiste (Karte, Schicht, Duell, Spickzettel, Urkunden), empfohlene Trainings; das Training ist in Gruppen geordnet. Frühere Varianten zum Vergleich: `/vorschau/leitstelle/` und `/vorschau/klar/`.
 
 **Mein Hilfspunkt (Ersthelfer/in):** Das Gegenstück zur Wache – ein Vereinsheim als Erste-Hilfe-Stützpunkt mit Hausapotheke, Erste-Hilfe-Raum, Defi-Station, Helfer-Netzwerk und Kursraum (je drei Stufen). Jeder Bereich wirkt in Notfällen und Trainings. Auch die Auto-Ausrüstung hat für jede Stufe eine eigene Grafik.
 

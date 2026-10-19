@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 1,
   },
-  schemaNumText: { fontFamily: fonts.displayBlack, fontSize: 12, color: colors.ink },
+  schemaNumText: { fontFamily: fonts.displayBlack, fontSize: 12, color: colors.onBright },
   legend: { gap: 8 },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   legendDot: { width: 18, height: 18, borderRadius: 6, borderWidth: 1, borderColor: colors.line },

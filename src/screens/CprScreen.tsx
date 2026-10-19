@@ -184,8 +184,8 @@ export function CprScreen({
                   accessibilityState={{ selected: withGuide === on }}
                   style={[styles.toggle, withGuide === on && styles.toggleActive]}
                 >
-                  <Text style={styles.toggleLabel}>{on ? 'An' : 'Aus'}</Text>
-                  <Text style={styles.toggleSub}>{on ? `bis ${CPR_POINTS} Punkte` : `bis ${CPR_POINTS * 2} Punkte`}</Text>
+                  <Text style={[styles.toggleLabel, withGuide === on && { color: colors.onBright }]}>{on ? 'An' : 'Aus'}</Text>
+                  <Text style={[styles.toggleSub, withGuide === on && { color: colors.onBright }]}>{on ? `bis ${CPR_POINTS} Punkte` : `bis ${CPR_POINTS * 2} Punkte`}</Text>
                 </Tap>
               ))}
             </View>
