@@ -165,6 +165,15 @@ Die Oberfläche passt sich an die Bildschirmgröße an:
 - **Stadtkarte** (Startseite): Auf einer Karte erscheinen drei Einsätze mit Anfahrtszeit. Wer den Einsatz mit der kürzesten Anfahrt wählt, bekommt +10 Punkte. Das Fahrzeug fährt über die Straßen, danach startet der Einsatz; nach dem Einsatz geht es zurück zur Karte.
 - **Urkunden** (Startseite): Für Ränge und große Ziele gibt es Urkunden mit eigenem Namen (Ersthelfer: Kurs, Prüfung, Hilfspunkt, Herzdruck, Gefahren-Check, Karte; Sanitäter: Ausbildung, Detektiv, Großeinsatz, Wache u. a.). Als Bild speichern oder teilen. Auf jeder Urkunde steht, dass sie eine Spiel-Urkunde ist und keine Ausbildung ersetzt.
 
+## Weitere Spielmodi und Werkzeuge
+
+- **Tagesserie** mit Belohnung, **Schichtmodus** (vier Einsätze am Stück mit Dienstbilanz), **Duell mit Freunden** (gleiche fünf Fragen per Link, ohne Server).
+- **Leitstelle spielen**, **Fehler finden**, **Handgriff-Labor** mit 8 Übungen (Druckverband, Seitenlage, Bewusstsein und Atmung prüfen, Verbrennung, Armschlinge, Verschlucken, Tourniquet, Rettungsdecke).
+- **Stadtkarte** mit Orten, Staus und Baustellen: zwei Routen zur Wahl, Bonus fürs Umfahren.
+- **Spickzettel** je Rolle, **Ergebnis als Bild teilen**, **Sprachausgabe** beim Notruf (Browser-Stimme, abschaltbar).
+- **Darstellung** (Mehr): größere Schrift und dunkler Modus (Beta, nur Web) sowie **Rückmeldung geben**.
+- Nicht enthalten: eine englische Version (Texte und medizinische Inhalte sind durchgehend deutsch).
+
 ## Design „Puls“
 
 Hell, frisch und klinisch-sauber: ein **Bento-Raster** aus bunten Pastell-Kacheln auf Mintweiß, tiefes Petrolgrün als Tinte, **Teal** für Ersthelfer/innen und **Signalrot** für Sanitäter/innen. Medizinischer Touch durch EKG-Papier mit Herzschlag-Linie, Zahlen wie auf dem Patientenmonitor und Kreuz-Motive. Überschriften in *Bricolage Grotesque*, Lesetext in *Inter*. Details: [`docs/DESIGN.md`](docs/DESIGN.md). Frühere Varianten zum Vergleich: `/vorschau/leitstelle/` (dunkel) und `/vorschau/klar/` (hell, schlicht).

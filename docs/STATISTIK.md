@@ -17,6 +17,8 @@ Besuche pro Tag/Woche, Herkunft (Referrer), Geräte, Browser, Länder.
 | `schwierigkeit-leicht/mittel/schwer` | Schwierigkeit umgestellt |
 | `einsatz-gestartet` / `einsatz-beendet` | Einsatz begonnen bzw. zu Ende gespielt (Unterschied = Abbrüche) |
 | `stadtkarte-einsatz` | Einsatz über die Stadtkarte gestartet |
+| `stadtkarte-stau-umfahren` | Auf der Stadtkarte die schnellere Route gewählt |
+| `labor-<übung>` | Eine Übung im Handgriff-Labor geschafft (z. B. `labor-druckverband`, `labor-tourniquet`) |
 | `training-<name>` | Training geöffnet (z. B. `training-gefahr`, `training-cpr`) |
 | `gefahren-check-beendet` | Gefahren-Check-Runde zu Ende gespielt |
 | `kapitel-NN-geschafft` | Kapitel der Geschichte abgeschlossen |

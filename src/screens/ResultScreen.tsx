@@ -1,5 +1,8 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { TeilenKnopf } from '../components/TeilenKnopf';
 import { Button, Card, Eyebrow, TopBar } from '../components/UI';
+import { ergebnisKarteSvg } from '../game/karten';
+import { useRolle } from '../game/rolle';
 import { EcgStrip, RankBadge, RatingStar } from '../components/Ems';
 import { INCIDENTS } from '../data/incidents';
 import { VITAL_BY_ID, formatVital, rateVital } from '../data/vitals';
@@ -35,6 +38,7 @@ export function ResultScreen({
 }) {
   const c = run.medCase;
   const L = useLayout();
+  const rolleId = useRolle().id;
   const diff = DIFFICULTY_BY_ID[run.difficulty];
   const outcome = conditionOutcome(run.condition, c.patient.name.split(' ')[0]);
   return (
@@ -219,6 +223,22 @@ export function ResultScreen({
         />
         <View style={L.wide ? styles.buttonsWide : styles.buttons}>
           <Button label="Nächster Einsatz" variant="alarm" onPress={onNext} style={L.wide && { flex: 1 }} />
+          <TeilenKnopf
+            art="ergebnis"
+            titel="Mein Einsatzbericht"
+            dateiname="einsatz-ergebnis.png"
+            svg={() =>
+              ergebnisKarteSvg({
+                rolle: rolleId,
+                kicker: 'Einsatz geschafft',
+                titel: PRAISE[result.stars],
+                ort: c.location,
+                sterne: result.stars,
+                punkte: result.total,
+                zeilen: [`${diff.label} ${diff.icon}`, streak >= 2 ? `🔥 ${streak}er-Serie` : ''].filter(Boolean),
+              })
+            }
+          />
           <Button label="Zum Hauptmenü" variant="outline" onPress={onHome} style={L.wide && { flex: 1 }} />
         </View>
       </ScrollView>

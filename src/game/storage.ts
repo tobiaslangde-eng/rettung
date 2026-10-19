@@ -105,6 +105,25 @@ export interface Progress {
   spielerName: string;
   /** Stadtkarte: angefahrene Einsätze */
   kartenEinsaetze: number;
+  /** Wie oft die schnellere Route gewählt wurde (Staus umfahren) */
+  kartenRouten: number;
+  /** Tagesserie: Meilensteine (Tage), für die die Belohnung schon vergeben wurde */
+  serieBelohnt: number[];
+  /** Leitstelle spielen: gelöste Szenarien (IDs) */
+  leitstelleGeschafft: string[];
+  /** Fehler finden: gelöste Szenarien (IDs) */
+  fehlerGeschafft: string[];
+  /** Interaktive Handgriffe: geschaffte Übungen (IDs) */
+  laborGeschafft: string[];
+  /** Schichtmodus: abgeschlossene Schichten */
+  schichten: number;
+  /** Duell: gespielte Duelle und Siege */
+  duellGespielt: number;
+  duellSiege: number;
+  /** Spickzettel, die schon gespeichert oder geöffnet wurden (IDs) */
+  spickGesehen: string[];
+  /** Rückmeldung wurde schon gegeben */
+  feedbackGegeben: boolean;
 }
 
 export const EMPTY_PROGRESS: Progress = {
@@ -151,6 +170,16 @@ export const EMPTY_PROGRESS: Progress = {
   urkundenDatum: {},
   spielerName: '',
   kartenEinsaetze: 0,
+  kartenRouten: 0,
+  serieBelohnt: [],
+  leitstelleGeschafft: [],
+  fehlerGeschafft: [],
+  laborGeschafft: [],
+  schichten: 0,
+  duellGespielt: 0,
+  duellSiege: 0,
+  spickGesehen: [],
+  feedbackGegeben: false,
 };
 
 export async function loadProgress(rolle: Rolle): Promise<Progress> {

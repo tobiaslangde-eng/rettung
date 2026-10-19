@@ -4,10 +4,10 @@ import { Rolle } from './rolle';
 import { Progress } from './storage';
 
 /** Was der Knopf eines Kapitels öffnet */
-export type StoryAktion = 'einsatz' | 'wissen' | 'schritte' | 'cpr' | 'garage' | 'detektiv' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack' | 'handgriffe' | 'mythen' | 'aed' | 'pruefung' | 'gefahr' | 'rolle';
+export type StoryAktion = 'einsatz' | 'wissen' | 'schritte' | 'cpr' | 'garage' | 'detektiv' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack' | 'handgriffe' | 'mythen' | 'aed' | 'pruefung' | 'gefahr' | 'leitstelle' | 'fehler' | 'labor' | 'rolle';
 
 /** Bereiche, die durch die Geschichte nach und nach freigeschaltet werden */
-export type Bereich = 'einsatz' | 'wissen' | 'schritte' | 'cpr' | 'garage' | 'detektiv' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack' | 'handgriffe' | 'mythen' | 'aed' | 'pruefung' | 'gefahr';
+export type Bereich = 'einsatz' | 'wissen' | 'schritte' | 'cpr' | 'garage' | 'detektiv' | 'quiz' | 'manv' | 'notruf' | 'zuerst' | 'pack' | 'handgriffe' | 'mythen' | 'aed' | 'pruefung' | 'gefahr' | 'leitstelle' | 'fehler' | 'labor';
 
 export interface Kapitel {
   titel: string;
@@ -125,7 +125,7 @@ const HELFER: Kapitel[] = [
     ziel: 'Hilf bei insgesamt 6 Notfällen.',
     aktion: 'einsatz',
     stand: (p) => anteil(p.casesPlayed, 6),
-    frei: [],
+    frei: ['fehler'],
   },
   {
     titel: 'Sicher am Telefon',
@@ -133,7 +133,7 @@ const HELFER: Kapitel[] = [
     ziel: 'Schließe 5 Notruf-Szenarien ab.',
     aktion: 'notruf',
     stand: (p) => anteil(p.notrufGeschafft.length, 5),
-    frei: [],
+    frei: ['leitstelle'],
   },
   {
     titel: 'Gut ausgerüstet',
@@ -157,7 +157,7 @@ const HELFER: Kapitel[] = [
     ziel: 'Schaffe „Was zuerst?“ mit 9 von 10 und packe 4 Listen richtig.',
     aktion: 'zuerst',
     stand: (p) => (anteil(p.zuerstBest, 9) + anteil(p.packGeschafft.length, 4)) / 2,
-    frei: [],
+    frei: ['labor'],
   },
   {
     titel: 'Die Prüfung',
@@ -240,7 +240,7 @@ const SANI: Kapitel[] = [
     ziel: 'Bringe 3 Abläufe in die richtige Reihenfolge.',
     aktion: 'schritte',
     stand: (p) => anteil(p.ablaeufe.length, 3),
-    frei: ['schritte'],
+    frei: ['schritte', 'fehler'],
   },
   {
     titel: 'Der Diagnose-Krimi',
@@ -272,7 +272,7 @@ const SANI: Kapitel[] = [
     ziel: 'Erreiche den Dienstgrad Notfallsanitäter/in (1.600 Punkte).',
     aktion: 'einsatz',
     stand: (p) => anteil(p.totalPoints, 1600),
-    frei: [],
+    frei: ['leitstelle'],
   },
   {
     titel: 'Praxisanleiter/in',
@@ -280,7 +280,7 @@ const SANI: Kapitel[] = [
     ziel: 'Löse 40 Detektiv-Akten und bleib im Dienst – deine Geschichte geht weiter.',
     aktion: 'detektiv',
     stand: (p) => anteil(akten(p), 40),
-    frei: [],
+    frei: ['labor'],
   },
 ];
 

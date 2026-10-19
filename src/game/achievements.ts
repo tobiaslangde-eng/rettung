@@ -4,6 +4,7 @@ import { HELFER_FAELLE } from '../data/helfer';
 import { Rolle, aktiveRolle } from './rolle';
 import { aktenListe, archiveCount, archivNachKategorie, detectiveGrades } from './detective';
 import { Progress } from './storage';
+import { LABOR_ANZAHL } from './trainings';
 
 export interface Badge {
   id: string;
@@ -258,6 +259,20 @@ export const BADGES: Badge[] = [
     title: 'Gut gepackt',
     description: '4 Packlisten richtig gepackt',
     earned: (p) => p.packGeschafft.length >= 4,
+  },
+  {
+    id: 'labor-profi',
+    icon: '🧪',
+    title: 'Handgriff-Meister',
+    description: 'Alle Übungen im Handgriff-Labor geschafft',
+    earned: (p) => p.laborGeschafft.length >= LABOR_ANZAHL,
+  },
+  {
+    id: 'staulotse',
+    icon: '🚦',
+    title: 'Staulotse',
+    description: 'Auf der Stadtkarte 5-mal Staus umfahren',
+    earned: (p) => p.kartenRouten >= 5,
   },
   {
     id: 'meister',

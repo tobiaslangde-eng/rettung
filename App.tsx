@@ -47,10 +47,23 @@ import { NotrufScreen } from './src/screens/NotrufScreen';
 import { PackScreen } from './src/screens/PackScreen';
 import { FragenScreen } from './src/screens/FragenScreen';
 import { startAnalytics, zaehle } from './src/analytics';
+import { ladeDarstellung, wendeDarstellungAn } from './src/game/darstellung';
+import { mitSerienBonus } from './src/game/serie';
+import { Toast } from './src/components/Toast';
+import { SpickScreen } from './src/screens/SpickScreen';
+import { spickNeuBeiKapitel } from './src/game/spickzettel';
 import { KarteScreen } from './src/screens/KarteScreen';
-import { KartenPin, BONUS_KUERZESTE, fuelleKarte } from './src/game/karte';
+import { KartenPin, BONUS_KUERZESTE, BONUS_ROUTE, fuelleKarte } from './src/game/karte';
 import { UrkundenScreen } from './src/screens/UrkundenScreen';
 import { mitUrkundenDatum } from './src/game/urkunden';
+import { DuellScreen } from './src/screens/DuellScreen';
+import { DuellEinladung, leseEinladung, loescheEinladung } from './src/game/duell';
+import { FeedbackScreen } from './src/screens/FeedbackScreen';
+import { SchichtScreen } from './src/screens/SchichtScreen';
+import { SchichtStand, neueSchicht } from './src/game/schicht';
+import { LeitstelleScreen } from './src/screens/LeitstelleScreen';
+import { LaborScreen } from './src/screens/LaborScreen';
+import { FehlerScreen } from './src/screens/FehlerScreen';
 import { GefahrScreen } from './src/screens/GefahrScreen';
 import { MythenScreen } from './src/screens/MythenScreen';
 import { SchritteScreen } from './src/screens/SchritteScreen';
@@ -75,6 +88,12 @@ type Screen =
   | { name: 'handgriffe'; key: number }
   | { name: 'mythen'; key: number }
   | { name: 'gefahr'; key: number }
+  | { name: 'leitstelle'; key: number }
+  | { name: 'fehler'; key: number }
+  | { name: 'labor'; key: number }
+  | { name: 'duell'; key: number }
+  | { name: 'schicht' }
+  | { name: 'feedback' }
   | { name: 'aed'; key: number }
   | { name: 'pruefung'; key: number }
   | { name: 'rolle' }
@@ -84,6 +103,7 @@ type Screen =
   | { name: 'hilfspunkt' }
   | { name: 'urkunden' }
   | { name: 'karte' }
+  | { name: 'spick' }
   | { name: 'dev' }
   | { name: 'case'; medCase: MedCase; daily: boolean; key: number }
   | {
@@ -114,8 +134,15 @@ const FRAME_MAX: Partial<Record<Screen['name'], number>> = {
   handgriffe: 760,
   mythen: 760,
   gefahr: 760,
+  leitstelle: 760,
+  fehler: 760,
+  labor: 760,
+  duell: 760,
+  schicht: 760,
+  feedback: 760,
   urkunden: 760,
   karte: 760,
+  spick: 760,
   aed: 760,
   pruefung: 760,
   helfer: 820,
@@ -131,6 +158,7 @@ const TAB_OF: Partial<Record<Screen['name'], TabId>> = {
   hilfspunkt: 'garage',
   urkunden: 'home',
   karte: 'home',
+  spick: 'home',
   lexikon: 'lexikon',
   guide: 'guide',
   dev: 'guide',
@@ -144,6 +172,7 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   hilfspunkt: 'hilfspunkt',
   urkunden: 'urkunden',
   karte: 'karte',
+  spick: 'spick',
   manv: 'manv',
   detektiv: 'detektiv',
   schritte: 'schritte',
@@ -153,6 +182,12 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   handgriffe: 'handgriffe',
   mythen: 'mythen',
   gefahr: 'gefahr',
+  leitstelle: 'leitstelle',
+  fehler: 'fehler',
+  labor: 'labor',
+  duell: 'home',
+  schicht: 'home',
+  feedback: 'home',
   aed: 'aed',
   pruefung: 'pruefung',
   helfer: 'home',
@@ -188,12 +223,31 @@ export default function App() {
   const [rolle, setRolle] = useState<Rolle | null | undefined>(undefined);
   useEffect(() => {
     startAnalytics();
+    wendeDarstellungAn(ladeDarstellung());
+    einladung.current = leseEinladung();
+    if (einladung.current) loescheEinladung();
   }, []);
   const lastCaseId = useRef<string | undefined>(undefined);
   // Stadtkarte: offene Einsätze, Rückkehr zur Karte nach dem Einsatz und Bonus für kurze Anfahrt
+  // Kurze Meldung oben (z. B. Serie, neue Urkunde)
+  const [meldung, setMeldung] = useState<string | null>(null);
+  const meldeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const melde = (t: string) => {
+    setMeldung(t);
+    if (meldeTimer.current) clearTimeout(meldeTimer.current);
+    meldeTimer.current = setTimeout(() => setMeldung(null), 4500);
+  };
+  // Duell: Einladung aus dem Link (nur Web) – wird geöffnet, sobald Rolle und Spielweise gewählt sind
+  const einladung = useRef<DuellEinladung | null>(null);
+  const [duellEinladung, setDuellEinladung] = useState<DuellEinladung | null>(null);
+  const schichtRueck = useRef(false);
+  const abschlussRef = useRef(false);
+  const [schicht, setSchicht] = useState<SchichtStand | null>(null);
   const [kartenPins, setKartenPins] = useState<KartenPin[]>([]);
   const karteRueck = useRef(false);
   const karteBonus = useRef(0);
+  const karteBonusText = useRef('');
+  const karteRoute = useRef(false);
   // Spiel-Logik (Ränge, Ausrüstung, Abzeichen) richtet sich nach der aktiven Rolle
   setAktiveRolle(rolle ?? 'sani');
   const aktiv: Rolle = rolle ?? 'sani';
@@ -228,10 +282,8 @@ export default function App() {
     setScreen({ name: 'home' });
   };
 
-  const startCase = (daily = false) => {
+  const startCaseIntern = (daily = false) => {
     zaehle('einsatz-gestartet');
-    karteRueck.current = false;
-    karteBonus.current = 0;
     if (aktiv === 'helfer') {
       const fall = daily ? dailyHelferFall() : pickHelferFall(progress, lastCaseId.current);
       lastCaseId.current = fall.id;
@@ -241,6 +293,27 @@ export default function App() {
     lastCaseId.current = medCase.id;
     setScreen({ name: 'case', medCase, daily, key: Date.now() });
   };
+  const startCase = (daily = false) => {
+    karteRueck.current = false;
+    karteBonus.current = 0;
+    karteRoute.current = false;
+    schichtRueck.current = false;
+    startCaseIntern(daily);
+  };
+  // Schichtmodus: mehrere Einsätze hintereinander mit Check-Fragen dazwischen
+  const schichtEinsatz = () => {
+    karteRueck.current = false;
+    karteBonus.current = 0;
+    karteRoute.current = false;
+    schichtRueck.current = true;
+    startCaseIntern(false);
+  };
+  const schichtStart = () => {
+    setSchicht(neueSchicht());
+    schichtRueck.current = false;
+    abschlussRef.current = false;
+    schichtEinsatz();
+  };
 
   /** Speichert neuen Fortschritt inkl. Abzeichen und Wochenpunkten; liefert neue Abzeichen, ggf. Beförderung und Wochenrekord. */
   const commit = (updated: Progress) => {
@@ -248,7 +321,10 @@ export default function App() {
     const newBadges = awarded.newBadges;
     const earned = Math.max(0, awarded.progress.totalPoints - progress.totalPoints);
     const week = addWeekPoints(awarded.progress, earned);
-    const next = mitUrkundenDatum(aktiv, { ...week.progress, budget: week.progress.budget + earned });
+    const mitBudget = { ...week.progress, budget: week.progress.budget + earned };
+    const serie = mitSerienBonus(mitBudget);
+    if (serie.bonus > 0) melde(`🔥 ${serie.tage} Tage in Folge! +${serie.bonus} Punkte`);
+    const next = mitUrkundenDatum(aktiv, serie.progress);
     const before = rankFor(progress.totalPoints).rank;
     const after = rankFor(next.totalPoints).rank;
     setProgress(next);
@@ -264,6 +340,7 @@ export default function App() {
     zaehle('einsatz-beendet');
     const scored = scoreRun(run, progress.streak);
     const result: ScoreResult = { ...scored, lines: [...scored.lines] };
+    if (schichtRueck.current) setSchicht((st) => (st ? { ...st, sterne: [...st.sterne, scored.stars] } : st));
     const { pointsPct } = equipmentEffects(progress);
     if (pointsPct > 0) {
       const extra = Math.round((scored.total * pointsPct) / 100);
@@ -279,7 +356,7 @@ export default function App() {
       result.total += extra;
     }
     if (karteBonus.current > 0) {
-      result.lines.push({ label: 'Kürzeste Anfahrt gewählt', points: karteBonus.current });
+      result.lines.push({ label: karteBonusText.current, points: karteBonus.current });
       result.total += karteBonus.current;
       karteBonus.current = 0;
     }
@@ -305,6 +382,7 @@ export default function App() {
       perfectRuns: progress.perfectRuns + (result.stars === 3 ? 1 : 0),
       hardWins: progress.hardWins + (run.difficulty === 'schwer' && result.stars >= 2 ? 1 : 0),
       kartenEinsaetze: progress.kartenEinsaetze + (karteRueck.current ? 1 : 0),
+      kartenRouten: progress.kartenRouten + (karteRoute.current ? 1 : 0),
     };
     const { newBadges, promotion, weekRecord } = commit(updated);
     setScreen({
@@ -328,6 +406,7 @@ export default function App() {
   /** Ersthelfer-Notfall abgeschlossen: Punkte, Sterne, Tagesziel */
   const finishHelfer = (e: HelferErgebnis, punkte: number, daily: boolean): HelferAbschluss => {
     zaehle('einsatz-beendet');
+    if (schichtRueck.current) setSchicht((st) => (st ? { ...st, sterne: [...st.sterne, e.sterne] } : st));
     const day = registerDailyCase(progress, daily);
     const kb = karteBonus.current;
     karteBonus.current = 0;
@@ -341,6 +420,7 @@ export default function App() {
       bestStars: { ...progress.bestStars, [e.fallId]: Math.max(progress.bestStars[e.fallId] ?? 0, e.sterne) },
       perfectRuns: progress.perfectRuns + (e.sterne === 3 ? 1 : 0),
       kartenEinsaetze: progress.kartenEinsaetze + (karteRueck.current ? 1 : 0),
+      kartenRouten: progress.kartenRouten + (karteRoute.current ? 1 : 0),
     });
     return { punkte: total, ausruestung: 0, goalBonus: day.goalBonus, newBadges, promotion };
   };
@@ -378,6 +458,8 @@ export default function App() {
   const storyDone = () => {
     zaehle('kapitel-' + String(progress.story + 1).padStart(2, '0') + '-geschafft');
     commit({ ...progress, story: progress.story + 1, totalPoints: progress.totalPoints + KAPITEL_BONUS });
+    const neuSpick = spickNeuBeiKapitel(aktiv, progress.story + 2);
+    if (neuSpick.length > 0) melde(`📌 Neuer Spickzettel: ${neuSpick[0].titel}`);
   };
 
   const storyAktion = (a: StoryAktion) => {
@@ -464,6 +546,10 @@ export default function App() {
   };
 
   const home = () => {
+    if (schichtRueck.current) {
+      schichtRueck.current = false;
+      return setScreen({ name: 'schicht' });
+    }
     if (karteRueck.current) {
       karteRueck.current = false;
       setKartenPins(fuelleKarte(aktiv, progress, kartenPins, lastCaseId.current));
@@ -477,11 +563,14 @@ export default function App() {
     setScreen({ name: 'karte' });
   };
   /** Einsatz von der Karte starten */
-  const fahreEinsatz = (pin: KartenPin, kuerzeste: boolean) => {
+  const fahreEinsatz = (pin: KartenPin, bonus: { kuerzeste: boolean; route: boolean }) => {
     zaehle('einsatz-gestartet');
     zaehle('stadtkarte-einsatz');
+    if (bonus.route) zaehle('stadtkarte-stau-umfahren');
     karteRueck.current = true;
-    karteBonus.current = kuerzeste ? BONUS_KUERZESTE : 0;
+    karteBonus.current = (bonus.kuerzeste ? BONUS_KUERZESTE : 0) + (bonus.route ? BONUS_ROUTE : 0);
+    karteBonusText.current = bonus.kuerzeste && bonus.route ? 'Schnellster Einsatz, Staus umfahren' : bonus.route ? 'Staus clever umfahren' : 'Kürzeste Anfahrt gewählt';
+    karteRoute.current = bonus.route;
     lastCaseId.current = pin.fallId;
     setKartenPins(kartenPins.filter((q) => q.id !== pin.id));
     if (aktiv === 'helfer') {
@@ -514,12 +603,21 @@ export default function App() {
   const navigate = (t: NavTarget) => {
     if (t === 'karte') return oeffneKarte();
     if (t === 'start') return startCase();
-    if (['quiz', 'wissen', 'cpr', 'manv', 'detektiv', 'schritte', 'notruf', 'zuerst', 'pack', 'handgriffe', 'mythen', 'aed', 'pruefung', 'gefahr'].includes(t)) {
+    if (['quiz', 'wissen', 'cpr', 'manv', 'detektiv', 'schritte', 'notruf', 'zuerst', 'pack', 'handgriffe', 'mythen', 'aed', 'pruefung', 'gefahr', 'leitstelle', 'fehler', 'labor'].includes(t)) {
       zaehle('training-' + t);
       return setScreen({ name: t, key: Date.now() } as Screen);
     }
     setScreen({ name: t } as Screen);
   };
+
+  // Einladung zum Duell öffnen, sobald Rolle und Spielweise feststehen
+  useEffect(() => {
+    if (einladung.current && rolle && progress.modus !== '') {
+      setDuellEinladung(einladung.current);
+      einladung.current = null;
+      setScreen({ name: 'duell', key: Date.now() });
+    }
+  }, [rolle, progress.modus]);
 
   // Große Bildschirme: Seitenleiste links, Inhalt mittig in passender Breite
   const sidebar = win.width >= SIDEBAR_FROM;
@@ -608,6 +706,16 @@ export default function App() {
                         onModus={() => setModusOffen(true)}
                         onKarte={oeffneKarte}
                         onUrkunden={() => setScreen({ name: 'urkunden' })}
+                        onSpick={() => setScreen({ name: 'spick' })}
+                        onFeedback={() => setScreen({ name: 'feedback' })}
+                        onSchicht={() => {
+                          setSchicht(null);
+                          setScreen({ name: 'schicht' });
+                        }}
+                        onDuell={() => {
+                          setDuellEinladung(null);
+                          setScreen({ name: 'duell', key: Date.now() });
+                        }}
                         onStoryDone={storyDone}
                       />
                     )}
@@ -680,8 +788,18 @@ export default function App() {
                         onBack={back}
                       />
                     )}
+                    {screen.name === 'spick' && (
+                      <SpickScreen
+                        progress={progress}
+                        onGesehen={(id) => {
+                          if (!progress.spickGesehen.includes(id)) importProgress({ ...progress, spickGesehen: [...progress.spickGesehen, id] });
+                          zaehle('spickzettel-' + id);
+                        }}
+                        onBack={home}
+                      />
+                    )}
                     {screen.name === 'karte' && (
-                      <KarteScreen pins={kartenPins} angefahren={progress.kartenEinsaetze} onFahre={fahreEinsatz} onBack={() => setScreen({ name: 'home' })} />
+                      <KarteScreen pins={kartenPins} angefahren={progress.kartenEinsaetze} routenRichtig={progress.kartenRouten} onFahre={fahreEinsatz} onBack={() => setScreen({ name: 'home' })} />
                     )}
                     {screen.name === 'urkunden' && (
                       <UrkundenScreen
@@ -689,6 +807,89 @@ export default function App() {
                         onName={(spielerName) => importProgress({ ...progress, spielerName })}
                         onDatum={() => importProgress(mitUrkundenDatum(aktiv, progress))}
                         onBack={home}
+                      />
+                    )}
+                    {screen.name === 'feedback' && (
+                      <FeedbackScreen
+                        onFertig={() => importProgress({ ...progress, feedbackGegeben: true })}
+                        onBack={home}
+                      />
+                    )}
+                    {screen.name === 'schicht' && (
+                      <SchichtScreen
+                        stand={schicht}
+                        onStart={schichtStart}
+                        onCheck={(richtig, id) => setSchicht((st) => (st ? { ...st, checks: [...st.checks, richtig], benutzt: [...st.benutzt, id] } : st))}
+                        onWeiter={schichtEinsatz}
+                        onAbschluss={(bonus) =>
+                          commit({ ...progress, totalPoints: progress.totalPoints + bonus, schichten: progress.schichten + 1 })
+                        }
+                        onBack={() => {
+                          setSchicht(null);
+                          setScreen({ name: 'home' });
+                        }}
+                      />
+                    )}
+                    {screen.name === 'duell' && (
+                      <DuellScreen
+                        key={screen.key}
+                        einladung={duellEinladung}
+                        name={progress.spielerName}
+                        onName={(spielerName) => importProgress({ ...progress, spielerName })}
+                        onFinish={(richtig, gewonnen) =>
+                          commit({
+                            ...progress,
+                            totalPoints: progress.totalPoints + trainingPunkte(richtig * 8 + (gewonnen === true ? 15 : 0)),
+                            duellGespielt: progress.duellGespielt + 1,
+                            duellSiege: progress.duellSiege + (gewonnen === true ? 1 : 0),
+                          })
+                        }
+                        onBack={() => {
+                          setDuellEinladung(null);
+                          setScreen({ name: 'home' });
+                        }}
+                      />
+                    )}
+                    {screen.name === 'leitstelle' && (
+                      <LeitstelleScreen
+                        key={screen.key}
+                        geloest={progress.leitstelleGeschafft}
+                        onFinish={(punkte, id) =>
+                          commit({
+                            ...progress,
+                            totalPoints: progress.totalPoints + trainingPunkte(punkte),
+                            leitstelleGeschafft: id ? [...new Set([...progress.leitstelleGeschafft, id])] : progress.leitstelleGeschafft,
+                          })
+                        }
+                        onBack={back}
+                      />
+                    )}
+                    {screen.name === 'labor' && (
+                      <LaborScreen
+                        key={screen.key}
+                        geloest={progress.laborGeschafft}
+                        onFinish={(punkte, id) =>
+                          commit({
+                            ...progress,
+                            totalPoints: progress.totalPoints + trainingPunkte(punkte),
+                            laborGeschafft: [...new Set([...progress.laborGeschafft, id])],
+                          })
+                        }
+                        onBack={back}
+                      />
+                    )}
+                    {screen.name === 'fehler' && (
+                      <FehlerScreen
+                        key={screen.key}
+                        geloest={progress.fehlerGeschafft}
+                        onFinish={(punkte, szenen) =>
+                          commit({
+                            ...progress,
+                            totalPoints: progress.totalPoints + trainingPunkte(punkte),
+                            fehlerGeschafft: [...new Set([...progress.fehlerGeschafft, ...szenen])],
+                          })
+                        }
+                        onBack={back}
                       />
                     )}
                     {screen.name === 'gefahr' && (
@@ -742,6 +943,7 @@ export default function App() {
                         onRolle={() => setScreen({ name: 'rolle' })}
                         onDev={() => setScreen({ name: 'dev' })}
                         onModus={(m) => importProgress({ ...progress, modus: m })}
+                        onFeedback={() => setScreen({ name: 'feedback' })}
                       />
                     )}
                     {screen.name === 'quiz' && (
@@ -807,6 +1009,7 @@ export default function App() {
             </View>
           </View>
         </SafeAreaView>
+        {meldung && <Toast text={meldung} />}
       </View>
       </RolleContext.Provider>
     </SafeAreaProvider>

@@ -13,6 +13,8 @@ import { HILF_GESAMT_MAX, hilfGesamt } from '../game/hilfspunkt';
 import { WACHE_GESAMT_MAX, wacheGesamt } from '../game/wache';
 import { useRolle } from '../game/rolle';
 import { urkundenFuer } from '../game/urkunden';
+import { spickFrei, spickFuer } from '../game/spickzettel';
+import { SERIE_MEILENSTEINE, naechsterMeilenstein } from '../game/serie';
 import { rankFor, rankList } from '../game/scoring';
 import { KAPITEL, KAPITEL_BONUS, StoryAktion, aktuellesKapitel, freiAb, istFrei } from '../game/story';
 import { Progress } from '../game/storage';
@@ -21,7 +23,20 @@ import { useLayout, useSidebar } from '../layout';
 import { colors, fonts, spacing, tiles, type } from '../theme';
 
 const WOCHENTAGE = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
-const MONATE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+const MONATE = [
+  'Januar',
+  'Februar',
+  'März',
+  'April',
+  'Mai',
+  'Juni',
+  'Juli',
+  'August',
+  'September',
+  'Oktober',
+  'November',
+  'Dezember',
+];
 
 /** Startseite: Geschichte, Hauptaktion, Tagesziel, Training, Fahrzeug, Profil – klar untereinander. */
 export function HomeScreen({
@@ -37,6 +52,10 @@ export function HomeScreen({
   onModus,
   onKarte,
   onUrkunden,
+  onSpick,
+  onDuell,
+  onSchicht,
+  onFeedback,
 }: {
   progress: Progress;
   onStart: () => void;
@@ -55,6 +74,14 @@ export function HomeScreen({
   onKarte: () => void;
   /** Urkunden öffnen */
   onUrkunden: () => void;
+  /** Spickzettel öffnen */
+  onSpick: () => void;
+  /** Duell mit Freunden */
+  onDuell: () => void;
+  /** Schichtmodus */
+  onSchicht: () => void;
+  /** Rückmeldung geben */
+  onFeedback: () => void;
 }) {
   const L = useLayout();
   const sidebar = useSidebar();
@@ -114,9 +141,27 @@ export function HomeScreen({
       <Tile size="lg" tint="slate">
         <TileLabel icon="📈" text="Heute im Überblick" tint="teal" />
         <View style={styles.rings}>
-          <RingStat pct={rankPct} color={tiles.amber.accent} center={`${Math.round(rankPct * 100)}%`} label="Rang" sub={next ? next.de : 'Spitze'} />
-          <RingStat pct={day.cases / DAILY_GOAL} color={tiles.blue.accent} center={`${Math.min(day.cases, DAILY_GOAL)}/${DAILY_GOAL}`} label="Tagesziel" sub={r.einsatz === 'Notfall' ? 'Notfälle' : 'Einsätze'} />
-          <RingStat pct={ausbauNow / ausbauAll} color={tiles.green.accent} center={`${ausbauNow}/${ausbauAll}`} label="Ausbau" sub={helfer ? 'Hilfspunkt' : 'Wache'} />
+          <RingStat
+            pct={rankPct}
+            color={tiles.amber.accent}
+            center={`${Math.round(rankPct * 100)}%`}
+            label="Rang"
+            sub={next ? next.de : 'Spitze'}
+          />
+          <RingStat
+            pct={day.cases / DAILY_GOAL}
+            color={tiles.blue.accent}
+            center={`${Math.min(day.cases, DAILY_GOAL)}/${DAILY_GOAL}`}
+            label="Tagesziel"
+            sub={r.einsatz === 'Notfall' ? 'Notfälle' : 'Einsätze'}
+          />
+          <RingStat
+            pct={ausbauNow / ausbauAll}
+            color={tiles.green.accent}
+            center={`${ausbauNow}/${ausbauAll}`}
+            label="Ausbau"
+            sub={helfer ? 'Hilfspunkt' : 'Wache'}
+          />
         </View>
       </Tile>
     </>
@@ -135,9 +180,18 @@ export function HomeScreen({
         <ChapterPath total={KAPITEL[r.id].length} current={kap.nr - 1} accent={tiles.violet.accent} />
         <Text style={styles.storyText}>{kap.kapitel.text}</Text>
         <View style={styles.goal}>
-          <Text style={[styles.goalLabel, { color: tiles.violet.accent }]}>{kap.erfuellt ? '✓ Aufgabe erfüllt' : 'Deine Aufgabe'}</Text>
+          <Text style={[styles.goalLabel, { color: tiles.violet.accent }]}>
+            {kap.erfuellt ? '✓ Aufgabe erfüllt' : 'Deine Aufgabe'}
+          </Text>
           <Text style={type.body}>{kap.kapitel.ziel}</Text>
-          {kap.kapitel.aktion !== 'rolle' && <Bar pct={kap.kapitel.stand(progress)} color={tiles.violet.accent} track="rgba(15,42,46,0.1)" style={{ marginTop: 4 }} />}
+          {kap.kapitel.aktion !== 'rolle' && (
+            <Bar
+              pct={kap.kapitel.stand(progress)}
+              color={tiles.violet.accent}
+              track="rgba(15,42,46,0.1)"
+              style={{ marginTop: 4 }}
+            />
+          )}
         </View>
         {kap.erfuellt && kap.kapitel.aktion !== 'rolle' ? (
           <Button label={`Kapitel abschließen · +${KAPITEL_BONUS} Punkte`} onPress={onStoryDone} />
@@ -163,15 +217,27 @@ export function HomeScreen({
       <View style={styles.actionTop}>
         <View style={{ flex: 1, gap: 2 }}>
           <Text style={type.h2}>{helfer ? 'Notfall im Alltag' : 'Schicht beginnen'}</Text>
-          <Text style={type.small}>{helfer ? 'Prüfen, erkennen, richtig handeln – ohne Messgeräte.' : 'Patient untersuchen, Werte messen, richtig handeln.'}</Text>
+          <Text style={type.small}>
+            {helfer
+              ? 'Prüfen, erkennen, richtig handeln – ohne Messgeräte.'
+              : 'Patient untersuchen, Werte messen, richtig handeln.'}
+          </Text>
         </View>
-        {helfer ? <Car level={levelOf(progress, 'auto')} width={92} /> : <Ambulance level={levelOf(progress, 'rtw')} width={96} />}
+        {helfer ? (
+          <Car level={levelOf(progress, 'auto')} width={92} />
+        ) : (
+          <Ambulance level={levelOf(progress, 'rtw')} width={96} />
+        )}
       </View>
       {einsatzFrei ? (
         <>
           {!helfer && (
             <>
-              <Segmented options={DIFFICULTIES.map((d) => ({ id: d.id, label: d.label }))} value={progress.difficulty} onChange={onDifficulty} />
+              <Segmented
+                options={DIFFICULTIES.map((d) => ({ id: d.id, label: d.label }))}
+                value={progress.difficulty}
+                onChange={onDifficulty}
+              />
               <Text style={type.small}>{DIFFICULTY_BY_ID[progress.difficulty].description}</Text>
             </>
           )}
@@ -188,7 +254,9 @@ export function HomeScreen({
       <Tile size="lg" tint="pink" onPress={day.dailyCaseDone ? undefined : onDaily} accessibilityLabel={`${r.einsatz} des Tages`}>
         <TileLabel icon="⭐" text="Des Tages" tint="pink" />
         <Text style={type.headline}>{r.einsatz} des Tages</Text>
-        <Text style={type.small}>{day.dailyCaseDone ? 'Heute schon erledigt ✓' : '+50 % Punkte – jeden Tag ein neuer Fall.'}</Text>
+        <Text style={type.small}>
+          {day.dailyCaseDone ? 'Heute schon erledigt ✓' : '+50 % Punkte – jeden Tag ein neuer Fall.'}
+        </Text>
         {!day.dailyCaseDone && <Text style={[styles.go, { color: tiles.pink.accent }]}>Starten ›</Text>}
       </Tile>
     </>
@@ -216,7 +284,10 @@ export function HomeScreen({
               {!frei && <Text style={styles.lock}>🔒</Text>}
             </View>
             <View style={{ gap: 2 }}>
-              <Text style={[type.headline, { fontSize: 13.5, letterSpacing: -0.3 }, !frei && { color: colors.muted }]} numberOfLines={2}>
+              <Text
+                style={[type.headline, { fontSize: 13.5, letterSpacing: -0.3 }, !frei && { color: colors.muted }]}
+                numberOfLines={2}
+              >
                 {t.title}
               </Text>
               <Text style={styles.trainSub} numberOfLines={2}>
@@ -253,6 +324,59 @@ export function HomeScreen({
     </Tile>
   );
 
+  const spickListe = spickFuer(r.id);
+  const spickFreie = spickListe.filter((x) => spickFrei(r.id, progress, x));
+  const spickNeu = spickFreie.filter((x) => !progress.spickGesehen.includes(x.id)).length;
+  const spick = (
+    <Tile size="md" tint="teal" onPress={onSpick} accessibilityLabel="Spickzettel">
+      <TileLabel icon="📌" text="Spickzettel" tint="teal" />
+      <BigNumber value={`${spickFreie.length}`} unit={`von ${spickListe.length} frei`} size={28} />
+      <Text style={type.small}>
+        {spickNeu > 0 ? `${spickNeu} neu – zum Speichern und Teilen` : 'Merkkarten zum Speichern und Teilen'}
+      </Text>
+    </Tile>
+  );
+
+  const feedback =
+    progress.casesPlayed >= 3 && !progress.feedbackGegeben ? (
+      <Tile size="lg" tint="amber" onPress={onFeedback} accessibilityLabel="Rückmeldung geben">
+        <TileLabel icon="💬" text="Wie gefällt dir das Spiel?" tint="amber" />
+        <Text style={type.body}>Zwei kurze Fragen, ganz ohne Namen – das hilft, das Spiel besser zu machen.</Text>
+      </Tile>
+    ) : null;
+
+  const schichtKachel = (
+    <Tile
+      size="md"
+      tint="blue"
+      onPress={kartenFrei ? onSchicht : undefined}
+      disabled={!kartenFrei}
+      accessibilityLabel={helfer ? 'Bereitschaftsdienst' : 'Schicht'}
+    >
+      <TileLabel icon="⏱️" text={helfer ? 'Bereitschaftsdienst' : 'Schichtmodus'} tint="blue" />
+      {kartenFrei ? (
+        <>
+          <BigNumber
+            value={`${progress.schichten}`}
+            unit={progress.schichten === 1 ? 'Schicht geschafft' : 'Schichten geschafft'}
+            size={28}
+          />
+          <Text style={type.small}>4 Einsätze am Stück, Check-Fragen und Bilanz</Text>
+        </>
+      ) : (
+        <Text style={type.small}>Wird in Kapitel {freiAb(r.id, 'einsatz')} freigeschaltet</Text>
+      )}
+    </Tile>
+  );
+
+  const duell = (
+    <Tile size="md" tint="violet" onPress={onDuell} accessibilityLabel="Duell mit Freunden">
+      <TileLabel icon="⚔️" text="Duell mit Freunden" tint="violet" />
+      <BigNumber value={`${progress.duellSiege}`} unit={`Siege · ${progress.duellGespielt} Duelle`} size={28} />
+      <Text style={type.small}>5 Fragen, ein Link – wer schlägt dich?</Text>
+    </Tile>
+  );
+
   const urkunden = (
     <Tile size="md" tint="amber" onPress={onUrkunden} accessibilityLabel="Urkunden">
       <TileLabel icon="📜" text="Urkunden" tint="amber" />
@@ -262,7 +386,13 @@ export function HomeScreen({
   );
 
   const vehicle = (
-    <Tile size="md" tint="slate" onPress={garageFrei ? onGarage : undefined} disabled={!garageFrei} accessibilityLabel={r.fahrzeug}>
+    <Tile
+      size="md"
+      tint="slate"
+      onPress={garageFrei ? onGarage : undefined}
+      disabled={!garageFrei}
+      accessibilityLabel={r.fahrzeug}
+    >
       <TileLabel icon={helfer ? '🚗' : '🚑'} text={r.fahrzeug} tint="teal" />
       <View style={styles.actionTop}>
         <View style={{ flex: 1, gap: 4 }}>
@@ -276,13 +406,23 @@ export function HomeScreen({
             <Text style={type.small}>Wird in Kapitel {freiAb(r.id, 'garage')} freigeschaltet</Text>
           )}
         </View>
-        {helfer ? <Car level={levelOf(progress, 'auto')} width={80} /> : <Ambulance level={levelOf(progress, 'rtw')} width={84} />}
+        {helfer ? (
+          <Car level={levelOf(progress, 'auto')} width={80} />
+        ) : (
+          <Ambulance level={levelOf(progress, 'rtw')} width={84} />
+        )}
       </View>
     </Tile>
   );
 
   const ausbau = (
-    <Tile size="md" tint="slate" onPress={garageFrei ? onWache : undefined} disabled={!garageFrei} accessibilityLabel={helfer ? 'Mein Hilfspunkt' : 'Meine Rettungswache'}>
+    <Tile
+      size="md"
+      tint="slate"
+      onPress={garageFrei ? onWache : undefined}
+      disabled={!garageFrei}
+      accessibilityLabel={helfer ? 'Mein Hilfspunkt' : 'Meine Rettungswache'}
+    >
       <TileLabel icon={helfer ? '💚' : '🏥'} text={helfer ? 'Mein Hilfspunkt' : 'Meine Rettungswache'} tint="green" />
       {garageFrei ? (
         <>
@@ -293,6 +433,30 @@ export function HomeScreen({
       ) : (
         <Text style={type.small}>Wird in Kapitel {freiAb(r.id, 'garage')} freigeschaltet</Text>
       )}
+    </Tile>
+  );
+
+  const serieTage = day.streak;
+  const naechster = naechsterMeilenstein(serieTage);
+  const serie = (
+    <Tile size="md" tint="pink" accessibilityLabel="Tagesserie">
+      <TileLabel icon="🔥" text="Tagesserie" tint="pink" />
+      <BigNumber value={`${serieTage}`} unit={serieTage === 1 ? 'Tag in Folge' : 'Tage in Folge'} size={30} />
+      <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
+        {SERIE_MEILENSTEINE.map((m) => {
+          const ok = progress.bestDayStreak >= m.tage;
+          return (
+            <View key={m.tage} style={[styles.serieChip, ok && { backgroundColor: tiles.pink.accent }]}>
+              <Text style={[styles.serieChipText, ok && { color: '#fff' }]}>
+                {m.tage} T · +{m.punkte}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
+      <Text style={type.small}>
+        {naechster ? `Noch ${naechster.tage - serieTage} Tage bis +${naechster.punkte} Punkte` : 'Alle Serien-Belohnungen geholt'}
+      </Text>
     </Tile>
   );
 
@@ -307,7 +471,9 @@ export function HomeScreen({
         <View style={{ flex: 1, gap: 4 }}>
           <Text style={type.h2}>{rank.de}</Text>
           <Text style={type.small}>
-            {next ? `Noch ${(next.min - progress.totalPoints).toLocaleString('de-DE')} Punkte bis ${next.de}` : 'Höchster Rang erreicht'}
+            {next
+              ? `Noch ${(next.min - progress.totalPoints).toLocaleString('de-DE')} Punkte bis ${next.de}`
+              : 'Höchster Rang erreicht'}
           </Text>
         </View>
       </View>
@@ -315,7 +481,10 @@ export function HomeScreen({
         {badgeList.slice(0, 12).map((bd) => {
           const has = progress.badges.includes(bd.id);
           return (
-            <View key={bd.id} style={[styles.medal, has ? { backgroundColor: tiles.amber.bg, borderColor: tiles.amber.edge } : null]}>
+            <View
+              key={bd.id}
+              style={[styles.medal, has ? { backgroundColor: tiles.amber.bg, borderColor: tiles.amber.edge } : null]}
+            >
               <Text style={[styles.medalIcon, !has && { opacity: 0.25 }]}>{bd.icon}</Text>
             </View>
           );
@@ -334,10 +503,15 @@ export function HomeScreen({
         {stats}
         {story}
         {action}
+        {feedback}
+        {serie}
         {today}
         {training}
         <BentoTitle>Unterwegs</BentoTitle>
         {karte}
+        {schichtKachel}
+        {duell}
+        {spick}
         {urkunden}
         <BentoTitle>Ausbau</BentoTitle>
         {vehicle}
@@ -349,7 +523,19 @@ export function HomeScreen({
   );
 }
 
-function RingStat({ pct, color, center, label, sub }: { pct: number; color: string; center: string; label: string; sub: string }) {
+function RingStat({
+  pct,
+  color,
+  center,
+  label,
+  sub,
+}: {
+  pct: number;
+  color: string;
+  center: string;
+  label: string;
+  sub: string;
+}) {
   return (
     <View style={{ flex: 1, alignItems: 'center', gap: 4 }}>
       <Ring pct={pct} size={78} stroke={9} color={color}>
@@ -372,15 +558,35 @@ function Locked({ kapitel }: { kapitel: number }) {
 }
 
 const styles = StyleSheet.create({
+  serieChip: { borderRadius: 999, paddingHorizontal: 9, paddingVertical: 4, backgroundColor: 'rgba(255,255,255,0.75)' },
+  serieChipText: { fontFamily: fonts.semibold, fontSize: 11, color: tiles.pink.accent },
   mini: { gap: 2, paddingHorizontal: 12, paddingVertical: 14, minHeight: 104 },
   miniIcon: { fontSize: 18, fontFamily: fonts.regular },
   miniLabel: { fontFamily: fonts.semibold, fontSize: 11, letterSpacing: 0.4 },
   rings: { flexDirection: 'row', gap: 6, marginTop: 4 },
   ringLabel: { fontFamily: fonts.display, fontSize: 14 },
   medalRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  medal: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(15,42,46,0.06)', borderWidth: 1, borderColor: 'transparent', alignItems: 'center', justifyContent: 'center' },
+  medal: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(15,42,46,0.06)',
+    borderWidth: 1,
+    borderColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   medalIcon: { fontSize: 20, fontFamily: fonts.regular },
-  modusChip: { alignSelf: 'flex-start', marginTop: 8, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)', backgroundColor: 'rgba(255,255,255,0.08)' },
+  modusChip: {
+    alignSelf: 'flex-start',
+    marginTop: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
   modusText: { fontFamily: fonts.semibold, fontSize: 12, color: colors.onDark },
   content: { padding: spacing.lg, paddingBottom: spacing.xxl },
   contentWide: { padding: spacing.xl, maxWidth: 1100, alignSelf: 'center', width: '100%' },

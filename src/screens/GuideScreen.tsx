@@ -13,6 +13,8 @@ import { useRolle } from '../game/rolle';
 import { DIFFICULTIES } from '../game/difficulty';
 import { POINTS } from '../game/scoring';
 import { Progress, exportCode, importCode } from '../game/storage';
+import { Darstellung, ZOOMSTUFEN, ladeDarstellung, speichereDarstellung } from '../game/darstellung';
+import { zaehle } from '../analytics';
 import { colors, fonts, spacing, type } from '../theme';
 
 const PRIVACY_URL = 'https://tobiaslangde-eng.github.io/rettung/datenschutz.html';
@@ -113,6 +115,7 @@ export function GuideScreen({
   onRolle,
   onDev,
   onModus,
+  onFeedback,
 }: {
   progress: Progress;
   onReset: () => void;
@@ -120,7 +123,14 @@ export function GuideScreen({
   onRolle: () => void;
   onDev: () => void;
   onModus: (m: 'story' | 'frei') => void;
+  onFeedback: () => void;
 }) {
+  const [dar, setDar] = useState<Darstellung>(ladeDarstellung);
+  const setzeDar = (d: Darstellung) => {
+    setDar(d);
+    speichereDarstellung(d);
+    zaehle(d.dunkel !== dar.dunkel ? (d.dunkel ? 'dunkel-an' : 'dunkel-aus') : `zoom-${d.zoom}`);
+  };
   const [confirmReset, setConfirmReset] = useState(false);
   const r = useRolle();
   const taps = useRef<number[]>([]);
@@ -172,6 +182,31 @@ export function GuideScreen({
               : 'Kati führt dich durch Kapitel, die nach und nach neue Bereiche freischalten.'}
           </Text>
         </Card>
+        {Platform.OS === 'web' && (
+          <Card style={{ gap: spacing.sm }}>
+            <Text style={type.eyebrow}>Darstellung</Text>
+            <Text style={type.small}>Größere Schrift hilft beim Lesen unterwegs. Der dunkle Modus ist noch neu (Beta).</Text>
+            <Segmented
+              options={ZOOMSTUFEN.map((z) => ({ id: String(z), label: z === 100 ? 'Normal' : z === 115 ? 'Größer' : 'Groß' }))}
+              value={String(dar.zoom)}
+              onChange={(v) => setzeDar({ ...dar, zoom: Number(v) as Darstellung['zoom'] })}
+            />
+            <Segmented
+              options={[
+                { id: 'hell', label: '☀️ Hell' },
+                { id: 'dunkel', label: '🌙 Dunkel' },
+              ]}
+              value={dar.dunkel ? 'dunkel' : 'hell'}
+              onChange={(v) => setzeDar({ ...dar, dunkel: v === 'dunkel' })}
+            />
+          </Card>
+        )}
+        <Card style={{ gap: spacing.sm }}>
+          <Text style={type.eyebrow}>Rückmeldung</Text>
+          <Text style={type.small}>Was gefällt dir, was fehlt, was ist falsch? Sag es kurz – das hilft beim Verbessern.</Text>
+          <Button label="Rückmeldung geben" variant="outline" onPress={onFeedback} />
+        </Card>
+
         <View style={styles.intro}>
           <Pressable onPress={tippeKati} accessibilityElementsHidden importantForAccessibility="no" style={{ opacity: 1 }}>
             <KatiAvatar size={52} />

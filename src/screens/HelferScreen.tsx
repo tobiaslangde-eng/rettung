@@ -1,3 +1,5 @@
+import { TeilenKnopf } from '../components/TeilenKnopf';
+import { ergebnisKarteSvg } from '../game/karten';
 import { useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Scene, sceneFor } from '../components/Scene';
@@ -267,6 +269,21 @@ export function HelferScreen({
               <Text style={type.body}>{fall.erklaerung}</Text>
             </Card>
             <Button label="Nächster Notfall" onPress={onNext} />
+            <TeilenKnopf
+              art="ergebnis"
+              titel="Mein Notfall-Ergebnis"
+              dateiname="notfall-ergebnis.png"
+              svg={() =>
+                ergebnisKarteSvg({
+                  rolle: 'helfer',
+                  kicker: 'Notfall geschafft',
+                  titel: ergebnis.e.sterne === 3 ? 'Ausgezeichnet!' : ergebnis.e.sterne === 2 ? 'Gut gemacht!' : 'Geübt!',
+                  ort: fall.location,
+                  sterne: ergebnis.e.sterne,
+                  punkte: ergebnis.a.punkte,
+                })
+              }
+            />
             <Button label="Zur Startseite" variant="outline" onPress={onHome} />
           </>
         )}
