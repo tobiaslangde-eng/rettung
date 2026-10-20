@@ -349,7 +349,7 @@ export function GuideScreen({
           <Head icon="🔒" color={colors.lilac} title="Datenschutz" />
           <Text style={[type.small, { marginTop: spacing.sm }]}>
             Einsatz 112 sammelt keine persönlichen Daten. Der Spielstand bleibt auf diesem Gerät. Die Web-Version zählt anonym,
-            wie oft sie genutzt wird; Details und Einstellungen findest du hier.
+            wie oft sie genutzt wird. „Frag Kati“ nutzt nur nach deiner Zustimmung eine KI (die Frage wird dann an einen KI-Dienst geschickt). Details findest du hier.
           </Text>
           <Button
             label="Datenschutzerklärung"

@@ -1,10 +1,13 @@
-import { useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { zaehle } from '../analytics';
 import { KatiAvatar } from '../components/Kati';
+import { KiText } from '../components/KiText';
 import { Button, Card, Tap, TopBar } from '../components/UI';
 import { WissensKarte } from '../components/WissensKarte';
+import { KI_FEHLERTEXT, KiNachricht, frageKi, kiVerfuegbar } from '../game/ki';
 import { useRolle } from '../game/rolle';
+import { kiZustimmung, merkeKiZustimmung } from '../game/storage';
 import { BEISPIELFRAGEN, Treffer, WissensArt, istNotfallFrage, sucheWissen } from '../game/wissen';
 import { useLayout } from '../layout';
 import { colors, fonts, spacing, type } from '../theme';
@@ -12,42 +15,124 @@ import { colors, fonts, spacing, type } from '../theme';
 interface Runde {
   id: number;
   frage: string;
+  art: 'ki' | 'lokal';
+  laedt?: boolean;
+  ki?: { antwort: string; gekuerzt: boolean };
+  /** Hinweis, z. B. wenn die KI nicht erreichbar war */
+  hinweis?: string;
   treffer: Treffer[];
   notfall: boolean;
   bewertet?: 'ja' | 'nein';
+  appOffen?: boolean;
 }
 
 const KURZ: WissensArt[] = ['lexikon', 'spickzettel', 'ablauf', 'basics', 'krankheit', 'wert'];
 
+const KI_BEISPIELE: Record<'helfer' | 'sani', string[]> = {
+  helfer: [
+    'Was mache ich bei einer Verbrennung?',
+    'Wie erkenne ich einen Schlaganfall?',
+    'Mein Kind hat Fieber – was tun?',
+    'Was passiert bei einem Herzinfarkt im Körper?',
+    'Wann darf ich einen Defibrillator benutzen?',
+    'Was ist der Unterschied zwischen Ohnmacht und Bewusstlosigkeit?',
+  ],
+  sani: [
+    'Wie unterscheide ich STEMI und NSTEMI?',
+    'Was bedeutet ein SpO₂ von 90 %?',
+    'Woran erkenne ich eine Hypoglykämie?',
+    'Wie läuft das ABCDE-Schema genau?',
+    'Was ist eine Sepsis und wie erkenne ich sie?',
+    'Welche Medikamente gibt es bei Anaphylaxie?',
+  ],
+};
+
 /** Hauptantwort: bevorzugt knappe Lexikon-/Spickzettel-/Ablauf-Einträge, wenn sie fast so gut passen wie der beste Treffer */
 export function hauptTreffer(t: Treffer[]): number {
   if (t.length === 0) return 0;
-  const i = t.findIndex((x) => KURZ.includes(x.eintrag.art) && x.score >= t[0].score * 0.5);
+  const i = t.findIndex((x) => KURZ.includes(x.eintrag.art) && x.score >= t[0].score * 0.3);
   return i === -1 ? 0 : i;
 }
 
-/** „Frag Kati“: Antworten aus den Inhalten der App (kein echter KI-Chat, nichts wird gesendet) */
+/** „Frag Kati“: mit KI-Server beantwortet Kati alle Fragen rund um Medizin; ohne Server antwortet sie aus den Inhalten der App */
 export function KatiFragenScreen({ onBack }: { onBack: () => void }) {
   const L = useLayout();
   const r = useRolle();
+  const kiDa = kiVerfuegbar();
   const [text, setText] = useState('');
   const [verlauf, setVerlauf] = useState<Runde[]>([]);
+  const [zustimmung, setZustimmung] = useState<boolean | null | undefined>(undefined);
+  const [wartend, setWartend] = useState<string | null>(null);
   const nr = useRef(0);
   const scroll = useRef<ScrollView>(null);
 
-  const frage = (q: string) => {
+  useEffect(() => {
+    if (kiDa) kiZustimmung().then(setZustimmung);
+  }, [kiDa]);
+
+  const kiAn = kiDa && zustimmung === true;
+
+  const stelle = (q: string, mitKi: boolean) => {
     const f = q.trim();
     if (!f) return;
-    zaehle('kati-frage');
     const treffer = sucheWissen(r.id, f, 6);
-    setVerlauf((v) => [{ id: ++nr.current, frage: f, treffer, notfall: istNotfallFrage(f) }, ...v]);
+    const id = ++nr.current;
+    const basis: Runde = { id, frage: f, art: mitKi ? 'ki' : 'lokal', laedt: mitKi, treffer, notfall: istNotfallFrage(f) };
+    zaehle(mitKi ? 'kati-ki-frage' : 'kati-frage');
+    // Gespräch für die KI: frühere Fragen und KI-Antworten, dazu die neue Frage
+    const frueher: KiNachricht[] = [...verlauf]
+      .reverse()
+      .filter((x) => x.art === 'ki' && x.ki)
+      .slice(-3)
+      .flatMap((x): KiNachricht[] => [
+        { rolle: 'du', text: x.frage },
+        { rolle: 'kati', text: x.ki!.antwort },
+      ]);
+    setVerlauf((v) => [basis, ...v]);
     setText('');
     scroll.current?.scrollTo({ y: 0, animated: true });
+    if (!mitKi) return;
+    frageKi([...frueher, { rolle: 'du', text: f }], r.id).then((erg) => {
+      setVerlauf((v) =>
+        v.map((x) => {
+          if (x.id !== id) return x;
+          if (erg.ok) return { ...x, laedt: false, ki: { antwort: erg.antwort, gekuerzt: erg.gekuerzt } };
+          return {
+            ...x,
+            laedt: false,
+            art: 'lokal',
+            hinweis: `${KI_FEHLERTEXT[erg.fehler]} Hier die Antwort aus dem Wissen der App:`,
+          };
+        }),
+      );
+    });
   };
+
+  const frage = (q: string) => {
+    if (!q.trim()) return;
+    if (kiDa && zustimmung === null) {
+      setWartend(q.trim());
+      setText('');
+      return;
+    }
+    stelle(q, kiAn);
+  };
+
+  const entscheide = (ja: boolean) => {
+    setZustimmung(ja);
+    merkeKiZustimmung(ja);
+    zaehle(ja ? 'kati-ki-zugestimmt' : 'kati-ki-abgelehnt');
+    if (wartend) stelle(wartend, ja);
+    setWartend(null);
+  };
+
   const bewerte = (id: number, b: 'ja' | 'nein') => {
     zaehle(b === 'ja' ? 'kati-hilfreich' : 'kati-nicht-hilfreich');
     setVerlauf((v) => v.map((x) => (x.id === id ? { ...x, bewertet: b } : x)));
   };
+  const toggleApp = (id: number) => setVerlauf((v) => v.map((x) => (x.id === id ? { ...x, appOffen: !x.appOffen } : x)));
+
+  const beispiele = kiDa ? KI_BEISPIELE[r.id] : BEISPIELFRAGEN[r.id];
 
   return (
     <View style={{ flex: 1 }}>
@@ -63,13 +148,29 @@ export function KatiFragenScreen({ onBack }: { onBack: () => void }) {
             onChangeText={setText}
             onSubmitEditing={() => frage(text)}
             returnKeyType="search"
-            placeholder="Frag mich etwas, z. B. „Was tun bei Verbrennung?“"
+            placeholder={kiDa ? 'Frag Kati alles rund um Medizin …' : 'Frag mich etwas, z. B. „Was tun bei Verbrennung?“'}
             placeholderTextColor={colors.muted}
             accessibilityLabel="Frage an Kati"
             style={styles.feld}
+            multiline
           />
           <Button label="Fragen" onPress={() => frage(text)} disabled={text.trim().length < 2} style={{ alignSelf: 'stretch' }} />
         </View>
+
+        {wartend && (
+          <Card style={{ gap: spacing.sm, borderLeftColor: colors.yellow }}>
+            <Text style={type.headline}>🤖 Kati nutzt eine KI</Text>
+            <Text style={type.small}>
+              Damit Kati alle Fragen zur Medizin beantworten kann, wird deine Frage zur Beantwortung an einen KI-Dienst
+              (Anthropic, USA) geschickt – ohne Namen und ohne deinen Spielstand. Schreibe bitte keine persönlichen Daten hinein.
+              Die Antworten können Fehler enthalten und ersetzen weder Arzt noch Notruf. Mehr dazu in der Datenschutzerklärung
+              unter „Mehr“.
+            </Text>
+            <Text style={[type.small, { fontFamily: fonts.semibold }]}>Deine Frage: „{wartend}“</Text>
+            <Button label="Einverstanden, Frage stellen" onPress={() => entscheide(true)} />
+            <Button label="Nur Wissen aus der App nutzen" variant="outline" onPress={() => entscheide(false)} />
+          </Card>
+        )}
 
         {verlauf.map((rd) => {
           const hi = hauptTreffer(rd.treffer);
@@ -90,9 +191,38 @@ export function KatiFragenScreen({ onBack }: { onBack: () => void }) {
                       </Text>
                     </View>
                   )}
-                  {haupt ? (
+                  {rd.laedt ? (
+                    <Card style={styles.denkt}>
+                      <ActivityIndicator color={colors.tuerkis} />
+                      <Text style={type.body}>Kati überlegt …</Text>
+                    </Card>
+                  ) : rd.ki ? (
                     <>
-                      <Text style={type.small}>Das habe ich dazu gefunden:</Text>
+                      <Card style={{ gap: spacing.sm }}>
+                        <KiText text={rd.ki.antwort} />
+                        {rd.ki.gekuerzt && (
+                          <Text style={type.small}>Die Antwort wurde gekürzt. Frag gern nach, wenn dir etwas fehlt.</Text>
+                        )}
+                        <Text style={styles.kiHinweis}>
+                          🤖 KI-Antwort – kann Fehler enthalten. Kein Ersatz für Arzt oder Notruf 112.
+                        </Text>
+                      </Card>
+                      {haupt && (
+                        <>
+                          <Tap onPress={() => toggleApp(rd.id)} accessibilityLabel="Dazu in der App" style={styles.chip}>
+                            <Text style={styles.chipText}>
+                              {rd.appOffen
+                                ? '📘 Aus der App ausblenden'
+                                : `📘 Dazu in der App: ${haupt.eintrag.titel.slice(0, 40)}${haupt.eintrag.titel.length > 40 ? '…' : ''}`}
+                            </Text>
+                          </Tap>
+                          {rd.appOffen && <WissensKarte eintrag={haupt.eintrag} />}
+                        </>
+                      )}
+                    </>
+                  ) : haupt ? (
+                    <>
+                      <Text style={type.small}>{rd.hinweis ?? 'Das habe ich dazu gefunden:'}</Text>
                       <WissensKarte eintrag={haupt.eintrag} />
                       {weitere.length > 0 && (
                         <View style={{ gap: 6 }}>
@@ -114,34 +244,33 @@ export function KatiFragenScreen({ onBack }: { onBack: () => void }) {
                           </View>
                         </View>
                       )}
-                      {rd.bewertet ? (
-                        <Text style={type.small}>
-                          {rd.bewertet === 'ja' ? 'Danke! 🙏' : 'Danke – ich lerne daraus. Probier andere Wörter.'}
-                        </Text>
-                      ) : (
-                        <View style={styles.bewertung}>
-                          <Text style={type.small}>Hat das geholfen?</Text>
-                          <Tap onPress={() => bewerte(rd.id, 'ja')} accessibilityLabel="Hat geholfen" style={styles.daumen}>
-                            <Text style={styles.daumenText}>👍</Text>
-                          </Tap>
-                          <Tap
-                            onPress={() => bewerte(rd.id, 'nein')}
-                            accessibilityLabel="Hat nicht geholfen"
-                            style={styles.daumen}
-                          >
-                            <Text style={styles.daumenText}>👎</Text>
-                          </Tap>
-                        </View>
-                      )}
                     </>
                   ) : (
                     <Card style={{ gap: spacing.sm }}>
+                      {rd.hinweis && <Text style={type.small}>{rd.hinweis}</Text>}
                       <Text style={type.headline}>Dazu habe ich nichts gefunden 🤔</Text>
                       <Text style={type.small}>
                         Probier andere Wörter oder frag kürzer, z. B. „Verbrennung“, „Defi“ oder „Seitenlage“.
                       </Text>
                     </Card>
                   )}
+                  {!rd.laedt &&
+                    (rd.ki || haupt) &&
+                    (rd.bewertet ? (
+                      <Text style={type.small}>
+                        {rd.bewertet === 'ja' ? 'Danke! 🙏' : 'Danke – probier es mit anderen Wörtern.'}
+                      </Text>
+                    ) : (
+                      <View style={styles.bewertung}>
+                        <Text style={type.small}>Hat das geholfen?</Text>
+                        <Tap onPress={() => bewerte(rd.id, 'ja')} accessibilityLabel="Hat geholfen" style={styles.daumen}>
+                          <Text style={styles.daumenText}>👍</Text>
+                        </Tap>
+                        <Tap onPress={() => bewerte(rd.id, 'nein')} accessibilityLabel="Hat nicht geholfen" style={styles.daumen}>
+                          <Text style={styles.daumenText}>👎</Text>
+                        </Tap>
+                      </View>
+                    ))}
                 </View>
               </View>
             </View>
@@ -152,16 +281,45 @@ export function KatiFragenScreen({ onBack }: { onBack: () => void }) {
           <KatiAvatar size={36} />
           <View style={{ flex: 1, gap: spacing.sm }}>
             <Card style={{ gap: spacing.sm }}>
-              <Text style={type.body}>
-                Hi, ich bin Kati! Frag mich zu Notfällen und Erster Hilfe. Ich suche die Antwort in den Inhalten dieser App.
-              </Text>
-              <Text style={type.small}>
-                Ich bin keine echte KI und kein Arzt: Ich erfinde nichts, und deine Fragen verlassen dein Gerät nicht. Im Notfall
-                immer 112.
-              </Text>
+              {kiAn ? (
+                <>
+                  <Text style={type.body}>
+                    Hi, ich bin Kati! Frag mich alles rund um Medizin, Erste Hilfe und Rettungsdienst – ich erkläre es dir
+                    einfach.
+                  </Text>
+                  <Text style={type.small}>
+                    Meine Antworten kommen von einer KI und können Fehler enthalten. Ich ersetze keine Ärztin, keinen Arzt und
+                    keine Ausbildung. Im Notfall immer 112.
+                  </Text>
+                  <Tap
+                    onPress={() => {
+                      setZustimmung(false);
+                      merkeKiZustimmung(false);
+                      zaehle('kati-ki-abgelehnt');
+                    }}
+                    accessibilityLabel="KI ausschalten"
+                  >
+                    <Text style={styles.link}>KI ausschalten</Text>
+                  </Tap>
+                </>
+              ) : (
+                <>
+                  <Text style={type.body}>
+                    Hi, ich bin Kati! Frag mich zu Notfällen und Erster Hilfe. Ich suche die Antwort in den Inhalten dieser App.
+                  </Text>
+                  <Text style={type.small}>
+                    {kiDa
+                      ? 'Du hast die KI nicht eingeschaltet: Ich antworte nur aus dem Wissen der App, nichts verlässt dein Gerät.'
+                      : 'Ich bin keine echte KI und kein Arzt: Ich erfinde nichts, und deine Fragen verlassen dein Gerät nicht. Im Notfall immer 112.'}
+                  </Text>
+                  {kiDa && zustimmung === false && (
+                    <Button label="KI einschalten" variant="tinted" onPress={() => setZustimmung(null)} />
+                  )}
+                </>
+              )}
             </Card>
             <View style={styles.chips}>
-              {BEISPIELFRAGEN[r.id].map((b) => (
+              {beispiele.map((b) => (
                 <Tap key={b} onPress={() => frage(b)} accessibilityLabel={b} style={styles.chip}>
                   <Text style={styles.chipText}>{b}</Text>
                 </Tap>
@@ -188,6 +346,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingHorizontal: spacing.md,
     paddingVertical: 14,
+    maxHeight: 130,
   },
   du: {
     alignSelf: 'flex-end',
@@ -200,8 +359,11 @@ const styles = StyleSheet.create({
   },
   duText: { fontFamily: fonts.medium, fontSize: 15, color: colors.onBright },
   katiZeile: { flexDirection: 'row', gap: spacing.sm, alignItems: 'flex-start' },
+  denkt: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   notfall: { backgroundColor: colors.redTint, borderRadius: 14, padding: spacing.md, borderWidth: 1, borderColor: colors.red },
   notfallText: { fontFamily: fonts.bold, fontSize: 14, color: colors.redDark, lineHeight: 19 },
+  link: { fontFamily: fonts.semibold, fontSize: 13, color: colors.tuerkis },
+  kiHinweis: { fontFamily: fonts.regular, fontSize: 12, lineHeight: 16, color: colors.muted },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
     backgroundColor: colors.surface,

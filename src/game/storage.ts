@@ -240,3 +240,23 @@ export async function merkeEinfuehrungGesehen(): Promise<void> {
     // egal
   }
 }
+
+const KI_OK_KEY = 'e112.ki.ok.v1';
+
+/** Hat der Spieler der KI-Nutzung zugestimmt? (null = noch nicht gefragt) */
+export async function kiZustimmung(): Promise<boolean | null> {
+  try {
+    const v = await AsyncStorage.getItem(KI_OK_KEY);
+    return v === null ? null : v === '1';
+  } catch {
+    return null;
+  }
+}
+
+export async function merkeKiZustimmung(ja: boolean): Promise<void> {
+  try {
+    await AsyncStorage.setItem(KI_OK_KEY, ja ? '1' : '0');
+  } catch {
+    // egal
+  }
+}

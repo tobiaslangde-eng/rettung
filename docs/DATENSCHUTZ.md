@@ -13,3 +13,7 @@ der Google Play Console als Datenschutz-URL eintragen.
   Verbindungsdaten (IP-Adresse).
 
 Kontakt: https://github.com/tobiaslangde-eng/rettung/issues
+
+## Frag Kati (KI-Funktion)
+
+Nur nach ausdrücklicher Zustimmung in der App wird die eingegebene Frage (mit den letzten Nachrichten des Gesprächs) über einen eigenen Server (Cloudflare Worker, `docs/ki-server/`) an Claude von Anthropic geschickt. Name, Spielstand und Urkunden werden nicht übertragen; der Betreiber speichert keine Fragen oder Antworten. Ohne Zustimmung antwortet Kati nur aus den Inhalten der App. Aufruf und Hinweise stehen auch in `web/datenschutz.html`.
