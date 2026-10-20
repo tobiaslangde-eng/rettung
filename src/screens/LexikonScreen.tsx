@@ -8,7 +8,8 @@ import { useRolle } from '../game/rolle';
 import { CASES } from '../data/cases';
 import { CHILD_NORMS, VITALS } from '../data/vitals';
 import { WissensKarte } from '../components/WissensKarte';
-import { sucheWissen } from '../game/wissen';
+import { korrigiereFrage, sucheWissen } from '../game/wissen';
+import { MeinteDu } from './KatiFragenScreen';
 import { Progress } from '../game/storage';
 import { useLayout } from '../layout';
 import { colors, spacing, type, fonts } from '../theme';
@@ -22,6 +23,7 @@ function MitSuche({ onKati, children }: { onKati: () => void; children: ReactNod
   const [q, setQ] = useState('');
   const aktiv = q.trim().length >= 2;
   const treffer = aktiv ? sucheWissen(r.id, q, 8) : [];
+  const fix = aktiv ? korrigiereFrage(r.id, q) : null;
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.suche}>
@@ -39,6 +41,7 @@ function MitSuche({ onKati, children }: { onKati: () => void; children: ReactNod
       </View>
       {aktiv ? (
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, L.wide && { padding: spacing.xl, maxWidth: 760, alignSelf: 'center', width: '100%' }]}>
+          {fix?.geaendert && <MeinteDu text={fix.text} />}
           {treffer.length === 0 ? (
             <Card style={{ gap: spacing.sm }}>
               <Text style={type.headline}>Nichts gefunden 🤔</Text>

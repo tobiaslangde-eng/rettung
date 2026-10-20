@@ -166,14 +166,43 @@ export function istNotfallFrage(frage: string): boolean {
   return NOTFALL_WOERTER.some((w) => n.includes(w));
 }
 
-/** Unterscheiden sich zwei Wörter nur um einen Buchstaben (Tippfehler)? */
-const einFehler = (a: string, b: string): boolean => {
-  if (Math.abs(a.length - b.length) > 1) return false;
-  let i = 0;
-  while (i < a.length && i < b.length && a[i] === b[i]) i++;
-  if (a.length === b.length) return a.slice(i + 1) === b.slice(i + 1);
-  return a.length > b.length ? a.slice(i + 1) === b.slice(i) : b.slice(i + 1) === a.slice(i);
-};
+/** Abstand zweier Wörter (Einfügen, Weglassen, Ändern, Vertauschen), bricht ab, sobald er größer als `max` ist */
+function abstand(a: string, b: string, max: number): number {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  let vor2: number[] = [];
+  let vor: number[] = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const jetzt = [i];
+    let kleinst = i;
+    for (let j = 1; j <= b.length; j++) {
+      const kosten = a[i - 1] === b[j - 1] ? 0 : 1;
+      let d = Math.min(vor[j] + 1, jetzt[j - 1] + 1, vor[j - 1] + kosten);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d = Math.min(d, vor2[j - 2] + 1);
+      jetzt[j] = d;
+      if (d < kleinst) kleinst = d;
+    }
+    if (kleinst > max) return max + 1;
+    vor2 = vor;
+    vor = jetzt;
+  }
+  return vor[b.length];
+}
+
+/** Grobe Lautschrift: „fehrbrennung“ und „verbrennung“, „kreislauff“ und „kreislauf“ klingen gleich */
+function klangVon(w: string): string {
+  return w
+    .replace(/ph/g, 'f')
+    .replace(/v/g, 'f')
+    .replace(/th/g, 't')
+    .replace(/ck/g, 'k')
+    .replace(/dt/g, 't')
+    .replace(/tz/g, 'z')
+    .replace(/ai|ay|ey/g, 'ei')
+    .replace(/ie/g, 'i')
+    .replace(/([aeiou])h/g, '$1')
+    .replace(/y/g, 'i')
+    .replace(/(.)\1+/g, '$1');
+}
 
 const kuerzen = (t: string, max = 110) => (t.length > max ? t.slice(0, max - 1).trimEnd() + '…' : t);
 
@@ -194,7 +223,18 @@ function eintrag(
   };
 }
 
-const cache = new Map<Rolle, { liste: WissensEintrag[]; woerter: Map<string, number> }>();
+interface Wissen {
+  liste: WissensEintrag[];
+  woerter: Map<string, number>;
+  /** normalisiertes Wort → Schreibweise, wie sie in den Texten steht (für „Meintest du …?“) */
+  anzeige: Map<string, string>;
+  /** Lautschrift → Wörter, die so klingen */
+  klang: Map<string, string[]>;
+  /** Wörter nach Länge sortiert (für die schnelle Suche nach ähnlichen Wörtern) */
+  nachLaenge: Map<number, string[]>;
+}
+
+const cache = new Map<Rolle, Wissen>();
 
 function baue(rolle: Rolle) {
   const liste: WissensEintrag[] = [];
@@ -401,7 +441,28 @@ function baue(rolle: Rolle) {
   );
   const woerter = new Map<string, number>();
   liste.forEach((e) => new Set(e.heu.split(' ')).forEach((w) => w.length >= 3 && woerter.set(w, (woerter.get(w) ?? 0) + 1)));
-  const wert = { liste, woerter };
+  // Schreibweisen aus den Titeln zuerst (dort stehen Hauptwörter groß), dann aus den Texten
+  const anzeige = new Map<string, string>();
+  const merkeWoerter = (t: string) =>
+    (t.match(/[A-Za-zÄÖÜäöüß]{4,}/g) ?? []).forEach((w) => {
+      const k = normal(w);
+      if (!anzeige.has(k)) anzeige.set(k, w);
+    });
+  liste.forEach((e) => merkeWoerter(e.titel));
+  liste.forEach((e) => [...e.punkte, e.merke ?? ''].forEach(merkeWoerter));
+  const klang = new Map<string, string[]>();
+  const nachLaenge = new Map<number, string[]>();
+  woerter.forEach((_, w) => {
+    if (w.length < 4 || /\d/.test(w)) return;
+    const gleichLang = nachLaenge.get(w.length);
+    if (gleichLang) gleichLang.push(w);
+    else nachLaenge.set(w.length, [w]);
+    const k = klangVon(w);
+    const l = klang.get(k);
+    if (l) l.push(w);
+    else klang.set(k, [w]);
+  });
+  const wert = { liste, woerter, anzeige, klang, nachLaenge };
   cache.set(rolle, wert);
   return wert;
 }
@@ -440,13 +501,58 @@ const ART_BONUS: Record<WissensArt, number> = {
   begriff: 1,
 };
 
+const STAMM_ENDUNGEN = ['ung', 'ungen', 'en', 'e', 'n', 'er', 'es', 'keit', 'heit', 'lich', 'isch', 'ig'];
+const ENDUNGEN = ['en', 'n', 'e', 's', 'er', 'es', 'em', 't', 'st', 'te', 'ten', 'et'];
+
+const SYNONYM_WOERTER = new Set(SYNONYME.flat().flatMap((s) => s.split(' ')));
+
+/**
+ * Tippfehler ausbügeln: Wörter, die es im Wissen der App nicht gibt, werden durch das ähnlichste bekannte Wort ersetzt
+ * („verschlukt“ → „verschluckt“). `text` ist die verbesserte Frage, `geaendert` sagt, ob etwas verbessert wurde.
+ */
+export function korrigiereFrage(rolle: Rolle, frage: string): { text: string; geaendert: boolean } {
+  const { woerter, anzeige, klang, nachLaenge } = cache.get(rolle) ?? baue(rolle);
+  let geaendert = false;
+  const text = frage.replace(/[A-Za-zÄÖÜäöüß]{4,}/g, (wort) => {
+    const w = normal(wort);
+    if (w.length < 4 || FUELLWOERTER.has(w) || SYNONYM_WOERTER.has(w) || woerter.has(w)) return wort;
+    // Beugungen („Verbrennungen“, „blutet“) kennen wir schon
+    if (ENDUNGEN.some((e) => w.endsWith(e) && w.length - e.length >= 4 && woerter.has(w.slice(0, -e.length)))) return wort;
+    // Wortstämme („wiederbelebe“ für „Wiederbelebung“) auch – aber nur, wenn eine übliche Endung fehlt (nicht „schlaganfal“)
+    if (w.length >= 5 && STAMM_ENDUNGEN.some((e) => woerter.has(w + e))) return wort;
+    const grenze = w.length >= 9 ? 2 : 1;
+    let bestes = '';
+    let beste = grenze + 1;
+    let haeufig = 0;
+    const pruefe = (v: string, d: number) => {
+      const df = woerter.get(v) ?? 0;
+      if (d < beste || (d === beste && df > haeufig)) {
+        bestes = v;
+        beste = d;
+        haeufig = df;
+      }
+    };
+    for (let l = w.length - grenze; l <= w.length + grenze; l++)
+      for (const v of nachLaenge.get(l) ?? []) {
+        const d = abstand(w, v, grenze);
+        if (d <= grenze) pruefe(v, d);
+      }
+    // Klingt gleich, wird aber anders geschrieben („fehrbrennung“)
+    (klang.get(klangVon(w)) ?? []).forEach((v) => pruefe(v, Math.min(beste, 1)));
+    if (!bestes) return wort;
+    geaendert = true;
+    const neu = anzeige.get(bestes) ?? bestes;
+    return wort[0] === wort[0].toUpperCase() ? neu[0].toUpperCase() + neu.slice(1) : neu[0].toLowerCase() + neu.slice(1);
+  });
+  return { text, geaendert };
+}
+
 /** Die besten Treffer zu einer Frage (leer, wenn nichts Passendes gefunden wurde) */
 export function sucheWissen(rolle: Rolle, frage: string, max = 6): Treffer[] {
   const { liste, woerter } = cache.get(rolle) ?? baue(rolle);
-  const bs = begriffe(frage);
+  const bs = begriffe(korrigiereFrage(rolle, frage).text);
   if (bs.length === 0) return [];
   const N = liste.length;
-  const vokabular = [...woerter.keys()];
   const treffer: Treffer[] = [];
   for (const e of liste) {
     let echt = 0;
@@ -465,11 +571,6 @@ export function sucheWissen(rolle: Rolle, frage: string, max = 6): Treffer[] {
         else if (st.length >= 3 && e.stichNorm.includes(st)) s = 4 * f;
         else if (st.length >= 3 && e.heu.includes(st)) s = 2 * f;
         if (s > 0) break;
-      }
-      if (s === 0 && w.length >= 5) {
-        // kleiner Tippfehler: ähnliches Wort im Eintrag
-        const nah = vokabular.find((v) => einFehler(w, v) && e.heu.includes(v));
-        if (nah) s = 1.2;
       }
       if (s > 0) {
         ueberhaupt = true;
