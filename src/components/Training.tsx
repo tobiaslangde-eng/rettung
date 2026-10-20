@@ -122,7 +122,7 @@ export function AnswerOption({
       accessibilityLabel={text}
       style={[
         styles.answer,
-        { backgroundColor: bg, borderBottomWidth: 4, borderBottomColor: shade(state === 'idle' || state === 'dim' ? '#D9E5E0' : bg, state === 'idle' || state === 'dim' ? 0.1 : 0.22) },
+        { backgroundColor: bg, borderBottomWidth: 4, borderBottomColor: shade(state === 'idle' || state === 'dim' ? colors.line : bg, state === 'idle' || state === 'dim' ? 0.1 : 0.22) },
         state === 'dim' && { opacity: 0.45 },
         pressedIn && { transform: [{ translateY: 3 }] },
       ]}

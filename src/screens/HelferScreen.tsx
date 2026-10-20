@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Scene, sceneFor } from '../components/Scene';
 import { AnswerOption } from '../components/Training';
+import { Konfetti } from '../components/Konfetti';
 import { Button, Card, Pill, Tap, TopBar } from '../components/UI';
 import { HelferFall } from '../data/helfer';
 import { Badge } from '../game/achievements';
@@ -228,6 +229,7 @@ export function HelferScreen({
 
         {phase === 'ergebnis' && ergebnis && (
           <>
+            {(ergebnis.e.sterne === 3 || !!ergebnis.a.promotion) && <Konfetti />}
             <Card style={{ alignItems: 'center', gap: spacing.sm }}>
               <Text style={styles.stars}>{'★'.repeat(ergebnis.e.sterne) + '☆'.repeat(3 - ergebnis.e.sterne)}</Text>
               <Text style={styles.points}>+{ergebnis.a.punkte}</Text>

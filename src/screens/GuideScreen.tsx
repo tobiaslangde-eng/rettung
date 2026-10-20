@@ -13,7 +13,7 @@ import { useRolle } from '../game/rolle';
 import { DIFFICULTIES } from '../game/difficulty';
 import { POINTS } from '../game/scoring';
 import { Progress, exportCode, importCode } from '../game/storage';
-import { Darstellung, ZOOMSTUFEN, ladeDarstellung, speichereDarstellung } from '../game/darstellung';
+import { Darstellung, Farbmodus, ZOOMSTUFEN, ladeDarstellung, speichereDarstellung } from '../game/darstellung';
 import { zaehle } from '../analytics';
 import { colors, fonts, spacing, type } from '../theme';
 
@@ -129,7 +129,11 @@ export function GuideScreen({
   const setzeDar = (d: Darstellung) => {
     setDar(d);
     speichereDarstellung(d);
-    zaehle(d.dunkel !== dar.dunkel ? (d.dunkel ? 'dunkel-an' : 'dunkel-aus') : `zoom-${d.zoom}`);
+    if (d.modus !== dar.modus) {
+      zaehle(`farbmodus-${d.modus}`);
+      // Die Farben werden beim Start festgelegt: kurz neu laden
+      if (Platform.OS === 'web') setTimeout(() => location.reload(), 150);
+    } else zaehle(`zoom-${d.zoom}`);
   };
   const [confirmReset, setConfirmReset] = useState(false);
   const r = useRolle();
@@ -158,6 +162,7 @@ export function GuideScreen({
     <View style={{ flex: 1 }}>
       <TopBar kicker="Anleitung & Spielstand" title="Mehr" />
       <ScrollView contentContainerStyle={styles.content}>
+        <Text style={type.h2}>Einstellungen</Text>
         <Card style={{ gap: spacing.sm }}>
           <Text style={type.eyebrow}>Meine Rolle</Text>
           <Text style={type.h2}>
@@ -185,7 +190,7 @@ export function GuideScreen({
         {Platform.OS === 'web' && (
           <Card style={{ gap: spacing.sm }}>
             <Text style={type.eyebrow}>Darstellung</Text>
-            <Text style={type.small}>Größere Schrift hilft beim Lesen unterwegs. Der dunkle Modus ist noch neu (Beta).</Text>
+            <Text style={type.small}>Größere Schrift hilft beim Lesen unterwegs. Beim Wechsel des Farbmodus lädt die Seite kurz neu.</Text>
             <Segmented
               options={ZOOMSTUFEN.map((z) => ({ id: String(z), label: z === 100 ? 'Normal' : z === 115 ? 'Größer' : 'Groß' }))}
               value={String(dar.zoom)}
@@ -193,11 +198,12 @@ export function GuideScreen({
             />
             <Segmented
               options={[
-                { id: 'hell', label: '☀️ Hell' },
-                { id: 'dunkel', label: '🌙 Dunkel' },
+                { id: 'auto' as Farbmodus, label: '🌗 Auto' },
+                { id: 'hell' as Farbmodus, label: '☀️ Hell' },
+                { id: 'dunkel' as Farbmodus, label: '🌙 Dunkel' },
               ]}
-              value={dar.dunkel ? 'dunkel' : 'hell'}
-              onChange={(v) => setzeDar({ ...dar, dunkel: v === 'dunkel' })}
+              value={dar.modus}
+              onChange={(v) => setzeDar({ ...dar, modus: v })}
             />
           </Card>
         )}
@@ -207,6 +213,7 @@ export function GuideScreen({
           <Button label="Rückmeldung geben" variant="outline" onPress={onFeedback} />
         </Card>
 
+        <Text style={[type.h2, { marginTop: spacing.sm }]}>Anleitung</Text>
         <View style={styles.intro}>
           <Pressable onPress={tippeKati} accessibilityElementsHidden importantForAccessibility="no" style={{ opacity: 1 }}>
             <KatiAvatar size={52} />
@@ -418,7 +425,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepNumText: { fontFamily: fonts.displayBlack, fontSize: 17, color: colors.ink },
+  stepNumText: { fontFamily: fonts.displayBlack, fontSize: 17, color: colors.onBright },
   code: {
     fontFamily: fonts.mono,
     fontSize: 11,

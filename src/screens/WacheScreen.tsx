@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   },
   stufe: { fontFamily: fonts.semibold, fontSize: 12.5, color: colors.tuerkisDark, marginTop: 2 },
   pips: { flexDirection: 'row', gap: 4 },
-  pip: { width: 10, height: 10, borderRadius: 5, borderWidth: 1.5, borderColor: 'rgba(15,42,46,0.25)' },
+  pip: { width: 10, height: 10, borderRadius: 5, borderWidth: 1.5, borderColor: colors.muted },
   wirkung: { fontFamily: fonts.semibold, fontSize: 13, color: colors.inkSoft },
   fertig: { fontFamily: fonts.semibold, fontSize: 14, color: colors.mintDark },
 });

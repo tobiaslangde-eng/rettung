@@ -38,6 +38,9 @@ const html = `<title>Einsatz 112</title>
   /* Schnelles Tippen (z. B. Herzdruckmassage) soll nicht zoomen. */
   html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
   body { overflow: hidden; background: #EDF4F1; }
+  /* Dunkler Modus: gleicher Hintergrund schon vor dem Start der App (kein weißes Aufblitzen) */
+  html[data-dunkel] { color-scheme: dark; }
+  html[data-dunkel] body { background: #0A1315; }
   #root { display: flex; height: 100%; flex: 1; }
   /* Desktop-App: eigene Titelleiste zum Verschieben des Fensters */
   #titlebar { -webkit-app-region: drag; user-select: none; }
@@ -50,6 +53,7 @@ const html = `<title>Einsatz 112</title>
   }
 </style>
 <noscript>Bitte JavaScript aktivieren, um Einsatz 112 zu spielen.</noscript>
+<script>try{var d=JSON.parse(localStorage.getItem('e112.darstellung')||'{}');var m=d.modus||(d.dunkel?'dunkel':'auto');if(m==='dunkel'||(m==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.setAttribute('data-dunkel','')}catch(e){}</script>
 <div id="root"></div>
 <script>${js}</script>
 `;

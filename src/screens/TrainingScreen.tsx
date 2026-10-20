@@ -4,7 +4,7 @@ import { TopBar } from '../components/UI';
 import { useRolle } from '../game/rolle';
 import { freiAb, istFrei } from '../game/story';
 import { Progress } from '../game/storage';
-import { TrainingId, trainingsFuer } from '../game/trainings';
+import { TRAINING_GRUPPEN, TrainingId, trainingsFuer } from '../game/trainings';
 import { useLayout } from '../layout';
 import { colors, fonts, spacing, type } from '../theme';
 
@@ -12,53 +12,73 @@ import { colors, fonts, spacing, type } from '../theme';
 export function TrainingScreen({ progress, onTraining }: { progress: Progress; onTraining: (t: TrainingId) => void }) {
   const L = useLayout();
   const r = useRolle();
+  const alle = trainingsFuer(r.id, progress);
+  const gespieltGesamt = alle.filter((t) => !!t.stand).length;
   return (
     <View style={{ flex: 1 }}>
       <TopBar kicker={r.titel} title="Training" />
       <ScrollView contentContainerStyle={[styles.content, L.wide && styles.contentWide]}>
         <Text style={[type.body, { marginBottom: spacing.sm }]}>
           Übe hier in Ruhe. Jedes Training bringt Punkte – und Budget für{' '}
-          {r.id === 'helfer' ? 'dein Auto' : 'deinen Rettungswagen'}.
+          {r.id === 'helfer' ? 'dein Auto' : 'deinen Rettungswagen'}. Schon gespielt: {gespieltGesamt} von {alle.length}.
         </Text>
-        <BentoGrid>
-          {trainingsFuer(r.id, progress).map((t) => {
-            const frei = istFrei(r.id, progress, t.id);
-            return (
-              <Tile
-                key={t.id}
-                size={L.wide ? 'sm' : 'half'}
-                bg={frei ? t.farbe : colors.surface}
-                onPress={frei ? () => onTraining(t.id) : undefined}
-                disabled={!frei}
-                accessibilityLabel={t.title}
-                style={{ minHeight: 176, justifyContent: 'space-between' }}
-              >
-                <View style={styles.top}>
-                  <View style={styles.iconBox}>
-                    <Text style={[styles.icon, !frei && { opacity: 0.4 }]}>{t.icon}</Text>
-                  </View>
-                  {!frei && <Text style={styles.lock}>🔒</Text>}
+        {TRAINING_GRUPPEN.map((g) => {
+          const liste = alle.filter((t) => g.ids.includes(t.id));
+          if (liste.length === 0) return null;
+          const gespielt = liste.filter((t) => !!t.stand).length;
+          return (
+            <View key={g.titel} style={{ marginTop: spacing.md }}>
+              <View style={styles.gruppe}>
+                <View style={{ flex: 1 }}>
+                  <Text style={type.h2}>{g.titel}</Text>
+                  <Text style={type.small}>{g.text}</Text>
                 </View>
-                <View style={{ gap: 3 }}>
-                  <Text
-                    style={[type.headline, { fontSize: 15, letterSpacing: -0.3 }, !frei && { color: colors.muted }]}
-                    numberOfLines={2}
-                  >
-                    {t.title}
-                  </Text>
-                  <Text style={styles.sub} numberOfLines={3}>
-                    {t.sub}
-                  </Text>
-                  <View style={[styles.stand, { backgroundColor: frei ? 'rgba(255,255,255,0.7)' : colors.paper }]}>
-                    <Text style={[styles.standText, { color: frei ? r.akzentDunkel : colors.muted }]} numberOfLines={1}>
-                      {frei ? (t.stand ?? 'Noch nicht gespielt') : `🔒 Kapitel ${freiAb(r.id, t.id)}`}
-                    </Text>
-                  </View>
-                </View>
-              </Tile>
-            );
-          })}
-        </BentoGrid>
+                <Text style={[styles.zaehler, { color: r.akzentDunkel, backgroundColor: r.akzentTint }]}>
+                  {gespielt}/{liste.length}
+                </Text>
+              </View>
+              <BentoGrid>
+                {liste.map((t) => {
+                  const frei = istFrei(r.id, progress, t.id);
+                  return (
+                    <Tile
+                      key={t.id}
+                      size={L.wide ? 'sm' : 'half'}
+                      bg={frei ? t.farbe : colors.surface}
+                      onPress={frei ? () => onTraining(t.id) : undefined}
+                      disabled={!frei}
+                      accessibilityLabel={t.title}
+                      style={{ minHeight: 176, justifyContent: 'space-between' }}
+                    >
+                      <View style={styles.top}>
+                        <View style={styles.iconBox}>
+                          <Text style={[styles.icon, !frei && { opacity: 0.4 }]}>{t.icon}</Text>
+                        </View>
+                        {!frei ? <Text style={styles.lock}>🔒</Text> : !t.stand ? <Text style={styles.neu}>NEU</Text> : null}
+                      </View>
+                      <View style={{ gap: 3 }}>
+                        <Text
+                          style={[type.headline, { fontSize: 15, letterSpacing: -0.3 }, !frei && { color: colors.muted }]}
+                          numberOfLines={2}
+                        >
+                          {t.title}
+                        </Text>
+                        <Text style={styles.sub} numberOfLines={3}>
+                          {t.sub}
+                        </Text>
+                        <View style={[styles.stand, { backgroundColor: frei ? colors.veil : colors.paper }]}>
+                          <Text style={[styles.standText, { color: frei ? r.akzentDunkel : colors.muted }]} numberOfLines={1}>
+                            {frei ? (t.stand ?? 'Noch nicht gespielt') : `🔒 Kapitel ${freiAb(r.id, t.id)}`}
+                          </Text>
+                        </View>
+                      </View>
+                    </Tile>
+                  );
+                })}
+              </BentoGrid>
+            </View>
+          );
+        })}
       </ScrollView>
     </View>
   );
@@ -72,12 +92,32 @@ const styles = StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: 15,
-    backgroundColor: 'rgba(255,255,255,0.7)',
+    backgroundColor: colors.veil,
     alignItems: 'center',
     justifyContent: 'center',
   },
   icon: { fontSize: 24, fontFamily: fonts.regular, textAlign: 'center' },
   lock: { fontSize: 15, fontFamily: fonts.regular },
+  neu: {
+    fontFamily: fonts.extrabold,
+    fontSize: 10,
+    letterSpacing: 0.8,
+    color: colors.onBright,
+    backgroundColor: colors.yellow,
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    overflow: 'hidden',
+  },
+  gruppe: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingHorizontal: 2, paddingBottom: spacing.xs },
+  zaehler: {
+    fontFamily: fonts.bold,
+    fontSize: 12.5,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    overflow: 'hidden',
+  },
   sub: { fontFamily: fonts.regular, fontSize: 12, lineHeight: 16, color: colors.inkSoft },
   stand: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3, marginTop: 2 },
   standText: { fontFamily: fonts.semibold, fontSize: 11.5 },

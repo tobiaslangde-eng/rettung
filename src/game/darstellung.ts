@@ -1,10 +1,12 @@
 import { Platform } from 'react-native';
 
-/** Anzeige-Einstellungen der Web-Version: dunkler Modus und größere Darstellung */
+/** Anzeige-Einstellungen der Web-Version: Farbmodus (hell, dunkel, automatisch) und größere Darstellung */
 const SCHLUESSEL = 'e112.darstellung';
 
+export type Farbmodus = 'hell' | 'dunkel' | 'auto';
+
 export interface Darstellung {
-  dunkel: boolean;
+  modus: Farbmodus;
   /** 100, 115 oder 130 (Prozent) */
   zoom: 100 | 115 | 130;
 }
@@ -12,19 +14,33 @@ export interface Darstellung {
 export const ZOOMSTUFEN: Darstellung['zoom'][] = [100, 115, 130];
 
 export function ladeDarstellung(): Darstellung {
-  const standard: Darstellung = { dunkel: false, zoom: 100 };
+  const standard: Darstellung = { modus: 'auto', zoom: 100 };
   if (Platform.OS !== 'web') return standard;
   try {
     const roh = localStorage.getItem(SCHLUESSEL);
     if (!roh) return standard;
     const d = JSON.parse(roh);
-    return { dunkel: d.dunkel === true, zoom: ZOOMSTUFEN.includes(d.zoom) ? d.zoom : 100 };
+    // ältere Version kannte nur „dunkel: ja/nein“
+    const modus: Farbmodus = d.modus === 'hell' || d.modus === 'dunkel' || d.modus === 'auto' ? d.modus : d.dunkel ? 'dunkel' : 'hell';
+    return { modus, zoom: ZOOMSTUFEN.includes(d.zoom) ? d.zoom : 100 };
   } catch {
     return standard;
   }
 }
 
-/** Wendet die Einstellung auf die Seite an (nur Web) */
+/** Soll dunkel gezeichnet werden? (Bei „automatisch“ entscheidet das Gerät) */
+export function istDunkel(): boolean {
+  if (Platform.OS !== 'web') return false;
+  const { modus } = ladeDarstellung();
+  if (modus !== 'auto') return modus === 'dunkel';
+  try {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  } catch {
+    return false;
+  }
+}
+
+/** Wendet die Größe auf die Seite an (nur Web); die Farben gelten beim Start */
 export function wendeDarstellungAn(d: Darstellung) {
   if (Platform.OS !== 'web' || typeof document === 'undefined') return;
   let stil = document.getElementById('e112-darstellung') as HTMLStyleElement | null;
@@ -33,13 +49,7 @@ export function wendeDarstellungAn(d: Darstellung) {
     stil.id = 'e112-darstellung';
     document.head.appendChild(stil);
   }
-  const dunkel = d.dunkel
-    ? 'html{background:#fff;filter:invert(1) hue-rotate(180deg);}' +
-      'img,video,canvas{filter:invert(1) hue-rotate(180deg);}' +
-      'html{color-scheme:dark;}'
-    : '';
-  const zoom = d.zoom !== 100 ? `#root{zoom:${d.zoom / 100};}` : '';
-  stil.textContent = dunkel + zoom;
+  stil.textContent = d.zoom !== 100 ? `#root{zoom:${d.zoom / 100};}` : '';
 }
 
 export function speichereDarstellung(d: Darstellung) {

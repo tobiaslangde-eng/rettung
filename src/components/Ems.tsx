@@ -238,7 +238,7 @@ export function RatingStar({ size = 32, filled }: { size?: number; filled: boole
       <Polygon
         points={pts}
         fill={filled ? colors.yellow : 'rgba(255,255,255,0.14)'}
-        stroke={filled ? colors.ink : 'rgba(255,255,255,0.6)'}
+        stroke={filled ? colors.outline : 'rgba(255,255,255,0.6)'}
         strokeWidth={filled ? 2.2 : 1.5}
         strokeLinejoin="round"
       />
@@ -286,11 +286,11 @@ export function RankBadge({ size = 72, level, maxLevel = 7 }: { size?: number; l
   });
   return (
     <Svg width={size} height={size}>
-      <Circle cx={c} cy={c} r={c - sw / 2} fill={tier} stroke={colors.ink} strokeWidth={sw} />
-      {arms(colors.ink, o)}
+      <Circle cx={c} cy={c} r={c - sw / 2} fill={tier} stroke={colors.outline} strokeWidth={sw} />
+      {arms(colors.outline, o)}
       {arms(colors.white)}
       {size >= 32 && (
-        <G stroke={colors.ink} strokeLinecap="round" fill="none">
+        <G stroke={colors.outline} strokeLinecap="round" fill="none">
           <Line x1={c} y1={top} x2={c} y2={bottom} strokeWidth={stroke} />
           <Path
             d={`M ${c - s * 0.065} ${bottom - len * 0.08} C ${c + s * 0.13} ${bottom - len * 0.2}, ${c - s * 0.13} ${c + shift - len * 0.02}, ${
@@ -307,8 +307,8 @@ export function RankBadge({ size = 72, level, maxLevel = 7 }: { size?: number; l
             cx={p.x}
             cy={p.y}
             r={size * 0.034}
-            fill={p.on ? colors.ink : 'transparent'}
-            stroke={colors.ink}
+            fill={p.on ? colors.outline : 'transparent'}
+            stroke={colors.outline}
             strokeOpacity={p.on ? 1 : 0.35}
             strokeWidth={Math.max(1, size * 0.012)}
           />

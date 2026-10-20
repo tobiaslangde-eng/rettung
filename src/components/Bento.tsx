@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { ReactNode, useEffect, useRef } from 'react';
+import { Animated, Easing, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import Svg, { Circle, Defs, Path, Pattern, Rect } from 'react-native-svg';
 import { useLayout } from '../layout';
 import { TileTint, colors, fonts, tiles } from '../theme';
@@ -37,6 +37,8 @@ export function Tile({
   style,
   ecg,
   paper,
+  ecgOpacity,
+  ecgOben,
 }: {
   size?: TileSize;
   tint?: TileTint;
@@ -51,12 +53,21 @@ export function Tile({
   ecg?: boolean;
   /** EKG-Papier (Raster) mit Herzschlag als Hintergrund */
   paper?: boolean;
+  /** Deckkraft der Herzschlag-Linie auf dem EKG-Papier */
+  ecgOpacity?: number;
+  /** Herzschlag-Linie oben neben dem Titel statt unten */
+  ecgOben?: boolean;
 }) {
   const { wide } = useLayout();
   const t = tiles[tint];
+  // Sanftes Einblenden beim Erscheinen
+  const ein = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(ein, { toValue: 1, duration: 380, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+  }, [ein]);
   const inner = (
     <View style={[styles.tile, { backgroundColor: bg ?? t.bg, borderColor: bg ? colors.line : t.edge }, style]}>
-      {paper && <EcgPaper color={t.accent} />}
+      {paper && <EcgPaper color={t.accent} opacity={ecgOpacity} oben={ecgOben} />}
       {ecg && (
         <View style={styles.ecg} pointerEvents="none">
           <Ecg width={220} height={44} color={t.accent} opacity={0.35} />
@@ -66,7 +77,14 @@ export function Tile({
     </View>
   );
   return (
-    <View style={{ width: widthFor(size, wide), padding: GAP / 2 }}>
+    <Animated.View
+      style={{
+        width: widthFor(size, wide),
+        padding: GAP / 2,
+        opacity: ein,
+        transform: [{ translateY: ein.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }],
+      }}
+    >
       {onPress ? (
         <Tap onPress={onPress} disabled={disabled} accessibilityLabel={accessibilityLabel} style={{ flex: 1 }}>
           {inner}
@@ -74,12 +92,12 @@ export function Tile({
       ) : (
         inner
       )}
-    </View>
+    </Animated.View>
   );
 }
 
 /** EKG-Papier: feines Raster mit einer Herzschlag-Linie, als Hintergrund einer Kachel */
-export function EcgPaper({ color = '#5EEAD4' }: { color?: string }) {
+export function EcgPaper({ color = '#5EEAD4', opacity = 0.9, oben }: { color?: string; opacity?: number; oben?: boolean }) {
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
       <Svg width="100%" height="100%">
@@ -94,8 +112,8 @@ export function EcgPaper({ color = '#5EEAD4' }: { color?: string }) {
         <Rect width="100%" height="100%" fill="url(#ecg-minor)" />
         <Rect width="100%" height="100%" fill="url(#ecg-major)" />
       </Svg>
-      <View style={{ position: 'absolute', right: -6, bottom: 10 }}>
-        <Ecg width={250} height={50} color={color} opacity={0.9} strokeWidth={2.4} />
+      <View style={{ position: 'absolute', right: oben ? 84 : -6, ...(oben ? { top: 18 } : { bottom: 10 }) }}>
+        <Ecg width={oben ? 150 : 250} height={oben ? 32 : 50} color={color} opacity={opacity} strokeWidth={2.4} />
       </View>
     </View>
   );
@@ -107,7 +125,7 @@ export function TileLabel({ icon, text, tint = 'slate' }: { icon?: string; text:
   return (
     <View style={styles.label}>
       {icon ? (
-        <View style={[styles.labelIcon, { backgroundColor: 'rgba(255,255,255,0.75)' }]}>
+        <View style={[styles.labelIcon, { backgroundColor: colors.veil }]}>
           <Text style={styles.labelEmoji}>{icon}</Text>
         </View>
       ) : null}
@@ -189,7 +207,7 @@ export function Ring({
   return (
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
       <Svg width={size} height={size} style={{ position: 'absolute' }}>
-        <Circle cx={size / 2} cy={size / 2} r={r} stroke="rgba(15,42,46,0.1)" strokeWidth={stroke} fill="none" />
+        <Circle cx={size / 2} cy={size / 2} r={r} stroke={colors.track} strokeWidth={stroke} fill="none" />
         <Circle
           cx={size / 2}
           cy={size / 2}
@@ -218,7 +236,7 @@ export function ChapterPath({ total, current, accent = colors.tuerkis }: { total
       <Svg width="100%" height={54} style={{ position: 'absolute' }} viewBox="0 0 100 54" preserveAspectRatio="none">
         <Path
           d={`M0 27 ${nodes.map((_, i) => `L${W * i + W * 0.5 - 2.4} 27 L${W * i + W * 0.5 - 1.2} 17 L${W * i + W * 0.5} 37 L${W * i + W * 0.5 + 1.2} 22 L${W * i + W * 0.5 + 2.4} 27`).join(' ')} L100 27`}
-          stroke="rgba(15,42,46,0.18)"
+          stroke={colors.track}
           strokeWidth={1.6}
           fill="none"
           vectorEffect="non-scaling-stroke"
@@ -237,7 +255,7 @@ export function ChapterPath({ total, current, accent = colors.tuerkis }: { total
                   borderRadius: 19,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: done ? accent : now ? '#FFFFFF' : 'rgba(15,42,46,0.1)',
+                  backgroundColor: done ? accent : now ? colors.surface : colors.track,
                   borderWidth: now ? 3 : 0,
                   borderColor: accent,
                   borderBottomWidth: done || now ? 4 : 0,

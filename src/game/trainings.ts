@@ -11,6 +11,7 @@ import { archiveCount } from './detective';
 import { Rolle } from './rolle';
 import { Bereich } from './story';
 import { Progress } from './storage';
+import { colors, tiles } from '../theme';
 
 /** Übungen im Handgriff-Labor (Druckverband und Seitenlage plus die Schritt-Übungen) */
 export const LABOR_ANZAHL = 2 + LABOR_UEBUNGEN.length;
@@ -50,7 +51,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   const akten = archiveCount(p);
   const detektiv: TrainingInfo = {
     id: 'detektiv',
-    farbe: '#E4DEFF',
+    farbe: tiles.violet.bg,
     icon: '🔍',
     title: 'Detektiv-Akten',
     sub:
@@ -61,7 +62,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const schritte: TrainingInfo = {
     id: 'schritte',
-    farbe: '#E4DEFF',
+    farbe: tiles.violet.bg,
     icon: '🧩',
     title: 'Schritt für Schritt',
     sub:
@@ -72,7 +73,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const cpr: TrainingInfo = {
     id: 'cpr',
-    farbe: '#FFDDD9',
+    farbe: tiles.red.bg,
     icon: '❤️',
     title: 'Herzdruckmassage',
     sub: 'Im richtigen Takt drücken – 100 bis 120 Mal pro Minute.',
@@ -80,7 +81,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const wissen: TrainingInfo = {
     id: 'wissen',
-    farbe: '#FFEFC0',
+    farbe: tiles.amber.bg,
     icon: '💡',
     title: 'Wissensfragen',
     sub:
@@ -91,7 +92,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const quiz: TrainingInfo = {
     id: 'quiz',
-    farbe: '#D8E7FF',
+    farbe: tiles.blue.bg,
     icon: '📈',
     title: 'Normwerte',
     sub: 'Ist der Messwert niedrig, normal oder hoch?',
@@ -99,7 +100,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const manv: TrainingInfo = {
     id: 'manv',
-    farbe: '#FFE6C7',
+    farbe: colors.peach,
     icon: '🚨',
     title: 'Großeinsatz',
     sub: 'Viele Verletzte: richtig sichten in Rot, Gelb, Grün, Schwarz.',
@@ -107,7 +108,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const notruf: TrainingInfo = {
     id: 'notruf',
-    farbe: '#D8E7FF',
+    farbe: tiles.blue.bg,
     icon: '📞',
     title: 'Notruf üben',
     sub: 'Die Leitstelle fragt – du antwortest ruhig und klar.',
@@ -115,7 +116,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const zuerst: TrainingInfo = {
     id: 'zuerst',
-    farbe: '#FFE6C7',
+    farbe: colors.peach,
     icon: '⚡',
     title: 'Was zuerst?',
     sub: 'Schnelle Entscheidungen: Was tust du als Erstes?',
@@ -123,7 +124,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const pack: TrainingInfo = {
     id: 'pack',
-    farbe: '#D3F1E9',
+    farbe: tiles.teal.bg,
     icon: '🧰',
     title: 'Gut gepackt',
     sub: 'Was gehört in Verbandkasten, Rucksack und Hausapotheke?',
@@ -131,7 +132,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const handgriffe: TrainingInfo = {
     id: 'handgriffe',
-    farbe: '#D3F1E9',
+    farbe: tiles.teal.bg,
     icon: '🩹',
     title: 'Handgriffe',
     sub: 'Lagern, verbinden, kühlen: Wie genau machst du es richtig?',
@@ -139,7 +140,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const mythen: TrainingInfo = {
     id: 'mythen',
-    farbe: '#FFEFC0',
+    farbe: tiles.amber.bg,
     icon: '🧐',
     title: 'Mythos oder Wahrheit?',
     sub: 'Was Laien oft glauben – und was wirklich stimmt.',
@@ -147,7 +148,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const aed: TrainingInfo = {
     id: 'aed',
-    farbe: '#FFDDD9',
+    farbe: tiles.red.bg,
     icon: '🔋',
     title: 'Defi-Training',
     sub: 'Das Gerät spricht mit dir: Pads, Analyse, Schock.',
@@ -155,7 +156,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const pruefung: TrainingInfo = {
     id: 'pruefung',
-    farbe: '#E4DEFF',
+    farbe: tiles.violet.bg,
     icon: '🎓',
     title: 'Erste-Hilfe-Prüfung',
     sub: '20 Fragen aus dem ganzen Kurs – bestanden ab 16.',
@@ -163,7 +164,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const gefahr: TrainingInfo = {
     id: 'gefahr',
-    farbe: '#FFE6C7',
+    farbe: colors.peach,
     icon: '⚠️',
     title: 'Gefahren-Check',
     sub:
@@ -177,7 +178,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const leitstelle: TrainingInfo = {
     id: 'leitstelle',
-    farbe: '#D8E7FF',
+    farbe: tiles.blue.bg,
     icon: '🎧',
     title: 'Leitstelle spielen',
     sub: 'Du nimmst den Notruf an: richtig nachfragen und die passenden Fahrzeuge losschicken.',
@@ -185,7 +186,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const fehler: TrainingInfo = {
     id: 'fehler',
-    farbe: '#FFDDEA',
+    farbe: tiles.pink.bg,
     icon: '🚩',
     title: 'Fehler finden',
     sub:
@@ -196,7 +197,7 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
   };
   const labor: TrainingInfo = {
     id: 'labor',
-    farbe: '#D3F1E9',
+    farbe: tiles.teal.bg,
     icon: '🧪',
     title: 'Handgriff-Labor',
     sub: 'Druckverband und stabile Seitenlage zum Selbermachen: ziehen, wickeln, tippen.',
@@ -206,3 +207,10 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
     ? [wissen, schritte, cpr, notruf, mythen, zuerst, gefahr, pack, handgriffe, labor, fehler, leitstelle, aed, pruefung]
     : [quiz, wissen, cpr, gefahr, schritte, fehler, labor, detektiv, leitstelle, manv];
 }
+
+/** Gruppen im Training-Tab */
+export const TRAINING_GRUPPEN: { titel: string; text: string; ids: TrainingId[] }[] = [
+  { titel: 'Wissen & Prüfung', text: 'Fragen, Abläufe, Normwerte, Mythen', ids: ['wissen', 'quiz', 'schritte', 'mythen', 'zuerst', 'detektiv', 'pruefung'] },
+  { titel: 'Praxis & Handgriffe', text: 'Wiederbelebung, Verbände, Defi, Packen', ids: ['cpr', 'handgriffe', 'labor', 'aed', 'pack', 'manv'] },
+  { titel: 'Notfall-Szenarien', text: 'Notruf, Leitstelle, Gefahren, Fehler', ids: ['notruf', 'leitstelle', 'gefahr', 'fehler'] },
+];

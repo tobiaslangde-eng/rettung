@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Konfetti } from '../components/Konfetti';
 import { LaborSzene } from '../components/LaborSzene';
 import { TonKnopf } from '../components/TonKnopf';
 import { Button, Card, Tap } from '../components/UI';
@@ -181,6 +182,7 @@ export function LaborSchritte({
           <Button label={letzter ? 'Fertig' : 'Weiter'} onPress={weiter} />
         </Card>
       )}
+      {fertig && fehler === 0 && <Konfetti />}
       {fertig && (
         <Card style={{ alignItems: 'center', gap: spacing.xs }}>
           <Text style={styles.emoji}>🏅</Text>
