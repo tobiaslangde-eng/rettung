@@ -4,7 +4,7 @@ export const RETTUNGSDIENST: Wissensartikel[] = [
   {
     id: 'rettungsdienst-rettungskette',
     kategorie: 'rettungsdienst',
-    titel: 'Rettungskette',
+    titel: 'Rettungskette im Rettungsdienst',
     stichworte: ['Rettungskette Glieder', 'Kette der Hilfe', 'Hilfekette', 'Sofortmaßnahmen', 'Überlebenskette'],
     kurz: 'Die Rettungskette beschreibt, wie Hilfe nach einem Notfall Schritt für Schritt ineinandergreift: von den Sofortmaßnahmen bis zur Behandlung in der Klinik.',
     punkte: [

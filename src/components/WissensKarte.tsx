@@ -26,6 +26,11 @@ export function WissensKarte({ eintrag, maxPunkte = 6 }: { eintrag: WissensEintr
           <Text style={type.small}>… und {eintrag.punkte.length - maxPunkte} weitere Punkte im Lexikon.</Text>
         )}
       </View>
+      {eintrag.alarm ? (
+        <View style={[styles.alarm, { backgroundColor: colors.redTint, borderColor: colors.red }]}>
+          <Text style={[type.body, { fontFamily: fonts.semibold, color: colors.redDark }]}>🚨 {eintrag.alarm}</Text>
+        </View>
+      ) : null}
       {eintrag.merke ? (
         <Text style={[type.body, { fontFamily: fonts.semibold, color: r.akzentDunkel }]}>Merke: {eintrag.merke}</Text>
       ) : null}
@@ -34,6 +39,7 @@ export function WissensKarte({ eintrag, maxPunkte = 6 }: { eintrag: WissensEintr
 }
 
 const styles = StyleSheet.create({
+  alarm: { borderRadius: 12, borderWidth: 1, padding: spacing.sm },
   kopf: { flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start' },
   icon: { fontSize: 28, fontFamily: fonts.regular },
   quelle: {

@@ -8,7 +8,7 @@ import { WissensKarte } from '../components/WissensKarte';
 import { KI_FEHLERTEXT, KiNachricht, frageKi, kiVerfuegbar } from '../game/ki';
 import { useRolle } from '../game/rolle';
 import { kiZustimmung, merkeKiZustimmung } from '../game/storage';
-import { BEISPIELFRAGEN, Treffer, WissensArt, istNotfallFrage, sucheWissen } from '../game/wissen';
+import { BEISPIELFRAGEN, Treffer, WissensArt, istNotfallFrage, kontextFuerKi, sucheWissen } from '../game/wissen';
 import { useLayout } from '../layout';
 import { colors, fonts, spacing, type } from '../theme';
 
@@ -26,7 +26,7 @@ interface Runde {
   appOffen?: boolean;
 }
 
-const KURZ: WissensArt[] = ['lexikon', 'spickzettel', 'ablauf', 'basics', 'krankheit', 'wert'];
+const KURZ: WissensArt[] = ['lexikon', 'spickzettel', 'ablauf', 'basics', 'krankheit', 'wert', 'artikel', 'begriff'];
 
 const KI_BEISPIELE: Record<'helfer' | 'sani', string[]> = {
   helfer: [
@@ -92,7 +92,7 @@ export function KatiFragenScreen({ onBack }: { onBack: () => void }) {
     setText('');
     scroll.current?.scrollTo({ y: 0, animated: true });
     if (!mitKi) return;
-    frageKi([...frueher, { rolle: 'du', text: f }], r.id).then((erg) => {
+    frageKi([...frueher, { rolle: 'du', text: f }], r.id, kontextFuerKi(r.id, f)).then((erg) => {
       setVerlauf((v) =>
         v.map((x) => {
           if (x.id !== id) return x;

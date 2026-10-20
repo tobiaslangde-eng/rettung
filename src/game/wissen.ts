@@ -9,6 +9,7 @@ import { QUESTIONS } from '../data/questions';
 import { SPICKZETTEL_HELFER } from '../data/spickzettel-helfer';
 import { SPICKZETTEL_SANI } from '../data/spickzettel-sani';
 import { VITALS } from '../data/vitals';
+import { KATEGORIE_NAMEN, WISSENSBASIS } from '../data/wissen';
 import { ZUERST_FRAGEN } from '../data/zuerst';
 import { Rolle } from './rolle';
 import { ablaeufeFuer } from './schritte';
@@ -27,7 +28,9 @@ export type WissensArt =
   | 'krankheit'
   | 'frage'
   | 'mythos'
-  | 'situation';
+  | 'situation'
+  | 'artikel'
+  | 'begriff';
 
 export interface WissensEintrag {
   id: string;
@@ -36,10 +39,14 @@ export interface WissensEintrag {
   /** Kurze Punkte der Antwort */
   punkte: string[];
   merke?: string;
+  /** Wann sofort der Notruf oder ärztliche Hilfe nötig ist (nur Artikel der Wissensbasis) */
+  alarm?: string;
   quelle: string;
   art: WissensArt;
   /** Für die Suche (normalisiert) */
   titelNorm: string;
+  /** Andere Suchwörter des Artikels (normalisiert) */
+  stichNorm: string;
   heu: string;
 }
 
@@ -56,6 +63,7 @@ export const normal = (t: string): string =>
     .replace(/ö/g, 'oe')
     .replace(/ü/g, 'ue')
     .replace(/ß/g, 'ss')
+    .replace(/₂/g, '2')
     .replace(/[^a-z0-9]+/g, ' ')
     .trim();
 
@@ -169,9 +177,21 @@ const einFehler = (a: string, b: string): boolean => {
 
 const kuerzen = (t: string, max = 110) => (t.length > max ? t.slice(0, max - 1).trimEnd() + '…' : t);
 
-function eintrag(partial: Omit<WissensEintrag, 'titelNorm' | 'heu'>, extra: string): WissensEintrag {
+function eintrag(
+  partial: Omit<WissensEintrag, 'titelNorm' | 'stichNorm' | 'heu'>,
+  extra: string,
+  stichworte: string[] = [],
+): WissensEintrag {
   const titelNorm = normal(partial.titel);
-  return { ...partial, titelNorm, heu: normal([partial.titel, ...partial.punkte, partial.merke ?? '', extra].join(' ')) };
+  const stichNorm = normal(stichworte.join(' '));
+  return {
+    ...partial,
+    titelNorm,
+    stichNorm,
+    heu: normal(
+      [partial.titel, ...partial.punkte, partial.merke ?? '', partial.alarm ?? '', stichworte.join(' '), extra].join(' '),
+    ),
+  };
 }
 
 const cache = new Map<Rolle, { liste: WissensEintrag[]; woerter: Map<string, number> }>();
@@ -345,6 +365,24 @@ function baue(rolle: Rolle) {
       ),
     );
   }
+  WISSENSBASIS.filter((a) => a.fuer === 'beide' || a.fuer === rolle).forEach((a) =>
+    liste.push(
+      eintrag(
+        {
+          id: 'artikel-' + a.id,
+          icon: a.kategorie === 'begriffe' ? '🔤' : a.kategorie === 'medikamente' ? '💊' : '📚',
+          titel: a.titel,
+          punkte: [a.kurz, ...a.punkte],
+          merke: a.merke,
+          alarm: a.alarm,
+          quelle: KATEGORIE_NAMEN[a.kategorie],
+          art: a.kategorie === 'begriffe' ? 'begriff' : 'artikel',
+        },
+        '',
+        a.stichworte,
+      ),
+    ),
+  );
   ablaeufeFuer(rolle).forEach((a) =>
     liste.push(
       eintrag(
@@ -370,7 +408,7 @@ function baue(rolle: Rolle) {
 
 export const wissensListe = (rolle: Rolle): WissensEintrag[] => (cache.get(rolle) ?? baue(rolle)).liste;
 
-/** Wörter der Frage ohne Füllwörter, mit Synonymen (Gewicht 1 = echtes Wort, 0.7 = Synonym) */
+/** Wörter der Frage ohne Füllwörter, mit Synonymen (Gewicht 1 = echtes Wort, 0.3 = Synonym) */
 function begriffe(frage: string): { w: string; g: number }[] {
   const n = normal(frage);
   const roh = n.split(' ').filter((w) => w.length >= 2 && !FUELLWOERTER.has(w));
@@ -383,7 +421,7 @@ function begriffe(frage: string): { w: string; g: number }[] {
         : roh.some((w) => w === s || (w.length >= 5 && s.startsWith(w)) || (s.length >= 5 && w.startsWith(s))),
     );
     if (trifft)
-      gruppe.forEach((s) => s.split(' ').forEach((t) => t.length >= 3 && !FUELLWOERTER.has(t) && !aus.has(t) && aus.set(t, 0.7)));
+      gruppe.forEach((s) => s.split(' ').forEach((t) => t.length >= 3 && !FUELLWOERTER.has(t) && !aus.has(t) && aus.set(t, 0.3)));
   });
   return [...aus.entries()].map(([w, g]) => ({ w, g }));
 }
@@ -398,6 +436,8 @@ const ART_BONUS: Record<WissensArt, number> = {
   frage: 0.5,
   mythos: 0.3,
   situation: 0,
+  artikel: 2.2,
+  begriff: 1,
 };
 
 /** Die besten Treffer zu einer Frage (leer, wenn nichts Passendes gefunden wurde) */
@@ -409,8 +449,10 @@ export function sucheWissen(rolle: Rolle, frage: string, max = 6): Treffer[] {
   const vokabular = [...woerter.keys()];
   const treffer: Treffer[] = [];
   for (const e of liste) {
-    let score = 0;
+    let echt = 0;
+    let syn = 0;
     let gefunden = 0;
+    let ueberhaupt = false;
     for (const { w, g } of bs) {
       const df = woerter.get(w) ?? 0;
       const idf = Math.log((N + 1) / (1 + df)) + 0.5;
@@ -420,6 +462,7 @@ export function sucheWissen(rolle: Rolle, frage: string, max = 6): Treffer[] {
       for (const [k, st] of staemme.entries()) {
         const f = k === 0 ? 1 : 0.8;
         if (st.length >= 3 && e.titelNorm.includes(st)) s = 6 * f;
+        else if (st.length >= 3 && e.stichNorm.includes(st)) s = 4 * f;
         else if (st.length >= 3 && e.heu.includes(st)) s = 2 * f;
         if (s > 0) break;
       }
@@ -429,13 +472,17 @@ export function sucheWissen(rolle: Rolle, frage: string, max = 6): Treffer[] {
         if (nah) s = 1.2;
       }
       if (s > 0) {
-        gefunden++;
-        score += s * g * idf;
+        ueberhaupt = true;
+        if (g >= 1) gefunden++;
+        if (g >= 1) echt += s * idf;
+        else syn += s * g * idf;
       }
     }
-    if (gefunden === 0) continue;
-    // Einträge, die mehrere Begriffe abdecken, gewinnen
-    score *= 1 + 0.35 * (gefunden - 1);
+    if (!ueberhaupt) continue;
+    // Synonyme helfen, dürfen aber die Wörter der Frage selbst nicht überstimmen
+    const roh = echt + (echt > 0 ? Math.min(syn, echt * 0.5) : syn);
+    // Einträge, die mehrere Wörter der Frage abdecken, gewinnen (Synonyme zählen dafür nicht mit)
+    let score = roh * (1 + 0.35 * Math.max(0, gefunden - 1));
     score += ART_BONUS[e.art];
     treffer.push({ eintrag: e, score });
   }
@@ -463,3 +510,18 @@ export const BEISPIELFRAGEN: Record<Rolle, string[]> = {
     'Wie läuft eine Übergabe?',
   ],
 };
+
+/** Hintergrundwissen für die KI: die besten Artikel zur Frage als kurzer Text (die KI darf sich darauf stützen) */
+export function kontextFuerKi(rolle: Rolle, frage: string, max = 3): { titel: string; text: string }[] {
+  return sucheWissen(rolle, frage, 8)
+    .filter((t) => t.eintrag.art !== 'frage' && t.eintrag.art !== 'mythos' && t.eintrag.art !== 'situation')
+    .slice(0, max)
+    .map(({ eintrag: e }) => {
+      const teile = [
+        ...e.punkte.map((p) => `- ${p}`),
+        e.alarm ? `Notruf/Arzt: ${e.alarm}` : '',
+        e.merke ? `Merke: ${e.merke}` : '',
+      ].filter(Boolean);
+      return { titel: e.titel, text: teile.join('\n').slice(0, 1500) };
+    });
+}

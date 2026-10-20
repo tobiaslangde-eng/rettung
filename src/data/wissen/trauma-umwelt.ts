@@ -338,7 +338,7 @@ export const TRAUMA_UMWELT: Wissensartikel[] = [
   {
     id: 'trauma-amputationsverletzung',
     kategorie: 'trauma-umwelt',
-    titel: 'Amputationsverletzung und Amputat versorgen',
+    titel: 'Amputationsverletzung (Trauma-Sicht)',
     stichworte: ['Amputation', 'Amputat', 'abgetrennter Finger', 'abgetrennte Gliedmaße', 'Replantation', 'Fingerkuppe abgetrennt'],
     kurz: 'Wird ein Körperteil abgetrennt, hat die Blutstillung Vorrang. Das Amputat kann in vielen Fällen wieder angenäht werden, wenn es richtig gekühlt transportiert wird.',
     punkte: [
@@ -476,7 +476,7 @@ export const TRAUMA_UMWELT: Wissensartikel[] = [
   {
     id: 'trauma-veraetzung',
     kategorie: 'trauma-umwelt',
-    titel: 'Verätzung',
+    titel: 'Verätzung: Verletzung und Folgen',
     stichworte: ['Verätzung', 'Säure', 'Lauge', 'Chemieunfall', 'Reiniger', 'Kalk', 'Chemikalien auf der Haut'],
     kurz: 'Säuren und Laugen zerstören Gewebe, solange sie einwirken. Laugen dringen tiefer ein als Säuren. Schnelles, langes Spülen ist die wichtigste Maßnahme.',
     punkte: [

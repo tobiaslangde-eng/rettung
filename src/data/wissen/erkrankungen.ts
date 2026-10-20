@@ -111,7 +111,7 @@ export const ERKRANKUNGEN: Wissensartikel[] = [
   {
     id: 'erkrankungen-lungenentzuendung',
     kategorie: 'erkrankungen',
-    titel: 'Lungenentzündung',
+    titel: 'Lungenentzündung im Alltag',
     stichworte: ['Pneumonie', 'Lungenentzündung Symptome', 'Pneumokokken', 'Lunge entzündet'],
     kurz: 'Bei der Lungenentzündung sind das Lungengewebe oder die Lungenbläschen durch Bakterien, Viren oder andere Erreger entzündet. Sie kann gefährlich werden.',
     punkte: [
@@ -528,7 +528,7 @@ export const ERKRANKUNGEN: Wissensartikel[] = [
   {
     id: 'erkrankungen-schwindel',
     kategorie: 'erkrankungen',
-    titel: 'Schwindel',
+    titel: 'Schwindel im Alltag',
     stichworte: ['Drehschwindel', 'Lagerungsschwindel', 'Benommenheit', 'Gleichgewichtsstörung', 'Vertigo', 'Schwankschwindel'],
     kurz: 'Schwindel ist ein häufiges Symptom mit vielen möglichen Ursachen: Innenohr, Kreislauf, Nerven, Medikamente oder Psyche. Meist ist er harmlos, manchmal ein Warnzeichen.',
     punkte: [

@@ -102,7 +102,7 @@ export const VERGIFTUNG_ALLERGIE_INFEKTION: Wissensartikel[] = [
   {
     id: 'vergiftung-drogen-ueberblick',
     kategorie: 'vergiftung-allergie-infektion',
-    titel: 'Drogennotfälle im Überblick',
+    titel: 'Drogen: Vergiftung und Überdosis',
     stichworte: ['Drogen', 'Opioide', 'Heroin', 'Amphetamin', 'Kokain', 'Cannabis', 'Überdosis', 'Stimulanzien', 'Drogenrausch'],
     kurz: 'Je nach Droge sind die Gefahren sehr verschieden: Opioide dämpfen die Atmung, Stimulanzien belasten Herz und Kreislauf, Cannabis führt eher zu Panik und Kreislaufproblemen.',
     punkte: [
@@ -194,7 +194,7 @@ export const VERGIFTUNG_ALLERGIE_INFEKTION: Wissensartikel[] = [
   {
     id: 'vergiftung-kohlenmonoxid',
     kategorie: 'vergiftung-allergie-infektion',
-    titel: 'Kohlenmonoxidvergiftung',
+    titel: 'Kohlenmonoxidvergiftung: Gift und Gegenmaßnahmen',
     stichworte: ['Kohlenmonoxid', 'CO-Vergiftung', 'CO', 'Gastherme', 'Grill im Zimmer', 'Abgase', 'Rauchgasvergiftung'],
     kurz: 'Kohlenmonoxid (CO) ist ein farbloses, geruchloses Gas. Es entsteht bei unvollständiger Verbrennung und verhindert den Sauerstofftransport im Blut. Betroffene merken die Gefahr oft nicht.',
     punkte: [

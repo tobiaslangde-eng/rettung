@@ -33,6 +33,7 @@ kann es nie teurer werden als dieser Betrag.
 2. „Workers & Pages“ → „Create“ → **„Worker“** (die einfache Vorlage „Hello World“) → Name: `kati-ki` → „Deploy“.
 3. „Edit code“: Lösche den ganzen vorhandenen Text und füge den Inhalt von **`worker.js`** ein (Datei in diesem Ordner; auf GitHub öffnen → „Raw“ →
    alles markieren → kopieren). Dann „Deploy“.
+   *Hinweis:* Die neueste `worker.js` nimmt zusätzlich das „Hintergrundwissen“ aus der App entgegen (die passenden Artikel der Wissensbasis). Hast du den Worker schon früher eingerichtet, kopiere den neuen Inhalt von `worker.js` einfach nochmal hinein und klicke „Deploy“ – die Einstellungen bleiben erhalten.
 4. Zurück zum Worker: „Settings“ → „Variables and Secrets“ → „Add“:
    - Typ **Secret**, Name `ANTHROPIC_API_KEY`, Wert: dein Schlüssel aus Teil A → speichern/„Deploy“.
    - Optional, Typ **Text**: `MODELL` = `claude-sonnet-5-5` (günstiger) und/oder `AUFWAND` = `medium` (gründlicher, langsamer).
