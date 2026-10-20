@@ -8,7 +8,15 @@ import { WissensKarte } from '../components/WissensKarte';
 import { KI_FEHLERTEXT, KiNachricht, frageKi, kiVerfuegbar } from '../game/ki';
 import { useRolle } from '../game/rolle';
 import { kiZustimmung, merkeKiZustimmung } from '../game/storage';
-import { BEISPIELFRAGEN, Treffer, WissensArt, istNotfallFrage, kontextFuerKi, sucheWissen } from '../game/wissen';
+import {
+  BEISPIELFRAGEN,
+  Treffer,
+  WissensArt,
+  istNotfallFrage,
+  korrigiereFrage,
+  kontextFuerKi,
+  sucheWissen,
+} from '../game/wissen';
 import { useLayout } from '../layout';
 import { colors, fonts, spacing, type } from '../theme';
 
@@ -24,6 +32,8 @@ interface Runde {
   notfall: boolean;
   bewertet?: 'ja' | 'nein';
   appOffen?: boolean;
+  /** Frage mit verbesserten Tippfehlern („Meintest du …?“) */
+  meinteDu?: string;
 }
 
 const KURZ: WissensArt[] = ['lexikon', 'spickzettel', 'ablauf', 'basics', 'krankheit', 'wert', 'artikel', 'begriff'];
@@ -54,6 +64,15 @@ export function hauptTreffer(t: Treffer[]): number {
   return i === -1 ? 0 : i;
 }
 
+/** „Meintest du …?“ – wenn Kati einen Tippfehler ausgebessert hat */
+export function MeinteDu({ text }: { text: string }) {
+  return (
+    <Text style={type.body}>
+      🔍 Meintest du: <Text style={{ fontFamily: fonts.semibold }}>„{text}“</Text>?
+    </Text>
+  );
+}
+
 /** „Frag Kati“: mit KI-Server beantwortet Kati alle Fragen rund um Medizin; ohne Server antwortet sie aus den Inhalten der App */
 export function KatiFragenScreen({ onBack }: { onBack: () => void }) {
   const L = useLayout();
@@ -77,7 +96,16 @@ export function KatiFragenScreen({ onBack }: { onBack: () => void }) {
     if (!f) return;
     const treffer = sucheWissen(r.id, f, 6);
     const id = ++nr.current;
-    const basis: Runde = { id, frage: f, art: mitKi ? 'ki' : 'lokal', laedt: mitKi, treffer, notfall: istNotfallFrage(f) };
+    const fix = korrigiereFrage(r.id, f);
+    const basis: Runde = {
+      id,
+      frage: f,
+      art: mitKi ? 'ki' : 'lokal',
+      laedt: mitKi,
+      treffer,
+      notfall: istNotfallFrage(f) || istNotfallFrage(fix.text),
+      meinteDu: fix.geaendert ? fix.text : undefined,
+    };
     zaehle(mitKi ? 'kati-ki-frage' : 'kati-frage');
     // Gespräch für die KI: frühere Fragen und KI-Antworten, dazu die neue Frage
     const frueher: KiNachricht[] = [...verlauf]
@@ -222,6 +250,7 @@ export function KatiFragenScreen({ onBack }: { onBack: () => void }) {
                     </>
                   ) : haupt ? (
                     <>
+                      {rd.meinteDu && <MeinteDu text={rd.meinteDu} />}
                       <Text style={type.small}>{rd.hinweis ?? 'Das habe ich dazu gefunden:'}</Text>
                       <WissensKarte eintrag={haupt.eintrag} />
                       {weitere.length > 0 && (
@@ -247,6 +276,7 @@ export function KatiFragenScreen({ onBack }: { onBack: () => void }) {
                     </>
                   ) : (
                     <Card style={{ gap: spacing.sm }}>
+                      {rd.meinteDu && <MeinteDu text={rd.meinteDu} />}
                       {rd.hinweis && <Text style={type.small}>{rd.hinweis}</Text>}
                       <Text style={type.headline}>Dazu habe ich nichts gefunden 🤔</Text>
                       <Text style={type.small}>
