@@ -15,6 +15,7 @@ export function SpielmodiView({
   onSchicht,
   onKarte,
   onDuell,
+  onLive,
   onDifficulty,
 }: {
   progress: Progress;
@@ -23,6 +24,7 @@ export function SpielmodiView({
   onSchicht: () => void;
   onKarte: () => void;
   onDuell: () => void;
+  onLive: () => void;
   onDifficulty: (d: Difficulty) => void;
 }) {
   const r = useRolle();
@@ -82,6 +84,15 @@ export function SpielmodiView({
       name: 'Stadtkarte',
       aktion: onKarte,
       gesperrt: !frei,
+    },
+    {
+      icon: '👥',
+      titel: 'Live-Runde mit Freunden',
+      text: 'Wie Kahoot: Raum öffnen, PIN teilen, live gegeneinander oder gemeinsam spielen.',
+      stand: `${progress.liveGespielt} Runden · ${progress.liveSiege} Siege`,
+      tint: 'pink',
+      name: 'Live-Runde mit Freunden',
+      aktion: onLive,
     },
     {
       icon: '⚔️',

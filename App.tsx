@@ -60,6 +60,8 @@ import { KartenPin, BONUS_KUERZESTE, BONUS_ROUTE, fuelleKarte } from './src/game
 import { UrkundenScreen } from './src/screens/UrkundenScreen';
 import { mitUrkundenDatum } from './src/game/urkunden';
 import { DuellScreen } from './src/screens/DuellScreen';
+import { LiveScreen } from './src/screens/LiveScreen';
+import { leseRaumLink, loescheRaumLink } from './src/game/livetransport';
 import { DuellEinladung, leseEinladung, loescheEinladung } from './src/game/duell';
 import { FeedbackScreen } from './src/screens/FeedbackScreen';
 import { SchichtScreen } from './src/screens/SchichtScreen';
@@ -95,6 +97,7 @@ type Screen =
   | { name: 'fehler'; key: number }
   | { name: 'labor'; key: number }
   | { name: 'duell'; key: number }
+  | { name: 'live'; key: number }
   | { name: 'schicht' }
   | { name: 'feedback' }
   | { name: 'kati' }
@@ -142,6 +145,7 @@ const FRAME_MAX: Partial<Record<Screen['name'], number>> = {
   fehler: 760,
   labor: 760,
   duell: 760,
+  live: 760,
   schicht: 760,
   feedback: 760,
   kati: 760,
@@ -192,6 +196,7 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   fehler: 'fehler',
   labor: 'labor',
   duell: 'home',
+  live: 'home',
   schicht: 'home',
   feedback: 'home',
   kati: 'lexikon',
@@ -233,6 +238,8 @@ export default function App() {
     wendeDarstellungAn(ladeDarstellung());
     einladung.current = leseEinladung();
     if (einladung.current) loescheEinladung();
+    raumPin.current = leseRaumLink();
+    if (raumPin.current) loescheRaumLink();
   }, []);
   const lastCaseId = useRef<string | undefined>(undefined);
   // Stadtkarte: offene Einsätze, Rückkehr zur Karte nach dem Einsatz und Bonus für kurze Anfahrt
@@ -246,6 +253,9 @@ export default function App() {
   };
   // Duell: Einladung aus dem Link (nur Web) – wird geöffnet, sobald Rolle und Spielweise gewählt sind
   const einladung = useRef<DuellEinladung | null>(null);
+  // Live-Runde: PIN aus dem Einladungslink
+  const raumPin = useRef<string | null>(null);
+  const [livePin, setLivePin] = useState<string | null>(null);
   const [duellEinladung, setDuellEinladung] = useState<DuellEinladung | null>(null);
   const schichtRueck = useRef(false);
   const abschlussRef = useRef(false);
@@ -620,6 +630,15 @@ export default function App() {
     setScreen({ name: t } as Screen);
   };
 
+  // Einladung zur Live-Runde öffnen, sobald Rolle und Spielweise feststehen
+  useEffect(() => {
+    if (raumPin.current && rolle && progress.modus !== '') {
+      setLivePin(raumPin.current);
+      raumPin.current = null;
+      setScreen({ name: 'live', key: Date.now() });
+    }
+  }, [rolle, progress.modus]);
+
   // Einladung zum Duell öffnen, sobald Rolle und Spielweise feststehen
   useEffect(() => {
     if (einladung.current && rolle && progress.modus !== '') {
@@ -737,9 +756,9 @@ export default function App() {
                           setSchicht(null);
                           setScreen({ name: 'schicht' });
                         }}
-                        onDuell={() => {
-                          setDuellEinladung(null);
-                          setScreen({ name: 'duell', key: Date.now() });
+                        onLive={() => {
+                          setLivePin(null);
+                          setScreen({ name: 'live', key: Date.now() });
                         }}
                         onStoryDone={storyDone}
                       />
@@ -875,6 +894,26 @@ export default function App() {
                         }}
                       />
                     )}
+                    {screen.name === 'live' && (
+                      <LiveScreen
+                        key={screen.key}
+                        pin={livePin}
+                        name={progress.spielerName}
+                        onName={(spielerName) => importProgress({ ...progress, spielerName })}
+                        onFinish={(ep, sieg) =>
+                          commit({
+                            ...progress,
+                            totalPoints: progress.totalPoints + trainingPunkte(ep),
+                            liveGespielt: progress.liveGespielt + 1,
+                            liveSiege: progress.liveSiege + (sieg ? 1 : 0),
+                          })
+                        }
+                        onBack={() => {
+                          setLivePin(null);
+                          setScreen({ name: 'home' });
+                        }}
+                      />
+                    )}
                     {screen.name === 'leitstelle' && (
                       <LeitstelleScreen
                         key={screen.key}
@@ -975,6 +1014,10 @@ export default function App() {
                         onDuell={() => {
                           setDuellEinladung(null);
                           setScreen({ name: 'duell', key: Date.now() });
+                        }}
+                        onLive={() => {
+                          setLivePin(null);
+                          setScreen({ name: 'live', key: Date.now() });
                         }}
                         onDifficulty={setDifficulty}
                       />

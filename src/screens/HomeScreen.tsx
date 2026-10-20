@@ -54,7 +54,7 @@ export function HomeScreen({
   onKarte,
   onUrkunden,
   onSpick,
-  onDuell,
+  onLive,
   onSchicht,
   onFeedback,
   onAlleTrainings,
@@ -79,7 +79,7 @@ export function HomeScreen({
   /** Spickzettel öffnen */
   onSpick: () => void;
   /** Duell mit Freunden */
-  onDuell: () => void;
+  onLive: () => void;
   /** Schichtmodus */
   onSchicht: () => void;
   /** Rückmeldung geben */
@@ -314,7 +314,7 @@ export function HomeScreen({
           locked={!kartenFrei}
           onPress={onSchicht}
         />
-        <Schnell icon="⚔️" tint="violet" label="Duell" sub={`${progress.duellSiege} Siege`} name="Duell mit Freunden" onPress={onDuell} />
+        <Schnell icon="👥" tint="violet" label="Live" sub={`${progress.liveGespielt} Runden`} name="Live-Runde mit Freunden" onPress={onLive} />
         <Schnell
           icon="📌"
           tint="amber"
