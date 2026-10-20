@@ -299,7 +299,7 @@ function Druckverband({
       {fertigPunkte !== null && (
         <Card style={{ alignItems: 'center', gap: spacing.xs }}>
           <Text style={styles.emoji}>🏅</Text>
-          <Text style={[type.headline, { color: r.akzentDunkel }]}>+{fertigPunkte} Punkte</Text>
+          <Text style={[type.headline, { color: r.akzentDunkel }]}>+{fertigPunkte} EP</Text>
           <Text style={type.small}>Wirklich bluten? Druck auf die Wunde, Druckverband – und bei starker Blutung immer 112.</Text>
         </Card>
       )}
@@ -433,7 +433,7 @@ function Seitenlage({ onFertig, fertigPunkte }: { onFertig: () => void; fertigPu
       {fertigPunkte !== null && (
         <Card style={{ alignItems: 'center', gap: spacing.xs }}>
           <Text style={styles.emoji}>🏅</Text>
-          <Text style={[type.headline, { color: r.akzentDunkel }]}>+{fertigPunkte} Punkte</Text>
+          <Text style={[type.headline, { color: r.akzentDunkel }]}>+{fertigPunkte} EP</Text>
           <Text style={type.small}>
             Seitenlage nur bei Bewusstlosigkeit mit normaler Atmung. Atmet die Person nicht normal: sofort Herzdruckmassage.
           </Text>

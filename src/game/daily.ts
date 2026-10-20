@@ -5,7 +5,7 @@ import { Progress } from './storage';
 
 /** Einsätze pro Tag für das Tagesziel */
 export const DAILY_GOAL = 3;
-/** Aufschlag auf die Punkte des „Einsatz des Tages“ */
+/** Aufschlag auf die EP des „Einsatz des Tages“ */
 export const DAILY_CASE_BONUS = 0.5;
 
 const pad = (n: number) => String(n).padStart(2, '0');

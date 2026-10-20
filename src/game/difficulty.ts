@@ -12,7 +12,7 @@ export interface DifficultyDef {
   showNormBeforeRating: boolean;
   /** Sofortiges Feedback nach jeder Einstufung (sonst erst im Bericht) */
   instantFeedback: boolean;
-  /** Kati gibt Tipps: von selbst, gegen Punkte oder gar nicht */
+  /** Kati gibt Tipps: von selbst, gegen EP oder gar nicht */
   hints: 'gratis' | 'kostet' | 'keine';
   /** Zustandsverlust des Patienten je Messung */
   measureCost: number;
@@ -40,7 +40,7 @@ export const DIFFICULTIES: DifficultyDef[] = [
     id: 'mittel',
     label: 'Mittel',
     icon: '◆◆◇',
-    description: 'Normwerte muss ich kennen. Katis Tipps kosten Punkte. ×1,5 Punkte.',
+    description: 'Normwerte muss ich kennen. Katis Tipps kosten EP. ×1,5 EP.',
     caseLevels: [2],
     multiplier: 1.5,
     showNormBeforeRating: false,
@@ -53,7 +53,7 @@ export const DIFFICULTIES: DifficultyDef[] = [
     id: 'schwer',
     label: 'Schwer',
     icon: '◆◆◆',
-    description: 'Komplexe Fälle, keine Hilfe, Feedback erst im Bericht – und der Patient verschlechtert sich in Echtzeit! ×2 Punkte.',
+    description: 'Komplexe Fälle, keine Hilfe, Feedback erst im Bericht – und der Patient verschlechtert sich in Echtzeit! ×2 EP.',
     caseLevels: [2, 3],
     multiplier: 2,
     showNormBeforeRating: false,

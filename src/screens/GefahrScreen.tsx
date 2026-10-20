@@ -93,14 +93,14 @@ export function GefahrScreen({
               {gef}/{ges}
             </Text>
             <Text style={type.small}>Gefahren gefunden</Text>
-            <Text style={[type.headline, { color: r.akzentDunkel }]}>+{punkte} Punkte</Text>
+            <Text style={[type.headline, { color: r.akzentDunkel }]}>+{punkte} EP</Text>
           </Card>
           {runde.map((x, k) => (
             <Card key={x.id} style={{ gap: 4 }}>
               <Text style={type.headline}>{x.titel}</Text>
               <Text style={type.small}>
                 {ergebnisse[k].gefunden}/{ergebnisse[k].gefahren} Gefahren · {ergebnisse[k].falsch} Fehlgriff
-                {ergebnisse[k].falsch === 1 ? '' : 'e'} · +{ergebnisse[k].punkte} Punkte
+                {ergebnisse[k].falsch === 1 ? '' : 'e'} · +{ergebnisse[k].punkte} EP
               </Text>
               <Text style={[type.small, { color: colors.ink }]}>💡 {x.merksatz}</Text>
             </Card>

@@ -29,7 +29,7 @@ const rangUrkunden = (rolle: Rolle): Urkunde[] => {
     icon: '🎖️',
     titel: r.de,
     text: `hat ${was} den Rang „${r.de}“ erreicht.`,
-    bedingung: `${r.min.toLocaleString('de-DE')} Punkte sammeln`,
+    bedingung: `${r.min.toLocaleString('de-DE')} EP sammeln`,
     erreicht: (p: Progress) => p.totalPoints >= r.min,
   }));
 };

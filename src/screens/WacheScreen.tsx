@@ -2,7 +2,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { WacheBild } from '../components/Wache';
 import { BentoGrid, Tile } from '../components/Bento';
 import { Bar, Button, StatChip, TopBar } from '../components/UI';
-import { euro } from '../game/equipment';
+import { coins } from '../game/equipment';
 import { WACHE, WACHE_GESAMT_MAX, WACHE_MAX, wacheGesamt, wacheKosten, wacheLevel } from '../game/wache';
 import { WacheId } from '../game/wache';
 import { Progress } from '../game/storage';
@@ -16,7 +16,7 @@ export function WacheScreen({ progress, onBuild }: { progress: Progress; onBuild
   const lv = (id: WacheId) => wacheLevel(progress, id);
   return (
     <View style={{ flex: 1 }}>
-      <TopBar kicker="Standort" title="Meine Rettungswache" right={<StatChip value={euro(progress.budget)} label="Budget" />} />
+      <TopBar kicker="Standort" title="Meine Rettungswache" right={<StatChip value={coins(progress.budget)} label="Coins" />} />
       <ScrollView contentContainerStyle={[styles.content, L.wide && styles.wide]}>
         <View style={styles.bild}>
           <WacheBild
@@ -67,7 +67,7 @@ export function WacheScreen({ progress, onBuild }: { progress: Progress; onBuild
               <Text style={styles.wirkung}>⚙ {w.wirkung}</Text>
               {kosten !== null ? (
                 <Button
-                  label={`${l === 0 ? 'Bauen' : 'Ausbauen'} · ${euro(kosten)}`}
+                  label={`${l === 0 ? 'Bauen' : 'Ausbauen'} · ${coins(kosten)}`}
                   sub={l < WACHE_MAX ? `Nächste Stufe: ${w.stufen[l]}` : undefined}
                   onPress={() => onBuild(w.id)}
                   disabled={fehlt}
@@ -78,7 +78,7 @@ export function WacheScreen({ progress, onBuild }: { progress: Progress; onBuild
               )}
               {fehlt && (
                 <Text style={type.small}>
-                  Es fehlen noch {euro(kosten! - progress.budget)} – sammle Punkte bei Einsätzen und Trainings.
+                  Es fehlen noch {coins(kosten! - progress.budget)} – sammle EP bei Einsätzen und Trainings.
                 </Text>
               )}
             </Tile>

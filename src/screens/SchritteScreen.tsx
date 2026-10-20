@@ -79,7 +79,7 @@ export function SchritteScreen({
         <ScrollView contentContainerStyle={[styles.content, L.wide && styles.contentWide]}>
           <Card style={{ alignItems: 'center', gap: spacing.sm }}>
             <Text style={styles.big}>+{summe}</Text>
-            <Text style={type.small}>Punkte für {ablaeufe.length} Abläufe</Text>
+            <Text style={type.small}>EP für {ablaeufe.length} Abläufe</Text>
           </Card>
           <Card style={{ gap: spacing.sm }}>
             {ablaeufe.map((x, i) => (
@@ -143,7 +143,7 @@ export function SchritteScreen({
         ) : (
           <>
             <Card style={[{ gap: spacing.sm }, { borderLeftColor: colors.mintDark }]}>
-              <Text style={type.headline}>Richtig! +{punkte[punkte.length - 1]} Punkte</Text>
+              <Text style={type.headline}>Richtig! +{punkte[punkte.length - 1]} EP</Text>
               <Text style={type.body}>{a.erklaerung}</Text>
             </Card>
             <Button label={index + 1 < ablaeufe.length ? 'Nächster Ablauf' : 'Runde abschließen'} onPress={weiter} />

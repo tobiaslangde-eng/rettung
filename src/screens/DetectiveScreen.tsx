@@ -26,7 +26,7 @@ import {
   scoreAkte,
   stampFor,
 } from '../game/detective';
-import { euro } from '../game/equipment';
+import { coins } from '../game/equipment';
 import { Progress } from '../game/storage';
 import { useLayout } from '../layout';
 import { colors, fonts, hardShadow, spacing, type } from '../theme';
@@ -192,7 +192,7 @@ export function DetectiveScreen({
             <Rule icon="📟" text="Die Meldung der Leitstelle ist gratis." />
             <Rule
               icon="🔍"
-              text={`Jede Akte startet mit ${AKTE_START} Punkten. Jeder aufgedeckte Hinweis kostet ${CLUE_COST}.`}
+              text={`Jede Akte startet mit ${AKTE_START} EP. Jeder aufgedeckte Hinweis kostet ${CLUE_COST}.`}
             />
             <Rule
               icon="❌"
@@ -201,8 +201,8 @@ export function DetectiveScreen({
             <Rule icon="🔥" text="Mehrere Akten in Folge gelöst: Combo bis ×2." />
             <Rule icon="⭐" text={`Geniestreich: mit höchstens einem Hinweis gelöst = +${GENIUS_BONUS} und goldener Stempel.`} />
             <Rule icon="🧩" text="Jedes Krankheitsbild gibt es in vielen Situationen – typisch, untypisch, irreführend. Kein Fall gleicht dem anderen." />
-            <Rule icon="🗄️" text={`Jede neue Akte im Archiv: +${NEW_AKTE_BONUS} Punkte.`} />
-            <Rule icon="🚑" text="Alle Punkte landen als € im Budget für deinen Rettungswagen." />
+            <Rule icon="🗄️" text={`Jede neue Akte im Archiv: +${NEW_AKTE_BONUS} EP.`} />
+            <Rule icon="🚑" text="Jeder EP bringt dir auch 1 Coin für deinen Rettungswagen." />
           </Card>
 
           <View style={{ gap: spacing.md }}>
@@ -294,9 +294,9 @@ export function DetectiveScreen({
               {solved} von {DETECTIVE_ROUNDS} Akten gelöst
             </Text>
             <Text style={styles.total}>+{total}</Text>
-            <Text style={styles.heroSub}>Punkte</Text>
+            <Text style={styles.heroSub}>EP</Text>
             <View style={styles.money}>
-              <Text style={styles.moneyText}>🚑 +{euro(total)} Budget für deinen Rettungswagen</Text>
+              <Text style={styles.moneyText}>🚑 +{coins(total)} für deinen Rettungswagen</Text>
             </View>
           </View>
           {after.index > before.index && (
@@ -338,7 +338,7 @@ export function DetectiveScreen({
             })}
           </Card>
           <Button label="Neue Ermittlung" onPress={begin} />
-          <Button label="Budget ausgeben: zum Rettungswagen" variant="tinted" onPress={onGarage} />
+          <Button label="Coins ausgeben: zum Rettungswagen" variant="tinted" onPress={onGarage} />
           <Button label="Zurück" variant="outline" onPress={onBack} />
         </ScrollView>
       </View>
@@ -368,7 +368,7 @@ export function DetectiveScreen({
         kicker={`Akte ${index + 1} von ${DETECTIVE_ROUNDS}`}
         title={done ? (last.solved ? 'Fall gelöst!' : 'Akte ungelöst') : 'Was steckt dahinter?'}
         onBack={onBack}
-        right={<StatChip value={total} label="Punkte" color={colors.lilac} />}
+        right={<StatChip value={total} label="EP" color={colors.lilac} />}
       />
       <View style={styles.progress}>
         {akten.map((_, i) => (
@@ -390,7 +390,7 @@ export function DetectiveScreen({
             <View style={{ flex: 1, minWidth: 150, gap: 2 }}>
               <Text style={type.eyebrow}>Belohnung jetzt</Text>
               <Text style={styles.meterValue}>
-                {reward} <Text style={styles.meterUnit}>Punkte</Text>
+                {reward} <Text style={styles.meterUnit}>EP</Text>
               </Text>
               <Bar pct={reward / AKTE_START} color={colors.violet} height={12} style={{ maxWidth: 260, marginTop: 4 }} />
             </View>
@@ -501,7 +501,7 @@ export function DetectiveScreen({
                 </>
               ) : (
                 <Text style={type.body}>
-                  Diesmal keine Punkte – die Combo ist gerissen. Merk dir die Beweise oben für das nächste Mal!
+                  Diesmal keine EP – die Combo ist gerissen. Merk dir die Beweise oben für das nächste Mal!
                 </Text>
               )}
             </Card>

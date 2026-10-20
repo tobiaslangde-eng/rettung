@@ -2,7 +2,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { HilfspunktBild } from '../components/Hilfspunkt';
 import { BentoGrid, Tile } from '../components/Bento';
 import { Bar, Button, StatChip, TopBar } from '../components/UI';
-import { euro } from '../game/equipment';
+import { coins } from '../game/equipment';
 import { HILFPUNKT, HILF_GESAMT_MAX, HILF_MAX, HilfId, hilfGesamt, hilfKosten, hilfLevel } from '../game/hilfspunkt';
 import { Progress } from '../game/storage';
 import { useLayout } from '../layout';
@@ -15,7 +15,7 @@ export function HilfspunktScreen({ progress, onBuild }: { progress: Progress; on
   const lv = (id: HilfId) => hilfLevel(progress, id);
   return (
     <View style={{ flex: 1 }}>
-      <TopBar kicker="Standort" title="Mein Hilfspunkt" right={<StatChip value={euro(progress.budget)} label="Budget" />} />
+      <TopBar kicker="Standort" title="Mein Hilfspunkt" right={<StatChip value={coins(progress.budget)} label="Coins" />} />
       <ScrollView contentContainerStyle={[styles.content, L.wide && styles.wide]}>
         <View style={styles.bild}>
           <HilfspunktBild
@@ -67,7 +67,7 @@ export function HilfspunktScreen({ progress, onBuild }: { progress: Progress; on
               <Text style={styles.wirkung}>⚙ {h.wirkung}</Text>
               {kosten !== null ? (
                 <Button
-                  label={`${l === 0 ? 'Bauen' : 'Ausbauen'} · ${euro(kosten)}`}
+                  label={`${l === 0 ? 'Bauen' : 'Ausbauen'} · ${coins(kosten)}`}
                   sub={l < HILF_MAX ? `Nächste Stufe: ${h.stufen[l]}` : undefined}
                   onPress={() => onBuild(h.id)}
                   disabled={fehlt}
@@ -78,7 +78,7 @@ export function HilfspunktScreen({ progress, onBuild }: { progress: Progress; on
               )}
               {fehlt && (
                 <Text style={type.small}>
-                  Es fehlen noch {euro(kosten! - progress.budget)} – sammle Punkte bei Notfällen und Trainings.
+                  Es fehlen noch {coins(kosten! - progress.budget)} – sammle EP bei Notfällen und Trainings.
                 </Text>
               )}
             </Tile>

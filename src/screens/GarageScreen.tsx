@@ -16,7 +16,7 @@ import {
   equipmentEffects,
   helferEffekteFuer,
   kostenFuer,
-  euro,
+  coins,
   levelOf,
   totalLevel,
   upgradeBlock,
@@ -167,11 +167,11 @@ function Steckbrief({
                 </View>
                 {block?.reason === 'rank' ? (
                   <Text style={styles.locked}>
-                    🔒 Ab Dienstgrad „{block.rank}“ – noch {block.missing.toLocaleString('de-DE')} Punkte. Den Rang bekommst du nur durch Punkte, nicht durch Kaufen.
+                    🔒 Ab Dienstgrad „{block.rank}“ – noch {block.missing.toLocaleString('de-DE')} EP. Den Rang bekommst du nur durch EP, nicht durch Kaufen.
                   </Text>
                 ) : (
                   <Button
-                    label={`Aufrüsten · ${euro(kostenFuer(progress, id))}${angebotHeute(progress) === id ? ` (−${Math.round(RABATT * 100)} % heute)` : ''}`}
+                    label={`Aufrüsten · ${coins(kostenFuer(progress, id))}${angebotHeute(progress) === id ? ` (−${Math.round(RABATT * 100)} % heute)` : ''}`}
                     variant={block ? 'outline' : 'alarm'}
                     disabled={!!block}
                     onPress={() => onUpgrade(id)}
@@ -179,7 +179,7 @@ function Steckbrief({
                 )}
                 {block?.reason === 'budget' && (
                   <Text style={styles.missing}>
-                    Budget {euro(progress.budget)} – noch {euro(block.missing)} sammeln
+                    Du hast {coins(progress.budget)} – noch {coins(block.missing)} sammeln
                   </Text>
                 )}
               </View>
@@ -227,7 +227,7 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
   const sets = helfer ? setsStand((id) => levels[id as EquipmentId] ?? 1) : [];
   const effects = helfer
     ? ([
-        hfx.pointsPct > 0 && `+${hfx.pointsPct} % Punkte bei Notfällen`,
+        hfx.pointsPct > 0 && `+${hfx.pointsPct} % EP bei Notfällen`,
         hfx.falschWeniger > 0 && `Falsche Maßnahmen −${hfx.falschWeniger} Abzug`,
         hfx.pruefungPlus > 0 && `+${hfx.pruefungPlus} je wichtiger Prüfung`,
         hfx.richtigPlus > 0 && `+${hfx.richtigPlus} je richtiger Maßnahme`,
@@ -239,7 +239,7 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
     fx.startBonus > 0 && `+${fx.startBonus} % Startzustand`,
     fx.measureFactor < 1 && `Messungen −${Math.round((1 - fx.measureFactor) * 100)} %`,
     fx.endBonus > 0 && `+${fx.endBonus} % Zustand am Ende`,
-    fx.pointsPct > 0 && `+${fx.pointsPct} % Punkte`,
+    fx.pointsPct > 0 && `+${fx.pointsPct} % EP`,
     fx.drainFactor < 1 && `„Schwer“ −${Math.round((1 - fx.drainFactor) * 100)} % Zeitdruck`,
   ].filter(Boolean) as string[];
 
@@ -253,7 +253,7 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
       <TopBar
         kicker={helfer ? 'Garage' : 'Fahrzeughalle'}
         title={rolle.fahrzeug}
-        right={<StatChip value={euro(progress.budget)} label="Budget" color={colors.yellowTint} />}
+        right={<StatChip value={coins(progress.budget)} label="Coins" color={colors.yellowTint} />}
       />
       <ScrollView contentContainerStyle={[{ paddingBottom: spacing.xxl }, L.wide && { padding: spacing.xl }]}>
         <Columns
@@ -309,7 +309,7 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
                 <Text style={type.small}>
                   {effects.length > 0 ? effects.join(' · ') : 'Noch Grundausstattung – jede Aufrüstung hilft meinen Patienten.'}
                 </Text>
-                <Text style={[type.small, { marginTop: 4 }]}>Für jeden Punkt bekommst du 1 € Budget.</Text>
+                <Text style={[type.small, { marginTop: 4 }]}>Für jeden EP bekommst du 1 Coin.</Text>
               </View>
 
               {helfer && angebot && (
@@ -325,7 +325,7 @@ export function GarageScreen({ progress, onUpgrade }: { progress: Progress; onUp
                         {EQUIPMENT_BY_ID[angebot].tiers[levels[angebot]].name}
                       </Text>
                       <Text style={styles.angebotPreis}>
-                        {euro(EQUIPMENT_BY_ID[angebot].cost[levels[angebot]])} → {euro(kostenFuer(progress, angebot))}
+                        {coins(EQUIPMENT_BY_ID[angebot].cost[levels[angebot]])} → {coins(kostenFuer(progress, angebot))}
                       </Text>
                     </View>
                     <Text style={styles.rowArrow}>›</Text>

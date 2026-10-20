@@ -82,7 +82,7 @@ export function SpickScreen({
               <View style={{ flex: 1, gap: 2 }}>
                 <Text style={[type.headline, { fontSize: 15 }]}>{s.titel}</Text>
                 <Text style={type.small}>
-                  {frei ? `${s.punkte.length} Punkte${neu ? ' · neu' : ''}` : `Ab Kapitel ${s.kapitelAb}`}
+                  {frei ? `${s.punkte.length} EP${neu ? ' · neu' : ''}` : `Ab Kapitel ${s.kapitelAb}`}
                 </Text>
               </View>
               {frei && <Text style={[styles.zeichen, { fontSize: 18 }]}>›</Text>}

@@ -26,7 +26,7 @@ const SCHRITTE: { id: Phase; label: string }[] = [
 const LETTERS = ['A', 'B', 'C', 'D'];
 
 export interface HelferAbschluss {
-  /** Punkte inklusive Ausrüstung */
+  /** EP inklusive Ausrüstung */
   punkte: number;
   ausruestung: number;
   goalBonus: number;
@@ -131,7 +131,7 @@ export function HelferScreen({
         {phase === 'pruefen' && (
           <>
             <Text style={type.h2}>Was prüfst du?</Text>
-            <Text style={type.small}>Tippe an, was du prüfen möchtest. Wichtiges zu vergessen kostet Punkte.</Text>
+            <Text style={type.small}>Tippe an, was du prüfen möchtest. Wichtiges zu vergessen kostet EP.</Text>
             {lichtHinweis > 0 && (
               <Text style={styles.licht}>
                 🔦 Dein Licht zeigt: {wichtigGesamt} wichtige Prüfungen
@@ -202,7 +202,7 @@ export function HelferScreen({
         {phase === 'handeln' && (
           <>
             <Text style={type.h2}>Was tust du?</Text>
-            <Text style={type.small}>Wähle alle richtigen Maßnahmen. Falsche kosten Punkte.</Text>
+            <Text style={type.small}>Wähle alle richtigen Maßnahmen. Falsche kosten EP.</Text>
             <View style={{ gap: spacing.sm }}>
               {reihenfolge.map((i) => {
                 const an = gewaehlt.includes(i);
@@ -233,7 +233,7 @@ export function HelferScreen({
             <Card style={{ alignItems: 'center', gap: spacing.sm }}>
               <Text style={styles.stars}>{'★'.repeat(ergebnis.e.sterne) + '☆'.repeat(3 - ergebnis.e.sterne)}</Text>
               <Text style={styles.points}>+{ergebnis.a.punkte}</Text>
-              <Text style={type.small}>Punkte · {fall.titel}</Text>
+              <Text style={type.small}>EP · {fall.titel}</Text>
               {ergebnis.a.promotion && <Pill label={`Neuer Rang: ${ergebnis.a.promotion}`} color={colors.yellowTint} />}
               {ergebnis.a.newBadges.map((b) => (
                 <Pill key={b.id} label={`${b.icon} ${b.title}`} color={colors.lilac} />

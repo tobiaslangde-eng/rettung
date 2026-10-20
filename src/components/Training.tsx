@@ -80,7 +80,7 @@ export function ScoreHero({
         {unit ? <Text style={styles.unit}> {unit}</Text> : null}
       </Text>
       <View style={styles.gain}>
-        <Text style={styles.gainText}>+{points} Punkte</Text>
+        <Text style={styles.gainText}>+{points} EP</Text>
       </View>
       {note ? <Text style={styles.note}>{note}</Text> : null}
       <View style={{ alignSelf: 'stretch', marginTop: spacing.md }}>

@@ -16,7 +16,7 @@ import { HELFER_FAELLE } from '../data/helfer';
 import { NOTRUF_SZENARIEN } from '../data/notruf';
 import { PACKLISTEN } from '../data/packlisten';
 import { badgesFuerRolle } from '../game/achievements';
-import { EQUIPMENT_BY_ID, EquipmentId, MAX_LEVEL, ausruestung, euro, levelOf } from '../game/equipment';
+import { EQUIPMENT_BY_ID, EquipmentId, MAX_LEVEL, ausruestung, coins, levelOf } from '../game/equipment';
 import { useRolle } from '../game/rolle';
 import { rankFor, rankList } from '../game/scoring';
 import { ablaeufeFuer } from '../game/schritte';
@@ -31,7 +31,7 @@ type Tab = 'werte' | 'frei' | 'raenge' | 'technik' | 'grafik' | 'abzeichen' | 'w
 
 const nf = (n: number) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-/** Entwicklermenü (versteckt): Punkte, Budget, Freischaltungen, Ränge, Ausrüstung, Abzeichen und Wache – je nach Rolle */
+/** Entwicklermenü (versteckt): EP, Coins, Freischaltungen, Ränge, Ausrüstung, Abzeichen und Wache – je nach Rolle */
 export function DevScreen({
   progress,
   onChange,
@@ -150,7 +150,7 @@ export function DevScreen({
       <ScrollView contentContainerStyle={[styles.content, L.wide && styles.wide]}>
         {tab === 'werte' && (
           <>
-            <Block title="Punkte" info={`${nf(p.totalPoints)} Punkte · Rang: ${rankFor(p.totalPoints).rank.de}`}>
+            <Block title="EP" info={`${nf(p.totalPoints)} EP · Rang: ${rankFor(p.totalPoints).rank.de}`}>
               <Row>
                 {[100, 1000, 10000, 100000].map((n) => (
                   <Mini key={n} label={`+${nf(n)}`} onPress={() => set({ totalPoints: p.totalPoints + n })} />
@@ -164,14 +164,14 @@ export function DevScreen({
                 />
               </Row>
             </Block>
-            <Block title="Budget" info={euro(p.budget)}>
+            <Block title="Coins" info={coins(p.budget)}>
               <Row>
                 {[500, 5000, 50000].map((n) => (
-                  <Mini key={n} label={`+${nf(n)} €`} onPress={() => set({ budget: p.budget + n })} />
+                  <Mini key={n} label={`+${nf(n)} 🪙`} onPress={() => set({ budget: p.budget + n })} />
                 ))}
               </Row>
               <Row>
-                <Mini label="Unendlich (999.999 €)" onPress={() => set({ budget: 999999 })} />
+                <Mini label="Unendlich (999.999 🪙)" onPress={() => set({ budget: 999999 })} />
                 <Mini label="Auf 0" onPress={() => set({ budget: 0 })} />
               </Row>
             </Block>
@@ -216,7 +216,7 @@ export function DevScreen({
         )}
 
         {tab === 'raenge' && (
-          <Block title="Alle Dienstgrade" info="Tippe auf einen Rang, um die Punkte dorthin zu setzen.">
+          <Block title="Alle Dienstgrade" info="Tippe auf einen Rang, um die EP dorthin zu setzen.">
             <View style={{ gap: 6 }}>
               {rankList().map((rk, i) => {
                 const aktuell = rankFor(p.totalPoints).rank.min === rk.min;
@@ -230,7 +230,7 @@ export function DevScreen({
                     <Text style={styles.nr}>{i + 1}</Text>
                     <View style={{ flex: 1 }}>
                       <Text style={[type.headline, { fontSize: 15 }]}>{rk.de}</Text>
-                      <Text style={styles.tiny}>ab {nf(rk.min)} Punkten</Text>
+                      <Text style={styles.tiny}>ab {nf(rk.min)} EP</Text>
                     </View>
                     {aktuell && <Text style={[styles.tiny, { color: r.akzentDunkel }]}>aktuell</Text>}
                   </Tap>
@@ -270,7 +270,7 @@ export function DevScreen({
                       />
                     ))}
                   </Row>
-                  <Text style={styles.tiny}>Kosten: {e.cost.map((c, i) => (i === 0 ? 'Start' : euro(c))).join(' · ')}</Text>
+                  <Text style={styles.tiny}>Kosten: {e.cost.map((c, i) => (i === 0 ? 'Start' : coins(c))).join(' · ')}</Text>
                 </Block>
               );
             })}

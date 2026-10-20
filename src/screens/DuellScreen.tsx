@@ -13,7 +13,7 @@ import { colors, fonts, spacing, type } from '../theme';
 
 const LETTERS = ['A', 'B', 'C', 'D'];
 
-/** Duell mit Freunden: dieselben 5 Fragen für alle – schlage die Punkte aus dem Link */
+/** Duell mit Freunden: dieselben 5 Fragen für alle – schlage die EP aus dem Link */
 export function DuellScreen({
   einladung,
   name,
@@ -132,7 +132,7 @@ export function DuellScreen({
                 gegen {gegner.name || 'Freund/in'}: {gegner.richtig}/{DUELL_FRAGEN}
               </Text>
             )}
-            <Text style={[type.headline, { color: r.akzentDunkel }]}>+{richtig * 8 + (gewonnen === true ? 15 : 0)} Punkte</Text>
+            <Text style={[type.headline, { color: r.akzentDunkel }]}>+{richtig * 8 + (gewonnen === true ? 15 : 0)} EP</Text>
           </Card>
           <Button
             label={gegner ? 'Ergebnis zurückschicken' : 'Freund herausfordern'}

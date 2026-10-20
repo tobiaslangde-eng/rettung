@@ -186,7 +186,7 @@ export function LaborSchritte({
       {fertig && (
         <Card style={{ alignItems: 'center', gap: spacing.xs }}>
           <Text style={styles.emoji}>🏅</Text>
-          <Text style={[type.headline, { color: r.akzentDunkel }]}>+{fertigPunkte} Punkte</Text>
+          <Text style={[type.headline, { color: r.akzentDunkel }]}>+{fertigPunkte} EP</Text>
           {fehler === 0 && <Text style={type.small}>Ohne Fehler – Bonus!</Text>}
           <Text style={[type.small, { textAlign: 'center' }]}>{uebung.merke}</Text>
         </Card>

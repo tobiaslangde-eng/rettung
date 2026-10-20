@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ReactNode, useState } from 'react';
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Card, Pill, Segmented, Tap, TopBar } from '../components/UI';
 import { BASICS } from '../data/basics';
 import { HELFER_LEXIKON } from '../data/helferLexikon';
@@ -7,13 +7,55 @@ import { LexikonTab } from '../data/helferTraining';
 import { useRolle } from '../game/rolle';
 import { CASES } from '../data/cases';
 import { CHILD_NORMS, VITALS } from '../data/vitals';
+import { WissensKarte } from '../components/WissensKarte';
+import { sucheWissen } from '../game/wissen';
 import { Progress } from '../game/storage';
 import { useLayout } from '../layout';
 import { colors, spacing, type, fonts } from '../theme';
 
 type Tab = 'wissen' | 'werte' | 'krankheiten';
 
-function HelferLexikon() {
+/** Suchfeld über dem Lexikon: bei Eingabe erscheinen die besten Treffer statt der Reiter */
+function MitSuche({ onKati, children }: { onKati: () => void; children: ReactNode }) {
+  const r = useRolle();
+  const L = useLayout();
+  const [q, setQ] = useState('');
+  const aktiv = q.trim().length >= 2;
+  const treffer = aktiv ? sucheWissen(r.id, q, 8) : [];
+  return (
+    <View style={{ flex: 1 }}>
+      <View style={styles.suche}>
+        <TextInput
+          value={q}
+          onChangeText={setQ}
+          placeholder="🔍 Lexikon durchsuchen"
+          placeholderTextColor={colors.muted}
+          accessibilityLabel="Lexikon durchsuchen"
+          style={styles.sucheFeld}
+        />
+        <Tap onPress={onKati} accessibilityLabel="Frag Kati" style={[styles.katiKnopf, { backgroundColor: r.akzentTint, borderColor: r.akzent }]}>
+          <Text style={[styles.katiText, { color: r.akzentDunkel }]}>💬 Frag Kati</Text>
+        </Tap>
+      </View>
+      {aktiv ? (
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, L.wide && { padding: spacing.xl, maxWidth: 760, alignSelf: 'center', width: '100%' }]}>
+          {treffer.length === 0 ? (
+            <Card style={{ gap: spacing.sm }}>
+              <Text style={type.headline}>Nichts gefunden 🤔</Text>
+              <Text style={type.small}>Probier ein anderes Wort – oder frag Kati in ganzen Sätzen.</Text>
+            </Card>
+          ) : (
+            treffer.map((t) => <WissensKarte key={t.eintrag.id} eintrag={t.eintrag} maxPunkte={4} />)
+          )}
+        </ScrollView>
+      ) : (
+        children
+      )}
+    </View>
+  );
+}
+
+function HelferLexikon({ onKati }: { onKati: () => void }) {
   const L = useLayout();
   const r = useRolle();
   const [tab, setTab] = useState<LexikonTab>('handeln');
@@ -21,6 +63,7 @@ function HelferLexikon() {
   return (
     <View style={{ flex: 1 }}>
       <TopBar kicker="Nachschlagen" title="Erste-Hilfe-Lexikon" />
+      <MitSuche onKati={onKati}>
       <View style={styles.tabs}>
         <Segmented
           options={[
@@ -61,23 +104,25 @@ function HelferLexikon() {
           );
         })}
       </ScrollView>
+      </MitSuche>
     </View>
   );
 }
 
-export function LexikonScreen({ progress }: { progress: Progress }) {
+export function LexikonScreen({ progress, onKati }: { progress: Progress; onKati: () => void }) {
   const rolle = useRolle();
-  if (rolle.id === 'helfer') return <HelferLexikon />;
-  return <SaniLexikon progress={progress} />;
+  if (rolle.id === 'helfer') return <HelferLexikon onKati={onKati} />;
+  return <SaniLexikon progress={progress} onKati={onKati} />;
 }
 
-function SaniLexikon({ progress }: { progress: Progress }) {
+function SaniLexikon({ progress, onKati }: { progress: Progress; onKati: () => void }) {
   const [tab, setTab] = useState<Tab>('werte');
   const L = useLayout();
   const cardW = L.desktop ? { width: '32.3%' as const } : L.wide ? { width: '48.9%' as const } : undefined;
   return (
     <View style={{ flex: 1 }}>
       <TopBar kicker="Nachschlagen" title="Lexikon" />
+      <MitSuche onKati={onKati}>
       <View style={styles.tabs}>
         <Segmented
           options={[
@@ -167,11 +212,16 @@ function SaniLexikon({ progress }: { progress: Progress }) {
         )}
         <View style={{ width: '100%' }}></View>
       </ScrollView>
+      </MitSuche>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  suche: { paddingHorizontal: spacing.lg, paddingBottom: spacing.sm, flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
+  sucheFeld: { flex: 1, fontFamily: fonts.regular, fontSize: 15, color: colors.ink, backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.line, borderRadius: 14, paddingHorizontal: spacing.md, paddingVertical: 11 },
+  katiKnopf: { borderWidth: 1.5, borderRadius: 14, paddingHorizontal: 12, paddingVertical: 11 },
+  katiText: { fontFamily: fonts.bold, fontSize: 13 },
   lexCard: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderRadius: 14, padding: spacing.lg },
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl + 8 },
   contentWide: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', padding: spacing.xl },

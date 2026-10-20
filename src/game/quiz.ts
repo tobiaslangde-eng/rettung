@@ -5,7 +5,7 @@ import { aktiveRolle } from './rolle';
 import { Rating, VitalId, VitalValue, rateVital } from '../data/vitals';
 import { shuffle } from './scoring';
 
-/** Punkte je richtig eingeschätztem Wert im Schnelltraining */
+/** EP je richtig eingeschätztem Wert im Schnelltraining */
 export const QUIZ_POINTS = 5;
 export const QUIZ_ROUNDS = 10;
 

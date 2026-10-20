@@ -89,7 +89,7 @@ const HELFER: Kapitel[] = [
   },
   {
     titel: 'Ein Blick in den Kofferraum',
-    text: 'Du schaust in dein Auto: Der Verbandkasten ist von 2009, die Warnweste liegt ganz hinten. Mit deinen Punkten kannst du dein Auto besser ausstatten.',
+    text: 'Du schaust in dein Auto: Der Verbandkasten ist von 2009, die Warnweste liegt ganz hinten. Mit deinen EP kannst du dein Auto besser ausstatten.',
     ziel: 'Rüste dein Auto einmal auf.',
     aktion: 'garage',
     stand: (p) => anteil(aufgeruestet(p), 1),
@@ -220,7 +220,7 @@ const SANI: Kapitel[] = [
   },
   {
     titel: 'Neue Technik',
-    text: 'Die Wache bekommt ein Budget für Ausrüstung. Der Wachleiter schaut dich an: „Du hast gute Einsätze gefahren – such du etwas aus.“',
+    text: 'Die Wache bekommt Coins, mit denen du Ausrüstung kaufst. Der Wachleiter schaut dich an: „Du hast gute Einsätze gefahren – such du etwas aus.“',
     ziel: 'Rüste deinen Rettungswagen einmal auf.',
     aktion: 'garage',
     stand: (p) => anteil(aufgeruestet(p), 1),
@@ -269,7 +269,7 @@ const SANI: Kapitel[] = [
   {
     titel: 'Teil des Teams',
     text: 'Bestanden! Auf der Wache gibt es Kuchen, und dein Name steht jetzt auf dem Dienstplan. Die richtigen Einsätze fangen gerade erst an.',
-    ziel: 'Erreiche den Dienstgrad Notfallsanitäter/in (1.600 Punkte).',
+    ziel: 'Erreiche den Dienstgrad Notfallsanitäter/in (1.600 EP).',
     aktion: 'einsatz',
     stand: (p) => anteil(p.totalPoints, 1600),
     frei: ['leitstelle'],

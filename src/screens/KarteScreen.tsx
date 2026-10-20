@@ -133,7 +133,7 @@ export function KarteScreen({
           {r.id === 'helfer'
             ? 'Hilferufe in der Stadt: Wohin fährst du zuerst?'
             : 'Neue Einsätze von der Leitstelle: Welchen fährst du zuerst an?'}{' '}
-          Wer den Einsatz mit der kürzesten Anfahrt wählt, bekommt +{BONUS_KUERZESTE} Punkte. Wer Staus clever umfährt, +
+          Wer den Einsatz mit der kürzesten Anfahrt wählt, bekommt +{BONUS_KUERZESTE} EP. Wer Staus clever umfährt, +
           {BONUS_ROUTE}.
         </Text>
         <View style={[styles.karte, { width: breite, height: hoehe }]}>

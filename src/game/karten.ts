@@ -93,7 +93,7 @@ export function spickKarteSvg(o: {
   const ms = umbrechen(o.merksatz, 46).slice(0, 2);
   const msH = ms.length === 2 ? 110 : 76;
   const unten = 1090 - msH - 26; // hier muss die Liste spätestens enden
-  // Schriftgröße so wählen, dass alle Punkte hineinpassen
+  // Schriftgröße so wählen, dass alle EP hineinpassen
   let fs = 36;
   let items: { zeilen: string[]; h: number }[] = [];
   for (; fs >= 26; fs -= 2) {

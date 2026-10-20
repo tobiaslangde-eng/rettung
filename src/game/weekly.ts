@@ -28,7 +28,7 @@ export function bestPastWeek(p: Progress): number {
   return p.weekHistory.reduce((m, w) => Math.max(m, w.points), 0);
 }
 
-/** Bucht Punkte auf die aktuelle Woche. `newRecord`: Diese Woche hat gerade den bisherigen Rekord überholt. */
+/** Bucht EP auf die aktuelle Woche. `newRecord`: Diese Woche hat gerade den bisherigen Rekord überholt. */
 export function addWeekPoints(p: Progress, delta: number, d = new Date()): { progress: Progress; newRecord: boolean } {
   const rolled = rollover(p, weekKey(d));
   const best = bestPastWeek(rolled);
@@ -41,7 +41,7 @@ export interface WeekView {
   current: number;
   last: number;
   best: number;
-  /** Punkte der letzten 6 Wochen (älteste zuerst), die letzte ist die aktuelle */
+  /** EP der letzten 6 Wochen (älteste zuerst), die letzte ist die aktuelle */
   bars: { week: string; points: number }[];
 }
 

@@ -26,7 +26,7 @@ const STEPS = [
     text: 'Ich höre zu, schaue genau hin und messe Vitalwerte. Jeden Wert stufe ich ein: niedrig, normal oder hoch. Jede Messung kostet Zeit – und den Patienten etwas Kraft.',
   },
   { de: 'Diagnose', text: 'Ich entscheide mich für eine Verdachtsdiagnose aus vier Möglichkeiten.' },
-  { de: 'Maßnahmen', text: 'Ich wähle alle passenden Maßnahmen. Falsche Maßnahmen schaden dem Patienten und kosten Punkte.' },
+  { de: 'Maßnahmen', text: 'Ich wähle alle passenden Maßnahmen. Falsche Maßnahmen schaden dem Patienten und kosten EP.' },
 ];
 
 /** Spielstand als Code mitnehmen – auf ein anderes Gerät oder zu einer neuen Web-Adresse. */
@@ -55,7 +55,7 @@ function Transfer({ progress, onImport }: { progress: Progress; onImport: (p: Pr
     <Card>
       <Head icon="💾" color={colors.skyStrong} title="Spielstand übertragen" />
       <Text style={[type.small, { marginTop: spacing.sm }]}>
-        Neues Gerät oder neue Adresse? Hier den Code kopieren und auf dem anderen Gerät unter „Mehr“ wieder einfügen – Punkte,
+        Neues Gerät oder neue Adresse? Hier den Code kopieren und auf dem anderen Gerät unter „Mehr“ wieder einfügen – EP,
         Rang, Abzeichen und Ausrüstung kommen mit.
       </Text>
       <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md }}>
@@ -88,7 +88,7 @@ function Transfer({ progress, onImport }: { progress: Progress; onImport: (p: Pr
       {input.trim() !== '' && (
         <Text style={[type.small, { color: parsed ? colors.mintDark : colors.red, marginTop: spacing.xs }]}>
           {parsed
-            ? `Gültiger Code: ${parsed.totalPoints} Punkte, ${parsed.badges.length} Abzeichen`
+            ? `Gültiger Code: ${parsed.totalPoints} EP, ${parsed.badges.length} Abzeichen`
             : 'Das ist kein gültiger Spielstand-Code.'}
         </Text>
       )}
@@ -116,6 +116,7 @@ export function GuideScreen({
   onDev,
   onModus,
   onFeedback,
+  onEinfuehrung,
 }: {
   progress: Progress;
   onReset: () => void;
@@ -124,6 +125,7 @@ export function GuideScreen({
   onDev: () => void;
   onModus: (m: 'story' | 'frei') => void;
   onFeedback: () => void;
+  onEinfuehrung: () => void;
 }) {
   const [dar, setDar] = useState<Darstellung>(ladeDarstellung);
   const setzeDar = (d: Darstellung) => {
@@ -214,6 +216,11 @@ export function GuideScreen({
         </Card>
 
         <Text style={[type.h2, { marginTop: spacing.sm }]}>Anleitung</Text>
+        <Card style={{ gap: spacing.sm }}>
+          <Text style={type.eyebrow}>Einführung</Text>
+          <Text style={type.small}>Die Kurz-Tour: Wo finde ich was? Was bedeuten EP, Level, Coins und Serie?</Text>
+          <Button label="Einführung ansehen" variant="outline" onPress={onEinfuehrung} />
+        </Card>
         <View style={styles.intro}>
           <Pressable onPress={tippeKati} accessibilityElementsHidden importantForAccessibility="no" style={{ opacity: 1 }}>
             <KatiAvatar size={52} />
@@ -255,16 +262,16 @@ export function GuideScreen({
         <Card>
           <Head icon="📅" color={colors.yellow} title="Tagesdienst" />
           <Text style={[type.body, { marginTop: spacing.sm }]}>
-            Jeden Tag gibt es einen „Einsatz des Tages“ mit 50 % mehr Punkten. Wer {DAILY_GOAL} Einsätze an einem Tag schafft,
+            Jeden Tag gibt es einen „Einsatz des Tages“ mit 50 % mehr EP. Wer {DAILY_GOAL} Einsätze an einem Tag schafft,
             erreicht das Tagesziel. Schaffe ich das mehrere Tage hintereinander, wächst meine Dienst-Serie – und der Bonus mit.
           </Text>
         </Card>
         <Card>
           <Head icon="🚑" color={colors.butter} title="Mein Rettungswagen" />
           <Text style={[type.body, { marginTop: spacing.sm }]}>
-            Für jeden Punkt bekommt meine Wache 1 € Budget. In der Fahrzeughalle rüste ich damit Fahrzeug, Monitor, Rucksack,
+            Für jeden EP bekommt meine Wache 1 Coin (die Spielwährung, kein echtes Geld). In der Fahrzeughalle rüste ich damit Fahrzeug, Monitor, Rucksack,
             Beatmung, Trage, Funk und Einsatzkleidung in vier Stufen auf – jede Stufe ist neuer und moderner und hilft im Einsatz.
-            Die höheren Stufen schalte ich mit meinem Dienstgrad frei. Einkaufen kostet nur Budget, keine Punkte – mein Rang
+            Die höheren Stufen schalte ich mit meinem Dienstgrad frei. Einkaufen kostet nur Coins, keine EP – mein Rang
             bleibt.
           </Text>
         </Card>
@@ -287,7 +294,23 @@ export function GuideScreen({
           ))}
         </Card>
         <Card>
-          <Head icon="🏅" color={colors.mintTint} title="Punkte" />
+          <Head icon="⭐" color={colors.yellow} title="EP, Level und Coins" />
+          <View style={{ marginTop: spacing.sm, gap: spacing.sm }}>
+            <Text style={type.body}>
+              <Text style={{ fontFamily: fonts.bold }}>EP</Text> sind Erfahrungspunkte. Du bekommst sie für alles, was du richtig machst. Je mehr EP,
+              desto höher dein <Text style={{ fontFamily: fonts.bold }}>Level</Text> – und irgendwann dein Dienstgrad.
+            </Text>
+            <Text style={type.body}>
+              <Text style={{ fontFamily: fonts.bold }}>Coins 🪙</Text> sind die Spielwährung (kein echtes Geld). Für jeden EP gibt es 1 Coin. Damit
+              kaufst du Ausrüstung und baust deine Station aus. Einkaufen kostet nur Coins, nie EP.
+            </Text>
+            <Text style={type.body}>
+              <Text style={{ fontFamily: fonts.bold }}>🔥 Serie</Text> zählt die Tage in Folge, an denen du dein Tagesziel schaffst.
+            </Text>
+          </View>
+        </Card>
+        <Card>
+          <Head icon="🏅" color={colors.mintTint} title="So bekomme ich EP" />
           <View style={{ marginTop: spacing.sm }}>
             <Row label="Wert richtig eingestuft" pts={POINTS.ratingCorrect} />
             <Row label="Wert falsch eingestuft" pts={POINTS.ratingWrong} />
@@ -315,8 +338,8 @@ export function GuideScreen({
           </View>
           <Text style={[type.small, { marginTop: spacing.sm }]}>
             {r.id === 'helfer'
-              ? 'Alle Trainings (Notruf, Was zuerst?, Handgriffe, Mythen, Defi, Prüfung) geben Punkte für richtige Antworten und einen Bonus für fehlerfreie Runden.'
-              : 'Auf „Mittel“ zählen alle Punkte eines Einsatzes ×1,5, auf „Schwer“ ×2. Die Detektiv-Akten haben ein eigenes Punktesystem (siehe dort).'}
+              ? 'Alle Trainings (Notruf, Was zuerst?, Handgriffe, Mythen, Defi, Prüfung) geben EP für richtige Antworten und einen Bonus für fehlerfreie Runden.'
+              : 'Auf „Mittel“ zählen alle EP eines Einsatzes ×1,5, auf „Schwer“ ×2. Die Detektiv-Akten haben ein eigenes Punktesystem (siehe dort).'}
           </Text>
         </Card>
 
@@ -338,7 +361,7 @@ export function GuideScreen({
         <Card>
           <Head icon="🗑️" color={colors.line} title="Neu anfangen" />
           <Text style={[type.small, { marginTop: spacing.sm }]}>
-            Setzt Punkte, Rang, Sterne und Abzeichen auf null. Das lässt sich nicht rückgängig machen.
+            Setzt EP, Rang, Sterne und Abzeichen auf null. Das lässt sich nicht rückgängig machen.
           </Text>
           {confirmReset ? (
             <View style={{ gap: spacing.sm, marginTop: spacing.md }}>
