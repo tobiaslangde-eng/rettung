@@ -132,6 +132,35 @@ const SYNONYME: string[][] = [
   ['augen', 'auge', 'augenverletzung', 'veraetzung', 'spritzer'],
   ['schwanger', 'schwangerschaft', 'geburt', 'wehen'],
   ['abc', 'abcde', 'untersuchung', 'vorgehen', 'schema'],
+  [
+    'helfen',
+    'hilfeleistung',
+    'hilfeleistungspflicht',
+    'pflicht',
+    'verpflichtet',
+    'verpflichtung',
+    'unterlassene hilfeleistung',
+    'zumutbar',
+    'strafbar',
+    'bestraft',
+    'strafe',
+  ],
+  [
+    'fehler',
+    'falsch machen',
+    'haftung',
+    'haftet',
+    'haften',
+    'verklagt',
+    'rechtlich',
+    'schuld',
+    'versichert',
+    'versicherung',
+    'angst',
+  ],
+  ['ansteckung', 'angesteckt', 'infizieren', 'mund zu mund', 'beatmen', 'ekel', 'blut', 'schlecht'],
+  ['gaffer', 'filmen', 'fotografieren', 'handy', 'zuschauer', 'schaulustige'],
+  ['sterben', 'tod', 'tot', 'gestorben', 'trauer', 'angehoerige', 'verarbeiten', 'belastung', 'nachsorge', 'albtraum'],
   ['normwerte', 'vitalwerte', 'puls', 'blutdruck', 'sauerstoff', 'spo2', 'messwerte'],
 ];
 
@@ -625,4 +654,25 @@ export function kontextFuerKi(rolle: Rolle, frage: string, max = 3): { titel: st
       ].filter(Boolean);
       return { titel: e.titel, text: teile.join('\n').slice(0, 1500) };
     });
+}
+
+/** Kurze freundliche Antworten auf Begrüßung, Dank und Fragen zu Kati selbst (nur bei sehr kurzen Nachrichten) */
+export function smalltalk(frage: string): string | null {
+  const n = normal(frage);
+  if (!n || n.split(' ').length > 6) return null;
+  const hat = (re: RegExp) => re.test(n);
+  if (hat(/^(hallo|hi|hey|moin|servus|huhu|guten (morgen|tag|abend)|gruess)/))
+    return 'Hallo! Schön, dass du da bist. Frag mich etwas zu Erster Hilfe, Rettungsdienst oder Medizin – oder auch, wie es sich anfühlt zu helfen.';
+  if (hat(/\b(danke|dankeschoen|vielen dank|merci)\b/))
+    return 'Gern geschehen! Frag einfach weiter, wenn du noch etwas wissen möchtest. 😊';
+  if (hat(/\b(tschuess|tschau|ciao|bis bald|bis spaeter|auf wiedersehen)\b/))
+    return 'Bis bald! Und im Notfall immer zuerst 112 anrufen.';
+  if (hat(/wie geht (es|s) (dir|ihnen)|wie gehts/)) return 'Danke, gut! Ich bin startklar. Was möchtest du wissen?';
+  if (hat(/(bist du|sind sie) (eine |ein )?(ki|roboter|bot|mensch|echt|kuenstliche)/))
+    return 'Ich bin Kati, eine Figur im Spiel – kein echter Mensch und keine Ärztin. Ich suche Antworten im Wissen der App. Ist die KI-Funktion eingeschaltet, hilft zusätzlich eine KI (Claude von Anthropic) mit.';
+  if (hat(/(wer|was) bist du|wie heisst du|stell dich vor/))
+    return 'Ich bin Kati, deine Kollegin im Lernspiel „Einsatz 112“. Ich helfe dir beim Nachschlagen und erkläre Erste Hilfe, Rettungsdienst und Medizin in einfachen Worten.';
+  if (hat(/(was kannst du|was darf ich|wobei kannst du|wie funktioniert (das|kati)|hilfe$|^hilfe)/))
+    return 'Du kannst mich alles zu Erster Hilfe, Notfällen, Krankheiten, Körper, Medikamenten (allgemein), Rettungsdienst und zum Helfen fragen – zum Beispiel „Was tun bei Verbrennung?“, „Muss ich immer helfen?“ oder „Was bedeutet SpO₂?“. Im Notfall zuerst 112 anrufen!';
+  return null;
 }

@@ -18,6 +18,7 @@ const NAMEN = {
   begriffe: 'Fachbegriffe und Abkürzungen',
   medikamente: 'Medikamente und Hilfsmittel',
   erkrankungen: 'Häufige Erkrankungen',
+  helfen: 'Helfen: Pflicht, Mut und Gefühle',
 };
 const FUER = { beide: 'für alle', helfer: 'Ersthelfer', sani: 'Rettungsdienst' };
 
