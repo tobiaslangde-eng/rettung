@@ -27,6 +27,12 @@ export interface KiNachricht {
   text: string;
 }
 
+/** Ein Artikel aus dem App-Wissen, auf den sich die KI stützen darf */
+export interface KiKontext {
+  titel: string;
+  text: string;
+}
+
 export type KiFehler = 'ausgelastet' | 'zu-viele' | 'tageslimit' | 'abgelehnt' | 'netz' | 'dienst';
 
 export type KiErgebnis = { ok: true; antwort: string; gekuerzt: boolean } | { ok: false; fehler: KiFehler };
@@ -42,7 +48,7 @@ export const KI_FEHLERTEXT: Record<KiFehler, string> = {
 };
 
 /** Stellt eine Frage an die KI (über den eigenen Server, der den Schlüssel verwahrt) */
-export async function frageKi(verlauf: KiNachricht[], rolle: Rolle): Promise<KiErgebnis> {
+export async function frageKi(verlauf: KiNachricht[], rolle: Rolle, kontext: KiKontext[] = []): Promise<KiErgebnis> {
   const url = kiUrl();
   if (!url) return { ok: false, fehler: 'dienst' };
   const abbruch = typeof AbortController !== 'undefined' ? new AbortController() : null;
@@ -51,7 +57,7 @@ export async function frageKi(verlauf: KiNachricht[], rolle: Rolle): Promise<KiE
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rolle, verlauf }),
+      body: JSON.stringify({ rolle, verlauf, kontext }),
       signal: abbruch?.signal,
     });
     const daten = await res.json().catch(() => ({}));
