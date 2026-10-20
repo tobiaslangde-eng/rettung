@@ -16,6 +16,11 @@ Besuche pro Tag/Woche, Herkunft (Referrer), Geräte, Browser, Länder.
 | `modus-story` / `modus-frei` | Spielweise gewählt |
 | `schwierigkeit-leicht/mittel/schwer` | Schwierigkeit umgestellt |
 | `einsatz-gestartet` / `einsatz-beendet` | Einsatz begonnen bzw. zu Ende gespielt (Unterschied = Abbrüche) |
+| `kati-frage` | Eine Frage an „Frag Kati“ gestellt (der Text der Frage wird nicht gespeichert oder gesendet) |
+| `kati-ki-frage` / `kati-ki-zugestimmt` / `kati-ki-abgelehnt` | Frage mit KI gestellt; Zustimmung zur KI erteilt oder abgelehnt (Fragetext wird nie gezählt) |
+| `kati-hilfreich` / `kati-nicht-hilfreich` | Daumen unter einer Antwort von Kati |
+| `einfuehrung-fertig` | Einführung beendet oder übersprungen |
+| `farbmodus-auto` / `-hell` / `-dunkel` | Farbmodus unter „Mehr“ gewählt |
 | `stadtkarte-einsatz` | Einsatz über die Stadtkarte gestartet |
 | `stadtkarte-stau-umfahren` | Auf der Stadtkarte die schnellere Route gewählt |
 | `labor-<übung>` | Eine Übung im Handgriff-Labor geschafft (z. B. `labor-druckverband`, `labor-tourniquet`) |

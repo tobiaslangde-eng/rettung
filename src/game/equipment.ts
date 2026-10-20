@@ -42,7 +42,7 @@ export interface EquipmentDef {
   /** Echtes Rettungsdienst-Wissen zum Gerät */
   wissen: string;
   tiers: [EquipmentTier, EquipmentTier, EquipmentTier, EquipmentTier];
-  /** Budget für Stufe 1–4 (Stufe 1 hat man von Anfang an) */
+  /** Coins für Stufe 1–4 (Stufe 1 hat man von Anfang an) */
   cost: [0, number, number, number];
   /** Wirkung im Einsatz für eine Stufe */
   effect: (level: number) => string;
@@ -86,7 +86,7 @@ export const RTW_AUSRUESTUNG: EquipmentDef[] = [
     title: 'Notfallrucksack',
     icon: '🎒',
     cost: [0, 250, 800, 2000],
-    effect: (l) => (l === 1 ? 'Keine Wirkung' : `Alles schneller griffbereit: +${3 * STEP(l)} % Punkte`),
+    effect: (l) => (l === 1 ? 'Keine Wirkung' : `Alles schneller griffbereit: +${3 * STEP(l)} % EP`),
     tiers: [
       { name: 'Alte Notfalltasche', year: 1995, text: 'Alles in einem großen Fach – ich muss lange suchen.', facts: ['Ein großes Fach – lange Suche', 'Gewicht: schwer und unhandlich'] },
       { name: 'Notfallrucksack', year: 2010, text: 'Mehrere Fächer, beide Hände frei auf dem Weg zum Patienten.', facts: ['Beide Hände frei auf der Treppe', 'Fächer für Verbände und Zugang'] },
@@ -142,7 +142,7 @@ export const RTW_AUSRUESTUNG: EquipmentDef[] = [
     title: 'Einsatzkleidung',
     icon: '🦺',
     cost: [0, 250, 800, 2000],
-    effect: (l) => (l === 1 ? 'Keine Wirkung' : `Sicher und schnell im Einsatz: +${3 * STEP(l)} % Punkte`),
+    effect: (l) => (l === 1 ? 'Keine Wirkung' : `Sicher und schnell im Einsatz: +${3 * STEP(l)} % EP`),
     tiers: [
       { name: 'Einfache Warnweste', year: 1995, text: 'Hauptsache gesehen werden.', facts: ['Gut sichtbar bei Tag', 'Kein Schutz vor Kälte und Nässe'] },
       { name: 'Einsatzjacke mit Reflexstreifen', year: 2010, text: 'Warm, wasserdicht und gut sichtbar.', facts: ['Reflexstreifen leuchten im Scheinwerferlicht', 'Warm und wasserdicht'] },
@@ -264,7 +264,7 @@ export const EQUIPMENT_BY_ID = Object.fromEntries([...RTW_AUSRUESTUNG, ...AUTO_A
 
 /** Ab welchem Dienstgrad (Index in RANKS) eine Stufe freigeschaltet wird */
 export const TIER_MIN_RANK: [0, number, number, number] = [0, 0, 2, 4];
-/** Für Ersthelfer/innen früher: Stufe 3 ab „Ersthelfer/in“ (200 Punkte), Stufe 4 ab „Routinierte Hilfe“ (1.200 Punkte) */
+/** Für Ersthelfer/innen früher: Stufe 3 ab „Ersthelfer/in“ (200 EP), Stufe 4 ab „Routinierte Hilfe“ (1.200 EP) */
 export const TIER_MIN_RANK_HELFER: [0, number, number, number] = [0, 0, 1, 3];
 
 export function levelOf(p: Progress, id: EquipmentId): number {
@@ -357,7 +357,7 @@ export function buyUpgrade(p: Progress, id: EquipmentId): Progress {
   };
 }
 
-/** 12345 → „12.345 €“ */
-export function euro(n: number): string {
-  return `${String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.')} €`;
+/** 12345 → „12.345 🪙“ (Spielwährung, kein echtes Geld) */
+export function coins(n: number): string {
+  return `${String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.')} 🪙`;
 }

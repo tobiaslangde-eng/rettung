@@ -1,6 +1,6 @@
 import { HelferFall } from '../data/helfer';
 
-/** Punkte im Ersthelfer-Notfall */
+/** EP im Ersthelfer-Notfall */
 export const HELFER_PUNKTE = {
   /** je wichtige Prüfung, die gemacht wurde */
   pruefung: 15,
@@ -20,7 +20,7 @@ export interface HelferErgebnis {
   erkannt: boolean;
   massnahmen: { richtig: number; falsch: number; verpasst: number; alle: number };
   zeilen: { label: string; punkte: number }[];
-  /** Punkte vor Ausrüstungs- und Tagesbonus */
+  /** EP vor Ausrüstungs- und Tagesbonus */
   punkte: number;
   sterne: number;
 }

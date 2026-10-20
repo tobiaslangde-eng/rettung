@@ -8,13 +8,14 @@ import { Bar, Button, Segmented, Tap } from '../components/UI';
 import { badgesFuerRolle } from '../game/achievements';
 import { DAILY_GOAL, dayState } from '../game/daily';
 import { DIFFICULTIES, DIFFICULTY_BY_ID, Difficulty } from '../game/difficulty';
-import { MAX_LEVEL, ausruestung, euro, levelOf, totalLevel, upgradeBlock } from '../game/equipment';
+import { MAX_LEVEL, ausruestung, coins, levelOf, totalLevel, upgradeBlock } from '../game/equipment';
 import { HILF_GESAMT_MAX, hilfGesamt } from '../game/hilfspunkt';
 import { WACHE_GESAMT_MAX, wacheGesamt } from '../game/wache';
 import { useRolle } from '../game/rolle';
 import { urkundenFuer } from '../game/urkunden';
 import { spickFrei, spickFuer } from '../game/spickzettel';
 import { SERIE_MEILENSTEINE, naechsterMeilenstein } from '../game/serie';
+import { levelFuer } from '../game/level';
 import { rankFor, rankList } from '../game/scoring';
 import { KAPITEL, KAPITEL_BONUS, StoryAktion, aktuellesKapitel, freiAb, istFrei } from '../game/story';
 import { Progress } from '../game/storage';
@@ -101,63 +102,48 @@ export function HomeScreen({
   const helferTint = helfer ? 'teal' : 'red';
   const heroTitle = sidebar ? 'Hallo!' : 'Einsatz 112';
 
-  const hero = (
-    <Tile size="lg" tint="ink" paper ecgOben ecgOpacity={0.55} style={{ gap: 14 }}>
+  const lv = levelFuer(progress.totalPoints);
+  const autoStufe = totalLevel(progress);
+  const autoMax = ausruestung().length * MAX_LEVEL;
+  const upgradable = ausruestung().some((e) => upgradeBlock(progress, e.id) === null);
+
+  const status = (
+    <Tile size="lg" tint="ink" paper ecgOpacity={0} style={{ gap: 12 }}>
       <View style={styles.heroTop}>
+        <Ring pct={lv.pct} size={78} stroke={8} color={colors.yellow} track="rgba(255,255,255,0.18)">
+          <View style={{ alignItems: 'center' }}>
+            <Text style={styles.lvLabel}>LEVEL</Text>
+            <Text style={styles.lvZahl}>{lv.level}</Text>
+          </View>
+        </Ring>
         <View style={{ flex: 1, gap: 2 }}>
           <Text style={[type.eyebrow, { color: colors.onDarkSoft }]}>
             {WOCHENTAGE[now.getDay()]}, {now.getDate()}. {MONATE[now.getMonth()]}
           </Text>
-          <Text style={[type.largeTitle, { color: colors.white }]}>{heroTitle}</Text>
+          <Text style={[type.title, { color: colors.white }]}>{heroTitle}</Text>
           <Text style={[type.small, { color: helfer ? '#5EEAD4' : '#FF9C98' }]}>
-            {r.icon} {r.titel} · {rank.de}
+            {r.icon} {rank.de}
           </Text>
         </View>
-        <RankBadge size={64} level={rankList().indexOf(rank)} />
       </View>
+      <Text style={styles.epZeile}>
+        {progress.totalPoints.toLocaleString('de-DE')} EP · noch {lv.fehlt.toLocaleString('de-DE')} EP bis Level {lv.level + 1}
+      </Text>
       <View style={styles.heroStats}>
-        <HeroStat icon="⭐" value={progress.totalPoints.toLocaleString('de-DE')} label="Punkte" />
-        <HeroStat icon="💶" value={euro(progress.budget)} label="Budget" />
-        <HeroStat icon="🔥" value={`${day.streak}`} label={day.streak === 1 ? 'Tag' : 'Tage'} />
+        <HeroStat icon="🪙" value={coins(progress.budget)} label="Coins" />
+        <HeroStat icon="🔥" value={`${day.streak}`} label="Serie" />
+        <Tap onPress={garageFrei ? onGarage : undefined} disabled={!garageFrei} accessibilityLabel={r.fahrzeug} style={{ flex: 1 }}>
+          <View style={styles.heroStat}>
+            <Text style={styles.heroStatValue} numberOfLines={1}>
+              {helfer ? '🚗' : '🚑'} {autoStufe}/{autoMax}
+            </Text>
+            <Text style={styles.heroStatLabel} numberOfLines={1}>
+              {upgradable ? '⬆ Upgrade' : helfer ? 'Auto' : 'RTW'}
+            </Text>
+          </View>
+        </Tap>
       </View>
-      <Tap onPress={onModus} accessibilityLabel="Spielweise ändern" style={styles.modusChip}>
-        <Text style={styles.modusText}>{progress.modus === 'frei' ? '🧭 Frei spielen' : '📖 Mit Geschichte'} · ändern ›</Text>
-      </Tap>
     </Tile>
-  );
-
-  const ausbauNow = helfer ? hilfGesamt(progress) : wacheGesamt(progress);
-  const ausbauAll = helfer ? HILF_GESAMT_MAX : WACHE_GESAMT_MAX;
-
-  const stats = (
-    <>
-      <Tile size="lg" tint="slate">
-        <TileLabel icon="📈" text="Heute im Überblick" tint="teal" />
-        <View style={styles.rings}>
-          <RingStat
-            pct={rankPct}
-            color={tiles.amber.accent}
-            center={`${Math.round(rankPct * 100)}%`}
-            label="Rang"
-            sub={next ? next.de : 'Spitze'}
-          />
-          <RingStat
-            pct={day.cases / DAILY_GOAL}
-            color={tiles.blue.accent}
-            center={`${Math.min(day.cases, DAILY_GOAL)}/${DAILY_GOAL}`}
-            label="Tagesziel"
-            sub={r.einsatz === 'Notfall' ? 'Notfälle' : 'Einsätze'}
-          />
-          <RingStat
-            pct={ausbauNow / ausbauAll}
-            color={tiles.green.accent}
-            center={`${ausbauNow}/${ausbauAll}`}
-            label="Ausbau"
-            sub={helfer ? 'Hilfspunkt' : 'Wache'}
-          />
-        </View>
-      </Tile>
-    </>
   );
 
   const story =
@@ -187,7 +173,7 @@ export function HomeScreen({
           )}
         </View>
         {kap.erfuellt && kap.kapitel.aktion !== 'rolle' ? (
-          <Button label={`Kapitel abschließen · +${KAPITEL_BONUS} Punkte`} onPress={onStoryDone} />
+          <Button label={`Kapitel abschließen · +${KAPITEL_BONUS} EP`} onPress={onStoryDone} />
         ) : (
           <Button
             label={kap.kapitel.aktion === 'rolle' ? 'Rolle wechseln' : 'Los geht’s'}
@@ -200,28 +186,37 @@ export function HomeScreen({
       <Tile size="md" tint="violet">
         <TileLabel icon="📖" text="Geschichte" tint="violet" />
         <Text style={type.h2}>Alle Kapitel geschafft!</Text>
-        <Text style={type.body}>Du bist ein echtes Vorbild. Spiel weiter, sammle Punkte und vervollständige dein Archiv.</Text>
+        <Text style={type.body}>Du bist ein echtes Vorbild. Spiel weiter, sammle EP und vervollständige dein Archiv.</Text>
       </Tile>
     );
 
-  const action = (
-    <Tile size={progress.modus === 'frei' ? 'lg' : 'md'} tint={helferTint}>
-      <TileLabel icon={helfer ? '🩹' : '🚑'} text={helfer ? 'Notfall' : 'Einsatz'} tint={helferTint} />
+  const heute = (
+    <Tile size="lg" tint={helferTint} style={{ gap: 10 }}>
       <View style={styles.actionTop}>
         <View style={{ flex: 1, gap: 2 }}>
-          <Text style={type.h2}>{helfer ? 'Notfall im Alltag' : 'Schicht beginnen'}</Text>
+          <Text style={[type.eyebrow, { color: tiles[helferTint].accent }]}>Heute dran</Text>
+          <Text style={type.h2}>{helfer ? 'Notfall im Alltag' : 'Rettungsdienst-Einsatz'}</Text>
           <Text style={type.small}>
-            {helfer
-              ? 'Prüfen, erkennen, richtig handeln – ohne Messgeräte.'
-              : 'Patient untersuchen, Werte messen, richtig handeln.'}
+            {helfer ? 'Prüfen, erkennen, richtig handeln.' : 'Untersuchen, Werte messen, richtig handeln.'}
           </Text>
         </View>
         {helfer ? (
-          <Car level={levelOf(progress, 'auto')} width={92} />
+          <Car level={levelOf(progress, 'auto')} width={88} />
         ) : (
-          <Ambulance level={levelOf(progress, 'rtw')} width={96} />
+          <Ambulance level={levelOf(progress, 'rtw')} width={92} />
         )}
       </View>
+      {einsatzFrei && (
+        <View style={{ gap: 4 }}>
+          <View style={styles.zielZeile}>
+            <Text style={[type.small, { color: colors.ink, fontFamily: fonts.semibold }]}>
+              Tagesziel: {Math.min(day.cases, DAILY_GOAL)} von {DAILY_GOAL} {helfer ? 'Notfällen' : 'Einsätzen'}
+            </Text>
+            <Text style={[type.small, { color: tiles[helferTint].accent, fontFamily: fonts.bold }]}>🔥 {day.streak}</Text>
+          </View>
+          <Bar pct={day.cases / DAILY_GOAL} color={tiles[helferTint].accent} track={colors.track} />
+        </View>
+      )}
       {einsatzFrei ? (
         <>
           {!helfer && (
@@ -234,7 +229,17 @@ export function HomeScreen({
               <Text style={type.small}>{DIFFICULTY_BY_ID[progress.difficulty].description}</Text>
             </>
           )}
-          <Button label={helfer ? 'Notfall starten' : 'Einsatz starten'} onPress={onStart} />
+          <Button label={helfer ? '▶ Jetzt spielen' : '▶ Einsatz starten'} onPress={onStart} />
+          {!day.dailyCaseDone && (
+            <Tap onPress={onDaily} accessibilityLabel={`${r.einsatz} des Tages`} style={styles.tagesLink}>
+              <Text style={styles.tagesLinkText}>⭐ {r.einsatz} des Tages · +50 % EP ›</Text>
+            </Tap>
+          )}
+          <Tap onPress={onModus} accessibilityLabel="Spielweise ändern" style={{ alignSelf: 'flex-start' }}>
+            <Text style={styles.modusText}>
+              {progress.modus === 'frei' ? '🧭 Frei spielen' : '📖 Mit Geschichte'} · ändern ›
+            </Text>
+          </Tap>
         </>
       ) : (
         <Locked kapitel={freiAb(r.id, 'einsatz')} />
@@ -242,24 +247,11 @@ export function HomeScreen({
     </Tile>
   );
 
-  const today = einsatzFrei ? (
-    <>
-      <Tile size="md" tint="pink" onPress={day.dailyCaseDone ? undefined : onDaily} accessibilityLabel={`${r.einsatz} des Tages`}>
-        <TileLabel icon="⭐" text="Des Tages" tint="pink" />
-        <Text style={type.headline}>{r.einsatz} des Tages</Text>
-        <Text style={type.small}>
-          {day.dailyCaseDone ? 'Heute schon erledigt ✓' : '+50 % Punkte – jeden Tag ein neuer Fall.'}
-        </Text>
-        {!day.dailyCaseDone && <Text style={[styles.go, { color: tiles.pink.accent }]}>Starten ›</Text>}
-      </Tile>
-    </>
-  ) : null;
-
   const alleTrainings = trainingsFuer(r.id, progress);
   const empfohlen = [
     ...alleTrainings.filter((t) => istFrei(r.id, progress, t.id) && !t.stand),
     ...alleTrainings.filter((t) => istFrei(r.id, progress, t.id) && t.stand),
-  ].slice(0, 4);
+  ].slice(0, L.wide ? 4 : 2);
   const training = (
     <>
       <BentoTitle
@@ -299,9 +291,6 @@ export function HomeScreen({
     </>
   );
 
-  const total = totalLevel(progress);
-  const maxTotal = ausruestung().length * MAX_LEVEL;
-  const upgradable = ausruestung().some((e) => upgradeBlock(progress, e.id) === null);
   const ausbauStufen = helfer ? hilfGesamt(progress) : wacheGesamt(progress);
   const ausbauMax = helfer ? HILF_GESAMT_MAX : WACHE_GESAMT_MAX;
 
@@ -348,36 +337,6 @@ export function HomeScreen({
       </Tile>
     ) : null;
 
-  const vehicle = (
-    <Tile
-      size="md"
-      tint="slate"
-      onPress={garageFrei ? onGarage : undefined}
-      disabled={!garageFrei}
-      accessibilityLabel={r.fahrzeug}
-    >
-      <TileLabel icon={helfer ? '🚗' : '🚑'} text={r.fahrzeug} tint="teal" />
-      <View style={styles.actionTop}>
-        <View style={{ flex: 1, gap: 4 }}>
-          {garageFrei ? (
-            <>
-              <BigNumber value={`${total}`} unit={`von ${maxTotal} Stufen`} size={28} />
-              <Bar pct={total / maxTotal} color={tiles.teal.accent} track={colors.track} />
-              <Text style={type.small}>{upgradable ? '⬆ Aufrüsten möglich!' : 'Ausrüstung ansehen'}</Text>
-            </>
-          ) : (
-            <Text style={type.small}>Wird in Kapitel {freiAb(r.id, 'garage')} freigeschaltet</Text>
-          )}
-        </View>
-        {helfer ? (
-          <Car level={levelOf(progress, 'auto')} width={80} />
-        ) : (
-          <Ambulance level={levelOf(progress, 'rtw')} width={84} />
-        )}
-      </View>
-    </Tile>
-  );
-
   const ausbau = (
     <Tile
       size="md"
@@ -418,7 +377,7 @@ export function HomeScreen({
         })}
       </View>
       <Text style={type.small}>
-        {naechster ? `Noch ${naechster.tage - serieTage} Tage bis +${naechster.punkte} Punkte` : 'Alle Serien-Belohnungen geholt'}
+        {naechster ? `Noch ${naechster.tage - serieTage} Tage bis +${naechster.punkte} EP` : 'Alle Serien-Belohnungen geholt'}
       </Text>
     </Tile>
   );
@@ -435,7 +394,7 @@ export function HomeScreen({
           <Text style={type.h2}>{rank.de}</Text>
           <Text style={type.small}>
             {next
-              ? `Noch ${(next.min - progress.totalPoints).toLocaleString('de-DE')} Punkte bis ${next.de}`
+              ? `Noch ${(next.min - progress.totalPoints).toLocaleString('de-DE')} EP bis ${next.de}`
               : 'Höchster Rang erreicht'}
           </Text>
         </View>
@@ -462,48 +421,18 @@ export function HomeScreen({
   return (
     <ScrollView contentContainerStyle={[styles.content, L.wide && styles.contentWide]}>
       <BentoGrid>
-        {hero}
+        {status}
+        {heute}
         {story}
-        {action}
         {schnell}
-        {today}
         {serie}
-        {stats}
-        {training}
-        <BentoTitle>Ausbau</BentoTitle>
-        {vehicle}
         {ausbau}
+        {training}
         {profile}
         {feedback}
       </BentoGrid>
       <Text style={styles.note}>Lernspiel – ersetzt keinen Erste-Hilfe-Kurs und keine Ausbildung. Im Notfall: 112.</Text>
     </ScrollView>
-  );
-}
-
-function RingStat({
-  pct,
-  color,
-  center,
-  label,
-  sub,
-}: {
-  pct: number;
-  color: string;
-  center: string;
-  label: string;
-  sub: string;
-}) {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', gap: 4 }}>
-      <Ring pct={pct} size={78} stroke={9} color={color}>
-        <Text style={styles.ringText}>{center}</Text>
-      </Ring>
-      <Text style={[styles.ringLabel, { color }]}>{label}</Text>
-      <Text style={type.small} numberOfLines={1}>
-        {sub}
-      </Text>
-    </View>
   );
 }
 
@@ -566,6 +495,12 @@ function Locked({ kapitel }: { kapitel: number }) {
 }
 
 const styles = StyleSheet.create({
+  lvLabel: { fontFamily: fonts.bold, fontSize: 9, letterSpacing: 1.2, color: colors.onDarkSoft },
+  lvZahl: { fontFamily: fonts.displayBlack, fontSize: 28, lineHeight: 30, color: '#FFFFFF', letterSpacing: -1 },
+  epZeile: { fontFamily: fonts.semibold, fontSize: 12.5, color: colors.onDark },
+  zielZeile: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  tagesLink: { alignSelf: 'stretch', paddingVertical: 10, borderRadius: 14, backgroundColor: colors.veil, alignItems: 'center' },
+  tagesLinkText: { fontFamily: fonts.bold, fontSize: 14, color: colors.ink },
   heroStats: { flexDirection: 'row', gap: 8 },
   heroStat: {
     flex: 1,

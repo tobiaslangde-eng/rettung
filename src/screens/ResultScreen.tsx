@@ -55,7 +55,7 @@ export function ResultScreen({
           </View>
           <Text style={styles.praise}>{PRAISE[result.stars]}</Text>
           <Text style={styles.points}>
-            +{result.total} <Text style={styles.pointsMax}>Punkte</Text>
+            +{result.total} <Text style={styles.pointsMax}>EP</Text>
           </Text>
           <View style={styles.diffPill}>
             <Text style={styles.diff}>
@@ -88,7 +88,7 @@ export function ResultScreen({
                     <Text style={styles.badgeIcon}>📈</Text>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.badgeTitle}>Neuer Wochenrekord!</Text>
-                      <Text style={styles.badgeDesc}>So viele Punkte habe ich noch in keiner Woche gesammelt.</Text>
+                      <Text style={styles.badgeDesc}>So viele EP habe ich noch in keiner Woche gesammelt.</Text>
                     </View>
                   </View>
                 </View>

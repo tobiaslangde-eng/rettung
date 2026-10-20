@@ -1,6 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { euro } from '../game/equipment';
+import { coins } from '../game/equipment';
 import { useRolle } from '../game/rolle';
+import { levelFuer } from '../game/level';
 import { rankFor, rankList } from '../game/scoring';
 import { Bereich, istFrei } from '../game/story';
 import { Progress } from '../game/storage';
@@ -50,8 +51,9 @@ export function SideNav({
   onNavigate: (t: NavTarget) => void;
 }) {
   const r = useRolle();
-  const { rank, next } = rankFor(progress.totalPoints);
-  const pct = next ? (progress.totalPoints - rank.min) / (next.min - rank.min) : 1;
+  const { rank } = rankFor(progress.totalPoints);
+  const lv = levelFuer(progress.totalPoints);
+  const pct = lv.pct;
   const items: { id: NavTarget; icon: string; label: string; group?: string; bereich?: Bereich }[] = [
     { id: 'home', icon: '🏠', label: 'Start' },
     { id: 'garage', icon: r.id === 'helfer' ? '🚗' : '🚑', label: r.fahrzeug, bereich: 'garage' },
@@ -90,7 +92,7 @@ export function SideNav({
             </Text>
             <Bar pct={pct} height={6} />
             <Text style={type.small}>
-              {progress.totalPoints.toLocaleString('de-DE')} Punkte · {euro(progress.budget)}
+              Level {lv.level} · {progress.totalPoints.toLocaleString('de-DE')} EP · {coins(progress.budget)}
             </Text>
           </View>
         </View>

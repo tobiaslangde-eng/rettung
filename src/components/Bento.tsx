@@ -193,12 +193,15 @@ export function Ring({
   size = 72,
   stroke = 8,
   color = colors.tuerkis,
+  track = colors.track,
   children,
 }: {
   pct: number;
   size?: number;
   stroke?: number;
   color?: string;
+  /** Farbe des leeren Rings */
+  track?: string;
   children?: ReactNode;
 }) {
   const r = (size - stroke) / 2;
@@ -207,7 +210,7 @@ export function Ring({
   return (
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
       <Svg width={size} height={size} style={{ position: 'absolute' }}>
-        <Circle cx={size / 2} cy={size / 2} r={r} stroke={colors.track} strokeWidth={stroke} fill="none" />
+        <Circle cx={size / 2} cy={size / 2} r={r} stroke={track} strokeWidth={stroke} fill="none" />
         <Circle
           cx={size / 2}
           cy={size / 2}

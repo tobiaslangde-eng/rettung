@@ -83,7 +83,7 @@ export function FragenScreen({
             <Text style={styles.big}>
               {richtig}/{gesamt}
             </Text>
-            <Text style={type.small}>+{punkte(richtig)} Punkte</Text>
+            <Text style={type.small}>+{punkte(richtig)} EP</Text>
             {bestehen !== undefined && <Text style={type.small}>Bestanden ab {bestehen} richtigen Antworten</Text>}
             <Text style={type.small}>Bestwert: {Math.max(best, richtig)}</Text>
           </Card>

@@ -24,7 +24,7 @@ export const HILFPUNKT: HilfDef[] = [
       'Verbandmaterial gehört trocken und sauber in einen festen Schrank. Einmal im Jahr prüfen, was abgelaufen ist – Medikamente müssen dabei nicht sein.',
     stufen: ['Schrank mit Pflastern', 'Wandschrank mit Verbandmaterial', 'Gepflegte Hausapotheke mit Inventarliste'],
     cost: [500, 1500, 3800],
-    wirkung: 'Fehler verzeihen: 2 Punkte weniger Abzug je falsche Maßnahme und Stufe',
+    wirkung: 'Fehler verzeihen: 2 EP weniger Abzug je falsche Maßnahme und Stufe',
   },
   {
     id: 'raum',
@@ -34,7 +34,7 @@ export const HILFPUNKT: HilfDef[] = [
       'In Betrieben und Vereinen gibt es für größere Gruppen einen Erste-Hilfe-Raum mit Liege, Waschbecken und Notfallkoffer – schnell erreichbar und gut beschildert.',
     stufen: ['Liege und Decke', 'Raum mit Liege, Waschbecken und Notfallkoffer', 'Erste-Hilfe-Raum nach Betriebsnorm'],
     cost: [500, 1500, 3800],
-    wirkung: 'Gut versorgt: +2 Punkte für jede richtige Maßnahme je Stufe',
+    wirkung: 'Gut versorgt: +2 EP für jede richtige Maßnahme je Stufe',
   },
   {
     id: 'defi',
@@ -44,7 +44,7 @@ export const HILFPUNKT: HilfDef[] = [
       'Öffentlich zugängliche Defibrillatoren hängen in Wandkästen mit grünem Herz-Schild. Jeder darf sie benutzen – das Gerät sagt dir, was du tun sollst.',
     stufen: ['Defi im Wandkasten', 'Defi mit Alarm-Kasten und Leuchtschild', 'Defi, Schild und Ortskarte in der App'],
     cost: [500, 1500, 3800],
-    wirkung: 'Herz im Blick: +8 % Punkte bei Herzdruckmassage und Defi-Training je Stufe',
+    wirkung: 'Herz im Blick: +8 % EP bei Herzdruckmassage und Defi-Training je Stufe',
   },
   {
     id: 'netz',
@@ -58,7 +58,7 @@ export const HILFPUNKT: HilfDef[] = [
       'Verknüpft mit Ersthelfer-App und Leitstelle',
     ],
     cost: [500, 1500, 3800],
-    wirkung: 'Gut vernetzt: +2 % Punkte bei Notfällen je Stufe',
+    wirkung: 'Gut vernetzt: +2 % EP bei Notfällen je Stufe',
   },
   {
     id: 'kursraum',
@@ -68,7 +68,7 @@ export const HILFPUNKT: HilfDef[] = [
       'Erste-Hilfe-Wissen verblasst: Kurse sollten etwa alle zwei Jahre aufgefrischt werden. Übungspuppen und ein Defi-Trainer machen das Üben realistisch.',
     stufen: ['Tisch und Stühle', 'Beamer und Übungspuppe', 'Kursraum mit Reanimationspuppen und Defi-Trainer'],
     cost: [500, 1500, 3800],
-    wirkung: 'Gut geübt: +3 % Punkte in allen Trainings je Stufe',
+    wirkung: 'Gut geübt: +3 % EP in allen Trainings je Stufe',
   },
 ];
 

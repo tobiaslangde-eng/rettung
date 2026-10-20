@@ -56,8 +56,8 @@ export function trainingsFuer(rolle: Rolle, p: Progress): TrainingInfo[] {
     title: 'Detektiv-Akten',
     sub:
       rolle === 'helfer'
-        ? 'Woran erkennst du, was los ist? Je weniger Hinweise, desto mehr Punkte.'
-        : 'Der Diagnose-Krimi – je weniger Hinweise, desto mehr Punkte.',
+        ? 'Woran erkennst du, was los ist? Je weniger Hinweise, desto mehr EP.'
+        : 'Der Diagnose-Krimi – je weniger Hinweise, desto mehr EP.',
     stand: akten.solved > 0 ? `${akten.solved}/${akten.total} Akten` : undefined,
   };
   const schritte: TrainingInfo = {

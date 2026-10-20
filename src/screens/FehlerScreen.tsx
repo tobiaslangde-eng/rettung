@@ -67,7 +67,7 @@ export function FehlerScreen({
               {gef}/{ges}
             </Text>
             <Text style={type.small}>Fehler gefunden</Text>
-            <Text style={[type.headline, { color: r.akzentDunkel }]}>+{punkte} Punkte</Text>
+            <Text style={[type.headline, { color: r.akzentDunkel }]}>+{punkte} EP</Text>
           </Card>
           {runde.map((x, k) => (
             <Card key={x.id} style={{ gap: 4 }}>

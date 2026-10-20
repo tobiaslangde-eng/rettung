@@ -251,7 +251,7 @@ const BADGE_TIERS = ['#FFB27A', '#D9E4FF', '#FFE226', '#8FB0FF'];
 
 /**
  * Dienstgrad-Abzeichen als „Profilbild“: Aufkleber mit Tinten-Umrandung, Star of Life in der Mitte,
- * kleine Punkte am unteren Rand zeigen den Rang (nur ab einer gewissen Größe).
+ * kleine EP am unteren Rand zeigen den Rang (nur ab einer gewissen Größe).
  */
 export function RankBadge({ size = 72, level, maxLevel = 7 }: { size?: number; level: number; maxLevel?: number }) {
   const tier = BADGE_TIERS[Math.min(BADGE_TIERS.length - 1, Math.floor(level / 2))];

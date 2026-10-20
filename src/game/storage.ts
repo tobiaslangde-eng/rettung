@@ -65,9 +65,9 @@ export interface Progress {
   /** Kalenderwoche (z. B. 2026-W42), auf die sich `weekPoints` bezieht */
   weekKey: string;
   weekPoints: number;
-  /** Punkte vergangener Wochen (nur Wochen, in denen gespielt wurde) */
+  /** EP vergangener Wochen (nur Wochen, in denen gespielt wurde) */
   weekHistory: { week: string; points: number }[];
-  /** Budget der Wache für Ausrüstung – jeder verdiente Punkt bringt 1 € */
+  /** Coins der Wache für Ausrüstung – jeder verdiente EP bringt 1 Coin */
   budget: number;
   /** Ausrüstungsstufen (1–4) je Ausrüstung */
   equipment: Record<string, number>;
@@ -187,7 +187,7 @@ export async function loadProgress(rolle: Rolle): Promise<Progress> {
     const raw = await AsyncStorage.getItem(KEYS[rolle]);
     if (!raw) return EMPTY_PROGRESS;
     const saved = JSON.parse(raw);
-    // Ältere Spielstände kannten noch kein Budget: Startbudget = bisher gesammelte Punkte.
+    // Ältere Spielstände kannten noch kein Coins: Startbudget = bisher gesammelte EP.
     if (saved.budget === undefined) saved.budget = saved.totalPoints ?? 0;
     return { ...EMPTY_PROGRESS, ...saved };
   } catch {
@@ -219,5 +219,44 @@ export function importCode(code: string): Progress | null {
     return { ...EMPTY_PROGRESS, ...data };
   } catch {
     return null;
+  }
+}
+
+const EINFUEHRUNG_KEY = 'e112.einfuehrung.v1';
+
+/** Hat der Spieler die Einführung schon gesehen? */
+export async function einfuehrungGesehen(): Promise<boolean> {
+  try {
+    return (await AsyncStorage.getItem(EINFUEHRUNG_KEY)) === '1';
+  } catch {
+    return true;
+  }
+}
+
+export async function merkeEinfuehrungGesehen(): Promise<void> {
+  try {
+    await AsyncStorage.setItem(EINFUEHRUNG_KEY, '1');
+  } catch {
+    // egal
+  }
+}
+
+const KI_OK_KEY = 'e112.ki.ok.v1';
+
+/** Hat der Spieler der KI-Nutzung zugestimmt? (null = noch nicht gefragt) */
+export async function kiZustimmung(): Promise<boolean | null> {
+  try {
+    const v = await AsyncStorage.getItem(KI_OK_KEY);
+    return v === null ? null : v === '1';
+  } catch {
+    return null;
+  }
+}
+
+export async function merkeKiZustimmung(ja: boolean): Promise<void> {
+  try {
+    await AsyncStorage.setItem(KI_OK_KEY, ja ? '1' : '0');
+  } catch {
+    // egal
   }
 }

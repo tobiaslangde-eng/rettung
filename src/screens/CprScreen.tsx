@@ -185,11 +185,11 @@ export function CprScreen({
                   style={[styles.toggle, withGuide === on && styles.toggleActive]}
                 >
                   <Text style={[styles.toggleLabel, withGuide === on && { color: colors.onBright }]}>{on ? 'An' : 'Aus'}</Text>
-                  <Text style={[styles.toggleSub, withGuide === on && { color: colors.onBright }]}>{on ? `bis ${CPR_POINTS} Punkte` : `bis ${CPR_POINTS * 2} Punkte`}</Text>
+                  <Text style={[styles.toggleSub, withGuide === on && { color: colors.onBright }]}>{on ? `bis ${CPR_POINTS} EP` : `bis ${CPR_POINTS * 2} EP`}</Text>
                 </Tap>
               ))}
             </View>
-            <Text style={type.small}>Ohne Taktgeber muss ich den Rhythmus selbst halten – dafür gibt es doppelte Punkte.</Text>
+            <Text style={type.small}>Ohne Taktgeber muss ich den Rhythmus selbst halten – dafür gibt es doppelte EP.</Text>
           </View>
           {best > 0 && <Text style={[type.small, { textAlign: 'center' }]}>Mein Bestwert: {best} % im Zielbereich</Text>}
           <Button label="Wiederbelebung starten" variant="alarm" onPress={start} />
@@ -204,7 +204,7 @@ export function CprScreen({
     if (result.avgRate > CPR_MAX_RATE) tips.push('Etwas langsamer – sonst füllt sich das Herz zwischen den Kompressionen nicht.');
     if (result.longestPause > CPR_MAX_PAUSE)
       tips.push(
-        `Die Beatmungspause war zu lang (−${CPR_PAUSE_PENALTY} Punkte). Jede Sekunde ohne Druck senkt den Blutdruck im Gehirn.`,
+        `Die Beatmungspause war zu lang (−${CPR_PAUSE_PENALTY} EP). Jede Sekunde ohne Druck senkt den Blutdruck im Gehirn.`,
       );
     if (tips.length === 0) tips.push('Gleichmäßiger Takt und kurze Pausen – so überlebt das Gehirn bis der Defi kommt.');
     return (

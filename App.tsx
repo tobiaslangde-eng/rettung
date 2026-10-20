@@ -24,7 +24,7 @@ import { TrainingId } from './src/game/trainings';
 import { manvPoints } from './src/game/manv';
 import { QUIZ_POINTS } from './src/game/quiz';
 import { CaseRun, ScoreResult, rankFor, scoreRun } from './src/game/scoring';
-import { EMPTY_PROGRESS, Progress, loadProgress, loadRolle, saveProgress, saveRolle } from './src/game/storage';
+import { EMPTY_PROGRESS, Progress, einfuehrungGesehen, loadProgress, loadRolle, merkeEinfuehrungGesehen, saveProgress, saveRolle } from './src/game/storage';
 import { addWeekPoints } from './src/game/weekly';
 import { CaseScreen } from './src/screens/CaseScreen';
 import { CprScreen } from './src/screens/CprScreen';
@@ -47,6 +47,9 @@ import { NotrufScreen } from './src/screens/NotrufScreen';
 import { PackScreen } from './src/screens/PackScreen';
 import { FragenScreen } from './src/screens/FragenScreen';
 import { startAnalytics, zaehle } from './src/analytics';
+import { levelFuer } from './src/game/level';
+import { Einfuehrung } from './src/screens/Einfuehrung';
+import { KatiFragenScreen } from './src/screens/KatiFragenScreen';
 import { ladeDarstellung, wendeDarstellungAn } from './src/game/darstellung';
 import { mitSerienBonus } from './src/game/serie';
 import { Toast } from './src/components/Toast';
@@ -94,6 +97,7 @@ type Screen =
   | { name: 'duell'; key: number }
   | { name: 'schicht' }
   | { name: 'feedback' }
+  | { name: 'kati' }
   | { name: 'aed'; key: number }
   | { name: 'pruefung'; key: number }
   | { name: 'rolle' }
@@ -140,6 +144,7 @@ const FRAME_MAX: Partial<Record<Screen['name'], number>> = {
   duell: 760,
   schicht: 760,
   feedback: 760,
+  kati: 760,
   urkunden: 760,
   karte: 760,
   spick: 760,
@@ -160,6 +165,7 @@ const TAB_OF: Partial<Record<Screen['name'], TabId>> = {
   karte: 'home',
   spick: 'home',
   lexikon: 'lexikon',
+  kati: 'lexikon',
   guide: 'guide',
   dev: 'guide',
 };
@@ -188,6 +194,7 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   duell: 'home',
   schicht: 'home',
   feedback: 'home',
+  kati: 'lexikon',
   aed: 'aed',
   pruefung: 'pruefung',
   helfer: 'home',
@@ -323,8 +330,11 @@ export default function App() {
     const week = addWeekPoints(awarded.progress, earned);
     const mitBudget = { ...week.progress, budget: week.progress.budget + earned };
     const serie = mitSerienBonus(mitBudget);
-    if (serie.bonus > 0) melde(`🔥 ${serie.tage} Tage in Folge! +${serie.bonus} Punkte`);
+    if (serie.bonus > 0) melde(`🔥 ${serie.tage} Tage in Folge! +${serie.bonus} EP`);
     const next = mitUrkundenDatum(aktiv, serie.progress);
+    const levelVorher = levelFuer(progress.totalPoints).level;
+    const levelNachher = levelFuer(next.totalPoints).level;
+    if (levelNachher > levelVorher) melde(`⬆️ Level ${levelNachher} erreicht!`);
     const before = rankFor(progress.totalPoints).rank;
     const after = rankFor(next.totalPoints).rank;
     setProgress(next);
@@ -403,7 +413,7 @@ export default function App() {
     return Math.round(basis * (1 + (fx.trainingPct + (art === 'herz' ? fx.herzPct : 0)) / 100));
   };
 
-  /** Ersthelfer-Notfall abgeschlossen: Punkte, Sterne, Tagesziel */
+  /** Ersthelfer-Notfall abgeschlossen: EP, Sterne, Tagesziel */
   const finishHelfer = (e: HelferErgebnis, punkte: number, daily: boolean): HelferAbschluss => {
     zaehle('einsatz-beendet');
     if (schichtRueck.current) setSchicht((st) => (st ? { ...st, sterne: [...st.sterne, e.sterne] } : st));
@@ -425,7 +435,7 @@ export default function App() {
     return { punkte: total, ausruestung: 0, goalBonus: day.goalBonus, newBadges, promotion };
   };
 
-  /** Schritt für Schritt: Punkte und richtig sortierte Abläufe */
+  /** Schritt für Schritt: EP und richtig sortierte Abläufe */
   const finishSchritte = (punkte: number, ids: string[]) => {
     commit({
       ...progress,
@@ -493,7 +503,7 @@ export default function App() {
     });
   };
 
-  /** Detektiv-Akten: Punkte (= Budget), Stempel ins Archiv, Bestwert */
+  /** Detektiv-Akten: EP (= Coins), Stempel ins Archiv, Bestwert */
   const finishDetective = (points: number, stamps: Record<string, ArchiveStamp | 0>) => {
     commit({
       ...progress,
@@ -504,20 +514,20 @@ export default function App() {
     });
   };
 
-  /** Ausrüstung kaufen: kostet Budget, keine Punkte – der Dienstgrad bleibt. */
+  /** Ausrüstung kaufen: kostet Coins, keine EP – der Dienstgrad bleibt. */
   const upgrade = (id: EquipmentId) => {
     const bought = buyUpgrade(progress, id);
     if (bought === progress) return;
     commit(bought);
   };
 
-  /** Rettungswache: Bereich ausbauen (kostet Budget) */
+  /** Rettungswache: Bereich ausbauen (kostet Coins) */
   const baue = (id: WacheId) => {
     const next = wacheKaufen(progress, id);
     if (next !== progress) commit(next);
   };
 
-  /** Hilfspunkt: Bereich ausbauen (kostet Budget) */
+  /** Hilfspunkt: Bereich ausbauen (kostet Coins) */
   const baueHilf = (id: HilfId) => {
     const next = hilfKaufen(progress, id);
     if (next !== progress) commit(next);
@@ -629,6 +639,20 @@ export default function App() {
   // Spielweise noch nicht gewählt: mit Geschichte oder frei spielen
   const [modusOffen, setModusOffen] = useState(false);
   const modusFehlt = rolle !== undefined && rolle !== null && (progress.modus === '' || modusOffen);
+
+  // Einführung: einmal für neue Spieler, später unter „Mehr“ wieder aufrufbar
+  const [einfuehrung, setEinfuehrung] = useState(false);
+  useEffect(() => {
+    if (!rolle || progress.modus === '' || progress.casesPlayed > 0) return;
+    einfuehrungGesehen().then((gesehen) => {
+      if (!gesehen) setEinfuehrung(true);
+    });
+  }, [rolle, progress.modus, progress.casesPlayed]);
+  const schliesseEinfuehrung = () => {
+    setEinfuehrung(false);
+    merkeEinfuehrungGesehen();
+    zaehle('einfuehrung-fertig');
+  };
 
   if ((!fontsLoaded && !fontError) || rolle === undefined) {
     return (
@@ -934,8 +958,29 @@ export default function App() {
                     {screen.name === 'pack' && (
                       <PackScreen key={screen.key} geloest={progress.packGeschafft} onFinish={finishPack} onBack={back} />
                     )}
-                    {screen.name === 'training' && <TrainingScreen progress={progress} onTraining={openTraining} />}
-                    {screen.name === 'lexikon' && <LexikonScreen progress={progress} />}
+                    {screen.name === 'training' && (
+                      <TrainingScreen
+                        progress={progress}
+                        onTraining={openTraining}
+                        onStory={storyAktion}
+                        onStoryDone={storyDone}
+                        onWechsleModus={(m) => importProgress({ ...progress, modus: m })}
+                        onStart={() => startCase()}
+                        onDaily={() => startCase(true)}
+                        onSchicht={() => {
+                          setSchicht(null);
+                          setScreen({ name: 'schicht' });
+                        }}
+                        onKarte={oeffneKarte}
+                        onDuell={() => {
+                          setDuellEinladung(null);
+                          setScreen({ name: 'duell', key: Date.now() });
+                        }}
+                        onDifficulty={setDifficulty}
+                      />
+                    )}
+                    {screen.name === 'lexikon' && <LexikonScreen progress={progress} onKati={() => setScreen({ name: 'kati' })} />}
+                    {screen.name === 'kati' && <KatiFragenScreen onBack={() => setScreen({ name: 'lexikon' })} />}
                     {screen.name === 'guide' && (
                       <GuideScreen
                         progress={progress}
@@ -945,6 +990,7 @@ export default function App() {
                         onDev={() => setScreen({ name: 'dev' })}
                         onModus={(m) => importProgress({ ...progress, modus: m })}
                         onFeedback={() => setScreen({ name: 'feedback' })}
+                        onEinfuehrung={() => setEinfuehrung(true)}
                       />
                     )}
                     {screen.name === 'quiz' && (
@@ -1010,6 +1056,7 @@ export default function App() {
             </View>
           </View>
         </SafeAreaView>
+        {einfuehrung && <Einfuehrung onFertig={schliesseEinfuehrung} />}
         {meldung && <Toast text={meldung} />}
       </View>
       </RolleContext.Provider>

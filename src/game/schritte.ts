@@ -5,7 +5,7 @@ import { shuffle } from './scoring';
 
 /** Abläufe pro Runde */
 export const SCHRITTE_RUNDE = 3;
-/** Punkte je Ablauf, Abzug je Fehlgriff, Mindestpunkte bei geschafftem Ablauf */
+/** EP je Ablauf, Abzug je Fehlgriff, Mindestpunkte bei geschafftem Ablauf */
 export const ABLAUF_PUNKTE = 30;
 export const FEHLER_ABZUG = 6;
 export const ABLAUF_MIN = 6;

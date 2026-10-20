@@ -146,7 +146,7 @@ export function scoreRun(run: CaseRun, streakBefore = 0): ScoreResult {
   const ratio = base / maxScore(medCase);
   const stars = (ratio >= 0.85 ? 3 : ratio >= 0.6 ? 2 : ratio >= 0.3 ? 1 : 0) as ScoreResult['stars'];
 
-  // Boni zählen nicht in die Sternewertung, erhöhen aber die Punkte.
+  // Boni zählen nicht in die Sternewertung, erhöhen aber die EP.
   let bonus = 0;
   if (stars === 3) {
     lines.push({ label: 'Perfekter Einsatz', points: POINTS.perfectBonus });

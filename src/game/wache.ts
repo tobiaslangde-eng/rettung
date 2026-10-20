@@ -56,7 +56,7 @@ export const WACHE: WacheDef[] = [
       'Rettungsdienst ist Schichtarbeit. Erholte Teams arbeiten konzentrierter – deshalb gibt es auf der Wache Ruheraum, Küche und Duschen.',
     stufen: ['Sofa und Kaffeemaschine', 'Ruheraum mit Küche', 'Ruheräume, Küche und Dusche'],
     cost: [600, 1800, 4500],
-    wirkung: 'Ausgeruhtes Team: +2 % Punkte je Stufe',
+    wirkung: 'Ausgeruhtes Team: +2 % EP je Stufe',
   },
   {
     id: 'schule',
@@ -66,7 +66,7 @@ export const WACHE: WacheDef[] = [
       'Rettungsdienstpersonal muss jedes Jahr Pflichtfortbildungen absolvieren. Ein eigener Schulungsraum macht Übungen auf der Wache möglich.',
     stufen: ['Whiteboard und Stühle', 'Beamer und Übungspuppe', 'Simulationsraum mit Reanimationspuppe'],
     cost: [600, 1800, 4500],
-    wirkung: 'Gut geübt: +1 Zustand am Einsatzende und +1 % Punkte je Stufe',
+    wirkung: 'Gut geübt: +1 Zustand am Einsatzende und +1 % EP je Stufe',
   },
 ];
 

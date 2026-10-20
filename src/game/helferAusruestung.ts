@@ -10,10 +10,10 @@ const keine = 'Keine Wirkung';
 
 /** Was jede Stufe im Einsatz bewirkt (Text für den Steckbrief) */
 export const HELFER_TEXT: Record<AutoId, (l: number) => string> = {
-  auto: (l) => (l === 1 ? keine : `Schneller vor Ort: +${3 * s(l)} % Punkte bei jedem Notfall`),
-  verbandkasten: (l) => (l === 1 ? keine : `Fehler verzeihen: ${3 * s(l)} Punkte weniger Abzug für falsche Maßnahmen`),
-  warn: (l) => (l === 1 ? keine : `Sicher am Einsatzort: +${3 * s(l)} Punkte für jede wichtige Prüfung`),
-  waerme: (l) => (l === 1 ? keine : `Betreuen und wärmen: +${2 * s(l)} Punkte für jede richtige Maßnahme`),
+  auto: (l) => (l === 1 ? keine : `Schneller vor Ort: +${3 * s(l)} % EP bei jedem Notfall`),
+  verbandkasten: (l) => (l === 1 ? keine : `Fehler verzeihen: ${3 * s(l)} EP weniger Abzug für falsche Maßnahmen`),
+  warn: (l) => (l === 1 ? keine : `Sicher am Einsatzort: +${3 * s(l)} EP für jede wichtige Prüfung`),
+  waerme: (l) => (l === 1 ? keine : `Betreuen und wärmen: +${2 * s(l)} EP für jede richtige Maßnahme`),
   licht: (l) =>
     l === 1
       ? keine
@@ -22,8 +22,8 @@ export const HELFER_TEXT: Record<AutoId, (l: number) => string> = {
         : l === 3
           ? 'Zusätzlich: Du siehst, wie viele davon noch offen sind'
           : 'Zusätzlich: Wichtige Prüfungen sind mit ★ markiert',
-  defi: (l) => (l === 1 ? keine : `+${10 * s(l)} % Punkte bei Herzdruckmassage und Defi-Training`),
-  kurs: (l) => (l === 1 ? keine : `+${4 * s(l)} % Punkte in allen Trainings`),
+  defi: (l) => (l === 1 ? keine : `+${10 * s(l)} % EP bei Herzdruckmassage und Defi-Training`),
+  kurs: (l) => (l === 1 ? keine : `+${4 * s(l)} % EP in allen Trainings`),
 };
 
 export const AUTO_IDS: AutoId[] = ['auto', 'verbandkasten', 'warn', 'waerme', 'licht', 'defi', 'kurs'];

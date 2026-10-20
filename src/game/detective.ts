@@ -6,7 +6,7 @@ import { Progress } from './storage';
 /**
  * „Detektiv-Akten“ – der Diagnose-Krimi.
  * Jede Akte ist ein Fall, von dem anfangs nur die Meldung der Leitstelle bekannt ist. Hinweise aufdecken kostet
- * Punkte – wer die Diagnose mit wenigen Hinweisen erkennt, bekommt am meisten.
+ * EP – wer die Diagnose mit wenigen Hinweisen erkennt, bekommt am meisten.
  * Zu jedem Krankheitsbild gibt es mehrere Akten in ganz verschiedenen Situationen (Ort, Alter, typisch oder untypisch).
  */
 
@@ -164,7 +164,7 @@ export interface AkteResult {
   solved: boolean;
   cluesUsed: number;
   wrong: number;
-  /** Punkte vor Combo */
+  /** EP vor Combo */
   base: number;
   genius: boolean;
   combo: number;

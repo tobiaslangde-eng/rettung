@@ -1,7 +1,8 @@
+import { PatientGesicht } from '../components/Gesicht';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { DriveAnimation } from '../components/DriveAnimation';
-import { Bar, Button, Card, IconTile, Led, Pill, StatChip, Tap, TopBar } from '../components/UI';
+import { Bar, Button, Card, Led, Pill, StatChip, Tap, TopBar } from '../components/UI';
 import { AskKati, Kati } from '../components/Kati';
 import { MedCase } from '../data/cases';
 import { INCIDENTS, INCIDENT_CONDITION } from '../data/incidents';
@@ -45,13 +46,6 @@ function conditionColor(condition: number) {
 const RATE_COLOR: Record<Rating, string> = { niedrig: '#9BD8FF', normal: '#8CF0C8', hoch: '#FFB38A' };
 
 const ANSWER_LETTERS = ['A', 'B', 'C', 'D'];
-
-function patientEmoji(age: number, sex: 'm' | 'w') {
-  if (age <= 1) return '👶';
-  if (age <= 12) return sex === 'm' ? '👦' : '👧';
-  if (age >= 70) return sex === 'm' ? '👴' : '👵';
-  return sex === 'm' ? '👨' : '👩';
-}
 
 /** Farbiges Etikett über einem Text-Block (wie ein Karteireiter) */
 function Label({ text, color }: { text: string; color: string }) {
@@ -239,7 +233,7 @@ export function CaseScreen({
   const examHintText = missingKey
     ? `Miss doch mal ${VITAL_BY_ID[missingKey].name} – das ist hier wichtig!`
     : `Wir haben alles Wichtige gemessen. Was meinst du, was ${firstName} hat?`;
-  const hintCostLabel = difficulty.hints === 'kostet' ? ` (−${HINT_COST} Punkte)` : '';
+  const hintCostLabel = difficulty.hints === 'kostet' ? ` (−${HINT_COST} EP)` : '';
 
   return (
     <View style={{ flex: 1 }}>
@@ -295,10 +289,10 @@ export function CaseScreen({
       >
         {phase === 'alarm' && (
           <>
-            {daily && <Pill label="⭐ Einsatz des Tages · +50 % Punkte" color={colors.yellow} />}
+            {daily && <Pill label="⭐ Einsatz des Tages · +50 % EP" color={colors.yellow} />}
             <Pager dispatch={`Leitstelle: „${medCase.dispatch}“`} location={medCase.location} />
             <Card style={styles.patientCard}>
-              <IconTile icon={patientEmoji(p.age, p.sex)} color={colors.skyStrong + '55'} size={56} />
+              <PatientGesicht age={p.age} sex={p.sex} seed={medCase.id} size={56} />
               <View style={{ flex: 1 }}>
                 <Text style={type.eyebrow}>Patient</Text>
                 <Text style={type.h2}>{p.name}</Text>

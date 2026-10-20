@@ -26,7 +26,7 @@ das Krankheitsbild erkennt.
 | **Vitalwerte und Normbereiche** (Erwachsene und Kinder) | Puls, Blutdruck, SpO₂, Atemfrequenz, Temperatur, Blutzucker, GCS und EKG messen und als niedrig, normal oder hoch einstufen; Training „Normwerte“ |
 | **Strukturiertes Vorgehen** (ABCDE, SAMPLER, GCS, BE-FAST, 5 W) | Anamnese und Sichtbefund in jedem Einsatz; Nachschlagen im Lexikon |
 | **Krankheitsbilder erkennen** | 28 Einsätze von Hypoglykämie über Schlaganfall bis Spannungspneumothorax, davon 4 Kinder-Notfälle |
-| **Erstmaßnahmen** | die richtigen Maßnahmen auswählen – falsche kosten Punkte und schaden dem Patienten |
+| **Erstmaßnahmen** | die richtigen Maßnahmen auswählen – falsche kosten EP und schaden dem Patienten |
 | **Reagieren, wenn es kritisch wird** | Zwischenfälle mitten im Einsatz, z. B. Kammerflimmern oder Erbrechen |
 | **Herz-Lungen-Wiederbelebung** | Herzdruckmassage im Takt von 100–120/min, 30:2 |
 | **Sichtung beim Großeinsatz (MANV)** | 8 Verletzte nach einem vereinfachten mSTaRT-Schema einteilen |
@@ -36,7 +36,7 @@ das Krankheitsbild erkennt.
 
 Gelerntes bleibt hängen, wenn man es oft wiederholt. Deshalb gibt es kleine Anreize, um dranzubleiben:
 einen Einsatz des Tages, eine Dienst-Serie, Abzeichen und eine Beförderung vom Praktikanten bis zur
-„Rettungsdienst-Legende“. Dazu kommt ein eigener Rettungswagen, den man mit den gesammelten Punkten Stufe für
+„Rettungsdienst-Legende“. Dazu kommt ein eigener Rettungswagen, den man mit den gesammelten EP Stufe für
 Stufe modern ausrüstet.
 
 ### Grundsätze
@@ -69,7 +69,7 @@ Beim ersten Start wähle ich meine **Rolle** – jede hat ihren eigenen Spielsta
   Dazu zehn Trainings: **Wissensfragen** (rund 130 Kursfragen), **Schritt für Schritt** (28 Abläufe), **Herzdruckmassage**, **Notruf üben**
   (12 Leitstellen-Gespräche), **Mythos oder Wahrheit?** (50 Aussagen), **Was zuerst?** (40 Entscheidungen), **Gut gepackt**
   (Verbandkasten, Hausapotheke …), **Handgriffe** (56 Fragen zu Lagern, Verbinden, Kühlen …), **Defi-Training** (8 AED-Szenarien) und die
-  **Erste-Hilfe-Prüfung** (20 Fragen, bestanden ab 16). Dazu ein Erste-Hilfe-Lexikon. Mit den Punkten rüste ich **mein eigenes Auto** aus: jede Ausrüstung hat eine eigene Wirkung (z. B. weniger Abzug bei Fehlern, mehr Punkte für wichtige Prüfungen, Hinweise durch das Licht), dazu gibt es **Ausrüstungs-Sets** mit Bonus und jeden Tag ein **Tagesangebot** mit 25 % Rabatt.
+  **Erste-Hilfe-Prüfung** (20 Fragen, bestanden ab 16). Dazu ein Erste-Hilfe-Lexikon. Mit den EP rüste ich **mein eigenes Auto** aus: jede Ausrüstung hat eine eigene Wirkung (z. B. weniger Abzug bei Fehlern, mehr EP für wichtige Prüfungen, Hinweise durch das Licht), dazu gibt es **Ausrüstungs-Sets** mit Bonus und jeden Tag ein **Tagesangebot** mit 25 % Rabatt.
 - **Sanitäter/in:** das Rettungsdienst-Spiel mit Untersuchung, Messwerten, Diagnosen und dem eigenen Rettungswagen (unten).
 
 **Spielweise:** Nach der Rollenwahl entscheide ich, ob ich **mit Geschichte** spiele (Kati, Kapitel, Bereiche schalten sich nach und nach frei) oder **frei** (alles von Anfang an offen, keine Geschichte). Das lässt sich jederzeit unter „Mehr“ umstellen.
@@ -86,20 +86,20 @@ Weg in den Rettungsdienst.
    (Puls, Blutdruck, SpO₂, Atemfrequenz, Temperatur, Blutzucker, GCS, 12-Kanal-EKG)
    und jeden Wert als *niedrig / normal / hoch* einstufen. Jede Messung kostet eine Minute.
 3. **Diagnose:** Verdachtsdiagnose aus vier Möglichkeiten wählen.
-4. **Maßnahmen:** Alle richtigen Erstmaßnahmen auswählen – falsche kosten Punkte.
-5. **Einsatzbericht:** Punkte, Sterne, Erklärung und Leitsymptome. Ich erfahre auch, wie der Patient in der Klinik ankommt.
+4. **Maßnahmen:** Alle richtigen Erstmaßnahmen auswählen – falsche kosten EP.
+5. **Einsatzbericht:** EP, Sterne, Erklärung und Leitsymptome. Ich erfahre auch, wie der Patient in der Klinik ankommt.
 
 ### Schwierigkeitsstufen
 
-| Stufe | Fälle | Hilfen | Druck | Punkte |
+| Stufe | Fälle | Hilfen | Druck | EP |
 |---|---|---|---|---|
 | ◆◇◇ **Leicht** | einfache Fälle | Normwerte sichtbar, Kati gibt Tipps und 50:50 gratis | gering | ×1 |
-| ◆◆◇ **Mittel** | mittlere Fälle | Normwerte muss ich kennen, Katis Tipps kosten 10 Punkte | mittel | ×1,5 |
+| ◆◆◇ **Mittel** | mittlere Fälle | Normwerte muss ich kennen, Katis Tipps kosten 10 EP | mittel | ×1,5 |
 | ◆◆◆ **Schwer** | komplexe Fälle | keine Hilfe, Feedback erst im Bericht | Patient verschlechtert sich in Echtzeit | ×2 |
 
 ### Spielelemente
 
-- **Tagesdienst:** jeden Tag ein „Einsatz des Tages“ (+50 % Punkte) und ein Tagesziel von 3 Einsätzen;
+- **Tagesdienst:** jeden Tag ein „Einsatz des Tages“ (+50 % EP) und ein Tagesziel von 3 Einsätzen;
   wer es mehrere Tage hintereinander schafft, baut eine Dienst-Serie mit steigendem Bonus auf
 - **Zwischenfälle:** In 17 Einsätzen passiert mitten in der Untersuchung etwas Unerwartetes
   (z. B. Kammerflimmern, Erbrechen, Status epilepticus) – ich muss sofort richtig reagieren
@@ -107,15 +107,15 @@ Weg in den Rettungsdienst.
   Exsikkose); bewertet wird mit Kinder-Normwerten für Puls, Atmung und Blutdruck
 - **Detektiv-Akten – der Diagnose-Krimi:** Jede Akte ist ein Notfall, von dem anfangs nur die Meldung der Leitstelle
   bekannt ist. Ich decke Hinweise auf (Person, Fundort, Aussagen, Befund, Messwerte) und stelle meinen Verdacht.
-  Je weniger Hinweise ich brauche, desto mehr Punkte: Combo bis ×2, „Geniestreich“ mit goldenem Stempel, ein Archiv
+  Je weniger Hinweise ich brauche, desto mehr EP: Combo bis ×2, „Geniestreich“ mit goldenem Stempel, ein Archiv
   mit 196 Akten zum Sammeln und eigene Detektiv-Ränge bis „Meisterdetektiv/in“. Die Akten decken 82 Krankheits- und
   Verletzungsbilder in acht Kategorien ab (Herz & Kreislauf, Atmung, Nerven & Psyche, Stoffwechsel & Bauch,
   Verletzungen, Umwelt & Vergiftung, Kinder, Schwangerschaft & Geburt) – jedes Bild in mehreren Situationen:
   anderer Ort, anderes Alter, typischer, untypischer oder irreführender Verlauf. Pro Ermittlung kommt jedes Bild nur
   einmal vor und die Kategorien sind gemischt. Nach jeder Akte gibt es die Auflösung mit den Leitsymptomen – und alle
-  Punkte landen als Budget beim Rettungswagen
+  EP landen als Coins beim Rettungswagen
 - **Großeinsatz (MANV):** 8 Verletzte nach einem vereinfachten mSTaRT-Schema sichten (Rot, Gelb, Grün, Schwarz)
-- **Mein Rettungswagen (Fahrzeughalle):** Jeder Punkt bringt 1 € Budget. Damit rüste ich Fahrzeug,
+- **Mein Rettungswagen (Fahrzeughalle):** Jeder EP bringt 1 Coin. Damit rüste ich Fahrzeug,
   Patientenmonitor, Notfallrucksack, Beatmung, Trage, Funk und Einsatzkleidung in vier Stufen auf
   (vom Krankenwagen Baujahr 1999 bis zum Elektro-RTW 2026). Jede Stufe hilft im Einsatz; höhere Stufen
   werden mit dem Dienstgrad freigeschaltet. Ich kann den Wagen von außen ansehen oder einsteigen. Dann stehe ich
@@ -123,7 +123,7 @@ Weg in den Rettungsdienst.
   Vorschau auf die nächste Stufe.
 - **Meine Woche:** Wochenpunkte mit Verlauf der letzten 6 Wochen und Wochenrekord
 - **Training Herzdruckmassage:** im Takt von 100–120/min auf den Brustkorb tippen, 2 Runden 30:2,
-  mit Live-Anzeige, Taktgeber (abschaltbar für doppelte Punkte) und Auswertung der Beatmungspause
+  mit Live-Anzeige, Taktgeber (abschaltbar für doppelte EP) und Auswertung der Beatmungspause
 - **Training Wissensfragen:** 48 Fragen aus dem Einsatzalltag, je 10 pro Runde, mit Erklärung
 - **Training Normwerte:** 10 zufällige Messwerte in Folge als niedrig, normal oder hoch einstufen
 - **Zustandsbalken** des Patienten: Jede Messung kostet Kraft, Fehler schaden, richtige Maßnahmen helfen
@@ -148,7 +148,7 @@ auf ein anderes Gerät mitnehmen.
 Die Oberfläche passt sich an die Bildschirmgröße an:
 
 - **iPhone/Handy:** eine Spalte mit schwebender Tab-Leiste, alles mit dem Daumen erreichbar
-- **iPad hoch:** zwei Spalten; **iPad quer, PC und Mac:** feste Seitenleiste mit Dienstgrad, Budget und Menü,
+- **iPad hoch:** zwei Spalten; **iPad quer, PC und Mac:** feste Seitenleiste mit Dienstgrad, Coins und Menü,
   Startseite in drei Spalten, Untersuchung mit Patient links und Messwerten rechts, Lexikon als Kachel-Raster
 - **Desktop-App:** Fenster 1280 × 820, unter macOS mit Ampel-Knöpfen in der dunklen Titelleiste, unter Windows mit
   dunkler Titelleiste und den Windows-Fensterknöpfen; kleiner gezogen wird sie zur Handy-Ansicht
@@ -162,8 +162,21 @@ Die Oberfläche passt sich an die Bildschirmgröße an:
 ## Gefahren-Check, Stadtkarte und Urkunden
 
 - **Gefahren-Check** (Training, beide Rollen): Eine Einsatzstelle als Bild mit antippbaren Gegenständen. Alle echten Gefahren finden (Eigenschutz), harmlose Dinge nicht antippen. Nach jedem Tipp gibt es eine Erklärung; am Ende einen Merksatz. 10 Szenen für Ersthelfer/innen, 10 für den Rettungsdienst.
-- **Stadtkarte** (Startseite): Auf einer Karte erscheinen drei Einsätze mit Anfahrtszeit. Wer den Einsatz mit der kürzesten Anfahrt wählt, bekommt +10 Punkte. Das Fahrzeug fährt über die Straßen, danach startet der Einsatz; nach dem Einsatz geht es zurück zur Karte.
+- **Stadtkarte** (Startseite): Auf einer Karte erscheinen drei Einsätze mit Anfahrtszeit. Wer den Einsatz mit der kürzesten Anfahrt wählt, bekommt +10 EP. Das Fahrzeug fährt über die Straßen, danach startet der Einsatz; nach dem Einsatz geht es zurück zur Karte.
 - **Urkunden** (Startseite): Für Ränge und große Ziele gibt es Urkunden mit eigenem Namen (Ersthelfer: Kurs, Prüfung, Hilfspunkt, Herzdruck, Gefahren-Check, Karte; Sanitäter: Ausbildung, Detektiv, Großeinsatz, Wache u. a.). Als Bild speichern oder teilen. Auf jeder Urkunde steht, dass sie eine Spiel-Urkunde ist und keine Ausbildung ersetzt.
+
+## EP, Level und Coins
+
+- **EP (Erfahrungspunkte)** gibt es für alles, was man richtig macht. Sie bestimmen das **Level** (jedes Level dauert etwas länger als das vorherige) und den **Dienstgrad** („Rang“).
+- **Coins** sind die Spielwährung (kein echtes Geld): Für jeden EP gibt es 1 Coin. Damit kauft man Ausrüstung und baut Wache oder Hilfspunkt aus. Einkaufen kostet nur Coins, keine EP.
+
+## Training, Einführung und „Frag Kati“
+
+- **Training** hat drei Bereiche: **Lernpfad** (die Kapitel der Geschichte als Weg von oben nach unten, wie bei Duolingo), **Üben** (alle Trainings in Gruppen) und **Spielmodi** (Einsatz, Einsatz des Tages, Schicht, Stadtkarte, Duell).
+- **Startseite:** oben Level, EP, Coins, Serie und Auto-Stand; darunter „Heute dran“ mit dem Knopf „Jetzt spielen“.
+- **Einführung** für neue Spieler (Ziel, Menü, Lernpfad, EP/Level/Coins, Serie); jederzeit unter „Mehr“ wieder aufrufbar.
+- **Suche im Lexikon** und **Frag Kati**: Antworten kommen aus den Inhalten der App (Lexikon, Spickzettel, Abläufe, Fragen), mit Synonymen und Tippfehler-Toleranz. Das ist keine echte KI: Es wird nichts erfunden und nichts an einen Server geschickt (`src/game/wissen.ts`). Dahinter liegt die **Wissensbasis** (`src/data/wissen/`, 650 Artikel in 12 Bereichen: Erste Hilfe, Herz und Kreislauf, Atmung, Nerven und Psyche, Verletzungen, Kinder und Schwangerschaft, Vergiftung und Infektion, Körper und Messwerte, Rettungsdienst und Recht, Fachbegriffe, Medikamente, Erkrankungen). Die Texte sind KI-erstellt und **nicht fachlich geprüft**; lesbar als `docs/WISSENSBASIS.md` (erzeugt mit `node scripts/build-wissensbasis.mjs`, geprüft mit `node scripts/check-wissen.mjs`). Optional gibt es eine **echte KI** (Claude von Anthropic), mit der Kati alle Fragen rund um Medizin beantwortet: Dafür läuft ein kleiner Server (`docs/ki-server/worker.js`, Einrichtung in `docs/ki-server/ANLEITUNG.md`), der den geheimen Schlüssel verwahrt; die Adresse steht in `src/game/ki.ts`. Die KI bekommt die passenden Artikel der Wissensbasis als Hintergrundwissen mit. Spieler müssen der KI-Nutzung zustimmen; ohne Server oder Zustimmung antwortet Kati aus den Inhalten der App.
+- **Figuren** mit Gesichtern, Händen und Schuhen; Patienten-Porträts passen zu Alter und Geschlecht (`src/components/Gesicht.tsx`).
 
 ## Weitere Spielmodi und Werkzeuge
 
@@ -180,9 +193,9 @@ Hell oder dunkel (echtes Farbsystem in `src/theme.ts`, Wechsel unter „Mehr“)
 
 **Mein Hilfspunkt (Ersthelfer/in):** Das Gegenstück zur Wache – ein Vereinsheim als Erste-Hilfe-Stützpunkt mit Hausapotheke, Erste-Hilfe-Raum, Defi-Station, Helfer-Netzwerk und Kursraum (je drei Stufen). Jeder Bereich wirkt in Notfällen und Trainings. Auch die Auto-Ausrüstung hat für jede Stufe eine eigene Grafik.
 
-**Meine Rettungswache (Sanitäter/in):** Mit dem Budget aus Einsätzen und Trainings baue ich fünf Bereiche aus – Fahrzeughalle,
+**Meine Rettungswache (Sanitäter/in):** Mit dem Coins aus Einsätzen und Trainings baue ich fünf Bereiche aus – Fahrzeughalle,
 Funkraum, Materiallager, Ruheraum und Schulungsraum, je drei Stufen. Das Bild der Wache wächst mit, und jeder Bereich wirkt im Einsatz
-(z. B. besserer Startzustand, langsamer sinkender Zustand, mehr Punkte).
+(z. B. besserer Startzustand, langsamer sinkender Zustand, mehr EP).
 
 ## Spielen und herunterladen
 
@@ -245,16 +258,16 @@ src/data/questions.ts   Wissensfragen
 src/data/incidents.ts   Zwischenfälle in Einsätzen
 src/data/manv.ts        Großeinsatz: Verletzte und Sichtungsschema
 src/data/basics.ts      Rettungswissen fürs Lexikon
-src/game/scoring.ts     Punkte, Sterne, Ränge, Patientenzustand
+src/game/scoring.ts     EP, Sterne, Ränge, Patientenzustand
 src/game/difficulty.ts  Schwierigkeitsstufen
 src/game/daily.ts       Tagesdienst: Einsatz des Tages, Tagesziel, Dienst-Serie
 src/game/cpr.ts         Herzdruckmassage-Training: Takt messen und bewerten
 src/game/quiz.ts        Normwerte- und Wissensfragen-Training
 src/game/achievements.ts Abzeichen
-src/game/manv.ts        Großeinsatz-Runden und Punkte
+src/game/manv.ts        Großeinsatz-Runden und EP
 src/game/weekly.ts      Wochenpunkte und Wochenrekord
 src/game/equipment.ts   Fahrzeughalle: Ausrüstungsstufen, Kosten und Wirkung
-src/game/detective.ts   Detektiv-Akten: Auswahl, Hinweise, Punkte, Combo, Archiv, Ränge
+src/game/detective.ts   Detektiv-Akten: Auswahl, Hinweise, EP, Combo, Archiv, Ränge
 src/data/akten/         Detektiv-Akten: Krankheitsbilder und Situationen (je Kategorie eine Datei)
 src/game/storage.ts     Speicherung (AsyncStorage) und Spielstand-Übertragung
 src/screens/            Start, Einsatz, Ergebnis, Training, Fahrzeughalle, Lexikon, Mehr (Anleitung)

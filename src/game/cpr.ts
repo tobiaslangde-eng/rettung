@@ -7,7 +7,7 @@ export const CPR_MIN_RATE = 100;
 export const CPR_MAX_RATE = 120;
 /** Ziel-Takt des Taktgebers */
 export const CPR_GUIDE_RATE = 110;
-/** Punkte bei 100 % Treffern – ohne Taktgeber doppelt */
+/** EP bei 100 % Treffern – ohne Taktgeber doppelt */
 export const CPR_POINTS = 40;
 /** Längste erlaubte Unterbrechung für die Beatmung (Sekunden) */
 export const CPR_MAX_PAUSE = 10;

@@ -58,7 +58,7 @@ export function MythenScreen({
             <Text style={styles.big}>
               {richtig}/{MYTHEN_RUNDEN}
             </Text>
-            <Text style={type.small}>+{mythenPunkte(richtig)} Punkte</Text>
+            <Text style={type.small}>+{mythenPunkte(richtig)} EP</Text>
             <Text style={type.small}>Bestwert: {Math.max(best, richtig)}</Text>
           </Card>
           <Button label="Nochmal" onPress={neu} />

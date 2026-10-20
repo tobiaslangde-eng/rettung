@@ -34,6 +34,53 @@ export function sceneFor(location: string, text: string): { setting: Setting; po
   return { setting, pose };
 }
 
+const HOSE = '#3E4A6D';
+const SCHUH = '#2B2F3A';
+
+/** Gesicht und Haare einer Figur (Kopfmitte bei 0/0); `zu` = Augen geschlossen (bewusstlos) */
+function Kopf({ skin, hair, stil, zu, sorge }: { skin: string; hair: string; stil: number; zu?: boolean; sorge?: boolean }) {
+  return (
+    <G>
+      {stil === 1 && <Rect x={-9.6} y={-3} width={4.2} height={15} rx={2.1} fill={hair} />}
+      {stil === 1 && <Rect x={5.4} y={-3} width={4.2} height={15} rx={2.1} fill={hair} />}
+      <Ellipse cx={-8} cy={1} rx={1.8} ry={2.4} fill={skin} />
+      <Ellipse cx={8} cy={1} rx={1.8} ry={2.4} fill={skin} />
+      <Ellipse cx={0} cy={0} rx={8} ry={9} fill={skin} />
+      {stil === 3 ? (
+        <Path d="M-8 -3 Q-8 -9 0 -9.2 Q8 -9 8 -3 Q4 -6.5 0 -6.5 Q-4 -6.5 -8 -3 Z" fill={hair} />
+      ) : (
+        <Path d="M-8.6 -1.5 Q-9.4 -10.5 0 -10.4 Q9.4 -10.5 8.6 -1.5 Q4.5 -6.8 0 -6.4 Q-4.5 -6.8 -8.6 -1.5 Z" fill={hair} />
+      )}
+      {stil === 2 && <Circle cx={0} cy={-12.2} r={3.7} fill={hair} />}
+      {zu ? (
+        <G stroke="#3A2A22" strokeWidth={0.9} strokeLinecap="round" fill="none">
+          <Path d="M-4.6 0.6 Q-3 1.8 -1.4 0.6 M1.4 0.6 Q3 1.8 4.6 0.6" />
+        </G>
+      ) : (
+        <G>
+          <Circle cx={-3} cy={0.4} r={1.15} fill="#2B2118" />
+          <Circle cx={3} cy={0.4} r={1.15} fill="#2B2118" />
+          <Path
+            d={sorge ? 'M-4.6 -2 L-1.6 -2.8 M1.6 -2.8 L4.6 -2' : 'M-4.6 -2.4 Q-3 -3.2 -1.6 -2.5 M1.6 -2.5 Q3 -3.2 4.6 -2.4'}
+            stroke={hair}
+            strokeWidth={0.8}
+            strokeLinecap="round"
+            fill="none"
+          />
+        </G>
+      )}
+      <Path d="M0 1.8 Q1.2 3.4 -0.2 3.8" stroke="rgba(120,70,40,0.5)" strokeWidth={0.7} strokeLinecap="round" fill="none" />
+      <Path
+        d={sorge || zu ? 'M-2 6 Q0 5.1 2 6' : 'M-2.2 5.4 Q0 7 2.2 5.4'}
+        stroke="#9A4B3C"
+        strokeWidth={0.9}
+        strokeLinecap="round"
+        fill="none"
+      />
+    </G>
+  );
+}
+
 function Person({
   x,
   ground,
@@ -54,34 +101,56 @@ function Person({
   flip?: boolean;
 }) {
   const f = flip ? -1 : 1;
+  const stil = hash(hair + shirt) % 4;
   if (pose === 'liegt') {
     return (
       <G transform={`translate(${x} ${ground}) scale(${s * f} ${s})`}>
-        <Rect x={-6} y={-13} width={34} height={13} rx={6} fill={shirt} />
-        <Rect x={26} y={-11} width={26} height={10} rx={5} fill="#3E4A6D" />
-        <Circle cx={-14} cy={-10} r={9} fill={skin} />
-        <Path d="M-23 -11 A9 9 0 0 1 -9 -18 L-9 -12 Z" fill={hair} />
+        {/* Beine mit Schuhen */}
+        <Rect x={26} y={-12} width={30} height={10} rx={5} fill={HOSE} />
+        <Ellipse cx={57} cy={-6.5} rx={3} ry={4.2} fill={SCHUH} />
+        {/* Oberkörper und Arm */}
+        <Rect x={-6} y={-14} width={36} height={14} rx={6.5} fill={shirt} />
+        <Rect x={0} y={-8.5} width={24} height={5} rx={2.5} fill={shirt} opacity={0.75} />
+        <Circle cx={26} cy={-5} r={2.6} fill={skin} />
+        {/* Hals und Kopf (Gesicht nach oben) */}
+        <Rect x={-9} y={-12} width={6} height={7} rx={3} fill={skin} />
+        <G transform="translate(-16 -10) rotate(-90)">
+          <Kopf skin={skin} hair={hair} stil={stil} zu />
+        </G>
       </G>
     );
   }
   if (pose === 'sitzt') {
     return (
       <G transform={`translate(${x} ${ground}) scale(${s * f} ${s})`}>
-        <Rect x={-7} y={-34} width={15} height={26} rx={7} fill={shirt} />
-        <Rect x={-7} y={-12} width={30} height={10} rx={5} fill="#3E4A6D" />
-        <Rect x={17} y={-12} width={9} height={14} rx={4} fill="#3E4A6D" />
-        <Circle cx={0} cy={-43} r={9} fill={skin} />
-        <Path d="M-9 -45 A9 9 0 0 1 9 -45 L9 -49 L-9 -49 Z" fill={hair} />
+        <Rect x={13} y={-12} width={9} height={14} rx={4} fill={HOSE} />
+        <Ellipse cx={22.5} cy={1} rx={5} ry={2.6} fill={SCHUH} />
+        <Rect x={-7} y={-16} width={29} height={10} rx={5} fill={HOSE} />
+        <Rect x={-8} y={-40} width={16} height={28} rx={7.5} fill={shirt} />
+        <Rect x={4} y={-34} width={5} height={15} rx={2.5} fill={shirt} opacity={0.8} transform="rotate(-8 6 -34)" />
+        <Circle cx={9.5} cy={-19.5} r={2.6} fill={skin} />
+        <Rect x={-2.5} y={-45} width={5} height={7} rx={2.5} fill={skin} />
+        <G transform="translate(0 -50)">
+          <Kopf skin={skin} hair={hair} stil={stil} sorge />
+        </G>
       </G>
     );
   }
   return (
     <G transform={`translate(${x} ${ground}) scale(${s * f} ${s})`}>
-      <Rect x={-7} y={-22} width={6} height={22} rx={3} fill="#3E4A6D" />
-      <Rect x={1} y={-22} width={6} height={22} rx={3} fill="#3E4A6D" />
-      <Rect x={-9} y={-47} width={18} height={28} rx={8} fill={shirt} />
-      <Circle cx={0} cy={-56} r={9} fill={skin} />
-      <Path d="M-9 -58 A9 9 0 0 1 9 -58 L9 -62 L-9 -62 Z" fill={hair} />
+      <Rect x={-6.5} y={-26} width={6} height={24} rx={3} fill={HOSE} />
+      <Rect x={0.5} y={-26} width={6} height={24} rx={3} fill={HOSE} />
+      <Ellipse cx={-4} cy={-1.4} rx={5} ry={2.5} fill={SCHUH} />
+      <Ellipse cx={4.6} cy={-1.4} rx={5} ry={2.5} fill={SCHUH} />
+      <Rect x={-13} y={-53} width={5.2} height={24} rx={2.6} fill={shirt} />
+      <Rect x={7.8} y={-53} width={5.2} height={24} rx={2.6} fill={shirt} />
+      <Circle cx={-10.4} cy={-28} r={2.7} fill={skin} />
+      <Circle cx={10.4} cy={-28} r={2.7} fill={skin} />
+      <Rect x={-9.5} y={-54} width={19} height={31} rx={8.5} fill={shirt} />
+      <Rect x={-2.6} y={-60} width={5.2} height={7} rx={2.6} fill={skin} />
+      <G transform="translate(0 -66)">
+        <Kopf skin={skin} hair={hair} stil={stil} />
+      </G>
     </G>
   );
 }
@@ -202,7 +271,7 @@ export function Scene({
   const h = 180;
   const ground = setting === 'strasse' ? 128 : 134;
   const k = hash(seed);
-  const patient = { skin: SKIN[k % SKIN.length], hair: HAIR[(k >> 3) % HAIR.length], shirt: SHIRT[(k >> 6) % SHIRT.length] };
+  const patient = { skin: SKIN[k % SKIN.length], hair: HAIR[(k >>> 3) % HAIR.length], shirt: SHIRT[(k >>> 6) % SHIRT.length] };
   const hx = w * 0.46;
   const px = pose === 'liegt' ? w * 0.34 : pose === 'sitzt' ? w * 0.4 : w * 0.38;
   return (
@@ -224,8 +293,8 @@ export function Scene({
             ground={ground}
             pose="steht"
             shirt={accent}
-            skin={SKIN[(k >> 9) % SKIN.length]}
-            hair={HAIR[(k >> 12) % HAIR.length]}
+            skin={SKIN[(k >>> 9) % SKIN.length]}
+            hair={HAIR[(k >>> 12) % HAIR.length]}
             flip
           />
         </G>

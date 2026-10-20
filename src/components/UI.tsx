@@ -177,7 +177,7 @@ export function TopBar({
   );
 }
 
-/** Kleine Wert-Anzeige oben rechts (Punkte, Minuten, richtige Antworten) */
+/** Kleine Wert-Anzeige oben rechts (EP, Minuten, richtige Antworten) */
 export function StatChip({ value, label, color = colors.surface2 }: { value: string | number; label: string; color?: string }) {
   const bright = onColor(color) === colors.onBright;
   return (
