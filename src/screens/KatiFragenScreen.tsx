@@ -15,6 +15,7 @@ import {
   istNotfallFrage,
   korrigiereFrage,
   kontextFuerKi,
+  smalltalk,
   sucheWissen,
 } from '../game/wissen';
 import { useLayout } from '../layout';
@@ -34,6 +35,8 @@ interface Runde {
   appOffen?: boolean;
   /** Frage mit verbesserten Tippfehlern („Meintest du …?“) */
   meinteDu?: string;
+  /** Freundliche Direktantwort (Begrüßung, Dank …) */
+  klartext?: string;
 }
 
 const KURZ: WissensArt[] = ['lexikon', 'spickzettel', 'ablauf', 'basics', 'krankheit', 'wert', 'artikel', 'begriff'];
@@ -96,6 +99,14 @@ export function KatiFragenScreen({ onBack }: { onBack: () => void }) {
     if (!f) return;
     const treffer = sucheWissen(r.id, f, 6);
     const id = ++nr.current;
+    const klartext = smalltalk(f);
+    if (klartext) {
+      const id = ++nr.current;
+      setVerlauf((v) => [{ id, frage: f, art: 'lokal', laedt: false, treffer: [], notfall: false, klartext }, ...v]);
+      setText('');
+      scroll.current?.scrollTo({ y: 0, animated: true });
+      return;
+    }
     const fix = korrigiereFrage(r.id, f);
     const basis: Runde = {
       id,
@@ -138,6 +149,10 @@ export function KatiFragenScreen({ onBack }: { onBack: () => void }) {
 
   const frage = (q: string) => {
     if (!q.trim()) return;
+    if (smalltalk(q)) {
+      stelle(q, false);
+      return;
+    }
     if (kiDa && zustimmung === null) {
       setWartend(q.trim());
       setText('');
@@ -219,7 +234,11 @@ export function KatiFragenScreen({ onBack }: { onBack: () => void }) {
                       </Text>
                     </View>
                   )}
-                  {rd.laedt ? (
+                  {rd.klartext ? (
+                    <Card>
+                      <Text style={type.body}>{rd.klartext}</Text>
+                    </Card>
+                  ) : rd.laedt ? (
                     <Card style={styles.denkt}>
                       <ActivityIndicator color={colors.tuerkis} />
                       <Text style={type.body}>Kati überlegt …</Text>
@@ -335,7 +354,8 @@ export function KatiFragenScreen({ onBack }: { onBack: () => void }) {
               ) : (
                 <>
                   <Text style={type.body}>
-                    Hi, ich bin Kati! Frag mich zu Notfällen und Erster Hilfe. Ich suche die Antwort in den Inhalten dieser App.
+                    Hi, ich bin Kati! Frag mich zu Notfällen, Erster Hilfe und zum Helfen – auch „Muss ich immer helfen?“. Ich
+                    suche die Antwort in den Inhalten dieser App.
                   </Text>
                   <Text style={type.small}>
                     {kiDa

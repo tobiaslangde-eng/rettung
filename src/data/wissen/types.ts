@@ -11,7 +11,8 @@ export type WissensKategorie =
   | 'rettungsdienst'
   | 'begriffe'
   | 'medikamente'
-  | 'erkrankungen';
+  | 'erkrankungen'
+  | 'helfen';
 
 export const KATEGORIE_NAMEN: Record<WissensKategorie, string> = {
   'erste-hilfe': 'Erste Hilfe',
@@ -26,6 +27,7 @@ export const KATEGORIE_NAMEN: Record<WissensKategorie, string> = {
   begriffe: 'Fachbegriffe und Abkürzungen',
   medikamente: 'Medikamente und Hilfsmittel',
   erkrankungen: 'Häufige Erkrankungen',
+  helfen: 'Helfen: Pflicht, Mut und Gefühle',
 };
 
 export interface Wissensartikel {

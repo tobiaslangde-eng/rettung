@@ -5,7 +5,7 @@
 Diese Datei wird automatisch erzeugt (`node scripts/build-wissensbasis.mjs`) – Änderungen bitte in `src/data/wissen/*.ts` machen.
 Die App durchsucht diese Artikel bei „Frag Kati“ und in der Lexikon-Suche; mit KI-Funktion bekommt die KI die passenden Artikel als Hintergrundwissen.
 
-**650 Artikel** in 12 Bereichen.
+**693 Artikel** in 13 Bereichen.
 
 ## Inhalt
 
@@ -21,6 +21,7 @@ Die App durchsucht diese Artikel bei „Frag Kati“ und in der Lexikon-Suche; m
 - [Fachbegriffe und Abkürzungen](#fachbegriffe-und-abkürzungen) – 186 Artikel
 - [Medikamente und Hilfsmittel](#medikamente-und-hilfsmittel) – 39 Artikel
 - [Häufige Erkrankungen](#häufige-erkrankungen) – 57 Artikel
+- [Helfen: Pflicht, Mut und Gefühle](#helfen-pflicht-mut-und-gefühle) – 43 Artikel
 
 ## Erste Hilfe
 
@@ -9681,3 +9682,620 @@ Zahnschmerzen entstehen meist durch Karies, Entzündung des Zahnnervs oder des Z
 🚨 **Notruf/Arzt:** Sofort 112 bei Schwellung mit Atemnot, Schluckbeschwerden, Schwellung am Hals oder Auge, hohem Fieber oder Verwirrtheit. Sonst am selben Tag zum Zahnarzt oder zum zahnärztlichen Notdienst.
 
 **Merke:** Dicke Backe mit Fieber oder Atemnot: sofort Notfall.
+
+## Helfen: Pflicht, Mut und Gefühle
+
+### Brauche ich einen Kurs, um helfen zu dürfen?
+_für alle · Suchwörter: Erste-Hilfe-Kurs, Schein, Nachweis, Berechtigung, Ausbildung, Führerschein, qualifiziert, ohne Kurs_
+
+Nein. Helfen darf und soll jeder, auch ohne Kurs. Ein Kurs gibt aber Sicherheit und lohnt sich.
+
+- Es gibt keine Berechtigung, die man zum Helfen vorweisen muss. Die Pflicht zur Hilfe gilt unabhängig von Vorkenntnissen.
+- Einen Erste-Hilfe-Kurs brauchen für den Führerschein, in vielen Berufen und für betriebliche Ersthelfer. Er ist aber keine Voraussetzung für Hilfe.
+- Wer einen Kurs gemacht hat, kann Handgriffe schneller und sicherer anwenden. Das Wissen verblasst allerdings, deshalb wird eine Auffrischung etwa alle zwei Jahre empfohlen.
+- Ohne Kurs hilfst du mit dem Wichtigsten: 112 wählen, bei der Person bleiben, Anweisungen der Leitstelle befolgen, Herzdruckmassage bei Kreislaufstillstand.
+- Kurse bieten unter anderem DRK, Johanniter, Malteser, ASB und andere anerkannte Stellen an.
+
+**Merke:** Kein Schein nötig, aber jeder Kurs hilft.
+
+### Darf ein Patient die Behandlung ablehnen?
+_Rettungsdienst · Suchwörter: Behandlungsverweigerung, Ablehnung, Selbstbestimmung, Einwilligungsfähigkeit, Aufklärung, Dokumentation, Transportverweigerung, Patientenwille, Einsichtsfähigkeit_
+
+Ja, einsichtsfähige Patienten dürfen Behandlung und Transport ablehnen. Voraussetzung sind Aufklärung über Risiken und eine klare Dokumentation. Fehlt die Einsichtsfähigkeit, gilt der mutmaßliche Wille.
+
+- Grundlage ist das Selbstbestimmungsrecht. Eine Behandlung ohne wirksame Einwilligung gilt nach allgemeiner Auffassung als Körperverletzung, außer es greift der mutmaßliche Wille oder ein Notstand.
+- Prüfe die Einsichtsfähigkeit: Versteht die Person die Lage, die Folgen von Handeln und Nichthandeln, und kann sie eine konsistente Entscheidung äußern? Akute Erkrankungen, Intoxikation oder psychische Krisen können sie aufheben.
+- Kläre auf: Diagnoseverdacht, mögliche Folgen, Alternativen. Biete mehrfach Hilfe an, binde nach Möglichkeit Angehörige und Notarzt oder Telenotarzt ein.
+- Dokumentiere sorgfältig: Befunde, Aufklärung, Verständnis, Zeugen, Angaben zu Alternativen und Rückkehrmöglichkeit, Unterschrift des Patienten, soweit möglich. Das Vorgehen richtet sich nach Region und SOP.
+- Bei fehlender Einsichtsfähigkeit mit Eigen- oder Fremdgefährdung kommen je nach Landesrecht Polizei, Ordnungsbehörde oder Unterbringungsverfahren in Betracht. Kläre das mit Leitstelle und ärztlicher Leitung.
+
+🚨 **Notruf/Arzt:** Bei Zweifeln an der Einsichtsfähigkeit oder Lebensgefahr Notarzt und Leitstelle einbinden, nicht allein entscheiden.
+
+**Merke:** Aufklären, Einsichtsfähigkeit prüfen, sorgfältig dokumentieren.
+
+### Darf ich einen Fremden anfassen oder Kleidung öffnen?
+_für alle · Suchwörter: anfassen, berühren, Kleidung aufschneiden, Hemd öffnen, Fremde, darf ich, Einwilligung, Körperkontakt, ausziehen_
+
+Ja, wenn es für die Hilfe nötig ist. Bei einer Wiederbelebung musst du zum Beispiel den Brustkorb frei machen. Wer bei Bewusstsein ist, sollte vorher gefragt werden.
+
+- Eine bewusstlose oder nicht ansprechbare Person kann nicht einwilligen. Nach allgemeiner Auffassung gilt ihr mutmaßlicher Wille: Sie würde Hilfe wollen.
+- Bei Bewusstsein: kurz sagen, was du tust, und um Erlaubnis bitten. Zum Beispiel: „Ich bin Ersthelfer, darf ich Ihnen helfen?“
+- Kleidung nur so weit öffnen, wie es für die Maßnahme nötig ist. Bei der Herzdruckmassage muss die Brust frei sein, auch bei Frauen.
+- Schütze die Privatsphäre: Sichtschutz durch umstehende Personen, Decke oder Jacke zum Zudecken, sobald die Maßnahme erledigt ist.
+- Berühre nur, was für die Hilfe nötig ist. Behutsam und ruhig vorgehen, das schafft Vertrauen.
+
+**Merke:** So viel Körperkontakt wie nötig, so viel Schutz der Würde wie möglich.
+
+### Darf ich helfen, wenn die Person nicht möchte?
+_für alle · Suchwörter: lehnt ab, will nicht, verweigert, Hilfe ablehnen, Einwilligung, gegen den Willen, Selbstbestimmung, Zwang_
+
+Wer bei klarem Verstand ist, darf Hilfe ablehnen. Das gilt auch, wenn du es anders sehen würdest. Bei Bewusstlosen oder verwirrten Menschen gilt dagegen der mutmaßliche Wille.
+
+- Erwachsene, die einsichtsfähig sind, bestimmen selbst über ihren Körper. Dazu zählt, Hilfe oder Behandlung abzulehnen.
+- Frage ruhig nach, biete Hilfe mehrfach an und erkläre, was du siehst. Manchmal ändert sich die Haltung, wenn Angst oder Scham weichen.
+- Wenn jemand verwirrt, stark unterzuckert, bewusstseinsgetrübt oder in einer akuten psychischen Krise ist, ist die Ablehnung nicht verlässlich. Dann rufst du die 112.
+- Auch wenn eine Person Hilfe ablehnt, darfst du den Notruf wählen, wenn du den Eindruck hast, dass sie in Gefahr ist. Beschreibe der Leitstelle genau, was du siehst.
+- Bleibe in der Nähe, soweit es sicher ist, bis der Rettungsdienst da ist. Er kann die Lage fachlich beurteilen.
+
+🚨 **Notruf/Arzt:** Wirkt die Person verwirrt, bewusstlos oder in akuter Lebensgefahr: 112 wählen, auch gegen ihr Winken.
+
+**Merke:** Klarer Verstand heißt klarer Wille. Im Zweifel die 112 fragen.
+
+### Darf ich Medikamente oder etwas zu trinken geben?
+_für alle · Suchwörter: Medikamente geben, Wasser, trinken, essen, Schmerzmittel, Zucker, Tablette, Notfallmedikament, Laie_
+
+Medikamente gibt ein Laie nicht, außer der Betroffene nimmt sein eigenes Notfallmittel selbst. Auch Essen und Trinken sind bei einem Notfall meist tabu, es gibt aber Ausnahmen.
+
+- Medikamente können Beschwerden verändern oder schaden. Die Entscheidung dazu gehört Ärztinnen und Ärzten oder dem Rettungsdienst.
+- Ausnahme: Wenn jemand sein eigenes verordnetes Notfallmittel dabei hat, etwa bei Asthma oder Allergie, darfst du beim Anwenden helfen, wenn er es nicht selbst kann. Frage nach und folge den Anweisungen der Leitstelle.
+- Bei Verdacht auf Unterzuckerung bei einem Diabetiker, der noch wach ist und schlucken kann, ist zuckerhaltiges Getränk oder Traubenzucker sinnvoll. Die Leitstelle berät dich.
+- Bei Bewusstseinsstörung, Schock oder schweren Verletzungen gibst du nichts zu essen oder zu trinken, auch keinen Alkohol.
+- Bei Vergiftungen kein Erbrechen auslösen und keine Hausmittel geben. Ruf die 112 oder das regionale Giftinformationszentrum an.
+
+🚨 **Notruf/Arzt:** Bei Notfällen 112 wählen und vor Medikamenten oder Getränken immer die Leitstelle fragen.
+
+**Merke:** Keine fremden Medikamente, nichts in den Mund bei Bewusstseinsstörung.
+
+### Darf ich Unfälle filmen oder fotografieren?
+_für alle · Suchwörter: Gaffer, filmen, fotografieren, Handyvideo, Foto, Persönlichkeitsrecht, Sensationslust, Social Media, Unfallfoto_
+
+Nein, solche Aufnahmen sollte man unterlassen. Wer hilflose Personen filmt oder fotografiert, kann sich nach allgemeiner Auffassung strafbar machen und verletzt die Würde der Betroffenen.
+
+- Aufnahmen von hilflosen Personen oder von Verstorbenen können nach dem Strafgesetzbuch strafbar sein. Auch das Verbreiten kann Folgen haben.
+- Wer durch Gaffen Rettungskräfte behindert oder die Fahrbahn blockiert, kann sich ebenfalls strafbar machen. Für Retter ist jeder Meter und jede Sekunde wichtig.
+- Für die Betroffenen und ihre Angehörigen sind solche Bilder oft ein zusätzlicher Schmerz, besonders wenn sie im Netz landen.
+- Wer helfen kann, hilft. Wer nicht helfen kann, geht weg und hält den Weg frei. Das Handy ist für den Notruf da, nicht für Videos.
+- Wenn du als Zeuge Beweise sichern möchtest, sprich das mit der Polizei ab. Sie sagt dir, was sinnvoll ist.
+
+**Merke:** Das Handy gehört in die Hand, um 112 zu wählen – nicht um zu filmen.
+
+### Darf ich weitererzählen, was ich gesehen habe?
+_für alle · Suchwörter: Schweigepflicht, Datenschutz, weitererzählen, Geheimnis, Privatsphäre, Persönlichkeitsrecht, Klatsch, Social Media, erzählen_
+
+Als Ersthelfer unterliegst du keiner förmlichen Schweigepflicht. Trotzdem gilt: Gesundheit ist privat, und wer Einzelheiten weitererzählt oder postet, kann Menschen verletzen.
+
+- Die strafrechtliche Schweigepflicht trifft nach allgemeiner Auffassung bestimmte Berufsgruppen wie Ärzte und Rettungsdienstpersonal, nicht Laien.
+- Aber auch für Laien gilt der Schutz der Persönlichkeit. Namen, Fotos und Krankheitsgeschichten gehören nicht ins Netz oder in den Tratsch.
+- Sprichst du über das Erlebte, tu es so, dass die Person nicht erkennbar ist. Das schützt sie und ihre Angehörigen.
+- Mit Vertrauten darfst und sollst du über deine Gefühle sprechen. Das hilft bei der Verarbeitung, ohne Namen und Details zu verbreiten.
+- Der Polizei und dem Rettungsdienst gibst du alle Informationen, die für die Hilfe oder Aufklärung nötig sind.
+
+**Merke:** Über Gefühle sprechen ja, über Personen und Details schweigen.
+
+### Dürfen Kinder und Jugendliche Erste Hilfe leisten?
+_für alle · Suchwörter: Kinder, Jugendliche, Minderjährige, Schule, Alter, wie alt, Schüler, Kind hilft, ab wann_
+
+Ja, helfen darf jeder, unabhängig vom Alter. Schon Kinder können den Notruf wählen, Erwachsene holen und Erste Hilfe lernen.
+
+- Ein Alter für Erste Hilfe gibt es nicht. Kinder können aber nicht alles. Wichtig ist, dass sie sich nicht in Gefahr bringen und Hilfe holen.
+- Kinder können früh lernen: jemanden ansprechen, Hilfe rufen, 112 wählen, Namen und Ort nennen, bei der Person bleiben.
+- Ab dem Schulalter können sie die Grundlagen der Wiederbelebung üben. Viele Schulen und Jugendorganisationen bieten entsprechende Kurse an.
+- Kinder unter 14 sind in Deutschland nicht strafmündig. Eine Pflicht zur Hilfe im strafrechtlichen Sinn trifft sie nicht, aber Mut und Hilfsbereitschaft sind sehr willkommen.
+- Eltern und Lehrkräfte können helfen, indem sie üben und darüber sprechen, dass Hilfe holen immer richtig ist.
+
+🚨 **Notruf/Arzt:** Auch Kinder dürfen und sollen bei einem Notfall die 112 wählen.
+
+**Merke:** Hilfe holen kann jedes Kind.
+
+### Eigenschutz geht vor: Wann darf ich nicht helfen?
+_für alle · Suchwörter: Eigenschutz, Gefahr, gefährlich, Gewalt, Verkehr, Feuer, Strom, Selbstgefährdung, Unfallstelle, Zumutbarkeit_
+
+Du darfst und solltest nicht helfen, wenn du dich dabei selbst erheblich in Gefahr bringst. Ein toter Helfer nutzt niemandem. Den Notruf wählen und andere warnen kannst du fast immer.
+
+- Typische Gefahren: fließender Verkehr, Feuer und Rauch, Strom, Gas, einsturzgefährdete Gebäude, Wasser, Gewalttäter in der Nähe.
+- Sichere die Lage, wenn es ohne Risiko möglich ist: Warnblinker, Warnweste, Abstand, andere warnen. Bei Autobahnunfällen auf dieser Seite der Schutzplanke bleiben.
+- Wenn die Gefahr nicht zu beseitigen ist, bleibt der Notruf: Du meldest die Lage genau und hältst Abstand, bis Feuerwehr oder Polizei die Stelle gesichert haben.
+- Rettung aus dem Wasser oder aus brennenden Räumen ist Sache der Profis. Wirf allenfalls Hilfsmittel wie ein Seil oder einen Rettungsring zu, ohne selbst hineinzugehen.
+- Nach allgemeiner Auffassung verlangt das Gesetz nichts, was dich in erhebliche Gefahr bringt. Das schützt auch dich rechtlich.
+
+🚨 **Notruf/Arzt:** Bei Gefahr für dich zuerst Abstand halten und 112 wählen. Bei Gewalt auch die Polizei (110).
+
+**Merke:** Erst ich, dann die Unfallstelle, dann der Verletzte.
+
+### Ich habe Angst, etwas falsch zu machen
+_für alle · Suchwörter: Angst, Fehler, unsicher, falsch, Hemmung, überfordert, traue mich nicht, Versagensangst_
+
+Diese Angst haben fast alle, sie ist normal und zeigt, dass dir die andere Person wichtig ist. Auch unvollkommene Hilfe ist viel besser als gar keine.
+
+- Bei Menschen ohne Kreislauf ist fast jede Hilfe besser als keine. Wer nichts tut, nimmt der Person alle Chancen.
+- Du musst nicht alles wissen. Der Notruf 112 kommt zuerst, die Leitstelle führt dich am Telefon Schritt für Schritt.
+- Vieles lässt sich einfach merken: Prüfen, Rufen, Drücken. Mehr braucht es bei Bewusstlosigkeit ohne normale Atmung nicht.
+- Hilfe ist nicht Alles-oder-nichts. Du kannst anrufen, einweisen, die Person zudecken, Hand halten, Menschen dazuholen.
+- Wiederholtes Üben, etwa in einem Kurs oder in einer Lern-App, nimmt die Angst Schritt für Schritt.
+
+🚨 **Notruf/Arzt:** Bei Verdacht auf einen Notfall nicht zögern: 112 wählen, auch wenn du dir unsicher bist.
+
+**Merke:** Der größte Fehler ist, nichts zu tun.
+
+### Ist 112 wählen übertrieben, wenn ich unsicher bin?
+_für alle · Suchwörter: Fehlalarm, unsicher, übertrieben, Notruf Missbrauch, blinder Alarm, zu früh, Kosten, Notrufmissbrauch, peinlich_
+
+Nein. Wer in gutem Glauben anruft, macht nichts falsch, auch wenn sich später herausstellt, dass es nicht schlimm war. Die Leitstelle ist genau dafür da, zu entscheiden.
+
+- Lieber einmal zu viel als einmal zu wenig. Nach allgemeiner Auffassung ist ein Notruf in gutem Glauben straffrei, auch wenn er sich als unnötig erweist.
+- Strafbar ist der vorsätzliche Missbrauch von Notrufen, etwa Scherzanrufe oder erfundene Notlagen.
+- Die Leitstelle stellt gezielte Fragen und entscheidet gemeinsam mit dir, ob Rettungsdienst, Notarzt oder ein anderer Weg nötig ist. Du musst nicht selbst diagnostizieren.
+- Bei harmlosen Beschwerden ist der ärztliche Bereitschaftsdienst unter 116 117 oft die passende Stelle. Bei Zweifel über die Dringlichkeit: 112.
+- Ob und wie Kosten entstehen, richtet sich nach Region und Krankenkasse. Bei einem echten Notfall solltest du dich davon nicht abhalten lassen.
+
+🚨 **Notruf/Arzt:** Bei Atemnot, Bewusstlosigkeit, starken Brustschmerzen, Schlaganfallzeichen oder schweren Blutungen sofort 112.
+
+**Merke:** Im Zweifel anrufen – die Leitstelle entscheidet mit.
+
+### Ist Nichtstun der größte Fehler?
+_für alle · Suchwörter: Nichtstun, wegsehen, untätig, größter Fehler, zögern, warten, Zeit, Hilfe verweigern_
+
+Ja. Bei einem Herz-Kreislauf-Stillstand sinken die Überlebenschancen mit jeder Minute ohne Hilfe. Selbst eine unvollkommene Hilfe ist deutlich besser als keine.
+
+- Ersthelfer überbrücken die Zeit, bis der Rettungsdienst eintrifft. Ohne diese Überbrückung ist der Weg zurück ins Leben oft nicht möglich.
+- Die meisten Fehler, die Laien fürchten, sind harmlos im Vergleich zur Folge des Nichtstuns.
+- Auch kleine Schritte zählen: 112 wählen, die Person ansprechen, den Rettungsdienst einweisen, weitere Helfer organisieren.
+- Wenn du dir unsicher bist, ob etwas ein Notfall ist: Im Zweifel anrufen. Die Leitstelle entscheidet mit dir gemeinsam.
+- Gerade bei unklaren Lagen hilft es, laut zu sagen: „Ich rufe jetzt die 112, wer kann mir helfen?“ Das setzt oft andere in Bewegung.
+
+🚨 **Notruf/Arzt:** Bei Bewusstlosigkeit ohne normale Atmung sofort 112 wählen und mit der Herzdruckmassage beginnen.
+
+**Merke:** Besser unvollkommen geholfen als perfekt zugeschaut.
+
+### Kann ich bestraft werden, wenn ich einen Fehler mache?
+_für alle · Suchwörter: Fehler, strafbar, Strafe, Angst vor Strafe, falsch gemacht, Verletzung, Anzeige, Ersthelfer Strafe_
+
+Wer in einer Notlage nach bestem Wissen hilft, wird in der Praxis kaum bestraft, auch wenn etwas schiefgeht. Gerade Laien wird in der Aufregung viel zugestanden.
+
+- Ein Fehler beim Helfen ist menschlich. Nach allgemeiner Auffassung ist entscheidend, ob du nach deinem Wissen und deinen Möglichkeiten in dieser Lage vernünftig gehandelt hast.
+- Gerade wenn jemand ohne Hilfe in Lebensgefahr wäre, wird von Laien nicht Perfektion verlangt. Eine Wiederbelebung mit gebrochenen Rippen etwa ist erwartbar und kein Fehler.
+- Problematisch wären nach allgemeiner Auffassung grob unvernünftige Handlungen, zum Beispiel jemandem trotz Verbots Medikamente aufzudrängen oder bewusst Schaden zu riskieren.
+- Wer den Rat der Leitstelle am Telefon befolgt, handelt in der Regel besonders sicher, denn die Mitarbeitenden leiten dich nach festen Abläufen an.
+- Im Zweifel gilt: Nichts zu tun ist riskanter als zu helfen. Eine verbindliche Rechtsauskunft gibt hier nur eine Rechtsberatung.
+
+**Merke:** Wer nach bestem Wissen hilft, hat in der Regel nichts zu befürchten.
+
+### Kann ich helfen, wenn ich schwach, alt oder eingeschränkt bin?
+_für alle · Suchwörter: alt, schwach, Behinderung, Handicap, eingeschränkt, körperlich, Rollstuhl, Kraft, Senioren, nicht fit_
+
+Ja, es gibt viele Wege zu helfen, die keine Kraft brauchen. Der Notruf, Ansprache, Beruhigung und das Organisieren anderer sind genauso wertvoll.
+
+- Die Pflicht zur Hilfe verlangt nur Zumutbares. Was deine Gesundheit oder Kraft übersteigt, musst du nicht tun.
+- Du kannst die 112 wählen, die Lage beschreiben, den Rettungsdienst einweisen und bei der Person bleiben.
+- Sprich Umstehende an und delegiere körperlich anstrengende Aufgaben wie Herzdruckmassage oder Umlagern.
+- Wiederbelebung ist anstrengend. Wenn du es nicht schaffst, bitte um Ablösung und gib die Anleitung der Leitstelle weiter.
+- Viele Kurse sind barrierearm. Frag bei Anbietern nach, wie sie auf körperliche Einschränkungen eingehen.
+
+🚨 **Notruf/Arzt:** Auch wenn du nichts anderes tun kannst: 112 wählen.
+
+**Merke:** Helfen heißt nicht Stärke, sondern Handeln.
+
+### Mir wird bei Blut schlecht – was tun?
+_für alle · Suchwörter: Blut, Ohnmacht, Kreislauf, schlecht, umkippen, Ekel, Schwindel, Blutphobie, Kollaps_
+
+Das passiert vielen Menschen und ist kein Charakterfehler. Setz oder leg dich hin, atme ruhig und hole Hilfe. Dann kannst du trotzdem viel tun.
+
+- Bei Blutanblick kann der Kreislauf kurz absacken, das ist eine Reflexreaktion des Körpers. Sie ist harmlos, aber gefährlich, wenn du dabei stürzt.
+- Setz dich sofort hin oder leg dich mit erhöhten Beinen, sobald dir schwindelig wird. Ruhig und tief atmen.
+- Schau weg von der Wunde, wenn es dir hilft, und konzentriere dich auf die Person: sprechen, beruhigen, Hand halten.
+- Du kannst Aufgaben übernehmen, die kein Blut verlangen: 112 wählen, Verbandmaterial holen, Rettungsdienst einweisen, Umstehende organisieren.
+- Wenn du druckverbinden musst, sind Einmalhandschuhe und ein fertiger Druckverband eine gute Hilfe. Schau währenddessen in das Gesicht der Person.
+
+🚨 **Notruf/Arzt:** Wenn du selbst ohnmächtig wirst oder nicht weiterkannst, wähle trotzdem die 112 oder bitte andere um Hilfe.
+
+**Merke:** Hinsetzen, atmen, Aufgaben abgeben – du musst nicht alles selbst machen.
+
+### Muss ich auch bei Angst vor Ansteckung Mund-zu-Mund beatmen?
+_für alle · Suchwörter: Ansteckung, Infektion, Mund-zu-Mund, Beatmung, Ekel, Atemspende, Hygiene, Angst vor Krankheit, Beatmungsmaske_
+
+Nein. Laien dürfen bei Erwachsenen auf die Beatmung verzichten und reine Herzdruckmassage machen. Das ist nach den aktuellen Leitlinien ausdrücklich in Ordnung.
+
+- Bei einem plötzlichen Herz-Kreislauf-Stillstand beim Erwachsenen sind die ersten Minuten die Herzdruckmassage am wichtigsten. Wer nicht beatmen mag oder kann, drückt einfach durchgehend.
+- Wer sich traut und eine Atemmaske oder ein Beatmungstuch dabei hat, kann nach 30 Kompressionen 2 Beatmungen geben. Verpflichtend ist das für Laien nicht.
+- Das Risiko, sich bei der Wiederbelebung mit einer schweren Krankheit anzustecken, gilt als sehr gering. Bei Blut gilt: Handschuhe, wenn vorhanden.
+- Bei Kindern und bei Atemstillstand durch Ertrinken, Vergiftung oder Ersticken ist die Beatmung wichtiger. Wer sie nicht kann, drückt trotzdem.
+- Eine Atemmaske im Erste-Hilfe-Set oder im Auto erleichtert die Beatmung und schützt zusätzlich.
+
+🚨 **Notruf/Arzt:** Zuerst immer 112 wählen und mit der Herzdruckmassage beginnen. Auch ohne Beatmung ist das wertvolle Hilfe.
+
+**Merke:** Lieber nur drücken als gar nichts tun.
+
+### Muss ich bei einem Unfall anhalten?
+_für alle · Suchwörter: Unfall, anhalten, Auto, vorbeifahren, Unfallflucht, Straße, Verkehrsunfall, Autobahn, Stau_
+
+Wer am Unfall beteiligt ist, muss anhalten. Wer nur vorbeikommt, muss helfen, wenn es erforderlich und zumutbar ist. Wenn schon viele helfen, genügt es oft weiterzufahren.
+
+- Unfallbeteiligte müssen nach der Straßenverkehrsordnung sofort anhalten, die Unfallstelle sichern und helfen. Wer wegfährt, begeht gegebenenfalls Unfallflucht.
+- Unbeteiligte müssen helfen, wenn Hilfe nötig ist und nicht schon geleistet wird. Ein Unfall am Straßenrand ohne erkennbare Hilfe ist so ein Fall.
+- Halte nur an, wenn du das sicher kannst: Warnblinker, mit Abstand hinter der Unfallstelle, Warnweste anziehen, Warndreieck aufstellen, andere Fahrzeuge nicht gefährden.
+- Auf der Autobahn gilt besondere Vorsicht. Stelle das Auto möglichst weit rechts ab, steig auf der Seite zum Randstreifen aus und bleib hinter der Leitplanke.
+- Wenn du nicht anhalten kannst, kannst du den Notruf an der nächsten sicheren Stelle absetzen und die Lage melden.
+
+🚨 **Notruf/Arzt:** Unfall mit Verletzten: 112 wählen. Dabei Ort, Anzahl der Verletzten und Gefahren nennen.
+
+**Merke:** Anhalten, sichern, Notruf – immer mit Blick auf die eigene Sicherheit.
+
+### Muss ich im Beruf als Sanitäter immer helfen?
+_Rettungsdienst · Suchwörter: Dienstpflicht, Garantenstellung, Rettungsdienst, Sanitäter, im Dienst, privat, Pflicht Beruf, Notfallsanitäter, außer Dienst_
+
+Im Dienst ja: Rettungsdienstpersonal hat nach allgemeiner Auffassung eine besondere Pflicht zur Hilfe und kann bei Unterlassen strenger beurteilt werden. Auch dort endet die Pflicht bei erheblicher Eigengefahr.
+
+- Wer im Rettungsdienst arbeitet, übernimmt die Verantwortung für die Versorgung der Patienten. Daraus folgt eine Garantenstellung: Wer sie verletzt, kann auch als Täter eines Unterlassungsdelikts beurteilt werden.
+- Die Einsatzübernahme richtet sich nach Alarmierung, Standard-Arbeitsanweisungen und ärztlicher Delegation. Die Leitstelle disponiert, das Team trägt die Verantwortung vor Ort.
+- Auch im Dienst gilt der Eigenschutz: Bei Gewaltlagen, Feuer oder Einsturz wird die Einsatzstelle zuerst von Polizei oder Feuerwehr gesichert. Das ist kein Pflichtverstoß.
+- Außerhalb des Dienstes gelten dieselben Grundsätze wie für jeden: Pflicht zur zumutbaren Hilfe. Von Fachpersonal wird dabei oft mehr erwartet, weil es mehr kann.
+- Wer sich fachlich überfordert fühlt, fordert Unterstützung nach: Notarzt, weitere Kräfte, Rücksprache mit der Leitstelle. Das ist Teil der Verantwortung.
+
+**Merke:** Im Dienst Garant, privat wie jeder andere – und immer mit Eigenschutz.
+
+### Muss ich immer helfen?
+_für alle · Suchwörter: Pflicht, verpflichtet, muss ich, Zumutbarkeit, Eigengefahr, Hilfspflicht, darf ich weggehen_
+
+In Deutschland muss jeder bei einem Unglücksfall helfen, soweit es erforderlich und zumutbar ist. Wo es gefährlich wird, endet die Pflicht – den Notruf kann aber fast immer jeder wählen.
+
+- Die Pflicht ergibt sich nach allgemeiner Auffassung aus dem Strafgesetzbuch (unterlassene Hilfeleistung). Sie gilt für Unglücksfälle, plötzliche Erkrankungen und Notlagen.
+- Erforderlich heißt: Hilfe wird wirklich gebraucht und nicht schon von anderen geleistet. Wenn jemand Fähigeres bereits hilft, musst du nicht zusätzlich eingreifen.
+- Zumutbar heißt: ohne erhebliche eigene Gefahr und ohne dass du andere wichtige Pflichten verletzt. Wer sich selbst ernsthaft in Gefahr bringen müsste, muss nicht helfen.
+- Verlangt wird keine Heldentat, sondern das Mögliche: Notruf wählen, bei der Person bleiben, Hilfe holen, so viel Erste Hilfe wie du dir zutraust.
+- Auch wenn du dich unsicher fühlst, ist der Anruf bei der 112 fast immer zumutbar. Die Leitstelle sagt dir am Telefon, was du tun kannst.
+
+🚨 **Notruf/Arzt:** Bei einem Notfall sofort 112 wählen. Das ist die Mindesthilfe, die fast jeder leisten kann.
+
+**Merke:** Niemand muss ein Held sein, aber jeder kann die 112 wählen.
+
+### Muss ich meinen Namen nennen oder als Zeuge aussagen?
+_für alle · Suchwörter: Name nennen, Zeuge, Aussage, Polizei, Personalien, Zeugenpflicht, anonym, Rückruf, Vernehmung_
+
+Für den Notruf ist deine Rufnummer wichtig, damit die Leitstelle zurückrufen kann. Ob du bei der Polizei aussagen musst, hängt von der Lage ab. Vor Gericht gilt in der Regel eine Zeugenpflicht.
+
+- Der Leitstelle nennst du Namen und Rückrufnummer. Das erleichtert Rückfragen und Navigation. Aufgelegt wird erst, wenn die Leitstelle es sagt.
+- Nach allgemeiner Auffassung bist du gegenüber der Polizei nicht verpflichtet, eine Aussage zu machen. Gegenüber Staatsanwaltschaft und Gericht bist du als Zeuge in der Regel zum Erscheinen und zur Aussage verpflichtet.
+- Auf Verlangen der Polizei sind Angaben zur Person im Allgemeinen zu machen. Wer sich unsicher fühlt, fragt freundlich nach dem Anlass.
+- Zeugenaussagen helfen bei Unfällen und Straftaten, die Wahrheit zu klären. Auch scheinbar kleine Beobachtungen können wichtig sein.
+- Wenn du dich belastet fühlst oder Fragen zu deinen Rechten hast, kann eine Beratung durch eine Anwältin oder einen Anwalt oder eine Opferberatung helfen.
+
+**Merke:** Am Telefon Name und Rufnummer nennen, vor Gericht aussagen.
+
+### Muss ich warten, bis der Rettungsdienst kommt?
+_für alle · Suchwörter: warten, bleiben, weggehen, Rettungsdienst kommt, allein lassen, Eintreffen, dableiben, Abwesenheit_
+
+Am besten bleibst du bei der Person, bis der Rettungsdienst übernimmt. Wer sie allein lässt, riskiert, dass sich der Zustand unbemerkt verschlechtert.
+
+- Die Lage kann sich schnell ändern: Atmung, Bewusstsein und Kreislauf sollten weiter beobachtet werden. Das kann nur, wer dabei bleibt.
+- Du kannst wartend viel tun: ansprechen, beruhigen, zudecken, Hand halten, Veränderungen merken und dem Rettungsdienst berichten.
+- Lass andere Aufgaben verteilen: jemand weist den Rettungsdienst ein, öffnet die Haustür oder Schranke.
+- Wenn du dringend weg musst, übergib die Verantwortung an eine verlässliche Person und nenne dem Rettungsdienst oder der Leitstelle deine Kontaktdaten.
+- Bleibst du selbst nicht sicher, etwa durch Verkehr oder Gewalt, bringst du dich zuerst in Sicherheit und meldest dich dann bei der Leitstelle.
+
+🚨 **Notruf/Arzt:** Verschlechtert sich der Zustand oder bleibt Hilfe aus, melde dich nochmals bei der 112.
+
+**Merke:** Bleib da – deine Anwesenheit hilft.
+
+### Rippen brechen bei der Herzdruckmassage – ist das schlimm?
+_für alle · Suchwörter: Rippenbruch, Rippen gebrochen, Reanimation, knacken, zu fest, Herzdruckmassage, Brustkorb, Schaden_
+
+Das kann bei einer wirksamen Herzdruckmassage passieren und ist der Preis, um ein Leben zu retten. Rippenbrüche heilen, ein Herz-Kreislauf-Stillstand ohne Hilfe nicht.
+
+- Bei richtiger Technik mit einer Drucktiefe von etwa 5 bis 6 Zentimetern kommt es nicht selten zu knackenden Geräuschen oder Rippenbrüchen, vor allem bei älteren Menschen.
+- Das ist kein Zeichen für einen Fehler und kein Grund, mit der Massage aufzuhören. Weiterdrücken, auch wenn es knackt.
+- Rippenbrüche sind schmerzhaft, aber in der Regel gut behandelbar. Der Mensch, der wiederbelebt wurde, ist dafür meistens dankbar.
+- Der Druckpunkt liegt in der Mitte des Brustkorbs. Dort drücken, nicht auf dem Bauch oder seitlich.
+- Rhythmus 100 bis 120 Mal pro Minute, den Brustkorb nach jedem Druck vollständig entlasten.
+
+🚨 **Notruf/Arzt:** Bei Bewusstlosigkeit ohne normale Atmung 112 wählen und kräftig drücken, bis der Rettungsdienst übernimmt.
+
+**Merke:** Rippen heilen, ein Stillstand ohne Hilfe nicht.
+
+### Soll ich auch Tieren helfen?
+_für alle · Suchwörter: Tiere, Hund, Katze, Wildunfall, Tierarzt, verletztes Tier, Tiernotruf, Haustier, Biss, Wildtier_
+
+Du darfst und kannst helfen, aber der Schutz von Menschen geht vor. Verletzte Tiere können aus Angst beißen oder kratzen, ruf deshalb lieber Fachleute.
+
+- Verletzte Tiere sind unberechenbar. Halte Abstand und fasse sie nicht ohne Schutz an, auch ein sonst friedliches Haustier kann vor Schmerz zubeißen.
+- Für Haustiere hilft ein tierärztlicher Notdienst, der in vielen Regionen erreichbar ist. Die Nummer findest du über die Tierarztpraxis, Tierklinik oder das Internet.
+- Nach einem Wildunfall wird die Polizei gerufen (110, im Notfall 112), weil der zuständige Jagdausübungsberechtigte informiert werden muss. Verletzte Wildtiere nicht mitnehmen.
+- Sichere bei Verkehr zuerst die Unfallstelle. Ein Tier auf der Straße ist keine Rechtfertigung, dich in Gefahr zu bringen.
+- Wenn du gebissen wurdest, wasche die Wunde mit Wasser, decke sie ab und suche ärztlichen Rat. Bei starker Blutung 112.
+
+🚨 **Notruf/Arzt:** Bei Verletzungen von Menschen, etwa nach einem Biss oder Wildunfall, 112 wählen.
+
+**Merke:** Menschen zuerst, bei Tieren Fachleute holen.
+
+### Soll ich selbst ins Krankenhaus fahren oder die 112 rufen?
+_für alle · Suchwörter: selbst fahren, Krankenhaus, Notaufnahme, Taxi, Auto, Rettungswagen, Transport, Eigenfahrt, selber fahren_
+
+Bei möglicher Lebensgefahr rufst du die 112 und fährst nicht selbst. Der Rettungsdienst beginnt die Behandlung schon vor Ort und bringt dich in die passende Klinik.
+
+- Wer selbst fährt, kann unterwegs ohnmächtig werden und andere gefährden. Es geht außerdem Zeit verloren, weil im Auto keine Behandlung stattfindet.
+- Typische Gründe für den Notruf: Verdacht auf Herzinfarkt oder Schlaganfall, starke Atemnot, Bewusstlosigkeit, schwere Blutung, schwere Verletzung, Krampfanfall.
+- Der Rettungsdienst weiß, welche Klinik für das Problem geeignet ist, und kündigt dich dort an.
+- Bei leichteren Beschwerden kommen Hausarzt, Bereitschaftsdienst unter 116 117 oder die Notaufnahme infrage. Bei Unsicherheit entscheidet die Leitstelle mit dir.
+- Ein Taxi ist kein Ersatz für den Rettungswagen, wenn der Zustand bedrohlich sein könnte.
+
+🚨 **Notruf/Arzt:** Bei Verdacht auf Herzinfarkt, Schlaganfall, starke Atemnot, Bewusstlosigkeit oder schwere Blutung: 112, nicht selbst fahren.
+
+**Merke:** Bei Lebensgefahr kommt die Klinik zu dir – mit dem Rettungswagen.
+
+### Soll ich Zuschauer ansprechen und einbinden?
+_für alle · Suchwörter: Zuschauer, Umstehende, Passanten, ansprechen, Aufgaben verteilen, Gaffer, Hilfe holen, Helfer organisieren_
+
+Ja, unbedingt. Sprich Umstehende direkt an und gib ihnen klare Aufgaben, dann hilft die Menge statt zu gaffen.
+
+- Zeige auf eine einzelne Person und sprich sie an: „Sie in der blauen Jacke, rufen Sie bitte die 112!“ Persönliche Ansprache wirkt viel besser als ein allgemeiner Ruf.
+- Typische Aufgaben: Notruf wählen, Defibrillator holen, Rettungsdienst an der Straße einweisen, Absperrung oder Sichtschutz bilden, Decke bringen.
+- Beim Wiederbeleben kann man sich beim Drücken abwechseln, etwa alle zwei Minuten.
+- Bitte Neugierige freundlich, aber bestimmt, Abstand zu halten und nicht zu filmen. Wer nicht helfen kann, kann zumindest den Platz freihalten.
+- Bedanke dich kurz bei den Helfenden. Das hält die Motivation hoch.
+
+🚨 **Notruf/Arzt:** Sorge zuerst dafür, dass jemand die 112 wählt, und bitte um einen Defibrillator, falls einer in der Nähe ist.
+
+**Merke:** Zeigen, ansprechen, Aufgabe nennen.
+
+### Wann darf ich aufhören zu helfen?
+_für alle · Suchwörter: aufhören, abbrechen, beenden, erschöpft, Rettungsdienst übernimmt, weitermachen, Pause, zu müde, Reanimation beenden_
+
+Du hörst auf, wenn der Rettungsdienst übernimmt, wenn die Person von selbst wieder normal atmet oder reagiert, oder wenn du dich selbst in Gefahr bringst oder vollständig erschöpft bist.
+
+- Bei einer Wiederbelebung machst du weiter, bis der Rettungsdienst die Übernahme sagt, die Person sich bewegt oder normal atmet, oder du körperlich nicht mehr kannst.
+- Wenn ein Defibrillator da ist, folgst du seinen Sprachansagen. Nach dem Schock geht es meist direkt mit Herzdruckmassage weiter.
+- Drücken ist anstrengend. Lasse dich nach Möglichkeit etwa alle zwei Minuten ablösen, damit die Qualität hoch bleibt.
+- Bei erkennbarer Gefahr durch Verkehr, Feuer, Einsturz oder Gewalt darfst du abbrechen und dich in Sicherheit bringen.
+- Wenn du aufhörst, weil du am Ende deiner Kräfte bist, ist das nachvollziehbar. Sag der Leitstelle Bescheid und bitte andere, zu übernehmen.
+
+**Merke:** Weitermachen, bis der Rettungsdienst übernimmt.
+
+### Warum helfen so wenige?
+_für alle · Suchwörter: Zuschauereffekt, Verantwortungsdiffusion, Bystander, wegschauen, Gruppe, niemand hilft, Gleichgültigkeit, Hemmung, andere helfen_
+
+Meist liegt es nicht an Gleichgültigkeit, sondern an Unsicherheit und an einem bekannten Effekt: Je mehr Menschen zuschauen, desto eher denkt jeder, ein anderer werde schon helfen.
+
+- Der Zuschauereffekt beschreibt, dass in Gruppen die Hilfsbereitschaft sinken kann. Die Verantwortung verteilt sich gefühlt auf alle und liegt am Ende bei niemandem.
+- Dazu kommen Angst vor Fehlern, Angst vor Peinlichkeit, Furcht vor Ansteckung, rechtliche Unsicherheit und die Sorge, sich einzumischen.
+- Wer etwas anderes tut als die Menge, braucht Mut. Der erste Schritt ist der schwerste. Danach schließen sich oft andere an.
+- Du kannst den Effekt durchbrechen: Sprich eine Person direkt an, gib eine klare Aufgabe und handle selbst als Erster.
+- Wer weiß, dass es diesen Effekt gibt, kann sich bewusst fragen: Warum sollte nicht ich der Erste sein?
+
+🚨 **Notruf/Arzt:** Wenn keiner handelt, tue du den ersten Schritt und wähle die 112.
+
+**Merke:** Wenn alle zuschauen, sei der Erste, der handelt.
+
+### Was ist, wenn die Person schon tot aussieht?
+_für alle · Suchwörter: tot, Leiche, leblos, blass, kalt, sicher tot, Todeszeichen, aufgeben, zu spät_
+
+Als Laie kannst du nicht zuverlässig feststellen, ob jemand tot ist. Wer bewusstlos ist und nicht normal atmet, wird wiederbelebt, bis der Rettungsdienst übernimmt.
+
+- Blässe, Kälte und fehlender Puls sind keine sicheren Todeszeichen. Menschen im Kreislaufstillstand sehen oft schon tot aus und können trotzdem gerettet werden.
+- Sichere Todeszeichen sind zum Beispiel Totenflecken, Totenstarre oder mit dem Leben nicht vereinbare Verletzungen. Die Feststellung des Todes gehört nach deutschem Recht einem Arzt.
+- Deshalb gilt für Laien: Beginne mit der Wiederbelebung, wenn die Person nicht reagiert und nicht normal atmet. Der Rettungsdienst entscheidet später, ob sie fortgesetzt wird.
+- Wenn du eindeutig sichere Todeszeichen siehst, rufst du trotzdem die 112 und lässt alles unverändert. Polizei und Arzt kommen ebenfalls.
+- Du musst dir keine Vorwürfe machen: Wiederzubeleben, solange du dir nicht sicher bist, ist richtig.
+
+🚨 **Notruf/Arzt:** Nicht ansprechbar und keine normale Atmung: 112 wählen und sofort drücken.
+
+**Merke:** Im Zweifel wiederbeleben – den Tod stellt ein Arzt fest.
+
+### Was ist, wenn jemand nicht wiederbelebt werden wollte?
+_für alle · Suchwörter: Patientenverfügung, nicht wiederbeleben, DNR, Reanimation ablehnen, Vorsorge, Wille, Palliativ, Verfügung_
+
+Im akuten Notfall kannst du als Laie in aller Regel nicht prüfen, ob eine Patientenverfügung vorliegt. Du beginnst mit der Wiederbelebung, der Rettungsdienst klärt den Rest.
+
+- Eine Patientenverfügung regelt, welche Behandlungen jemand wünscht oder ablehnt. Sie gilt, wenn sie schriftlich vorliegt und auf die Lage zutrifft.
+- Im Notfall ist meist unklar, ob es sie gibt, wo sie liegt und ob sie für diese Situation gedacht war. Zeit zu verlieren kann Leben kosten.
+- Der Rettungsdienst prüft Unterlagen, fragt Angehörige oder Ärzte und entscheidet mit ärztlicher Verantwortung, ob Maßnahmen abgebrochen oder gar nicht erst begonnen werden.
+- Wenn du als Laie ein Schriftstück hast, das ein Verzicht auf Wiederbelebung eindeutig belegt, zeigst du es dem Rettungsdienst. Auch bei Zweifel gilt: erst helfen, dann klären.
+- Wer selbst vorsorgen möchte, sollte Verfügung und Vollmacht gut auffindbar aufbewahren und Angehörige informieren.
+
+🚨 **Notruf/Arzt:** Bei Verdacht auf Kreislaufstillstand sofort 112 wählen und mit der Wiederbelebung beginnen.
+
+**Merke:** Im Zweifel erst helfen, der Rettungsdienst klärt den Willen.
+
+### Was passiert, wenn ich nicht helfe?
+_für alle · Suchwörter: Strafe, strafbar, unterlassene Hilfeleistung, Konsequenzen, Anzeige, Gewissen, weggesehen_
+
+Wer bei einem Unglücksfall trotz Möglichkeit nicht hilft, kann in Deutschland wegen unterlassener Hilfeleistung bestraft werden. Gedacht ist die Regel für klare Fälle, nicht für Menschen, die überfordert waren.
+
+- Vorgesehen sind nach dem Strafgesetzbuch eine Geldstrafe oder Freiheitsstrafe bis zu einem Jahr. Wie ein Fall ausgeht, entscheiden Staatsanwaltschaft und Gericht im Einzelfall.
+- Strafbar ist nur, wer nicht hilft, obwohl es erforderlich und zumutbar gewesen wäre. Wer sich in echter Gefahr befand oder gar nichts mitbekommen hat, handelt anders zu bewerten.
+- Auch wer nur zuschaut, den Notruf nicht wählt und weitergeht, kann darunter fallen. Schon der Anruf bei der 112 gilt als Hilfe.
+- Dazu kommt oft ein seelischer Preis: Viele Menschen quälen sich später mit Schuldgefühlen, weil sie nicht gehandelt haben.
+- Für eine Einschätzung deines eigenen Falls ist eine Rechtsberatung nötig. Hier steht nur ein allgemeiner Überblick.
+
+**Merke:** Schon ein Anruf bei der 112 ist Hilfe.
+
+### Was tun bei aggressiven oder betrunkenen Personen?
+_für alle · Suchwörter: aggressiv, betrunken, Alkohol, Streit, Gewalt, Drohung, Randalierer, Rausch, Deeskalation, Polizei_
+
+Halte Abstand, bleibe ruhig und hole Polizei und Rettungsdienst, wenn du dich bedroht fühlst. Betrunken wirkende Menschen können auch krank oder verletzt sein.
+
+- Bringe dich nicht in Gefahr: Fluchtweg im Blick, nicht in eine Ecke drängen lassen, keine Provokation. Bei Bedrohung zuerst die Polizei (110) und den Rettungsdienst (112) rufen.
+- Sprich ruhig, langsam und mit klarer Stimme. Deeskalation heißt: nicht anschreien, nicht anfassen, Distanz und Respekt wahren.
+- Alkoholgeruch schließt andere Ursachen nicht aus: Unterzuckerung, Kopfverletzung, Vergiftung, Schlaganfall und andere Erkrankungen können ähnlich wirken.
+- Eine stark berauschte Person, die kaum ansprechbar ist, braucht ärztliche Hilfe. Bei Bewusstlosigkeit mit normaler Atmung gehört sie in die stabile Seitenlage.
+- Hilfe nur, wenn du sicher bist. Sonst warten Rettungsdienst und Polizei die Lage ab und übernehmen.
+
+🚨 **Notruf/Arzt:** Bei Bedrohung, Gewalt oder starker Eigen- oder Fremdgefährdung 110 und 112. Bewusstlose Personen immer in den Notruf einbeziehen.
+
+**Merke:** Abstand, Ruhe, Polizei – und Betrunkene nie vorschnell abschreiben.
+
+### Was tun, wenn ich allein bin und kein Handy habe?
+_für alle · Suchwörter: allein, kein Handy, Akku leer, kein Netz, Notruf, Telefon, Notrufsäule, Nachbarn, Hilfe holen_
+
+Hol Hilfe, ohne die Person in Lebensgefahr lange allein zu lassen. Rufe laut um Hilfe, klingle bei Nachbarn oder suche eine Notrufsäule, ein Telefon im Geschäft oder an einer Tankstelle.
+
+- Zuerst laut um Hilfe rufen, damit andere aufmerksam werden. Oft reicht das schon, um Leute herbeizuholen.
+- Wenn niemand kommt und die Person bewusstlos ist, atmet aber normal, bringe sie in die stabile Seitenlage und hole dann schnell Hilfe in der Nähe.
+- Bei Kreislaufstillstand zählt jede Minute. Wenn du allein bist und kein Telefon hast, kurz prüfen, ob jemand in Hörweite ist, dann Hilfe holen, möglichst schnell, und zurückkehren.
+- An vielen Straßen gibt es Notrufsäulen. Auch Geschäfte, Gaststätten und Nachbarn haben Telefone.
+- Notrufe sind auch ohne SIM-Karte oder Guthaben meist möglich. Ist der Akku fast leer, spar Strom und wähle sofort die 112.
+
+🚨 **Notruf/Arzt:** Sobald du ein Telefon hast, sofort 112 wählen und genau sagen, wo du bist.
+
+**Merke:** Laut rufen, Hilfe holen, schnell zurück.
+
+### Was, wenn die Person trotz meiner Hilfe stirbt?
+_für alle · Suchwörter: gestorben, Tod, Schuld, trotz Hilfe, nicht überlebt, Versagen, Trauer, umsonst, Reanimation erfolglos_
+
+Dann hast du nichts falsch gemacht. Viele Menschen überleben einen Herz-Kreislauf-Stillstand auch bei guter Hilfe nicht, die Ursache liegt meist in der Erkrankung, nicht in der Hilfe.
+
+- Wer hilft, schenkt Chancen und nicht Garantien. Auch Profis können nicht alle Menschen retten.
+- Deine Hilfe war nie umsonst: Sie gab der Person und ihren Angehörigen eine Chance und die Gewissheit, dass nicht weggesehen wurde.
+- Trauer, Wut, Leere und Schuldgefühle können später kommen, auch Tage danach. Sie sind eine normale Reaktion auf Verlust und Hilflosigkeit.
+- Sprich mit Menschen, denen du vertraust. Auch Notfallseelsorge, Hausarzt oder Beratungsstellen helfen weiter. Telefonseelsorge: 0800 111 0 111, kostenlos.
+- Manche Rettungsdienste oder Einsatzkräfte bieten Ersthelfern ein Nachgespräch an. Frag danach ruhig bei der Leitstelle oder dem Rettungsdienst.
+
+**Merke:** Du hast geholfen. Das Ergebnis liegt nicht allein bei dir.
+
+### Wer bezahlt kaputte Kleidung oder Auslagen beim Helfen?
+_für alle · Suchwörter: Kosten, Kleidung, Auslagen, Ersatz, Schaden, Fahrtkosten, Handy, Reinigung, Erstattung, bezahlt_
+
+Wer beim Helfen Schäden hat, kann diese unter Umständen ersetzt bekommen, etwa über die gesetzliche Unfallversicherung. Heb Belege auf und melde dich kurz danach beim zuständigen Träger.
+
+- Hilfeleistende bei Unglücksfällen sind nach dem Sozialgesetzbuch in der Regel gesetzlich unfallversichert. Dazu können Ersatz von Sachschäden und Auslagen gehören.
+- Typische Fälle: zerrissene oder verschmutzte Kleidung, beschädigtes Handy, Fahrtkosten, Reinigung eines blutverschmierten Autositzes.
+- Sammle Belege und Fotos und notiere kurz Ort, Zeit und Ablauf. Frage bei der Polizei oder dem Rettungsdienst nach dem Einsatzprotokoll.
+- Zuständig ist je nach Wohnort und Lage die Unfallkasse oder ein Gemeindeunfallversicherungsverband. Im Zweifel fragst du bei deiner Gemeinde nach.
+- Wenn du dich beim Helfen verletzt, geh zum Arzt und sag, dass du als Ersthelfer verletzt wurdest. So wird alles richtig verbucht.
+
+**Merke:** Belege aufheben und zeitnah melden.
+
+### Wer haftet bei Fehlern und bin ich als Ersthelfer versichert?
+_für alle · Suchwörter: Haftung, haften, Versicherung, versichert, Unfallversicherung, Schadenersatz, Schaden, Verletzung beim Helfen_
+
+Wer bei einem Unglücksfall hilft, ist in Deutschland in der Regel gesetzlich unfallversichert. Für Fehler haftest du nach allgemeiner Auffassung bei Hilfe in der Not nur, wenn du vorsätzlich oder grob fahrlässig gehandelt hast.
+
+- Hilfeleistende bei Unglücksfällen zählen nach dem Sozialgesetzbuch zu den gesetzlich Unfallversicherten. Verletzt du dich selbst beim Helfen, übernimmt der zuständige Unfallversicherungsträger in der Regel die Kosten.
+- Auch Sachschäden, die dir durch die Hilfe entstehen (etwa verschmutzte oder zerrissene Kleidung), werden unter bestimmten Voraussetzungen ersetzt.
+- Für Fehler beim Helfen gilt nach allgemeiner Auffassung eine Haftungserleichterung: Wer in einer Gefahr für den anderen handelt, haftet nur bei Vorsatz oder grober Fahrlässigkeit.
+- Einfache Fehler in der Aufregung, etwa ein falscher Handgriff, führen deshalb in der Regel nicht zu Schadenersatzforderungen.
+- Wende dich nach einem Einsatz mit Verletzung oder Schaden an die Unfallkasse oder Berufsgenossenschaft deines Wohnorts und an deinen Arzt. Die Details hängen vom Einzelfall ab.
+
+**Merke:** Hilfeleistende sind in der Regel gesetzlich unfallversichert.
+
+### Wer wird bei vielen Verletzten zuerst behandelt?
+_für alle · Suchwörter: Triage, viele Verletzte, Reihenfolge, Priorität, zuerst, Sichtung, Massenanfall, wen zuerst, Ethik_
+
+Zuerst wird behandelt, wer in unmittelbarer Lebensgefahr ist und durch schnelle Hilfe gerettet werden kann. Entscheidend ist die Dringlichkeit, nicht Alter, Herkunft oder Lautstärke.
+
+- Als Ersthelfer verschaffst du dir einen Überblick: Wer reagiert nicht? Wer atmet nicht normal? Wer blutet stark? Diese Menschen sind am meisten in Gefahr.
+- Laut schreiende Verletzte atmen und sprechen oft noch und sind meist weniger bedroht als stille Personen. Wer still ist, ist nicht automatisch weniger krank.
+- Rufe so früh wie möglich die 112 und nenne die Zahl der Verletzten, damit genug Rettungskräfte kommen.
+- Rettungskräfte ordnen Verletzte nach festen Schemata in Dringlichkeitsstufen (Sichtung oder Triage). Das ist eine ärztliche und fachliche Entscheidung.
+- Wer nicht sofort behandelt werden kann, wird nicht aufgegeben: Er wird beobachtet, betreut und erneut beurteilt. Jeder Mensch hat denselben Wert.
+
+🚨 **Notruf/Arzt:** Bei mehreren Verletzten sofort 112 wählen und die Zahl der Betroffenen nennen.
+
+**Merke:** Dringlichkeit entscheidet, nicht Lautstärke.
+
+### Wie fühle ich mich nach einem Einsatz?
+_für alle · Suchwörter: Schock, Schuldgefühle, Albträume, Belastung, nach dem Einsatz, Trauma, Gefühle, verarbeiten, Nachsorge, Hilfe_
+
+Nach einem belastenden Erlebnis sind Zittern, Weinen, Unruhe, Schlafprobleme und Schuldgefühle normale Reaktionen auf ein außergewöhnliches Ereignis. Meist klingen sie nach einigen Tagen ab.
+
+- Der Körper schüttet nach Stress Hormone aus. Zittern, Herzklopfen, Übelkeit und Erschöpfung sind eine verständliche Folge.
+- Typisch sind auch Bilder, die sich aufdrängen, Gedankenkreisen oder Reizbarkeit. Das ist keine Schwäche, sondern Verarbeitung.
+- Hilfreich ist Reden mit Vertrauten, Ruhe, Schlaf, Bewegung und ein geregelter Alltag. Zwinge dich nicht, alles sofort zu verarbeiten.
+- Schuldgefühle gehören oft dazu, obwohl du alles Mögliche getan hast. Sprich sie aus. Viele Betroffene merken dann, dass andere ähnlich fühlen.
+- Lassen die Beschwerden nach mehreren Wochen nicht nach, such Hilfe bei Hausarzt, Psychotherapie oder Beratungsstellen. Die Telefonseelsorge ist unter 0800 111 0 111 oder 0800 111 0 222 erreichbar.
+
+🚨 **Notruf/Arzt:** Bei Gedanken, dir etwas anzutun, oder bei großer Verzweiflung sofort 112 oder Telefonseelsorge 0800 111 0 111.
+
+**Merke:** Nach starken Erlebnissen ist starkes Fühlen normal – und Hilfe holen ist erlaubt.
+
+### Wie gehe ich mit Angehörigen um?
+_für alle · Suchwörter: Angehörige, Familie, Eltern, Partner, Trauernde, Schock, trösten, Todesnachricht, Notfallseelsorge_
+
+Bleibe ruhig, ehrlich und freundlich. Angehörige sind in einer Notlage oft verzweifelt, sie brauchen Information, einen sicheren Platz und jemanden, der da ist.
+
+- Gib klare, einfache Informationen und mach keine Versprechen, die du nicht halten kannst. Sag ehrlich, was du weißt und was nicht.
+- Suche für die Angehörigen einen ruhigen Platz, lass sie nicht allein und biete etwas zu trinken oder eine Decke an.
+- Bitte sie, wenn es geht, ein Telefon zu halten, den Rettungsdienst einzuweisen oder Medikamentenlisten und Unterlagen herauszusuchen. Eine Aufgabe hilft gegen die Ohnmacht.
+- Angehörige dürfen oft nah dabei sein. Wenn sie bei der Wiederbelebung im Weg stehen, bitte freundlich um etwas Abstand und erkläre, was geschieht.
+- Eine Todesnachricht überbringen Polizei, Ärztinnen und Ärzte oder Notfallseelsorge. Sie sind dafür geschult. Notfallseelsorge kann über die Leitstelle gerufen werden.
+
+**Merke:** Da sein, ehrlich sein, nichts versprechen.
+
+### Wie gehe ich mit Sterbenden um?
+_für alle · Suchwörter: Sterbende, Tod, Würde, Abschied, Sterbebegleitung, letzter Moment, begleiten, Hand halten, Verstorbene_
+
+Auch im Sterben bleibt der Mensch Mensch. Würde heißt: ruhige Stimme, Schutz vor Blicken, Nähe und Zuwendung statt Hektik.
+
+- Bei einem Notfall hat die Rettung Vorrang. Erst wenn Ärzte entscheiden, dass keine Hilfe mehr möglich ist oder gewollt wird, geht es um Begleitung.
+- Sprich die Person weiter an, auch wenn sie nicht reagiert. Hören ist oft noch möglich. Halte ihre Hand, sei ruhig und zugewandt.
+- Sorge für Sichtschutz, zum Beispiel mit Decke oder Absperrung, und halte Schaulustige fern.
+- Verstorbene werden nicht verlegt oder verändert, wenn die Todesursache unklar ist. Die Polizei und ein Arzt entscheiden über das weitere Vorgehen.
+- Lass dir selbst danach Zeit. Auch Sterbende zu begleiten ist eine große Last, und es ist menschlich, davon berührt zu sein.
+
+🚨 **Notruf/Arzt:** Bei unklarer Lage zuerst 112 wählen und im Zweifel wiederbeleben.
+
+**Merke:** Würde zeigt sich in Ruhe, Nähe und Schutz der Privatsphäre.
+
+### Wie halte ich die Belastung im Rettungsdienst aus?
+_Rettungsdienst · Suchwörter: Belastung, Stress, Einsatznachsorge, PSNV, Burnout, Schichtdienst, Grenzen, Kollegen, Supervision, Resilienz_
+
+Indem du Belastung ernst nimmst, über Erlebtes sprichst und Hilfsangebote nutzt. Kein Mensch ist für Dauerstress, Tod und Leid unverwundbar, auch Profis nicht.
+
+- Belastend sind besondere Einsätze wie Kindernotfälle, Suizide, Gewalt, erfolglose Reanimationen oder Einsätze mit Bezug zum eigenen Leben. Aber auch Schichtdienst und Personalmangel zehren.
+- Einsatznachsorge (PSNV-E) bietet strukturierte Gespräche nach belastenden Einsätzen. Viele Organisationen haben dafür geschulte Kollegen, Notfallseelsorge oder Psychologen.
+- Kollegiale Gespräche nach dem Einsatz helfen, wenn sie respektvoll sind und nicht in Galgenhumor ohne Rückhalt enden. Niemand muss alles mit sich selbst ausmachen.
+- Schutzfaktoren sind Schlaf, Bewegung, Pausen, Hobbys und Beziehungen außerhalb der Arbeit. Auch klare Grenzen, zum Beispiel bei Überstunden, schützen dich.
+- Anhaltende Beschwerden wie Schlafstörungen, Rückzug, Reizbarkeit, Alkohol zur Beruhigung oder Gedanken an Selbstverletzung sind Warnzeichen. Dann sind Hausarzt, Betriebsarzt oder Therapie der richtige Weg.
+
+🚨 **Notruf/Arzt:** Bei Gedanken, dir etwas anzutun: sofort 112 oder Telefonseelsorge 0800 111 0 111 bzw. 0800 111 0 222.
+
+**Merke:** Hilfe holen ist professionell, nicht schwach.
+
+### Wie helfe ich im Urlaub und im Ausland?
+_für alle · Suchwörter: Urlaub, Ausland, Europa, 112, Sprache, Reise, Notruf Ausland, Fremdsprache, Reisekrankenversicherung_
+
+Die 112 gilt in der gesamten Europäischen Union als einheitliche Notrufnummer und funktioniert auch in vielen anderen Ländern. Erste Hilfe läuft überall nach denselben Grundregeln.
+
+- Informiere dich vor der Reise über die Notrufnummern deines Ziellands. Außerhalb Europas weichen sie oft ab.
+- Nenne zuerst den Ort, dann die Lage. In vielen Leitstellen sprechen Mitarbeitende zumindest Englisch. Einfache Wörter wie „accident“, „help“, „breathing“ helfen.
+- Die Grundregeln der Ersten Hilfe sind weltweit ähnlich: Eigenschutz, Notruf, Herzdruckmassage bei Kreislaufstillstand, Blutungen stillen.
+- Rechtlich können die Pflichten zur Hilfe von Land zu Land abweichen. Auch in vielen anderen Ländern gibt es eine Hilfeleistungspflicht. Bleib deshalb immer bei der Grundhaltung: helfen, soweit zumutbar.
+- Eine Auslandskrankenversicherung und ein Notfallkontakt im Handy sind für Reisen sinnvoll.
+
+🚨 **Notruf/Arzt:** Im Notfall in der EU 112 wählen. Außerhalb Europas vorher die örtliche Nummer nachsehen.
+
+**Merke:** Innerhalb der EU gilt überall die 112.
+
+### Wie überwinde ich die Angst, vor anderen zu helfen?
+_für alle · Suchwörter: Angst, Scham, Peinlichkeit, Blamage, Publikum, Hemmung, Mut, beobachtet, lächerlich, vor Leuten_
+
+Indem du dich auf die Person konzentrierst, nicht auf die Blicke. Im Notfall zählt, dass geholfen wird, nicht wie es aussieht.
+
+- Viele Menschen fürchten, sich zu blamieren oder beobachtet zu werden. Diese Angst ist normal und betrifft fast alle.
+- Die meisten Zuschauer bewerten nicht, sie sind erleichtert, wenn jemand die Initiative ergreift.
+- Ein einfacher Einstieg hilft: laut sagen „Ich helfe, wer kann mir helfen?“. Das gibt dir einen klaren Start und bindet andere ein.
+- Atme tief, sprich langsam und beginne mit dem Kleinsten, etwa dem Notruf. Mit jedem Schritt wird es leichter.
+- Trainiere im geschützten Rahmen, zum Beispiel in Kursen oder mit Freunden. Je vertrauter die Handgriffe, desto weniger Angst vor Blicken.
+
+**Merke:** Konzentriere dich auf den Menschen, nicht auf die Zuschauer.
+
+### Wie werde ich besser im Helfen?
+_für alle · Suchwörter: üben, Kurs, auffrischen, lernen, Training, Wiederholung, App, Lernspiel, Wissen, Reanimationstraining, Defibrillator_
+
+Durch Üben und Wiederholen. Handgriffe sitzen erst, wenn du sie mehrmals gemacht hast, und Wissen verblasst ohne Auffrischung.
+
+- Ein Erste-Hilfe-Kurs ist der beste Einstieg. Empfohlen wird, ihn etwa alle zwei Jahre aufzufrischen.
+- Üben an einer Übungspuppe lohnt sich: Rhythmus, Drucktiefe und der Umgang mit dem Defibrillator werden so wirklich in die Hände übertragen.
+- Lern-Apps und Spiele wie dieses helfen, Abläufe im Kopf zu halten und Entscheidungen zu trainieren. Sie ersetzen aber keinen praktischen Kurs.
+- Mach dich mit deiner Umgebung vertraut: Wo hängt in deinem Haus, deinem Betrieb oder Verein ein Defibrillator? Wo ist das Verbandskasten-Set?
+- Sprich mit Familie und Freunden über Notfälle und übt gemeinsam. Gemeinsames Üben nimmt die Scheu.
+
+**Merke:** Je öfter geübt, desto weniger Angst.

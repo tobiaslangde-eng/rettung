@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import vm from 'node:vm';
 import ts from 'typescript';
 
-const KATEGORIEN = ['erste-hilfe', 'herz-kreislauf', 'atmung', 'neuro-psyche', 'trauma-umwelt', 'kinder-frauen-alter', 'vergiftung-allergie-infektion', 'koerper', 'rettungsdienst', 'begriffe', 'medikamente', 'erkrankungen'];
+const KATEGORIEN = ['erste-hilfe', 'herz-kreislauf', 'atmung', 'neuro-psyche', 'trauma-umwelt', 'kinder-frauen-alter', 'vergiftung-allergie-infektion', 'koerper', 'rettungsdienst', 'begriffe', 'medikamente', 'erkrankungen', 'helfen'];
 const dateien = process.argv.slice(2);
 if (dateien.length === 0) {
   console.error('Bitte Dateien angeben.');
