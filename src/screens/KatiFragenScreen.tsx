@@ -354,7 +354,8 @@ export function KatiFragenScreen({ onBack }: { onBack: () => void }) {
               ) : (
                 <>
                   <Text style={type.body}>
-                    Hi, ich bin Kati! Frag mich zu Notfällen und Erster Hilfe. Ich suche die Antwort in den Inhalten dieser App.
+                    Hi, ich bin Kati! Frag mich zu Notfällen, Erster Hilfe und zum Helfen – auch „Muss ich immer helfen?“. Ich
+                    suche die Antwort in den Inhalten dieser App.
                   </Text>
                   <Text style={type.small}>
                     {kiDa

@@ -2,6 +2,7 @@ import { ATMUNG } from './atmung';
 import { BEGRIFFE } from './begriffe';
 import { ERKRANKUNGEN } from './erkrankungen';
 import { ERSTE_HILFE } from './erste-hilfe';
+import { HELFEN } from './helfen';
 import { HERZ_KREISLAUF } from './herz-kreislauf';
 import { KINDER_FRAUEN_ALTER } from './kinder-frauen-alter';
 import { KOERPER } from './koerper';
@@ -29,4 +30,5 @@ export const WISSENSBASIS: Wissensartikel[] = [
   ...BEGRIFFE,
   ...MEDIKAMENTE,
   ...ERKRANKUNGEN,
+  ...HELFEN,
 ];
