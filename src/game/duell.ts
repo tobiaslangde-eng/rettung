@@ -70,6 +70,23 @@ export function duellFragen(code: string, rolle: Rolle): DuellFrage[] {
     });
 }
 
+/** Zufällige Fragen aus dem Fragenschatz der Rolle (für die Live-Runde): richtige Antwort steht an beliebiger Stelle */
+export function zufallsFragen(rolle: Rolle, anzahl: number): DuellFrage[] {
+  const pool = rolle === 'helfer' ? [...HELFER_FRAGEN, ...HELFER_FRAGEN_2] : QUESTIONS;
+  return mische(pool, Math.random)
+    .slice(0, anzahl)
+    .map((q) => {
+      const idx = mische([0, 1, 2, 3], Math.random);
+      return {
+        id: q.id,
+        kopf: q.question,
+        optionen: idx.map((i) => q.answers[i]) as [string, string, string, string],
+        richtig: idx.indexOf(0),
+        erklaerung: q.explanation,
+      };
+    });
+}
+
 const saeubern = (n: string) =>
   n
     .replace(/[^\p{L}\p{N} .\-]/gu, '')

@@ -172,7 +172,7 @@ Die Oberfläche passt sich an die Bildschirmgröße an:
 
 ## Training, Einführung und „Frag Kati“
 
-- **Training** hat drei Bereiche: **Lernpfad** (die Kapitel der Geschichte als Weg von oben nach unten, wie bei Duolingo), **Üben** (alle Trainings in Gruppen) und **Spielmodi** (Einsatz, Einsatz des Tages, Schicht, Stadtkarte, Duell).
+- **Training** hat drei Bereiche: **Lernpfad** (die Kapitel der Geschichte als Weg von oben nach unten, wie bei Duolingo), **Üben** (alle Trainings in Gruppen) und **Spielmodi** (Einsatz, Einsatz des Tages, Schicht, Stadtkarte, Live-Runde, Duell).
 - **Startseite:** oben Level, EP, Coins, Serie und Auto-Stand; darunter „Heute dran“ mit dem Knopf „Jetzt spielen“.
 - **Einführung** für neue Spieler (Ziel, Menü, Lernpfad, EP/Level/Coins, Serie); jederzeit unter „Mehr“ wieder aufrufbar.
 - **Suche im Lexikon** und **Frag Kati**: Antworten kommen aus den Inhalten der App (Lexikon, Spickzettel, Abläufe, Fragen), mit Synonymen und Tippfehler-Toleranz. Das ist keine echte KI: Es wird nichts erfunden und nichts an einen Server geschickt (`src/game/wissen.ts`). Dahinter liegt die **Wissensbasis** (`src/data/wissen/`, 650 Artikel in 12 Bereichen: Erste Hilfe, Herz und Kreislauf, Atmung, Nerven und Psyche, Verletzungen, Kinder und Schwangerschaft, Vergiftung und Infektion, Körper und Messwerte, Rettungsdienst und Recht, Fachbegriffe, Medikamente, Erkrankungen). Die Texte sind KI-erstellt und **nicht fachlich geprüft**; lesbar als `docs/WISSENSBASIS.md` (erzeugt mit `node scripts/build-wissensbasis.mjs`, geprüft mit `node scripts/check-wissen.mjs`). Optional gibt es eine **echte KI** (Claude von Anthropic), mit der Kati alle Fragen rund um Medizin beantwortet: Dafür läuft ein kleiner Server (`docs/ki-server/worker.js`, Einrichtung in `docs/ki-server/ANLEITUNG.md`), der den geheimen Schlüssel verwahrt; die Adresse steht in `src/game/ki.ts`. Die KI bekommt die passenden Artikel der Wissensbasis als Hintergrundwissen mit. Spieler müssen der KI-Nutzung zustimmen; ohne Server oder Zustimmung antwortet Kati aus den Inhalten der App.
@@ -180,7 +180,7 @@ Die Oberfläche passt sich an die Bildschirmgröße an:
 
 ## Weitere Spielmodi und Werkzeuge
 
-- **Tagesserie** mit Belohnung, **Schichtmodus** (vier Einsätze am Stück mit Dienstbilanz), **Duell mit Freunden** (gleiche fünf Fragen per Link, ohne Server).
+- **Tagesserie** mit Belohnung, **Schichtmodus** (vier Einsätze am Stück mit Dienstbilanz), **Duell mit Freunden** (gleiche fünf Fragen per Link, ohne Server) und die **Live-Runde** (wie Kahoot: Raum mit PIN, bis zu 20 Personen, live gegeneinander, Team gegen Team oder gemeinsam; Verbindung direkt von Handy zu Handy über PeerJS/WebRTC, `src/game/liverunde.ts`, `livetransport.ts`, `src/screens/LiveScreen.tsx`; funktioniert am besten im selben WLAN, der Host muss die App offen lassen).
 - **Leitstelle spielen**, **Fehler finden**, **Handgriff-Labor** mit 8 Übungen (Druckverband, Seitenlage, Bewusstsein und Atmung prüfen, Verbrennung, Armschlinge, Verschlucken, Tourniquet, Rettungsdecke).
 - **Stadtkarte** mit Orten, Staus und Baustellen: zwei Routen zur Wahl, Bonus fürs Umfahren.
 - **Spickzettel** je Rolle, **Ergebnis als Bild teilen**, **Sprachausgabe** beim Notruf (Browser-Stimme, abschaltbar).

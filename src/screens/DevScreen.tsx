@@ -123,6 +123,8 @@ export function DevScreen({
       schichten: 0,
       duellGespielt: 0,
       duellSiege: 0,
+      liveGespielt: 0,
+      liveSiege: 0,
       spickGesehen: [],
       serieBelohnt: [],
       urkundenDatum: {},

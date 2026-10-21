@@ -76,6 +76,14 @@ const gemeinsam = (rolle: Rolle): Urkunde[] => [
     erreicht: (p) => p.duellSiege >= 3,
   },
   {
+    id: 'live',
+    icon: '👥',
+    titel: 'Teamgeist',
+    text: 'hat 3 Live-Runden mit anderen gespielt.',
+    bedingung: '3 Live-Runden spielen',
+    erreicht: (p) => p.liveGespielt >= 3,
+  },
+  {
     id: 'labor',
     icon: '🧪',
     titel: 'Handgriff-Meister',

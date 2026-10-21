@@ -120,6 +120,9 @@ export interface Progress {
   /** Duell: gespielte Duelle und Siege */
   duellGespielt: number;
   duellSiege: number;
+  /** Live-Runde: gespielte Runden und Siege */
+  liveGespielt: number;
+  liveSiege: number;
   /** Spickzettel, die schon gespeichert oder geöffnet wurden (IDs) */
   spickGesehen: string[];
   /** Rückmeldung wurde schon gegeben */
@@ -178,6 +181,8 @@ export const EMPTY_PROGRESS: Progress = {
   schichten: 0,
   duellGespielt: 0,
   duellSiege: 0,
+  liveGespielt: 0,
+  liveSiege: 0,
   spickGesehen: [],
   feedbackGegeben: false,
 };

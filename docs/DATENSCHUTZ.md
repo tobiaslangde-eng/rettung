@@ -17,3 +17,7 @@ Kontakt: https://github.com/tobiaslangde-eng/rettung/issues
 ## Frag Kati (KI-Funktion)
 
 Nur nach ausdrücklicher Zustimmung in der App wird die eingegebene Frage (mit den letzten Nachrichten des Gesprächs) über einen eigenen Server (Cloudflare Worker, `docs/ki-server/`) an Claude von Anthropic geschickt. Name, Spielstand und Urkunden werden nicht übertragen; der Betreiber speichert keine Fragen oder Antworten. Ohne Zustimmung antwortet Kati nur aus den Inhalten der App. Aufruf und Hinweise stehen auch in `web/datenschutz.html`.
+
+## Live-Runde (mit anderen spielen)
+
+Die Geräte verbinden sich direkt miteinander (WebRTC, Handy zu Handy, ohne eigenen Server). Zur Vermittlung dienen der freie PeerJS-Dienst und öffentliche STUN-Server (Google, Cloudflare); dabei werden die 6-stellige PIN, eine Zufalls-Kennung und technische Verbindungsdaten (IP-Adresse) verarbeitet. Zwischen den Mitspielenden sind die IP-Adressen technisch bedingt sichtbar. Spielername und Antworten gehen nur an die Mitspielenden und werden nicht gespeichert. Aufruf und Hinweise stehen auch in `web/datenschutz.html`.
