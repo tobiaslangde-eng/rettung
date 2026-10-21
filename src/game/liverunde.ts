@@ -6,6 +6,26 @@
 
 export type LiveModus = 'solo' | 'teams' | 'koop';
 
+/** Spielart: Quiz (Fragen mit vier Antworten) oder Detektiv (Akte mit Hinweisen, die nach und nach auftauchen) */
+export type LiveArt = 'quiz' | 'detektiv';
+
+export const ARTEN: { id: LiveArt; icon: string; titel: string; text: string }[] = [
+  { id: 'quiz', icon: '❓', titel: 'Quiz', text: 'Eine Frage, vier Antworten – wer richtig und schnell ist, gewinnt.' },
+  {
+    id: 'detektiv',
+    icon: '🕵️',
+    titel: 'Detektiv',
+    text: 'Eine Akte, Hinweise tauchen nacheinander auf. Wer die Diagnose früh richtig errät, bekommt mehr Punkte.',
+  },
+];
+
+/** Ein Hinweis in einer Detektiv-Akte */
+export interface Hinweis {
+  icon: string;
+  label: string;
+  text: string;
+}
+
 export const MODI: { id: LiveModus; icon: string; titel: string; text: string }[] = [
   { id: 'solo', icon: '🏆', titel: 'Jeder gegen jeden', text: 'Wer richtig und schnell antwortet, bekommt die meisten Punkte.' },
   { id: 'teams', icon: '🔴🔵', titel: 'Team gegen Team', text: 'Rot gegen Blau: Die Teams werden automatisch gemischt.' },
@@ -22,6 +42,8 @@ export const MAX_SPIELER = 20;
 export const START_LEBEN = 3;
 
 export interface LiveFrage {
+  /** Nur beim Detektiv-Spiel: Hinweise der Akte, nacheinander eingeblendet */
+  hinweise?: Hinweis[];
   kopf: string;
   optionen: string[];
   /** Index der richtigen Antwort – bleibt beim Host und geht erst bei der Auswertung an alle */
@@ -31,7 +53,10 @@ export interface LiveFrage {
 
 export interface LiveEinstellungen {
   modus: LiveModus;
+  art: LiveArt;
+  /** Anzahl Fragen bzw. Akten */
   anzahl: number;
+  /** Sekunden pro Frage; beim Detektiv-Spiel pro Hinweis */
   sekunden: number;
 }
 
@@ -55,7 +80,21 @@ export type AnHost = { t: 'hallo'; name: string } | { t: 'antwort'; nr: number; 
 /** Nachrichten vom Host an die Mitspieler */
 export type VonHost =
   | { t: 'lobby'; pin: string; ich: string; einstellungen: LiveEinstellungen; spieler: SpielerInfo[] }
-  | { t: 'frage'; nr: number; gesamt: number; kopf: string; optionen: string[]; sekunden: number; modus: LiveModus }
+  | {
+      t: 'frage';
+      nr: number;
+      gesamt: number;
+      kopf: string;
+      optionen: string[];
+      sekunden: number;
+      modus: LiveModus;
+      art: LiveArt;
+      /** Detektiv: bisher sichtbare Hinweise, Sekunden pro Hinweis und Anzahl aller Hinweise */
+      hinweise: Hinweis[];
+      schritt: number;
+      anzahlHinweise: number;
+    }
+  | { t: 'hinweis'; nr: number; hinweis: Hinweis }
   | {
       t: 'auswertung';
       nr: number;
@@ -65,6 +104,8 @@ export type VonHost =
       richtig: number;
       verteilung: number[];
       erklaerung: string;
+      /** Detektiv: die ganze Akte */
+      hinweise: Hinweis[];
       rangliste: RangEintrag[];
       teams: [number, number] | null;
       leben: number | null;
@@ -107,6 +148,13 @@ export function punkteFuer(restMs: number, gesamtMs: number, serie: number): num
   return basis + 50 * Math.min(Math.max(serie - 1, 0), 4);
 }
 
+/** Detektiv: je mehr Hinweise schon da waren, desto weniger Punkte (1000 beim ersten Hinweis, 300 beim letzten) */
+export function punkteDetektiv(sichtbar: number, anzahl: number, serie: number): number {
+  const schritt = anzahl > 1 ? 700 / (anzahl - 1) : 0;
+  const basis = Math.round((1000 - schritt * (Math.max(1, sichtbar) - 1)) / 10) * 10;
+  return basis + 50 * Math.min(Math.max(serie - 1, 0), 4);
+}
+
 export const saeubereName = (n: string): string =>
   n
     .replace(/[^\p{L}\p{N} .\-]/gu, '')
@@ -122,6 +170,7 @@ export class LiveHost {
   private antworten = new Map<string, Antwort>();
   private start = 0;
   private handle: unknown = null;
+  private hinweisHandles: unknown[] = [];
   private hostId = 'host';
 
   constructor(
@@ -244,17 +293,52 @@ export class LiveHost {
     this.naechste();
   }
 
-  private sendeFrage(id: string) {
-    const f = this.fragen[this.nr];
-    this.senden(id, {
+  private get f() {
+    return this.fragen[this.nr];
+  }
+
+  private get detektiv(): boolean {
+    return this.einstellungen.art === 'detektiv' && !!this.f.hinweise?.length;
+  }
+
+  /** Gesamtdauer der aktuellen Frage in Millisekunden */
+  private dauerMs(): number {
+    const sek = this.einstellungen.sekunden;
+    return (this.detektiv ? sek * this.f.hinweise!.length : sek) * 1000;
+  }
+
+  /** Wie viele Hinweise sind nach `ms` Millisekunden sichtbar? */
+  private sichtbar(ms: number): number {
+    if (!this.detektiv) return 0;
+    return Math.min(this.f.hinweise!.length, Math.floor(ms / (this.einstellungen.sekunden * 1000)) + 1);
+  }
+
+  private frageNachricht(restMs: number): VonHost {
+    const f = this.f;
+    return {
       t: 'frage',
       nr: this.nr,
       gesamt: this.fragen.length,
       kopf: f.kopf,
       optionen: f.optionen,
-      sekunden: Math.max(1, Math.round((this.start + this.einstellungen.sekunden * 1000 - this.jetzt()) / 1000)),
+      sekunden: Math.max(1, Math.round(restMs / 1000)),
       modus: this.einstellungen.modus,
-    });
+      art: this.detektiv ? 'detektiv' : 'quiz',
+      hinweise: this.detektiv ? f.hinweise!.slice(0, this.sichtbar(this.jetzt() - this.start)) : [],
+      schritt: this.detektiv ? this.einstellungen.sekunden : 0,
+      anzahlHinweise: this.detektiv ? f.hinweise!.length : 0,
+    };
+  }
+
+  private sendeFrage(id: string) {
+    this.senden(id, this.frageNachricht(this.start + this.dauerMs() - this.jetzt()));
+  }
+
+  private loescheTimer() {
+    if (this.handle) this.zeit.loesche(this.handle);
+    this.handle = null;
+    this.hinweisHandles.forEach((h) => this.zeit.loesche(h));
+    this.hinweisHandles = [];
   }
 
   private naechste(): void {
@@ -263,23 +347,30 @@ export class LiveHost {
     this.antworten.clear();
     this.alle().forEach((s) => (s.zuwachs = 0));
     this.start = this.jetzt();
-    this.anAlle(() => ({
-      t: 'frage',
-      nr: this.nr,
-      gesamt: this.fragen.length,
-      kopf: this.fragen[this.nr].kopf,
-      optionen: this.fragen[this.nr].optionen,
-      sekunden: this.einstellungen.sekunden,
-      modus: this.einstellungen.modus,
-    }));
-    this.handle = this.zeit.setze(() => this.werteAus(), this.einstellungen.sekunden * 1000 + 400);
+    const nachricht = this.frageNachricht(this.dauerMs());
+    this.anAlle(() => nachricht);
+    if (this.detektiv) {
+      const nr = this.nr;
+      this.f.hinweise!.forEach((h, k) => {
+        if (k === 0) return;
+        this.hinweisHandles.push(
+          this.zeit.setze(
+            () => {
+              if (this.phase === 'frage' && this.nr === nr) this.anAlle(() => ({ t: 'hinweis', nr, hinweis: h }));
+            },
+            k * this.einstellungen.sekunden * 1000,
+          ),
+        );
+      });
+    }
+    this.handle = this.zeit.setze(() => this.werteAus(), this.dauerMs() + 400);
   }
 
   private antworte(id: string, nr: number, wahl: number) {
     const s = this.spieler.get(id);
     if (!s || this.phase !== 'frage' || nr !== this.nr || this.antworten.has(id)) return;
     if (!Number.isInteger(wahl) || wahl < 0 || wahl >= this.fragen[this.nr].optionen.length) return;
-    const ms = Math.min(this.jetzt() - this.start, this.einstellungen.sekunden * 1000);
+    const ms = Math.min(this.jetzt() - this.start, this.dauerMs());
     this.antworten.set(id, { wahl, ms });
     this.pruefeAlleFertig();
   }
@@ -296,10 +387,9 @@ export class LiveHost {
 
   private werteAus(): void {
     if (this.phase !== 'frage') return;
-    if (this.handle) this.zeit.loesche(this.handle);
-    this.handle = null;
+    this.loescheTimer();
     const f = this.fragen[this.nr];
-    const gesamtMs = this.einstellungen.sekunden * 1000;
+    const gesamtMs = this.dauerMs();
     const verteilung = f.optionen.map(() => 0);
     let richtigeAnzahl = 0;
     this.alle().forEach((s) => {
@@ -309,7 +399,9 @@ export class LiveHost {
         s.serie++;
         s.richtige++;
         richtigeAnzahl++;
-        s.zuwachs = punkteFuer(gesamtMs - a.ms, gesamtMs, s.serie);
+        s.zuwachs = this.detektiv
+          ? punkteDetektiv(this.sichtbar(a.ms), f.hinweise!.length, s.serie)
+          : punkteFuer(gesamtMs - a.ms, gesamtMs, s.serie);
         s.punkte += s.zuwachs;
       } else {
         s.serie = 0;
@@ -330,6 +422,7 @@ export class LiveHost {
       richtig: f.richtig,
       verteilung,
       erklaerung: f.erklaerung,
+      hinweise: f.hinweise ?? [],
       rangliste: this.rangliste(),
       teams: this.teamPunkte(),
       leben: this.einstellungen.modus === 'koop' ? this.leben : null,
@@ -364,8 +457,7 @@ export class LiveHost {
 
   /** Neue Runde mit denselben Leuten */
   neueRunde(einstellungen: LiveEinstellungen, fragen: LiveFrage[]): void {
-    if (this.handle) this.zeit.loesche(this.handle);
-    this.handle = null;
+    this.loescheTimer();
     this.einstellungen = einstellungen;
     this.fragen = fragen;
     this.phase = 'lobby';
@@ -386,8 +478,7 @@ export class LiveHost {
 
   /** Raum schließen: alle bekommen Bescheid */
   schliesse(): void {
-    if (this.handle) this.zeit.loesche(this.handle);
-    this.handle = null;
+    this.loescheTimer();
     this.alle().forEach((s) => s.id !== this.hostId && s.verbunden && this.senden(s.id, { t: 'beendet' }));
   }
 
@@ -409,6 +500,10 @@ export type Ansicht =
       optionen: string[];
       sekunden: number;
       modus: LiveModus;
+      art: LiveArt;
+      hinweise: Hinweis[];
+      schritt: number;
+      anzahlHinweise: number;
       empfangen: number;
       gewaehlt: number | null;
     }
@@ -429,9 +524,17 @@ export function neueAnsicht(alt: Ansicht, n: VonHost, jetzt: number): Ansicht {
         optionen: n.optionen,
         sekunden: n.sekunden,
         modus: n.modus,
+        art: n.art,
+        hinweise: n.hinweise,
+        schritt: n.schritt,
+        anzahlHinweise: n.anzahlHinweise,
         empfangen: jetzt,
         gewaehlt: null,
       };
+    case 'hinweis':
+      return alt.phase === 'frage' && alt.nr === n.nr && alt.hinweise.length < alt.anzahlHinweise
+        ? { ...alt, hinweise: [...alt.hinweise, n.hinweis] }
+        : alt;
     case 'auswertung':
       return { ...n, phase: 'auswertung', gewaehlt: alt.phase === 'frage' ? alt.gewaehlt : null };
     case 'ende':

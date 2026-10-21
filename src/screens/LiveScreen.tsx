@@ -4,7 +4,21 @@ import { zaehle } from '../analytics';
 import { AnswerOption } from '../components/Training';
 import { Bar, Button, Card, Segmented, Tap, TopBar } from '../components/UI';
 import { zufallsFragen } from '../game/duell';
-import { Ansicht, LiveEinstellungen, LiveHost, MODI, RangEintrag, TEAM_NAMEN, VonHost, neueAnsicht } from '../game/liverunde';
+import { liveAkten } from '../game/liveakten';
+import {
+  ARTEN,
+  Ansicht,
+  Hinweis,
+  LiveEinstellungen,
+  LiveFrage,
+  LiveHost,
+  MODI,
+  RangEintrag,
+  TEAM_NAMEN,
+  VonHost,
+  neueAnsicht,
+  punkteDetektiv,
+} from '../game/liverunde';
 import { HostVerbindung, SpielerVerbindung, liveMoeglich, oeffneRaum, raumLink, trittBei } from '../game/livetransport';
 import { useRolle } from '../game/rolle';
 import { teileLink } from '../game/teilen';
@@ -56,7 +70,7 @@ export function LiveScreen({
   const r = useRolle();
   const [rolle, setRolle] = useState<'menu' | 'host' | 'gast'>('menu');
   const [ansicht, setAnsicht] = useState<Ansicht>({ phase: 'verbinden' });
-  const [einst, setEinst] = useState<LiveEinstellungen>({ modus: 'solo', anzahl: 10, sekunden: 20 });
+  const [einst, setEinst] = useState<LiveEinstellungen>({ modus: 'solo', art: 'quiz', anzahl: 10, sekunden: 20 });
   const [pinFeld, setPinFeld] = useState(einladung ?? '');
   const [bitte, setBitte] = useState(false);
   const [fehler, setFehler] = useState('');
@@ -127,7 +141,7 @@ export function LiveScreen({
       const h = new LiveHost(
         verb.pin,
         einst,
-        zufallsFragen(r.id, einst.anzahl),
+        baueFragen(einst),
         (id, n) => (id === 'host' ? empfange(n) : verb.senden(id, n)),
         Date.now,
         zeitgeber,
@@ -137,7 +151,7 @@ export function LiveScreen({
       ich.current = 'host';
       empfange(h.lobbyStand());
       setRolle('host');
-      zaehle('live-erstellt-' + einst.modus);
+      zaehle(`live-erstellt-${einst.art === 'detektiv' ? 'detektiv-' : ''}${einst.modus}`);
     } catch (e) {
       setFehler(FEHLER[(e as Error).message] ?? FEHLER.netz);
     } finally {
@@ -183,6 +197,9 @@ export function LiveScreen({
     onBack();
   };
 
+  const baueFragen = (e: LiveEinstellungen): LiveFrage[] =>
+    e.art === 'detektiv' ? liveAkten(e.anzahl) : zufallsFragen(r.id, e.anzahl);
+
   const wide = L.wide && styles.wide;
   const istHost = rolle === 'host';
 
@@ -227,6 +244,24 @@ export function LiveScreen({
             <Text style={type.small}>
               Du bist der Host: Du startest die Runde. Die anderen treten mit der PIN bei und spielen auf dem eigenen Handy.
             </Text>
+            <Text style={styles.label}>SPIELART</Text>
+            {ARTEN.map((a) => (
+              <Tap
+                key={a.id}
+                onPress={() =>
+                  setEinst({ ...einst, art: a.id, anzahl: a.id === 'detektiv' ? 5 : 10, sekunden: a.id === 'detektiv' ? 8 : 20 })
+                }
+                accessibilityLabel={a.titel}
+                style={[styles.modus, einst.art === a.id && { borderColor: r.akzent, backgroundColor: r.akzentTint }]}
+              >
+                <Text style={styles.modusIcon}>{a.icon}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={[type.body, { fontFamily: fonts.bold }]}>{a.titel}</Text>
+                  <Text style={type.small}>{a.text}</Text>
+                </View>
+              </Tap>
+            ))}
+            <Text style={styles.label}>SPIELWEISE</Text>
             {MODI.map((m) => (
               <Tap
                 key={m.id}
@@ -241,15 +276,15 @@ export function LiveScreen({
                 </View>
               </Tap>
             ))}
-            <Text style={styles.label}>FRAGEN</Text>
+            <Text style={styles.label}>{einst.art === 'detektiv' ? 'AKTEN' : 'FRAGEN'}</Text>
             <Segmented
-              options={[5, 10, 15].map((n) => ({ id: String(n), label: String(n) }))}
+              options={(einst.art === 'detektiv' ? [3, 5, 7] : [5, 10, 15]).map((n) => ({ id: String(n), label: String(n) }))}
               value={String(einst.anzahl)}
               onChange={(v) => setEinst({ ...einst, anzahl: Number(v) })}
             />
-            <Text style={styles.label}>SEKUNDEN PRO FRAGE</Text>
+            <Text style={styles.label}>{einst.art === 'detektiv' ? 'SEKUNDEN PRO HINWEIS' : 'SEKUNDEN PRO FRAGE'}</Text>
             <Segmented
-              options={[15, 20, 30].map((n) => ({ id: String(n), label: String(n) }))}
+              options={(einst.art === 'detektiv' ? [6, 8, 12] : [15, 20, 30]).map((n) => ({ id: String(n), label: String(n) }))}
               value={String(einst.sekunden)}
               onChange={(v) => setEinst({ ...einst, sekunden: Number(v) })}
             />
@@ -343,7 +378,10 @@ export function LiveScreen({
               {ansicht.pin.slice(0, 3)} {ansicht.pin.slice(3)}
             </Text>
             <Text style={type.small}>
-              {modus.icon} {modus.titel} · {ansicht.einstellungen.anzahl} Fragen · {ansicht.einstellungen.sekunden} s
+              {modus.icon} {modus.titel} ·{' '}
+              {ansicht.einstellungen.art === 'detektiv'
+                ? `🕵️ ${ansicht.einstellungen.anzahl} Akten · ${ansicht.einstellungen.sekunden} s je Hinweis`
+                : `❓ ${ansicht.einstellungen.anzahl} Fragen · ${ansicht.einstellungen.sekunden} s`}
             </Text>
           </Card>
           {istHost && (
@@ -399,6 +437,8 @@ export function LiveScreen({
 
   if (ansicht.phase === 'frage') {
     const rest = Math.max(0, ansicht.sekunden - (Date.now() - ansicht.empfangen) / 1000);
+    // Detektiv: so viele Sekunden sind seit dem ersten Hinweis vergangen
+    const vergangen = ansicht.anzahlHinweise * ansicht.schritt - ansicht.sekunden + (Date.now() - ansicht.empfangen) / 1000;
     const fertig = ansicht.gewaehlt !== null;
     const h = host.current;
     return (
@@ -406,6 +446,18 @@ export function LiveScreen({
         <TopBar kicker={`${kopf} · ${ansicht.nr + 1}/${ansicht.gesamt}`} title={`${Math.ceil(rest)} s`} onBack={verlasse} />
         <ScrollView contentContainerStyle={[styles.content, wide]}>
           <Bar pct={rest / ansicht.sekunden} color={rest < 5 ? colors.red : r.akzent} />
+          {ansicht.art === 'detektiv' ? (
+            <AkteKarte
+              hinweise={ansicht.hinweise}
+              gesamt={ansicht.anzahlHinweise}
+              infoZeile={
+                ansicht.hinweise.length < ansicht.anzahlHinweise
+                  ? `Nächster Hinweis in ${Math.max(1, Math.ceil(ansicht.schritt - (vergangen % ansicht.schritt)))} s`
+                  : 'Alle Hinweise sind da'
+              }
+              punkte={punkteDetektiv(ansicht.hinweise.length, ansicht.anzahlHinweise, 1)}
+            />
+          ) : null}
           <Card>
             <Text style={styles.frage}>{ansicht.kopf}</Text>
           </Card>
@@ -459,6 +511,9 @@ export function LiveScreen({
           <Card style={{ gap: 4 }}>
             <Text style={type.body}>{ansicht.erklaerung}</Text>
           </Card>
+          {ansicht.hinweise.length > 0 && (
+            <AkteKarte hinweise={ansicht.hinweise} gesamt={ansicht.hinweise.length} titel="Die ganze Akte" />
+          )}
           <Card style={{ gap: spacing.xs }}>
             <Text style={styles.label}>SO HABEN ALLE GEANTWORTET</Text>
             {ansicht.verteilung.map((n, k) => {
@@ -586,7 +641,7 @@ export function LiveScreen({
           <Button
             label="Noch eine Runde"
             onPress={() => {
-              h.neueRunde(h.einstellungen, zufallsFragen(r.id, h.einstellungen.anzahl));
+              h.neueRunde(h.einstellungen, baueFragen(h.einstellungen));
               setTick((x) => x + 1);
             }}
           />
@@ -594,6 +649,45 @@ export function LiveScreen({
         <Button label="Fertig" variant="outline" onPress={verlasse} />
       </ScrollView>
     </View>
+  );
+}
+
+/** Die Akte beim Detektiv-Spiel: Hinweise, die nach und nach auftauchen */
+function AkteKarte({
+  hinweise,
+  gesamt,
+  titel = 'Akte',
+  infoZeile,
+  punkte,
+}: {
+  hinweise: Hinweis[];
+  gesamt: number;
+  titel?: string;
+  infoZeile?: string;
+  punkte?: number;
+}) {
+  const r = useRolle();
+  return (
+    <Card style={{ gap: spacing.sm }}>
+      <View style={styles.akteKopf}>
+        <Text style={type.headline}>
+          📁 {titel} {infoZeile ? `· ${hinweise.length}/${gesamt}` : ''}
+        </Text>
+        {punkte !== undefined && (
+          <Text style={[type.small, { color: r.akzentDunkel, fontFamily: fonts.bold }]}>Jetzt richtig: {punkte} P.</Text>
+        )}
+      </View>
+      {hinweise.map((h, i) => (
+        <View key={i} style={[styles.hinweis, i === hinweise.length - 1 && infoZeile ? { backgroundColor: r.akzentTint } : null]}>
+          <Text style={styles.hinweisIcon}>{h.icon}</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.label}>{h.label.toUpperCase()}</Text>
+            <Text style={type.body}>{h.text}</Text>
+          </View>
+        </View>
+      ))}
+      {!!infoZeile && <Text style={[type.small, { textAlign: 'center' }]}>{infoZeile}</Text>}
+    </Card>
   );
 }
 
@@ -679,6 +773,9 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   punkt: { width: 10, height: 10, borderRadius: 5 },
+  akteKopf: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  hinweis: { flexDirection: 'row', gap: 10, padding: 8, borderRadius: 12 },
+  hinweisIcon: { fontSize: 22, fontFamily: fonts.regular },
   verteilung: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   zeile: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6, paddingHorizontal: 8, borderRadius: 10 },
   leben: { fontSize: 30, fontFamily: fonts.regular, letterSpacing: 4 },
