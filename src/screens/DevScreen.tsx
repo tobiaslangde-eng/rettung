@@ -125,6 +125,7 @@ export function DevScreen({
       duellSiege: 0,
       liveGespielt: 0,
       liveSiege: 0,
+      ekgRichtig: 0,
       spickGesehen: [],
       serieBelohnt: [],
       urkundenDatum: {},

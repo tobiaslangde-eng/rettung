@@ -16,6 +16,7 @@ export function SpielmodiView({
   onKarte,
   onDuell,
   onLive,
+  onEkg,
   onDifficulty,
 }: {
   progress: Progress;
@@ -25,6 +26,7 @@ export function SpielmodiView({
   onKarte: () => void;
   onDuell: () => void;
   onLive: () => void;
+  onEkg: () => void;
   onDifficulty: (d: Difficulty) => void;
 }) {
   const r = useRolle();
@@ -85,6 +87,19 @@ export function SpielmodiView({
       aktion: onKarte,
       gesperrt: !frei,
     },
+    ...(helfer
+      ? []
+      : [
+          {
+            icon: '📈',
+            titel: 'EKG lesen',
+            text: 'Rhythmen auf dem Streifen erkennen: von Sinusrhythmus bis Kammerflimmern.',
+            stand: `${progress.ekgRichtig} richtig eingeordnet`,
+            tint: 'red' as keyof typeof tiles,
+            name: 'EKG lesen',
+            aktion: onEkg,
+          },
+        ]),
     {
       icon: '👥',
       titel: 'Live-Runde mit Freunden',

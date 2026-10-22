@@ -123,6 +123,8 @@ export interface Progress {
   /** Live-Runde: gespielte Runden und Siege */
   liveGespielt: number;
   liveSiege: number;
+  /** EKG lesen: insgesamt richtig eingeordnete Streifen */
+  ekgRichtig: number;
   /** Spickzettel, die schon gespeichert oder geöffnet wurden (IDs) */
   spickGesehen: string[];
   /** Rückmeldung wurde schon gegeben */
@@ -183,6 +185,7 @@ export const EMPTY_PROGRESS: Progress = {
   duellSiege: 0,
   liveGespielt: 0,
   liveSiege: 0,
+  ekgRichtig: 0,
   spickGesehen: [],
   feedbackGegeben: false,
 };
