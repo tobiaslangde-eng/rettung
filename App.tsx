@@ -62,6 +62,7 @@ import { mitUrkundenDatum } from './src/game/urkunden';
 import { DuellScreen } from './src/screens/DuellScreen';
 import { LiveScreen } from './src/screens/LiveScreen';
 import { EkgScreen } from './src/screens/EkgScreen';
+import { bitteUmDauerhaftenSpeicher } from './src/game/umgebung';
 import { leseRaumLink, loescheRaumLink } from './src/game/livetransport';
 import { DuellEinladung, leseEinladung, loescheEinladung } from './src/game/duell';
 import { FeedbackScreen } from './src/screens/FeedbackScreen';
@@ -239,6 +240,7 @@ export default function App() {
   const [rolle, setRolle] = useState<Rolle | null | undefined>(undefined);
   useEffect(() => {
     startAnalytics();
+    bitteUmDauerhaftenSpeicher();
     wendeDarstellungAn(ladeDarstellung());
     einladung.current = leseEinladung();
     if (einladung.current) loescheEinladung();
@@ -668,7 +670,11 @@ export default function App() {
   useEffect(() => {
     if (!rolle || progress.modus === '' || progress.casesPlayed > 0) return;
     einfuehrungGesehen().then((gesehen) => {
-      if (!gesehen) setEinfuehrung(true);
+      if (!gesehen) {
+        setEinfuehrung(true);
+        // sofort merken: wer die Seite mittendrin schließt, soll sie nicht bei jedem Besuch wieder sehen
+        merkeEinfuehrungGesehen();
+      }
     });
   }, [rolle, progress.modus, progress.casesPlayed]);
   const schliesseEinfuehrung = () => {
@@ -754,6 +760,7 @@ export default function App() {
                         onKarte={oeffneKarte}
                         onUrkunden={() => setScreen({ name: 'urkunden' })}
                         onSpick={() => setScreen({ name: 'spick' })}
+                        onSichern={() => setScreen({ name: 'guide' })}
                         onFeedback={() => setScreen({ name: 'feedback' })}
                         onAlleTrainings={() => setScreen({ name: 'training' })}
                         onSchicht={() => {

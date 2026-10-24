@@ -190,14 +190,36 @@ export const EMPTY_PROGRESS: Progress = {
   feedbackGegeben: false,
 };
 
-export async function loadProgress(rolle: Rolle): Promise<Progress> {
+const BAK = '.bak';
+
+function lese(raw: string | null): Progress | null {
+  if (!raw) return null;
   try {
-    const raw = await AsyncStorage.getItem(KEYS[rolle]);
-    if (!raw) return EMPTY_PROGRESS;
     const saved = JSON.parse(raw);
+    if (typeof saved !== 'object' || saved === null) return null;
     // Ältere Spielstände kannten noch kein Coins: Startbudget = bisher gesammelte EP.
     if (saved.budget === undefined) saved.budget = saved.totalPoints ?? 0;
     return { ...EMPTY_PROGRESS, ...saved };
+  } catch {
+    return null;
+  }
+}
+
+export async function loadProgress(rolle: Rolle): Promise<Progress> {
+  try {
+    const key = KEYS[rolle];
+    const haupt = await AsyncStorage.getItem(key);
+    const stand = lese(haupt);
+    if (stand) return stand;
+    // Hauptspeicher leer oder beschädigt: Sicherungskopie nehmen
+    const kopie = await AsyncStorage.getItem(key + BAK);
+    const gesichert = lese(kopie);
+    if (gesichert) {
+      if (haupt) await AsyncStorage.setItem(key + '.defekt', haupt).catch(() => {});
+      await AsyncStorage.setItem(key, kopie as string).catch(() => {});
+      return gesichert;
+    }
+    return EMPTY_PROGRESS;
   } catch {
     return EMPTY_PROGRESS;
   }
@@ -205,7 +227,10 @@ export async function loadProgress(rolle: Rolle): Promise<Progress> {
 
 export async function saveProgress(rolle: Rolle, p: Progress): Promise<void> {
   try {
-    await AsyncStorage.setItem(KEYS[rolle], JSON.stringify(p));
+    const text = JSON.stringify(p);
+    await AsyncStorage.setItem(KEYS[rolle], text);
+    // zweite Kopie: schützt vor einem beschädigten Hauptspeicher
+    await AsyncStorage.setItem(KEYS[rolle] + BAK, text);
   } catch {
     // Fortschritt ist optional – Spiel läuft auch ohne Speicher weiter.
   }

@@ -3,6 +3,7 @@ import { Ambulance } from '../components/Ambulance';
 import { Car } from '../components/Car';
 import { RankBadge } from '../components/Ems';
 import { KatiAvatar } from '../components/Kati';
+import { SpeicherHinweis } from '../components/SpeicherHinweis';
 import { BentoGrid, BentoTitle, BigNumber, ChapterPath, Ring, Tile, TileLabel } from '../components/Bento';
 import { Bar, Button, Segmented, Tap } from '../components/UI';
 import { badgesFuerRolle } from '../game/achievements';
@@ -58,6 +59,7 @@ export function HomeScreen({
   onSchicht,
   onFeedback,
   onAlleTrainings,
+  onSichern,
 }: {
   progress: Progress;
   onStart: () => void;
@@ -86,6 +88,8 @@ export function HomeScreen({
   onFeedback: () => void;
   /** Training-Tab öffnen */
   onAlleTrainings: () => void;
+  /** Spielstand-Code holen (Mehr) */
+  onSichern: () => void;
 }) {
   const L = useLayout();
   const sidebar = useSidebar();
@@ -421,6 +425,7 @@ export function HomeScreen({
   return (
     <ScrollView contentContainerStyle={[styles.content, L.wide && styles.contentWide]}>
       <BentoGrid>
+        <SpeicherHinweis punkte={progress.totalPoints} onSichern={onSichern} />
         {status}
         {heute}
         {story}
