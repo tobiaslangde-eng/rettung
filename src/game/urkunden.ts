@@ -76,6 +76,14 @@ const gemeinsam = (rolle: Rolle): Urkunde[] => [
     erreicht: (p) => p.duellSiege >= 3,
   },
   {
+    id: 'ekg',
+    icon: '📈',
+    titel: 'EKG-Leser',
+    text: 'hat 50 EKG-Streifen richtig eingeordnet: vom Sinusrhythmus bis zum Kammerflimmern.',
+    bedingung: '50 EKGs richtig einordnen',
+    erreicht: (p) => p.ekgRichtig >= 50,
+  },
+  {
     id: 'live',
     icon: '👥',
     titel: 'Teamgeist',
