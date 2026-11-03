@@ -19,6 +19,8 @@ export const POINTS = {
   perfectBonus: 30,
   /** Bonus für einen gemeisterten Extremfall (mindestens 2 Sterne) */
   extremBonus: 40,
+  /** Zeitdruck-Modus: Bonus, wenn am Ende noch mindestens 30 Sekunden übrig sind */
+  zeitBonus: 25,
   /** Serienbonus je gutem Einsatz in Folge, gedeckelt */
   streakPerLevel: 10,
   streakMax: 50,
@@ -57,6 +59,8 @@ export interface CaseRun {
   condition: number;
   /** Bezahlte Tipps von Kati */
   hintsUsed: number;
+  /** Zeitdruck-Modus: Bonus-EP, wenn ich mit genug Zeit fertig war */
+  zeitBonus?: number;
   /** Zwischenfälle dieses Einsatzes mit meiner Reaktion (leer, wenn es keine gab) */
   incidents?: { incident: Incident; correct: boolean }[];
 }
@@ -152,6 +156,10 @@ export function scoreRun(run: CaseRun, streakBefore = 0): ScoreResult {
 
   // Boni zählen nicht in die Sternewertung, erhöhen aber die EP.
   let bonus = 0;
+  if (run.zeitBonus && run.zeitBonus > 0) {
+    lines.push({ label: 'Zeitbonus: schnell entschieden', points: run.zeitBonus });
+    bonus += run.zeitBonus;
+  }
   if (medCase.extrem && stars >= 2) {
     lines.push({ label: 'Extremfall gemeistert', points: POINTS.extremBonus });
     bonus += POINTS.extremBonus;

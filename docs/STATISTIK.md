@@ -16,11 +16,13 @@ Besuche pro Tag/Woche, Herkunft (Referrer), Geräte, Browser, Länder.
 | `modus-story` / `modus-frei` | Spielweise gewählt |
 | `schwierigkeit-leicht/mittel/schwer` | Schwierigkeit umgestellt |
 | `einsatz-gestartet` / `einsatz-beendet` | Einsatz begonnen bzw. zu Ende gespielt (Unterschied = Abbrüche) |
+| `zeitdruck-an` / `zeitdruck-aus` | Der Zeitdruck-Modus wurde ein- bzw. ausgeschaltet |
 | `wiederholen-gestartet` | „Wiederholen“ wurde gestartet (Einsätze, die noch nicht sitzen) |
 | `wochenchallenge-gestartet` | Ein Einsatz der Wochen-Challenge wurde gestartet |
 | `ekg-gestartet-grund` / `ekg-gestartet-alle` / `ekg-beendet` | EKG-Training gestartet (Grundlagen oder alle Rhythmen) bzw. eine Runde zu Ende gespielt |
 | `live-erstellt-solo` / `-teams` / `-koop` | Eine Live-Quiz-Runde wurde eröffnet (Spielweise) |
 | `live-erstellt-detektiv-solo` / `-teams` / `-koop` | Eine Live-Detektiv-Runde wurde eröffnet |
+| `live-erstellt-reihenfolge-solo` / `-teams` / `-koop` | Ein Live-Reihenfolge-Rennen wurde eröffnet |
 | `live-beigetreten` | Jemand ist einer Live-Runde beigetreten |
 | `live-ende` | Eine Live-Runde wurde bis zur Siegerehrung gespielt (je Gerät) |
 | `kati-frage` | Eine Frage an „Frag Kati“ gestellt (der Text der Frage wird nicht gespeichert oder gesendet) |

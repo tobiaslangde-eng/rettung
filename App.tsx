@@ -666,6 +666,13 @@ export default function App() {
     saveProgress(aktiv, next);
   };
 
+  const setZeitdruck = (zeitdruck: boolean) => {
+    zaehle('zeitdruck-' + (zeitdruck ? 'an' : 'aus'));
+    const next = { ...progress, zeitdruck };
+    setProgress(next);
+    saveProgress(aktiv, next);
+  };
+
   const openTraining = (t: TrainingId) => {
     zaehle('training-' + t);
     setScreen({ name: t, key: Date.now() } as Screen);
@@ -1093,6 +1100,7 @@ export default function App() {
                         onWiederholen={startWiederholen}
                         onWoche={startWoche}
                         onDifficulty={setDifficulty}
+                        onZeitdruck={setZeitdruck}
                       />
                     )}
                     {screen.name === 'lernstand' && (
@@ -1151,6 +1159,7 @@ export default function App() {
                         daily={screen.daily}
                         equipment={equipmentEffects(progress)}
                         rtwLevel={levelOf(progress, 'rtw')}
+                        zeitdruck={progress.zeitdruck}
                         onFinish={(run) => finishCase(run, screen.daily)}
                         onAbort={home}
                       />

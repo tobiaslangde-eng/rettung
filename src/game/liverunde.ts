@@ -6,8 +6,11 @@
 
 export type LiveModus = 'solo' | 'teams' | 'koop';
 
-/** Spielart: Quiz (Fragen mit vier Antworten) oder Detektiv (Akte mit Hinweisen, die nach und nach auftauchen) */
-export type LiveArt = 'quiz' | 'detektiv';
+/**
+ * Spielart: Quiz (Fragen mit vier Antworten), Detektiv (Akte mit Hinweisen, die nach und nach auftauchen)
+ * oder Reihenfolge-Rennen (Was kommt als Nächstes? – Abläufe in der richtigen Reihenfolge)
+ */
+export type LiveArt = 'quiz' | 'detektiv' | 'reihenfolge';
 
 export const ARTEN: { id: LiveArt; icon: string; titel: string; text: string }[] = [
   { id: 'quiz', icon: '❓', titel: 'Quiz', text: 'Eine Frage, vier Antworten – wer richtig und schnell ist, gewinnt.' },
@@ -16,6 +19,12 @@ export const ARTEN: { id: LiveArt; icon: string; titel: string; text: string }[]
     icon: '🕵️',
     titel: 'Detektiv',
     text: 'Eine Akte, Hinweise tauchen nacheinander auf. Wer die Diagnose früh richtig errät, bekommt mehr Punkte.',
+  },
+  {
+    id: 'reihenfolge',
+    icon: '🔢',
+    titel: 'Reihenfolge-Rennen',
+    text: 'Was kommt zuerst, was als Nächstes? Wer den Ablauf kennt und schnell tippt, gewinnt.',
   },
 ];
 

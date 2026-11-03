@@ -5,6 +5,7 @@ import { AnswerOption } from '../components/Training';
 import { Bar, Button, Card, Segmented, Tap, TopBar } from '../components/UI';
 import { zufallsFragen } from '../game/duell';
 import { liveAkten } from '../game/liveakten';
+import { liveReihenfolge } from '../game/livereihenfolge';
 import {
   ARTEN,
   Ansicht,
@@ -151,7 +152,7 @@ export function LiveScreen({
       ich.current = 'host';
       empfange(h.lobbyStand());
       setRolle('host');
-      zaehle(`live-erstellt-${einst.art === 'detektiv' ? 'detektiv-' : ''}${einst.modus}`);
+      zaehle(`live-erstellt-${einst.art === 'quiz' ? '' : einst.art + '-'}${einst.modus}`);
     } catch (e) {
       setFehler(FEHLER[(e as Error).message] ?? FEHLER.netz);
     } finally {
@@ -198,7 +199,7 @@ export function LiveScreen({
   };
 
   const baueFragen = (e: LiveEinstellungen): LiveFrage[] =>
-    e.art === 'detektiv' ? liveAkten(e.anzahl) : zufallsFragen(r.id, e.anzahl);
+    e.art === 'detektiv' ? liveAkten(e.anzahl) : e.art === 'reihenfolge' ? liveReihenfolge(r.id, e.anzahl) : zufallsFragen(r.id, e.anzahl);
 
   const wide = L.wide && styles.wide;
   const istHost = rolle === 'host';
@@ -249,7 +250,7 @@ export function LiveScreen({
               <Tap
                 key={a.id}
                 onPress={() =>
-                  setEinst({ ...einst, art: a.id, anzahl: a.id === 'detektiv' ? 5 : 10, sekunden: a.id === 'detektiv' ? 8 : 20 })
+                  setEinst({ ...einst, art: a.id, anzahl: a.id === 'detektiv' ? 5 : 10, sekunden: a.id === 'detektiv' ? 8 : a.id === 'reihenfolge' ? 15 : 20 })
                 }
                 accessibilityLabel={a.titel}
                 style={[styles.modus, einst.art === a.id && { borderColor: r.akzent, backgroundColor: r.akzentTint }]}
@@ -381,7 +382,7 @@ export function LiveScreen({
               {modus.icon} {modus.titel} ·{' '}
               {ansicht.einstellungen.art === 'detektiv'
                 ? `🕵️ ${ansicht.einstellungen.anzahl} Akten · ${ansicht.einstellungen.sekunden} s je Hinweis`
-                : `❓ ${ansicht.einstellungen.anzahl} Fragen · ${ansicht.einstellungen.sekunden} s`}
+                : `${ansicht.einstellungen.art === 'reihenfolge' ? '🔢' : '❓'} ${ansicht.einstellungen.anzahl} Fragen · ${ansicht.einstellungen.sekunden} s`}
             </Text>
           </Card>
           {istHost && (

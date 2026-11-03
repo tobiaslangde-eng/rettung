@@ -33,6 +33,7 @@ export function TrainingScreen({
   onWiederholen,
   onWoche,
   onDifficulty,
+  onZeitdruck,
 }: {
   progress: Progress;
   onTraining: (t: TrainingId) => void;
@@ -50,6 +51,7 @@ export function TrainingScreen({
   onWiederholen: () => void;
   onWoche: () => void;
   onDifficulty: (d: Difficulty) => void;
+  onZeitdruck: (an: boolean) => void;
 }) {
   const L = useLayout();
   const r = useRolle();
@@ -96,6 +98,7 @@ export function TrainingScreen({
               onWiederholen={onWiederholen}
               onWoche={onWoche}
               onDifficulty={onDifficulty}
+              onZeitdruck={onZeitdruck}
             />
           </View>
         )}

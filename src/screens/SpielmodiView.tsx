@@ -25,6 +25,7 @@ export function SpielmodiView({
   onWiederholen,
   onWoche,
   onDifficulty,
+  onZeitdruck,
 }: {
   progress: Progress;
   onStart: () => void;
@@ -38,6 +39,7 @@ export function SpielmodiView({
   onWiederholen: () => void;
   onWoche: () => void;
   onDifficulty: (d: Difficulty) => void;
+  onZeitdruck: (an: boolean) => void;
 }) {
   const r = useRolle();
   const helfer = r.id === 'helfer';
@@ -173,6 +175,18 @@ export function SpielmodiView({
             onChange={onDifficulty}
           />
           <Text style={type.small}>{DIFFICULTY_BY_ID[progress.difficulty].description}</Text>
+          <Text style={[type.eyebrow, { marginTop: spacing.sm }]}>Zeitdruck</Text>
+          <Segmented
+            options={[
+              { id: 'aus', label: 'Aus' },
+              { id: 'an', label: '⏱ An' },
+            ]}
+            value={progress.zeitdruck ? 'an' : 'aus'}
+            onChange={(v) => onZeitdruck(v === 'an')}
+          />
+          <Text style={type.small}>
+            Mit Zeitdruck läuft eine Uhr (je nach Stufe 2 bis 3 Minuten). Wer mit mindestens 30 Sekunden Rest fertig ist, bekommt +25 EP. Ist die Zeit um, verliert der Patient zusätzlich Kraft.
+          </Text>
         </Card>
       )}
       {modi.map((m) => {

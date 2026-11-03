@@ -110,6 +110,10 @@ Weg in den Rettungsdienst.
 - **Echter Kollaps:** Fällt der Zustand des Patienten unter 15 %, kollabiert er einmal im Einsatz (Kreislaufstillstand,
   für Kinder mit eigener Kinder-Variante): sofort richtig reagieren, sonst wird es noch schlimmer. Zählt nicht in die Höchstpunktzahl.
 - **Monitor-Ton:** Mit „Ton an“ piept der Herzmonitor im Takt des Herzschlags (Web), bei kritischem Zustand höher.
+- **Zeitdruck-Modus** (Training → Spielmodi, nur Sanitätsdienst): Eine Uhr läuft mit (180/150/120 Sekunden je Stufe). Sie steht beim
+  Zwischenfall und beim Einstufen eines Werts. Mit mindestens 30 Sekunden Rest gibt es +25 EP, ist die Zeit um, verliert der Patient zusätzlich Kraft.
+- **Reihenfolge-Rennen** (Live-Runde): „Was kommt direkt nach …?“ zu Abläufen wie Wiederbelebung, Absichern, Schlaganfall –
+  wie das Quiz live gegeneinander, in Teams oder gemeinsam.
 - **Mein Lernstand** (Training → Spielmodi): Auswertung nach Bereichen (gespielt/gemeistert), Stärken und Lücken.
 - **Wiederholen:** startet bevorzugt Einsätze, die ich nur mit höchstens einem Stern geschafft habe.
 - **Wochen-Challenge (Sanitätsdienst):** Jede Kalenderwoche ein Thema (Herz, Atmung, Verletzungen …) – 5 Einsätze daraus bringen

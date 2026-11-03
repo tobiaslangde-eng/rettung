@@ -133,6 +133,8 @@ export interface Progress {
   challengeWoche: string;
   challengeFaelle: number;
   challengeFertig: boolean;
+  /** Zeitdruck-Modus für Einsätze: eine Uhr läuft mit */
+  zeitdruck: boolean;
 }
 
 export const EMPTY_PROGRESS: Progress = {
@@ -195,6 +197,7 @@ export const EMPTY_PROGRESS: Progress = {
   challengeWoche: '',
   challengeFaelle: 0,
   challengeFertig: false,
+  zeitdruck: false,
 };
 
 const BAK = '.bak';

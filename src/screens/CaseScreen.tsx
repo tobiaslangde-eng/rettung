@@ -2,7 +2,7 @@ import { PatientGesicht } from '../components/Gesicht';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { DriveAnimation } from '../components/DriveAnimation';
-import { Button, Card, Led, Pill, StatChip, Tap, TopBar } from '../components/UI';
+import { Bar, Button, Card, Led, Pill, StatChip, Tap, TopBar } from '../components/UI';
 import { TonKnopf } from '../components/TonKnopf';
 import { ZustandsAnzeige } from '../components/ZustandsAnzeige';
 import { AskKati, Kati } from '../components/Kati';
@@ -12,7 +12,7 @@ import { kollapsFuer, planeZwischenfaelle } from '../game/zwischenfall';
 import { Rating, VITALS, VITAL_BY_ID, VitalId, formatVital, normalText, rateVital } from '../data/vitals';
 import { DifficultyDef, HINT_COST } from '../game/difficulty';
 import { EquipmentEffects } from '../game/equipment';
-import { CONDITION, CaseRun, MINUTES_PER_MEASUREMENT, clampCondition, shuffle } from '../game/scoring';
+import { CONDITION, CaseRun, MINUTES_PER_MEASUREMENT, POINTS, clampCondition, shuffle } from '../game/scoring';
 import { Columns, useLayout } from '../layout';
 import { colors, fonts, hardShadow, monitor, spacing, type, onColor } from '../theme';
 
@@ -34,6 +34,11 @@ const RATINGS: { value: Rating; label: string; symbol: string }[] = [
 ];
 
 /** Farbe der drei Einstufungs-Knöpfe (verrät nicht die richtige Antwort) */
+/** Zeitdruck: Zeitlimit je Schwierigkeit in Sekunden, ab wann es Bonus gibt und wie schnell der Patient danach verliert */
+const ZEITLIMIT = { leicht: 180, mittel: 150, schwer: 120 } as const;
+const ZEIT_BONUS_AB = 30;
+const ZEIT_UEBERSCHRITTEN_PRO_SEKUNDE = 0.5;
+
 const RATE_COLOR: Record<Rating, string> = { niedrig: '#9BD8FF', normal: '#8CF0C8', hoch: '#FFB38A' };
 
 const ANSWER_LETTERS = ['A', 'B', 'C', 'D'];
@@ -74,12 +79,35 @@ function Pager({ dispatch, location }: { dispatch: string; location: string }) {
   );
 }
 
+/** Uhr für den Zeitdruck-Modus */
+function ZeitLeiste({ rest, limit, laeuft }: { rest: number; limit: number; laeuft: boolean }) {
+  const ueber = rest < 0;
+  const knapp = rest >= 0 && rest < ZEIT_BONUS_AB;
+  const farbe = ueber ? colors.red : knapp ? colors.orange : colors.mint;
+  const zeit = `${ueber ? '−' : ''}${Math.floor(Math.abs(rest) / 60)}:${String(Math.abs(rest) % 60).padStart(2, '0')}`;
+  return (
+    <View style={styles.zeitLeiste}>
+      <Text style={[styles.zeitText, { color: ueber ? colors.red : colors.ink }]}>
+        ⏱ {zeit}
+        {!laeuft ? ' · Uhr steht' : ''}
+      </Text>
+      <View style={{ flex: 1 }}>
+        <Bar pct={Math.max(0, rest) / limit} color={farbe} height={8} />
+      </View>
+      <Text style={styles.zeitHinweis} numberOfLines={1}>
+        {ueber ? 'Zeit um – Kraftverlust!' : knapp ? 'Gleich ist die Zeit um' : `+${POINTS.zeitBonus} EP ab ${ZEIT_BONUS_AB} s Rest`}
+      </Text>
+    </View>
+  );
+}
+
 export function CaseScreen({
   medCase,
   difficulty,
   daily = false,
   equipment = NO_EQUIPMENT,
   rtwLevel = 1,
+  zeitdruck = false,
   onFinish,
   onAbort,
 }: {
@@ -89,6 +117,8 @@ export function CaseScreen({
   /** Wirkung meiner Ausrüstung aus der Fahrzeughalle */
   equipment?: EquipmentEffects;
   rtwLevel?: number;
+  /** Zeitdruck-Modus: eine Uhr läuft mit (nur während Untersuchung, Diagnose und Behandlung) */
+  zeitdruck?: boolean;
   onFinish: (run: CaseRun) => void;
   onAbort: () => void;
 }) {
@@ -114,6 +144,9 @@ export function CaseScreen({
   const incidentOptions = useMemo(() => (incident ? shuffle(incident.options) : []), [incident]);
   const [incidentChoice, setIncidentChoice] = useState<string | null>(null);
   const [incidentResults, setIncidentResults] = useState<boolean[]>([]);
+  /** Zeitdruck: verbleibende Sekunden (zählt nur, wenn nichts anderes meine Aufmerksamkeit braucht) */
+  const [restSekunden, setRestSekunden] = useState<number>(ZEITLIMIT[difficulty.id]);
+  const restRef = useRef<number>(ZEITLIMIT[difficulty.id]);
   /** Ich wollte schon zur Diagnose, bevor der Zwischenfall kam – danach geht es direkt weiter. */
   const [wantsDiagnosis, setWantsDiagnosis] = useState(false);
 
@@ -131,6 +164,18 @@ export function CaseScreen({
     !pending &&
     (measured.length >= incident.afterMeasurements || wantsDiagnosis);
   const draining = difficulty.drainPerSecond > 0 && (phase === 'exam' || (phase === 'diagnosis' && !diagnosisLocked));
+  // Zeitdruck: Die Uhr läuft in Untersuchung, Diagnose und Behandlung – nicht beim Zwischenfall und nicht beim Einstufen eines Werts.
+  const uhrLaeuft = zeitdruck && (phase === 'exam' || phase === 'diagnosis' || phase === 'treatment') && !incidentActive && !pending;
+  useEffect(() => {
+    if (!uhrLaeuft) return;
+    const t = setInterval(() => {
+      restRef.current -= 1;
+      setRestSekunden(restRef.current);
+      // Ist die Zeit abgelaufen, verliert der Patient zusätzlich Kraft
+      if (restRef.current < 0) setCondition((c) => clampCondition(c - ZEIT_UEBERSCHRITTEN_PRO_SEKUNDE * equipment.drainFactor));
+    }, 1000);
+    return () => clearInterval(t);
+  }, [uhrLaeuft, equipment.drainFactor]);
   useEffect(() => {
     if (!draining) return;
     const drain = difficulty.drainPerSecond * equipment.drainFactor;
@@ -225,6 +270,7 @@ export function CaseScreen({
       treatmentGuess,
       difficulty: difficulty.id,
       condition: clampCondition(c + equipment.endBonus),
+      zeitBonus: zeitdruck && restSekunden >= ZEIT_BONUS_AB ? POINTS.zeitBonus : 0,
       hintsUsed,
       incidents: incidentResults.map((correct, i) => ({ incident: incidents[i], correct })),
     });
@@ -270,6 +316,7 @@ export function CaseScreen({
           </View>
         ))}
       </View>
+      {zeitdruck && phase !== 'alarm' && <ZeitLeiste rest={restSekunden} limit={ZEITLIMIT[difficulty.id]} laeuft={uhrLaeuft} />}
       {phase !== 'alarm' && (
         <ZustandsAnzeige
           zustand={condition}
@@ -610,6 +657,9 @@ export function CaseScreen({
 }
 
 const styles = StyleSheet.create({
+  zeitLeiste: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginHorizontal: spacing.lg, marginBottom: spacing.xs },
+  zeitText: { fontFamily: fonts.displayBlack, fontSize: 14, minWidth: 64 },
+  zeitHinweis: { ...type.small, fontSize: 10.5, maxWidth: 150 },
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
 
   // Stationen-Leiste: Alarm → Untersuchung → Diagnose → Maßnahmen
