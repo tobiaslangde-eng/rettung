@@ -25,9 +25,9 @@ das Krankheitsbild erkennt.
 |---|---|
 | **Vitalwerte und Normbereiche** (Erwachsene und Kinder) | Puls, Blutdruck, SpO₂, Atemfrequenz, Temperatur, Blutzucker, GCS und EKG messen und als niedrig, normal oder hoch einstufen; Training „Normwerte“ |
 | **Strukturiertes Vorgehen** (ABCDE, SAMPLER, GCS, BE-FAST, 5 W) | Anamnese und Sichtbefund in jedem Einsatz; Nachschlagen im Lexikon |
-| **Krankheitsbilder erkennen** | 28 Einsätze von Hypoglykämie über Schlaganfall bis Spannungspneumothorax, davon 4 Kinder-Notfälle |
+| **Krankheitsbilder erkennen** | 196 Einsätze von Hypoglykämie über Schlaganfall bis Polytrauma, Ertrinken und Geburt im Auto, davon 20 Kinder-Notfälle und 20 Extremfälle |
 | **Erstmaßnahmen** | die richtigen Maßnahmen auswählen – falsche kosten EP und schaden dem Patienten |
-| **Reagieren, wenn es kritisch wird** | Zwischenfälle mitten im Einsatz, z. B. Kammerflimmern oder Erbrechen |
+| **Reagieren, wenn es kritisch wird** | Zwischenfälle mitten im Einsatz: der Patient verschlechtert sich (z. B. Kammerflimmern), die Einsatzstelle wird gefährlich, Angehörige eskalieren, die Technik fällt aus oder die Zeit drängt |
 | **Herz-Lungen-Wiederbelebung** | Herzdruckmassage im Takt von 100–120/min, 30:2 |
 | **Sichtung beim Großeinsatz (MANV)** | 8 Verletzte nach einem vereinfachten mSTaRT-Schema einteilen |
 | **Theorie** | 48 Wissensfragen aus dem Einsatzalltag mit Erklärung |
@@ -101,8 +101,17 @@ Weg in den Rettungsdienst.
 
 - **Tagesdienst:** jeden Tag ein „Einsatz des Tages“ (+50 % EP) und ein Tagesziel von 3 Einsätzen;
   wer es mehrere Tage hintereinander schafft, baut eine Dienst-Serie mit steigendem Bonus auf
-- **Zwischenfälle:** In 17 Einsätzen passiert mitten in der Untersuchung etwas Unerwartetes
-  (z. B. Kammerflimmern, Erbrechen, Status epilepticus) – ich muss sofort richtig reagieren
+- **Zwischenfälle:** In jedem Einsatz passiert mitten in der Untersuchung etwas Unerwartetes – ich muss sofort
+  richtig reagieren. Es gibt sechs Arten: ⚠️ medizinisch (Kammerflimmern, Erbrechen, Krampf), ☢️ Gefahr an der
+  Einsatzstelle (Gas, Hund, Verkehr), 👥 Unruhe vor Ort (aufgebrachte Angehörige, Schaulustige, Behandlungsverweigerung),
+  🔧 Technik-Problem (Gerät fällt aus, Sauerstoff knapp), 📻 Absprache im Team und ⏱️ Zeitdruck. Bei jedem Durchgang
+  wird einer der Zwischenfälle des Einsatzes gezogen, manchmal kommt einer aus der Lage vor Ort dazu – derselbe Einsatz
+  fühlt sich also nicht jedes Mal gleich an.
+- **Extremfälle (🔥):** 20 außergewöhnlich schwere Lagen (Polytrauma, Ertrinken eines Kleinkinds, Messerstich, Rauchgas im
+  Keller, Aortenriss, Geburt auf dem Parkplatz …) mit drei Zwischenfällen nacheinander. Es gibt +40 EP Bonus ab zwei Sternen;
+  sie kommen nur auf „Schwer“ vor und nie zweimal hintereinander.
+- **Abwechslung:** Die Auswahl merkt sich die letzten 14 Einsätze und zieht sie nicht noch einmal. Neue und noch nicht
+  gemeisterte Einsätze sowie wechselnde Bereiche (Herz, Atmung, Verletzungen, Kinder …) werden bevorzugt.
 - **Kinder-Einsätze:** 4 Fälle mit kleinen Patienten (Fieberkrampf, Pseudokrupp, verschluckte Erdnuss,
   Exsikkose); bewertet wird mit Kinder-Normwerten für Puls, Atmung und Blutdruck
 - **Detektiv-Akten – der Diagnose-Krimi:** Jede Akte ist ein Notfall, von dem anfangs nur die Meldung der Leitstelle
@@ -137,7 +146,7 @@ Weg in den Rettungsdienst.
 Der Spielstand wird nur lokal gespeichert. Über *Mehr → Spielstand übertragen* lässt er sich als Code
 auf ein anderes Gerät mitnehmen.
 
-### Enthaltene Fälle (28)
+### Enthaltene Fälle (196: 28 Grundfälle und 168 weitere aus den Detektiv-Akten)
 
 - **Leicht (11):** Herzinfarkt, Hypoglykämie, Schlaganfall, Asthmaanfall, Kreislaufkollaps, Unterarmbruch, Verbrennung, Nierenkolik, Alkoholvergiftung, Fieberkrampf (Kind), Pseudokrupp (Kind)
 - **Mittel (11):** Anaphylaxie, Hypothermie, Hitzschlag, Hyperventilation, Krampfanfall, hypertensiver Notfall, Opioid-Überdosis, Gehirnerschütterung, COPD, verschluckte Erdnuss (Kind), Exsikkose (Kind)
@@ -253,9 +262,13 @@ src/layout.tsx          Anpassung an Handy, Tablet und Desktop
 src/components/Ems.tsx  Star of Life, Warnmarkierung, Reflexstreifen, Monitor, EKG, Stadt, Rangabzeichen
 src/components/         Buttons, Karten, Kati, Blaulichtfahrt, Rettungswagen, Geräte, Seitenleiste
 src/data/vitals.ts      Vitalwerte, Normbereiche (auch für Kinder), Einstufung
-src/data/cases.ts       Einsatzfälle
+src/data/casesBasis.ts  Die 28 ursprünglichen Einsatzfälle
+src/data/cases.ts       Alle Einsätze (196): Grundfälle plus die Situationen aus den Detektiv-Akten
+src/data/einsaetze/     Behandlungen, Zwischenfälle und Extremfälle für die Einsätze aus den Akten
 src/data/questions.ts   Wissensfragen
-src/data/incidents.ts   Zwischenfälle in Einsätzen
+src/data/incidents.ts   Zwischenfälle der Grundfälle, Arten und Punkte
+src/game/zwischenfall.ts Plan der Zwischenfälle je Durchgang
+src/game/auswahl.ts     Auswahl des nächsten Einsatzes ohne Wiederholungen
 src/data/manv.ts        Großeinsatz: Verletzte und Sichtungsschema
 src/data/basics.ts      Rettungswissen fürs Lexikon
 src/game/scoring.ts     EP, Sterne, Ränge, Patientenzustand

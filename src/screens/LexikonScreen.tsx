@@ -5,7 +5,7 @@ import { BASICS } from '../data/basics';
 import { HELFER_LEXIKON } from '../data/helferLexikon';
 import { LexikonTab } from '../data/helferTraining';
 import { useRolle } from '../game/rolle';
-import { CASES } from '../data/cases';
+import { KRANKHEITSBILDER } from '../data/cases';
 import { CHILD_NORMS, VITALS } from '../data/vitals';
 import { WissensKarte } from '../components/WissensKarte';
 import { korrigiereFrage, sucheWissen } from '../game/wissen';
@@ -194,7 +194,7 @@ function SaniLexikon({ progress, onKati }: { progress: Progress; onKati: () => v
             ))}
           </>
         ) : (
-          CASES.map((c) => {
+          KRANKHEITSBILDER.map((c) => {
             const stars = progress.bestStars[c.id] ?? 0;
             return (
               <Card key={c.id} style={cardW}>

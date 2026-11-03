@@ -212,7 +212,7 @@ function zufallsOrt(): { ziel: Punkt; strasse: 'v' | 'h' } {
 }
 
 /** Füllt die Karte auf 3 Einsätze auf (echte Einsätze aus dem Spiel, nicht doppelt) */
-export function fuelleKarte(rolle: Rolle, p: Progress, vorhanden: KartenPin[], letzteId?: string): KartenPin[] {
+export function fuelleKarte(rolle: Rolle, p: Progress, vorhanden: KartenPin[], letzteId?: string, zuletzt: string[] = []): KartenPin[] {
   const pins = [...vorhanden];
   const benutzt = new Set(pins.map((x) => x.fallId));
   if (letzteId) benutzt.add(letzteId);
@@ -226,7 +226,10 @@ export function fuelleKarte(rolle: Rolle, p: Progress, vorhanden: KartenPin[], l
           meldung: c.dispatch,
           sterne: p.bestStars[c.id] ?? 0,
         }));
-  const frei = shuffle(liste.filter((c) => !benutzt.has(c.id)));
+  const unbenutzt = liste.filter((c) => !benutzt.has(c.id));
+  // zuletzt gespielte Einsätze nicht gleich wieder anbieten, solange genug andere da sind
+  const nichtKuerzlich = unbenutzt.filter((c) => !zuletzt.includes(c.id));
+  const frei = shuffle(nichtKuerzlich.length >= PINS_AUF_KARTE ? nichtKuerzlich : unbenutzt);
   // bevorzugt noch nicht gemeisterte Einsätze
   frei.sort((a, b) => Number(a.sterne >= 3) - Number(b.sterne >= 3));
   let versuche = 0;

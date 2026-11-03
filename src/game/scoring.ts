@@ -1,6 +1,6 @@
 import { aktiveRolle } from './rolle';
 import { MedCase } from '../data/cases';
-import { INCIDENTS, INCIDENT_POINTS } from '../data/incidents';
+import { INCIDENT_POINTS, Incident } from '../data/incidents';
 import { Rating, VitalId, rateVital } from '../data/vitals';
 import { DIFFICULTY_BY_ID, Difficulty, HINT_COST } from './difficulty';
 
@@ -17,6 +17,8 @@ export const POINTS = {
   conditionMax: 20,
   /** Bonus für einen perfekten Einsatz (3 Sterne) */
   perfectBonus: 30,
+  /** Bonus für einen gemeisterten Extremfall (mindestens 2 Sterne) */
+  extremBonus: 40,
   /** Serienbonus je gutem Einsatz in Folge, gedeckelt */
   streakPerLevel: 10,
   streakMax: 50,
@@ -55,8 +57,8 @@ export interface CaseRun {
   condition: number;
   /** Bezahlte Tipps von Kati */
   hintsUsed: number;
-  /** Reaktion auf den Zwischenfall (undefined, wenn es keinen gab) */
-  incidentCorrect?: boolean;
+  /** Zwischenfälle dieses Einsatzes mit meiner Reaktion (leer, wenn es keine gab) */
+  incidents?: { incident: Incident; correct: boolean }[];
 }
 
 export interface ScoreLine {
@@ -129,10 +131,10 @@ export function scoreRun(run: CaseRun, streakBefore = 0): ScoreResult {
     points: tPts,
   });
 
-  if (run.incidentCorrect !== undefined) {
+  for (const r of run.incidents ?? []) {
     lines.push({
-      label: run.incidentCorrect ? 'Zwischenfall richtig gemeistert' : 'Zwischenfall falsch behandelt',
-      points: run.incidentCorrect ? INCIDENT_POINTS.correct : INCIDENT_POINTS.wrong,
+      label: r.correct ? 'Zwischenfall richtig gemeistert' : 'Zwischenfall falsch behandelt',
+      points: r.correct ? INCIDENT_POINTS.correct : INCIDENT_POINTS.wrong,
     });
   }
 
@@ -143,11 +145,15 @@ export function scoreRun(run: CaseRun, streakBefore = 0): ScoreResult {
   }
 
   const base = Math.max(0, lines.reduce((s, l) => s + l.points, 0));
-  const ratio = base / maxScore(medCase);
+  const ratio = base / maxScore(medCase, run.incidents?.length ?? 0);
   const stars = (ratio >= 0.85 ? 3 : ratio >= 0.6 ? 2 : ratio >= 0.3 ? 1 : 0) as ScoreResult['stars'];
 
   // Boni zählen nicht in die Sternewertung, erhöhen aber die EP.
   let bonus = 0;
+  if (medCase.extrem && stars >= 2) {
+    lines.push({ label: 'Extremfall gemeistert', points: POINTS.extremBonus });
+    bonus += POINTS.extremBonus;
+  }
   if (stars === 3) {
     lines.push({ label: 'Perfekter Einsatz', points: POINTS.perfectBonus });
     bonus += POINTS.perfectBonus;
@@ -164,8 +170,8 @@ export function scoreRun(run: CaseRun, streakBefore = 0): ScoreResult {
   return { lines, total, multiplier, diagnosisCorrect, missedKeyVitals, stars };
 }
 
-/** Bestmögliche Punktzahl: nur die wichtigen Werte messen und alles richtig machen. */
-export function maxScore(medCase: MedCase): number {
+/** Bestmögliche Punktzahl: nur die wichtigen Werte messen und alles richtig machen (`incidentCount`: Zwischenfälle im Einsatz). */
+export function maxScore(medCase: MedCase, incidentCount = 0): number {
   const ratableKeys = medCase.keyVitals.filter((id) => rateVital(id, medCase.vitals[id], medCase.patient.age) !== null).length;
   const correctTreatments = medCase.treatments.filter((t) => t.correct).length;
   return (
@@ -174,7 +180,7 @@ export function maxScore(medCase: MedCase): number {
     POINTS.conditionMax +
     POINTS.diagnosisCorrect +
     correctTreatments * POINTS.treatmentCorrect +
-    (INCIDENTS[medCase.id] ? INCIDENT_POINTS.correct : 0)
+    incidentCount * INCIDENT_POINTS.correct
   );
 }
 

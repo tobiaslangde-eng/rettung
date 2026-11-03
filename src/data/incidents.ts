@@ -1,3 +1,15 @@
+/** Art des Zwischenfalls: Der Patient verschlechtert sich, oder es ist etwas ganz anderes los. */
+export type IncidentArt = 'medizin' | 'gefahr' | 'umfeld' | 'technik' | 'team' | 'zeit';
+
+export const INCIDENT_ARTEN: Record<IncidentArt, { icon: string; titel: string }> = {
+  medizin: { icon: '⚠️', titel: 'Zwischenfall!' },
+  gefahr: { icon: '☢️', titel: 'Gefahr an der Einsatzstelle!' },
+  umfeld: { icon: '👥', titel: 'Unruhe vor Ort!' },
+  technik: { icon: '🔧', titel: 'Technik-Problem!' },
+  team: { icon: '📻', titel: 'Absprache im Team!' },
+  zeit: { icon: '⏱️', titel: 'Die Zeit drängt!' },
+};
+
 /** Zwischenfälle: Mitten in der Untersuchung passiert etwas, und ich muss sofort reagieren. */
 export interface Incident {
   /** Nach so vielen Messungen tritt der Zwischenfall ein */
@@ -6,6 +18,8 @@ export interface Incident {
   /** Die erste Option ist die richtige; im Spiel wird gemischt. */
   options: [string, string, string];
   explanation: string;
+  /** Fehlt die Angabe, ist es ein medizinischer Zwischenfall */
+  art?: IncidentArt;
 }
 
 export const INCIDENTS: Record<string, Incident> = {
