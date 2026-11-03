@@ -2,7 +2,8 @@ import { PatientGesicht } from '../components/Gesicht';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { DriveAnimation } from '../components/DriveAnimation';
-import { Bar, Button, Card, Led, Pill, StatChip, Tap, TopBar } from '../components/UI';
+import { Button, Card, Led, Pill, StatChip, Tap, TopBar } from '../components/UI';
+import { ZustandsAnzeige } from '../components/ZustandsAnzeige';
 import { AskKati, Kati } from '../components/Kati';
 import { MedCase } from '../data/cases';
 import { INCIDENT_ARTEN, INCIDENT_CONDITION, Incident } from '../data/incidents';
@@ -30,18 +31,6 @@ const RATINGS: { value: Rating; label: string; symbol: string }[] = [
   { value: 'normal', label: 'normal', symbol: '✓' },
   { value: 'hoch', label: 'hoch', symbol: '↑' },
 ];
-
-function mood(condition: number) {
-  if (condition >= 70) return '🙂';
-  if (condition >= 40) return '😣';
-  return '😵';
-}
-
-function conditionColor(condition: number) {
-  if (condition >= 70) return colors.mint;
-  if (condition >= 40) return colors.orange;
-  return colors.red;
-}
 
 /** Farbe der drei Einstufungs-Knöpfe (verrät nicht die richtige Antwort) */
 const RATE_COLOR: Record<Rating, string> = { niedrig: '#9BD8FF', normal: '#8CF0C8', hoch: '#FFB38A' };
@@ -267,21 +256,14 @@ export function CaseScreen({
         ))}
       </View>
       {phase !== 'alarm' && (
-        <View style={styles.condition}>
-          <View style={styles.moodCircle}>
-            <Text style={styles.mood}>{mood(condition)}</Text>
-          </View>
-          <View style={{ flex: 1, gap: 4 }}>
-            <View style={styles.conditionHead}>
-              <Text style={styles.conditionLabel} numberOfLines={1}>
-                Zustand von {firstName}
-                {draining ? ' · verschlechtert sich!' : ''}
-              </Text>
-              <Text style={styles.conditionValue}>{Math.round(condition)}%</Text>
-            </View>
-            <Bar pct={condition / 100} color={conditionColor(condition)} height={14} />
-          </View>
-        </View>
+        <ZustandsAnzeige
+          zustand={condition}
+          vorname={firstName}
+          alter={p.age}
+          geschlecht={p.sex}
+          kennung={p.name}
+          verschlechtert={draining}
+        />
       )}
 
       <ScrollView
@@ -636,33 +618,6 @@ const styles = StyleSheet.create({
   stepNum: { fontFamily: fonts.displayBlack, fontSize: 13, color: colors.onBright },
   stepText: { fontFamily: fonts.mono, fontSize: 10, color: colors.muted, letterSpacing: 0.3 },
 
-  condition: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginHorizontal: spacing.lg,
-    marginBottom: spacing.xs,
-    padding: spacing.sm,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 18,
-    ...hardShadow(3),
-  },
-  moodCircle: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: colors.yellowTint,
-    borderWidth: 1,
-    borderColor: colors.line,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mood: { fontFamily: fonts.regular, fontSize: 22, lineHeight: 28 },
-  conditionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: spacing.sm },
-  conditionLabel: { ...type.eyebrow, flex: 1, fontSize: 10.5 },
-  conditionValue: { fontFamily: fonts.displayBlack, fontSize: 16, color: colors.ink, letterSpacing: -0.4 },
 
   // Etikett (Karteireiter) und Textblöcke
   label: {
