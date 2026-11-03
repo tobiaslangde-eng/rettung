@@ -11,6 +11,7 @@ import { HELFER_FAELLE, HelferFall } from './src/data/helfer';
 import { Badge, awardBadges } from './src/game/achievements';
 import { CprResult } from './src/game/cpr';
 import { DAILY_CASE_BONUS, dailyCase, dailyHelferFall, registerDailyCase } from './src/game/daily';
+import { Verlauf, leererVerlauf, merkeEinsatz, waehleEinsatz } from './src/game/auswahl';
 import { DIFFICULTY_BY_ID, Difficulty } from './src/game/difficulty';
 import { HilfId, hilfKaufen } from './src/game/hilfspunkt';
 import { WacheId, wacheKaufen } from './src/game/wache';
@@ -215,15 +216,6 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   guide: 'guide',
 };
 
-/** Wählt passend zur Schwierigkeit bevorzugt ungemeisterte Fälle, nie denselben Fall zweimal hintereinander. */
-function pickCase(progress: Progress, lastId?: string): MedCase {
-  const levels = DIFFICULTY_BY_ID[progress.difficulty].caseLevels;
-  const pool = CASES.filter((c) => levels.includes(c.difficulty) && c.id !== lastId);
-  const open = pool.filter((c) => (progress.bestStars[c.id] ?? 0) < 3);
-  const from = open.length > 0 ? open : pool;
-  return from[Math.floor(Math.random() * from.length)];
-}
-
 /** Ersthelfer-Notfall: bevorzugt noch nicht gemeisterte, nie zweimal derselbe hintereinander */
 function pickHelferFall(progress: Progress, lastId?: string): HelferFall {
   const pool = HELFER_FAELLE.filter((c) => c.id !== lastId);
@@ -248,6 +240,8 @@ export default function App() {
     if (raumPin.current) loescheRaumLink();
   }, []);
   const lastCaseId = useRef<string | undefined>(undefined);
+  /** Zuletzt gespielte Einsätze: damit nicht immer dieselben Fälle kommen */
+  const verlauf = useRef<Verlauf>(leererVerlauf());
   // Stadtkarte: offene Einsätze, Rückkehr zur Karte nach dem Einsatz und Bonus für kurze Anfahrt
   // Kurze Meldung oben (z. B. Serie, neue Urkunde)
   const [meldung, setMeldung] = useState<string | null>(null);
@@ -300,6 +294,7 @@ export default function App() {
     setAktiveRolle(r);
     const p = await loadProgress(r);
     lastCaseId.current = undefined;
+    verlauf.current = leererVerlauf();
     setProgress(p);
     setRolle(r);
     setScreen({ name: 'home' });
@@ -312,8 +307,9 @@ export default function App() {
       lastCaseId.current = fall.id;
       return setScreen({ name: 'helfer', fall, daily, key: Date.now() });
     }
-    const medCase = daily ? dailyCase(progress) : pickCase(progress, lastCaseId.current);
+    const medCase = daily ? dailyCase(progress) : waehleEinsatz(CASES, progress, verlauf.current);
     lastCaseId.current = medCase.id;
+    merkeEinsatz(verlauf.current, medCase);
     setScreen({ name: 'case', medCase, daily, key: Date.now() });
   };
   const startCase = (daily = false) => {
@@ -578,14 +574,14 @@ export default function App() {
     }
     if (karteRueck.current) {
       karteRueck.current = false;
-      setKartenPins(fuelleKarte(aktiv, progress, kartenPins, lastCaseId.current));
+      setKartenPins(fuelleKarte(aktiv, progress, kartenPins, lastCaseId.current, verlauf.current.ids));
       return setScreen({ name: 'karte' });
     }
     setScreen({ name: 'home' });
   };
   const oeffneKarte = () => {
     karteRueck.current = false;
-    if (kartenPins.length < 3) setKartenPins(fuelleKarte(aktiv, progress, kartenPins, lastCaseId.current));
+    if (kartenPins.length < 3) setKartenPins(fuelleKarte(aktiv, progress, kartenPins, lastCaseId.current, verlauf.current.ids));
     setScreen({ name: 'karte' });
   };
   /** Einsatz von der Karte starten */
@@ -604,7 +600,10 @@ export default function App() {
       if (fall) return setScreen({ name: 'helfer', fall, daily: false, key: Date.now() });
     } else {
       const medCase = CASES.find((c) => c.id === pin.fallId);
-      if (medCase) return setScreen({ name: 'case', medCase, daily: false, key: Date.now() });
+      if (medCase) {
+        merkeEinsatz(verlauf.current, medCase);
+        return setScreen({ name: 'case', medCase, daily: false, key: Date.now() });
+      }
     }
     karteRueck.current = false;
     setScreen({ name: 'karte' });

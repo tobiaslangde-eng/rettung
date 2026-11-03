@@ -324,6 +324,7 @@ export function GuideScreen({
             <Row label="Zwischenfall falsch behandelt" pts={INCIDENT_POINTS.wrong} />
             <Row label="Tipp von Kati (nur auf Mittel)" pts={-10} />
             <Row label="Perfekter Einsatz (3 Sterne)" pts={POINTS.perfectBonus} />
+            <Row label="Extremfall 🔥 gemeistert (ab 2 Sterne)" pts={POINTS.extremBonus} />
             <Row label={`Serienbonus je gutem Einsatz in Folge (max. ${POINTS.streakMax})`} pts={POINTS.streakPerLevel} />
             <Row label="Neues Abzeichen" pts={BADGE_BONUS} />
             <Row label="Einsatz des Tages" pts={0} text="+50 %" />

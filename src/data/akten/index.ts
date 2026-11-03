@@ -1,4 +1,4 @@
-import { CASES, MedCase } from '../cases';
+import { BASIS_CASES, MedCase } from '../casesBasis';
 import { AKTEN_ATMUNG, BILDER_ATMUNG } from './atmung';
 import { AKTEN_BAUCH, BILDER_BAUCH } from './bauch';
 import { AKTEN_FRAUEN, BILDER_FRAUEN } from './frauen';
@@ -19,7 +19,7 @@ export type { AktenBild, DetektivFall, Kategorie } from './types';
  * Die 28 Einsatz-Fälle sind die ersten Akten (ihre Kennungen stehen im Spielstand), dazu kommen weitere Situationen
  * und weitere Krankheitsbilder aus den Dateien dieses Ordners.
  */
-const BASIS_KATEGORIE: Record<string, Kategorie> = {
+export const BASIS_KATEGORIE: Record<string, Kategorie> = {
   stemi: 'herz',
   hypertensiv: 'herz',
   lungenoedem: 'herz',
@@ -56,7 +56,7 @@ const DIAGNOSE: Record<string, string> = {
   krampf: 'Epileptischer Krampfanfall',
 };
 
-const BASIS_BILDER: AktenBild[] = CASES.map((c) => ({
+const BASIS_BILDER: AktenBild[] = BASIS_CASES.map((c) => ({
   id: c.id,
   diagnosis: DIAGNOSE[c.id] ?? c.diagnosis,
   kategorie: BASIS_KATEGORIE[c.id],
@@ -121,6 +121,6 @@ function ausAkte(f: AktenFall): DetektivFall {
 }
 
 /** Alle Akten in fester Reihenfolge (die Aktennummer im Spiel ist die Position + 1) */
-export const AKTEN: DetektivFall[] = [...CASES.map(ausEinsatzFall), ...NEUE_FAELLE.map(ausAkte)];
+export const AKTEN: DetektivFall[] = [...BASIS_CASES.map(ausEinsatzFall), ...NEUE_FAELLE.map(ausAkte)];
 
 export const AKTE_BY_ID = new Map(AKTEN.map((a) => [a.id, a]));

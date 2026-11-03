@@ -1,5 +1,5 @@
 import { BASICS } from '../data/basics';
-import { CASES } from '../data/cases';
+import { KRANKHEITSBILDER } from '../data/cases';
 import { HELFER_FRAGEN } from '../data/helferFragen';
 import { HELFER_FRAGEN_2 } from '../data/helferFragen2';
 import { HELFER_LEXIKON } from '../data/helferLexikon';
@@ -411,7 +411,7 @@ function baue(rolle: Rolle) {
         ),
       ),
     );
-    CASES.forEach((c) =>
+    KRANKHEITSBILDER.forEach((c) =>
       liste.push(
         eintrag(
           {

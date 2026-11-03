@@ -5,7 +5,8 @@ import { DriveAnimation } from '../components/DriveAnimation';
 import { Bar, Button, Card, Led, Pill, StatChip, Tap, TopBar } from '../components/UI';
 import { AskKati, Kati } from '../components/Kati';
 import { MedCase } from '../data/cases';
-import { INCIDENTS, INCIDENT_CONDITION } from '../data/incidents';
+import { INCIDENT_ARTEN, INCIDENT_CONDITION, Incident } from '../data/incidents';
+import { planeZwischenfaelle } from '../game/zwischenfall';
 import { Rating, VITALS, VITAL_BY_ID, VitalId, formatVital, normalText, rateVital } from '../data/vitals';
 import { DifficultyDef, HINT_COST } from '../game/difficulty';
 import { EquipmentEffects } from '../game/equipment';
@@ -115,10 +116,13 @@ export function CaseScreen({
   const [hintsUsed, setHintsUsed] = useState(0);
   const [examHint, setExamHint] = useState(difficulty.hints === 'gratis');
   const [fiftyFifty, setFiftyFifty] = useState(false);
-  const incident = INCIDENTS[medCase.id];
+  /** Zwischenfälle dieses Durchgangs (wechseln von Mal zu Mal; Extremfälle haben mehrere nacheinander) */
+  const incidents = useMemo(() => planeZwischenfaelle(medCase, difficulty.id), [medCase, difficulty.id]);
+  const [incidentIdx, setIncidentIdx] = useState(0);
+  const incident: Incident | undefined = incidents[incidentIdx];
   const incidentOptions = useMemo(() => (incident ? shuffle(incident.options) : []), [incident]);
   const [incidentChoice, setIncidentChoice] = useState<string | null>(null);
-  const [incidentClosed, setIncidentClosed] = useState(false);
+  const [incidentResults, setIncidentResults] = useState<boolean[]>([]);
   /** Ich wollte schon zur Diagnose, bevor der Zwischenfall kam – danach geht es direkt weiter. */
   const [wantsDiagnosis, setWantsDiagnosis] = useState(false);
 
@@ -134,7 +138,6 @@ export function CaseScreen({
     !!incident &&
     phase === 'exam' &&
     !pending &&
-    !incidentClosed &&
     (measured.length >= incident.afterMeasurements || wantsDiagnosis);
   const draining = difficulty.drainPerSecond > 0 && (phase === 'exam' || (phase === 'diagnosis' && !diagnosisLocked));
   useEffect(() => {
@@ -173,20 +176,22 @@ export function CaseScreen({
   const chooseIncident = (option: string) => {
     if (incidentChoice) return;
     setIncidentChoice(option);
+    const ok = option === incident!.options[0];
+    setIncidentResults((r) => [...r, ok]);
     // Auf „Schwer“ ohne Sofort-Feedback wirkt die Entscheidung erst am Ende.
     if (difficulty.instantFeedback) {
-      const ok = option === incident!.options[0];
       setCondition((c) => clampCondition(c + (ok ? INCIDENT_CONDITION.correct : INCIDENT_CONDITION.wrong)));
     }
   };
 
   const closeIncident = () => {
-    setIncidentClosed(true);
-    if (wantsDiagnosis) goto('diagnosis');
+    setIncidentChoice(null);
+    setIncidentIdx((i) => i + 1);
+    if (wantsDiagnosis && incidentIdx + 1 >= incidents.length) goto('diagnosis');
   };
 
   const toDiagnosis = () => {
-    if (incident && !incidentClosed) setWantsDiagnosis(true);
+    if (incident) setWantsDiagnosis(true);
     else goto('diagnosis');
   };
 
@@ -206,9 +211,8 @@ export function CaseScreen({
     for (const i of treatmentGuess) {
       c += medCase.treatments[i].correct ? CONDITION.treatmentCorrect : CONDITION.treatmentWrong;
     }
-    const incidentCorrect = incident && incidentChoice ? incidentChoice === incident.options[0] : undefined;
-    if (incidentCorrect !== undefined && !difficulty.instantFeedback) {
-      c += incidentCorrect ? INCIDENT_CONDITION.correct : INCIDENT_CONDITION.wrong;
+    if (!difficulty.instantFeedback) {
+      for (const ok of incidentResults) c += ok ? INCIDENT_CONDITION.correct : INCIDENT_CONDITION.wrong;
     }
     onFinish({
       medCase,
@@ -218,7 +222,7 @@ export function CaseScreen({
       difficulty: difficulty.id,
       condition: clampCondition(c + equipment.endBonus),
       hintsUsed,
-      incidentCorrect,
+      incidents: incidentResults.map((correct, i) => ({ incident: incidents[i], correct })),
     });
   };
 
@@ -290,6 +294,7 @@ export function CaseScreen({
         {phase === 'alarm' && (
           <>
             {daily && <Pill label="⭐ Einsatz des Tages · +50 % EP" color={colors.yellow} />}
+            {medCase.extrem && <Pill label="🔥 Extremfall · mehrere Zwischenfälle · +40 EP Bonus" color={colors.red} />}
             <Pager dispatch={`Leitstelle: „${medCase.dispatch}“`} location={medCase.location} />
             <Card style={styles.patientCard}>
               <PatientGesicht age={p.age} sex={p.sex} seed={medCase.id} size={56} />
@@ -532,7 +537,14 @@ export function CaseScreen({
       {incidentActive && incident && (
         <View style={styles.incident}>
           <View style={[styles.incidentBody, { paddingHorizontal: sidePad }]}>
-            <Text style={styles.incidentEyebrow}>⚠️ Zwischenfall!</Text>
+            <Text style={styles.incidentEyebrow}>
+              {INCIDENT_ARTEN[incident.art ?? 'medizin'].icon} {INCIDENT_ARTEN[incident.art ?? 'medizin'].titel}
+            </Text>
+            {incidents.length > 1 && (
+              <Text style={styles.incidentFeedback}>
+                {medCase.extrem ? '🔥 Extremfall' : 'Einsatz'} · Zwischenfall {incidentIdx + 1} von {incidents.length}
+              </Text>
+            )}
             <Text style={styles.incidentText}>{incident.text}</Text>
             {incidentOptions.map((o) => {
               const chosen = incidentChoice === o;

@@ -1,5 +1,6 @@
 import { KATEGORIEN } from '../data/akten';
 import { CASES } from '../data/cases';
+import { BASIS_CASES } from '../data/casesBasis';
 import { HELFER_FAELLE } from '../data/helfer';
 import { Rolle, aktiveRolle } from './rolle';
 import { aktenListe, archiveCount, archivNachKategorie, detectiveGrades } from './detective';
@@ -19,9 +20,15 @@ export interface Badge {
 /** Bonuspunkte für jedes neu freigeschaltete Abzeichen */
 export const BADGE_BONUS = 50;
 
-/** Einsätze der aktiven Rolle (gleiche Felder für id, Schwierigkeit und Patient) */
+/**
+ * Einsätze der aktiven Rolle (gleiche Felder für id, Schwierigkeit und Patient).
+ * Beim Sanitätsdienst zählen für die „Alles“-Abzeichen die 28 Grundfälle; die vielen weiteren Einsätze sind Zugabe.
+ */
 const faelle = (): { id: string; difficulty: 1 | 2 | 3; patient: { age: number } }[] =>
-  aktiveRolle() === 'helfer' ? HELFER_FAELLE : CASES;
+  aktiveRolle() === 'helfer' ? HELFER_FAELLE : BASIS_CASES;
+
+const extremGemeistert = (p: Progress) => CASES.filter((c) => c.extrem && (p.bestStars[c.id] ?? 0) >= 2).length;
+const bereicheGespielt = (p: Progress) => new Set(CASES.filter((c) => c.id in p.bestStars && c.kategorie).map((c) => c.kategorie)).size;
 
 const mastered = (p: Progress, level?: 1 | 2 | 3) =>
   faelle().filter((c) => (level === undefined || c.difficulty === level) && (p.bestStars[c.id] ?? 0) >= 3).length;
@@ -62,7 +69,7 @@ export const BADGES: Badge[] = [
     id: 'basis',
     icon: '✅',
     title: 'Basis sitzt',
-    description: 'Alle leichten Fälle mit 3 Sternen',
+    description: 'Alle leichten Grundfälle mit 3 Sternen',
     earned: (p) => mastered(p, 1) === faelle().filter((c) => c.difficulty === 1).length,
   },
   {
@@ -85,7 +92,7 @@ export const BADGES: Badge[] = [
     id: 'gesehen',
     icon: '🗺️',
     title: 'Alles gesehen',
-    description: 'Jeden Fall mindestens einmal gespielt',
+    description: 'Jeden der Grundfälle mindestens einmal gespielt',
     earned: (p) => faelle().every((c) => c.id in p.bestStars),
   },
   {
@@ -128,7 +135,7 @@ export const BADGES: Badge[] = [
     id: 'kinder',
     icon: '🧸',
     title: 'Kinderretter/in',
-    description: 'Alle Kinder-Einsätze mit mindestens 2 Sternen',
+    description: 'Alle Kinder-Grundfälle mit mindestens 2 Sternen',
     earned: (p) => kids().every((c) => (p.bestStars[c.id] ?? 0) >= 2),
   },
   {
@@ -275,10 +282,34 @@ export const BADGES: Badge[] = [
     earned: (p) => p.kartenRouten >= 5,
   },
   {
+    id: 'extrem1',
+    icon: '🔥',
+    title: 'Extremfall gemeistert',
+    description: 'Einen Extremfall mit mindestens 2 Sternen abgeschlossen',
+    nur: 'sani',
+    earned: (p) => extremGemeistert(p) >= 1,
+  },
+  {
+    id: 'extrem10',
+    icon: '🚒',
+    title: 'Krisenprofi',
+    description: '10 Extremfälle mit mindestens 2 Sternen gemeistert',
+    nur: 'sani',
+    earned: (p) => extremGemeistert(p) >= 10,
+  },
+  {
+    id: 'bereiche',
+    icon: '🧭',
+    title: 'Vielseitig',
+    description: 'Einsätze aus allen acht Bereichen gespielt (Herz, Atmung, Nerven, Stoffwechsel, Verletzungen, Umwelt, Kinder, Geburt)',
+    nur: 'sani',
+    earned: (p) => bereicheGespielt(p) >= 8,
+  },
+  {
     id: 'meister',
     icon: '🏆',
     title: 'Meister/in',
-    description: 'Alle Fälle mit 3 Sternen gemeistert',
+    description: 'Alle Grundfälle mit 3 Sternen gemeistert',
     earned: (p) => mastered(p) === faelle().length,
   },
 ];

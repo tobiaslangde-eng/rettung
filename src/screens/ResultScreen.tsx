@@ -5,7 +5,7 @@ import { Button, Card, Eyebrow, TopBar } from '../components/UI';
 import { ergebnisKarteSvg } from '../game/karten';
 import { useRolle } from '../game/rolle';
 import { EcgStrip, RankBadge, RatingStar } from '../components/Ems';
-import { INCIDENTS } from '../data/incidents';
+import { INCIDENT_ARTEN } from '../data/incidents';
 import { VITAL_BY_ID, formatVital, rateVital } from '../data/vitals';
 import { BADGE_BONUS, Badge } from '../game/achievements';
 import { DAILY_GOAL } from '../game/daily';
@@ -167,17 +167,17 @@ export function ResultScreen({
                 ))}
               </Card>
 
-              {INCIDENTS[c.id] && run.incidentCorrect !== undefined && (
-                <Card style={{ borderLeftColor: run.incidentCorrect ? colors.mint : colors.red }}>
-                  <Eyebrow title="Zwischenfall" />
-                  <Text style={[type.body, { marginTop: spacing.xs, fontFamily: fonts.italic }]}>{INCIDENTS[c.id].text}</Text>
+              {(run.incidents ?? []).map((r, i) => (
+                <Card key={i} style={{ borderLeftColor: r.correct ? colors.mint : colors.red }}>
+                  <Eyebrow title={r.incident.art && r.incident.art !== 'medizin' ? INCIDENT_ARTEN[r.incident.art].titel.replace('!', '') : 'Zwischenfall'} />
+                  <Text style={[type.body, { marginTop: spacing.xs, fontFamily: fonts.italic }]}>{r.incident.text}</Text>
                   <Text style={[type.body, { marginTop: spacing.sm, fontFamily: fonts.bold }]}>
-                    {run.incidentCorrect ? '✓ ' : '✗ Richtig wäre: '}
-                    {INCIDENTS[c.id].options[0]}
+                    {r.correct ? '✓ ' : '✗ Richtig wäre: '}
+                    {r.incident.options[0]}
                   </Text>
-                  <Text style={[type.small, { marginTop: spacing.xs }]}>{INCIDENTS[c.id].explanation}</Text>
+                  <Text style={[type.small, { marginTop: spacing.xs }]}>{r.incident.explanation}</Text>
                 </Card>
-              )}
+              ))}
 
               <Card style={{ borderLeftColor: colors.ink }}>
                 <Eyebrow title="Meine Messwerte" />
