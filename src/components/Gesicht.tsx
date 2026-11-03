@@ -8,9 +8,30 @@ const KONTUR = '#0F2A2E';
 
 export const hashWert = (s: string) => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
 
-/** Porträt eines Patienten: Alter, Geschlecht und Aussehen ergeben sich aus Alter, Geschlecht und einer Kennung */
-export function PatientGesicht({ age, sex, seed, size = 56 }: { age: number; sex: 'm' | 'w'; seed: string; size?: number }) {
+/**
+ * Porträt eines Patienten: Alter, Geschlecht und Aussehen ergeben sich aus Alter, Geschlecht und einer Kennung.
+ * Mit `zustand` (0–100) zeigt das Gesicht, wie es dem Patienten geht: blass, Schweiß, müde Augen, Sorgenfalten.
+ */
+export function PatientGesicht({
+  age,
+  sex,
+  seed,
+  size = 56,
+  zustand,
+}: {
+  age: number;
+  sex: 'm' | 'w';
+  seed: string;
+  size?: number;
+  zustand?: number;
+}) {
   const k = hashWert(seed);
+  const z = zustand === undefined ? 100 : Math.max(0, Math.min(100, zustand));
+  const blass = z >= 70 ? 0 : Math.min(0.62, ((70 - z) / 70) * 0.62);
+  const sorge = z < 70;
+  const schweiss = z < 62;
+  const muede = z < 55;
+  const augenZu = z < 40 ? (z < 20 ? 0.85 : 0.5) : 0;
   const haut = HAUTTOENE[k % HAUTTOENE.length];
   const baby = age <= 1;
   const kind = age > 1 && age <= 12;
@@ -63,8 +84,8 @@ export function PatientGesicht({ age, sex, seed, size = 56 }: { age: number; sex
           )}
           {!baby && stil === 'dutt' && <Circle cx={28} cy={cy - ry - 3} r={4.6} fill={haarFarbe} />}
           {/* Augenbrauen */}
-          <Path d={`M${28 - augeAbstand - 2.4} ${augeY - 3.6} Q${28 - augeAbstand} ${augeY - 4.8} ${28 - augeAbstand + 2.4} ${augeY - 3.7}`} stroke={alt ? '#9A9A9E' : haarFarbe} strokeWidth={1.2} strokeLinecap="round" fill="none" />
-          <Path d={`M${28 + augeAbstand - 2.4} ${augeY - 3.7} Q${28 + augeAbstand} ${augeY - 4.8} ${28 + augeAbstand + 2.4} ${augeY - 3.6}`} stroke={alt ? '#9A9A9E' : haarFarbe} strokeWidth={1.2} strokeLinecap="round" fill="none" />
+          <Path d={sorge ? `M${28 - augeAbstand - 2.4} ${augeY - 3} Q${28 - augeAbstand} ${augeY - 4.4} ${28 - augeAbstand + 2.4} ${augeY - 5.4}` : `M${28 - augeAbstand - 2.4} ${augeY - 3.6} Q${28 - augeAbstand} ${augeY - 4.8} ${28 - augeAbstand + 2.4} ${augeY - 3.7}`} stroke={alt ? '#9A9A9E' : haarFarbe} strokeWidth={1.2} strokeLinecap="round" fill="none" />
+          <Path d={sorge ? `M${28 + augeAbstand - 2.4} ${augeY - 5.4} Q${28 + augeAbstand} ${augeY - 4.4} ${28 + augeAbstand + 2.4} ${augeY - 3}` : `M${28 + augeAbstand - 2.4} ${augeY - 3.7} Q${28 + augeAbstand} ${augeY - 4.8} ${28 + augeAbstand + 2.4} ${augeY - 3.6}`} stroke={alt ? '#9A9A9E' : haarFarbe} strokeWidth={1.2} strokeLinecap="round" fill="none" />
           {/* Augen */}
           {[-1, 1].map((d) => (
             <G key={d}>
@@ -73,6 +94,15 @@ export function PatientGesicht({ age, sex, seed, size = 56 }: { age: number; sex
               <Circle cx={28 + d * augeAbstand + 0.5} cy={augeY - 0.4} r={0.45} fill="#FFFFFF" />
             </G>
           ))}
+          {/* Müde Augen: Ringe darunter, Lider fallen zu */}
+          {muede &&
+            [-1, 1].map((d) => (
+              <Ellipse key={`r${d}`} cx={28 + d * augeAbstand} cy={augeY + 3.1} rx={3} ry={1.1} fill="#7A5F8C" opacity={0.28} />
+            ))}
+          {augenZu > 0 &&
+            [-1, 1].map((d) => (
+              <Rect key={`l${d}`} x={28 + d * augeAbstand - 3} y={augeY - 3} width={6} height={6 * augenZu} rx={1.5} fill={haut} />
+            ))}
           {brille && (
             <G stroke={KONTUR} strokeWidth={0.9} fill="none">
               <Circle cx={28 - augeAbstand} cy={augeY} r={3.9} />
@@ -82,10 +112,32 @@ export function PatientGesicht({ age, sex, seed, size = 56 }: { age: number; sex
           )}
           {/* Nase und Mund */}
           <Path d={`M28 ${augeY + 2.6} Q29.8 ${augeY + 5.2} 27.6 ${augeY + 5.6}`} stroke="rgba(120,70,40,0.55)" strokeWidth={0.9} strokeLinecap="round" fill="none" />
-          <Path d={`M${25} ${augeY + 8.4} Q28 ${augeY + 10.4} ${31} ${augeY + 8.4}`} stroke="#9A4B3C" strokeWidth={1.2} strokeLinecap="round" fill="none" />
+          <Path
+            d={
+              z >= 70
+                ? `M${25} ${augeY + 8.4} Q28 ${augeY + 10.4} ${31} ${augeY + 8.4}`
+                : z >= 40
+                  ? `M${25} ${augeY + 9.2} Q28 ${augeY + 9.2} ${31} ${augeY + 9.2}`
+                  : `M${25} ${augeY + 10.2} Q28 ${augeY + 8} ${31} ${augeY + 10.2}`
+            }
+            stroke="#9A4B3C"
+            strokeWidth={1.2}
+            strokeLinecap="round"
+            fill="none"
+          />
           {/* Wangen */}
-          <Circle cx={28 - 7.6} cy={augeY + 5.8} r={2.2} fill="#FF8FA0" opacity={0.28} />
-          <Circle cx={28 + 7.6} cy={augeY + 5.8} r={2.2} fill="#FF8FA0" opacity={0.28} />
+          <Circle cx={28 - 7.6} cy={augeY + 5.8} r={2.2} fill="#FF8FA0" opacity={0.28 * (z / 100)} />
+          <Circle cx={28 + 7.6} cy={augeY + 5.8} r={2.2} fill="#FF8FA0" opacity={0.28 * (z / 100)} />
+          {/* Blässe: das Gesicht wird fahl */}
+          {blass > 0 && <Ellipse cx={28} cy={cy} rx={rx} ry={ry} fill="#C7D6CC" opacity={blass} />}
+          {/* Schweißtropfen auf der Stirn */}
+          {schweiss && (
+            <G fill="#9AD0F0" opacity={0.9}>
+              <Path d={`M${28 - 6} ${cy - 8} q1.1 1.8 0 2.6 q-1.1 -0.8 0 -2.6 Z`} />
+              <Path d={`M${28 + 5} ${cy - 9.6} q1.1 1.8 0 2.6 q-1.1 -0.8 0 -2.6 Z`} />
+              {z < 45 && <Path d={`M${28 + 9} ${cy - 3} q1.1 1.8 0 2.6 q-1.1 -0.8 0 -2.6 Z`} />}
+            </G>
+          )}
           {/* Falten bei älteren Menschen */}
           {alt && (
             <G stroke="rgba(120,70,40,0.45)" strokeWidth={0.7} strokeLinecap="round" fill="none">

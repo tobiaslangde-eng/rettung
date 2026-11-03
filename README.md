@@ -135,7 +135,7 @@ Weg in den Rettungsdienst.
   mit Live-Anzeige, Taktgeber (abschaltbar für doppelte EP) und Auswertung der Beatmungspause
 - **Training Wissensfragen:** 48 Fragen aus dem Einsatzalltag, je 10 pro Runde, mit Erklärung
 - **Training Normwerte:** 10 zufällige Messwerte in Folge als niedrig, normal oder hoch einstufen
-- **Zustandsbalken** des Patienten: Jede Messung kostet Kraft, Fehler schaden, richtige Maßnahmen helfen
+- **Zustandsanzeige** des Patienten: Das Gesicht wird blass, schwitzt und wird müde, daneben läuft ein Herzmonitor, dessen Kurve bei schlechtem Zustand schneller, flacher und unruhiger wird; unter 40 % blinkt „KRITISCH“. Ein Tipp wechselt zur einfachen Balkenanzeige. Jede Messung kostet Kraft, Fehler schaden, richtige Maßnahmen helfen
 - **Kati**, meine Kollegin, gibt Tipps und kann zwei falsche Diagnosen ausschließen (50:50)
 - **21 Abzeichen** (z. B. „Lehrbuchreif“, „Taktgefühl“, „Dienstwoche“) mit je 50 Bonuspunkten
 - **Bonuspunkte** für perfekte Einsätze und Serien 🔥, **8 Dienstgrade** von *Praktikant/in* bis zur
