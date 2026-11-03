@@ -129,6 +129,10 @@ export interface Progress {
   spickGesehen: string[];
   /** Rückmeldung wurde schon gegeben */
   feedbackGegeben: boolean;
+  /** Wochen-Challenge: Kalenderwoche, Einsätze aus dem Wochenthema und ob sie geschafft ist */
+  challengeWoche: string;
+  challengeFaelle: number;
+  challengeFertig: boolean;
 }
 
 export const EMPTY_PROGRESS: Progress = {
@@ -188,6 +192,9 @@ export const EMPTY_PROGRESS: Progress = {
   ekgRichtig: 0,
   spickGesehen: [],
   feedbackGegeben: false,
+  challengeWoche: '',
+  challengeFaelle: 0,
+  challengeFertig: false,
 };
 
 const BAK = '.bak';

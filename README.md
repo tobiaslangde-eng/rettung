@@ -107,6 +107,13 @@ Weg in den Rettungsdienst.
   🔧 Technik-Problem (Gerät fällt aus, Sauerstoff knapp), 📻 Absprache im Team und ⏱️ Zeitdruck. Bei jedem Durchgang
   wird einer der Zwischenfälle des Einsatzes gezogen, manchmal kommt einer aus der Lage vor Ort dazu – derselbe Einsatz
   fühlt sich also nicht jedes Mal gleich an.
+- **Echter Kollaps:** Fällt der Zustand des Patienten unter 15 %, kollabiert er einmal im Einsatz (Kreislaufstillstand,
+  für Kinder mit eigener Kinder-Variante): sofort richtig reagieren, sonst wird es noch schlimmer. Zählt nicht in die Höchstpunktzahl.
+- **Monitor-Ton:** Mit „Ton an“ piept der Herzmonitor im Takt des Herzschlags (Web), bei kritischem Zustand höher.
+- **Mein Lernstand** (Training → Spielmodi): Auswertung nach Bereichen (gespielt/gemeistert), Stärken und Lücken.
+- **Wiederholen:** startet bevorzugt Einsätze, die ich nur mit höchstens einem Stern geschafft habe.
+- **Wochen-Challenge (Sanitätsdienst):** Jede Kalenderwoche ein Thema (Herz, Atmung, Verletzungen …) – 5 Einsätze daraus bringen
+  +100 EP. Das Thema wechselt für alle Spieler gleich.
 - **Extremfälle (🔥):** 20 außergewöhnlich schwere Lagen (Polytrauma, Ertrinken eines Kleinkinds, Messerstich, Rauchgas im
   Keller, Aortenriss, Geburt auf dem Parkplatz …) mit drei Zwischenfällen nacheinander. Es gibt +40 EP Bonus ab zwei Sternen;
   sie kommen nur auf „Schwer“ vor und nie zweimal hintereinander.

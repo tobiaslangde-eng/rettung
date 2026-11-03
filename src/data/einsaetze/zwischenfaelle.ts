@@ -406,3 +406,30 @@ export const ZF_BASIS: Record<string, Incident[]> = {
     },
   ],
 };
+
+/** Kollaps bei sehr schlechtem Zustand (Erwachsene und Kinder) – `{name}` wird durch den Vornamen ersetzt */
+export const KOLLAPS_ERWACHSENER: Incident = {
+  art: 'kollaps',
+  kollaps: true,
+  afterMeasurements: 0,
+  text: '{name} reagiert plötzlich nicht mehr, sackt zur Seite und atmet nicht normal. Der Zustand war zu schlecht – das Herz gibt auf!',
+  options: [
+    'Sofort mit der Wiederbelebung beginnen (30:2), Defibrillator anlegen, Notarzt nachfordern',
+    'Zuerst noch einmal alle Messwerte kontrollieren, bevor ich eine Maßnahme ergreife',
+    'In die stabile Seitenlage bringen und abwarten, ob {name} von allein wieder zu sich kommt',
+  ],
+  explanation: 'Reagiert ein Mensch nicht und atmet nicht normal, ist das ein Kreislaufstillstand: sofort drücken, Defibrillator holen, Notarzt rufen. Jede Minute ohne Wiederbelebung senkt die Überlebenschance.',
+};
+
+export const KOLLAPS_KIND: Incident = {
+  art: 'kollaps',
+  kollaps: true,
+  afterMeasurements: 0,
+  text: '{name} wird schlaff, reagiert nicht mehr und atmet nicht normal. Der Zustand war zu schlecht – das Herz bleibt stehen!',
+  options: [
+    'Sofort 5 Beatmungen, dann Herzdruckmassage und Beatmung im Wechsel (15:2), Notarzt nachfordern',
+    'Das Kind kräftig schütteln und laut ansprechen, bis es wieder zu sich kommt',
+    'Das Kind in die Seitenlage bringen und die Eltern bitten, es genau zu beobachten',
+  ],
+  explanation: 'Bei Kindern entsteht der Kreislaufstillstand meist durch Sauerstoffmangel. Deshalb zuerst fünf Beatmungen, dann Herzdruckmassage und Beatmung im Wechsel – und sofort den Notarzt rufen.',
+};

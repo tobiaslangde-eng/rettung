@@ -133,7 +133,9 @@ export function scoreRun(run: CaseRun, streakBefore = 0): ScoreResult {
 
   for (const r of run.incidents ?? []) {
     lines.push({
-      label: r.correct ? 'Zwischenfall richtig gemeistert' : 'Zwischenfall falsch behandelt',
+      label: r.incident.kollaps
+        ? r.correct ? 'Kollaps richtig behandelt' : 'Kollaps falsch behandelt'
+        : r.correct ? 'Zwischenfall richtig gemeistert' : 'Zwischenfall falsch behandelt',
       points: r.correct ? INCIDENT_POINTS.correct : INCIDENT_POINTS.wrong,
     });
   }
@@ -145,7 +147,7 @@ export function scoreRun(run: CaseRun, streakBefore = 0): ScoreResult {
   }
 
   const base = Math.max(0, lines.reduce((s, l) => s + l.points, 0));
-  const ratio = base / maxScore(medCase, run.incidents?.length ?? 0);
+  const ratio = base / maxScore(medCase, (run.incidents ?? []).filter((r) => !r.incident.kollaps).length);
   const stars = (ratio >= 0.85 ? 3 : ratio >= 0.6 ? 2 : ratio >= 0.3 ? 1 : 0) as ScoreResult['stars'];
 
   // Boni zählen nicht in die Sternewertung, erhöhen aber die EP.

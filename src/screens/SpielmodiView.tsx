@@ -5,6 +5,10 @@ import { dayState, DAILY_GOAL } from '../game/daily';
 import { useRolle } from '../game/rolle';
 import { freiAb, istFrei } from '../game/story';
 import { Progress } from '../game/storage';
+import { WOCHEN_BONUS, wochenStand } from '../game/woche';
+import { schwacheFaelle } from '../game/lernstand';
+import { CASES } from '../data/cases';
+import { HELFER_FAELLE } from '../data/helfer';
 import { colors, fonts, spacing, tiles, type } from '../theme';
 
 /** Spielmodi: alles, was man als eigenes Spiel starten kann */
@@ -17,6 +21,9 @@ export function SpielmodiView({
   onDuell,
   onLive,
   onEkg,
+  onLernstand,
+  onWiederholen,
+  onWoche,
   onDifficulty,
 }: {
   progress: Progress;
@@ -27,6 +34,9 @@ export function SpielmodiView({
   onDuell: () => void;
   onLive: () => void;
   onEkg: () => void;
+  onLernstand: () => void;
+  onWiederholen: () => void;
+  onWoche: () => void;
   onDifficulty: (d: Difficulty) => void;
 }) {
   const r = useRolle();
@@ -34,6 +44,8 @@ export function SpielmodiView({
   const day = dayState(progress);
   const frei = istFrei(r.id, progress, 'einsatz');
   const gesperrt = `Wird in Kapitel ${freiAb(r.id, 'einsatz')} freigeschaltet`;
+  const woche = wochenStand(progress);
+  const schwach = (helfer ? schwacheFaelle(HELFER_FAELLE, progress.bestStars) : schwacheFaelle(CASES, progress.bestStars)).length;
 
   const modi: {
     icon: string;
@@ -91,6 +103,16 @@ export function SpielmodiView({
       ? []
       : [
           {
+            icon: '🗓️',
+            titel: 'Wochen-Challenge',
+            text: `Thema der Woche: ${woche.thema.title}. ${woche.ziel} Einsätze daraus bringen +${WOCHEN_BONUS} EP.`,
+            stand: woche.fertig ? 'Diese Woche geschafft ✓' : `${woche.geschafft}/${woche.ziel} geschafft`,
+            tint: 'violet' as keyof typeof tiles,
+            name: 'Wochen-Challenge',
+            aktion: onWoche,
+            gesperrt: !frei,
+          },
+          {
             icon: '📈',
             titel: 'EKG lesen',
             text: 'Rhythmen auf dem Streifen erkennen: von Sinusrhythmus bis Kammerflimmern.',
@@ -100,6 +122,25 @@ export function SpielmodiView({
             aktion: onEkg,
           },
         ]),
+    {
+      icon: '🔁',
+      titel: 'Wiederholen',
+      text: 'Einsätze, die noch nicht sitzen: Hier bekommst du genau die, die du bisher nur mit wenig Sternen geschafft hast.',
+      stand: schwach > 0 ? `${schwach} zum Wiederholen` : 'Alles sitzt – noch nichts zu wiederholen',
+      tint: 'green',
+      name: 'Wiederholen',
+      aktion: onWiederholen,
+      gesperrt: !frei,
+    },
+    {
+      icon: '📊',
+      titel: 'Mein Lernstand',
+      text: 'Wo bin ich stark, wo sollte ich noch üben? Auswertung nach Bereichen.',
+      stand: `${Object.keys(progress.bestStars).length} Einsätze gespielt`,
+      tint: 'blue',
+      name: 'Mein Lernstand',
+      aktion: onLernstand,
+    },
     {
       icon: '👥',
       titel: 'Live-Runde mit Freunden',

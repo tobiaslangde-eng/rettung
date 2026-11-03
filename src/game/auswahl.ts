@@ -25,14 +25,28 @@ export function merkeEinsatz(v: Verlauf, c: Pick<MedCase, 'id' | 'kategorie'>): 
  * bevorzugt neue und noch nicht gemeisterte, und möglichst aus einem anderen Bereich als zuletzt
  * (Herz, Atmung, Verletzungen, Kinder …). Extremfälle kommen nicht zweimal hintereinander.
  */
+export interface AuswahlOptionen {
+  /** Nur Einsätze dieses Bereichs (Wochen-Challenge) */
+  kategorie?: string;
+  /** Nur diese Einsätze (Wiederholen); die Schwierigkeit spielt dann keine Rolle */
+  nurIds?: Set<string>;
+}
+
 export function waehleEinsatz(
   alle: MedCase[],
   progress: Pick<Progress, 'difficulty' | 'bestStars'>,
   verlauf: Verlauf,
+  optionen: AuswahlOptionen = {},
   zufall: () => number = Math.random,
 ): MedCase {
   const levels = DIFFICULTY_BY_ID[progress.difficulty].caseLevels;
-  const pool = alle.filter((c) => levels.includes(c.difficulty));
+  let pool = optionen.nurIds ? alle.filter((c) => optionen.nurIds!.has(c.id)) : alle.filter((c) => levels.includes(c.difficulty));
+  if (optionen.kategorie) {
+    const bereich = pool.filter((c) => c.kategorie === optionen.kategorie);
+    // gibt es auf dieser Stufe keinen Einsatz aus dem Bereich, gelten alle Stufen
+    pool = bereich.length > 0 ? bereich : alle.filter((c) => c.kategorie === optionen.kategorie);
+  }
+  if (pool.length === 0) pool = alle;
   const fenster = Math.max(1, Math.min(VERLAUF_LAENGE, Math.floor(pool.length / 2)));
   const gesperrt = new Set(verlauf.ids.slice(-fenster));
   let kandidaten = pool.filter((c) => !gesperrt.has(c.id));

@@ -12,6 +12,8 @@ import { Badge, awardBadges } from './src/game/achievements';
 import { CprResult } from './src/game/cpr';
 import { DAILY_CASE_BONUS, dailyCase, dailyHelferFall, registerDailyCase } from './src/game/daily';
 import { Verlauf, leererVerlauf, merkeEinsatz, waehleEinsatz } from './src/game/auswahl';
+import { schwacheFaelle } from './src/game/lernstand';
+import { WOCHEN_BONUS, wochenThema, zaehleWochenfall } from './src/game/woche';
 import { DIFFICULTY_BY_ID, Difficulty } from './src/game/difficulty';
 import { HilfId, hilfKaufen } from './src/game/hilfspunkt';
 import { WacheId, wacheKaufen } from './src/game/wache';
@@ -34,6 +36,7 @@ import { GuideScreen } from './src/screens/GuideScreen';
 import { HelferAbschluss, HelferScreen } from './src/screens/HelferScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { KnowledgeScreen } from './src/screens/KnowledgeScreen';
+import { LernstandScreen } from './src/screens/LernstandScreen';
 import { LexikonScreen } from './src/screens/LexikonScreen';
 import { ManvScreen } from './src/screens/ManvScreen';
 import { QuizScreen } from './src/screens/QuizScreen';
@@ -102,6 +105,7 @@ type Screen =
   | { name: 'duell'; key: number }
   | { name: 'live'; key: number }
   | { name: 'ekg'; key: number }
+  | { name: 'lernstand' }
   | { name: 'schicht' }
   | { name: 'feedback' }
   | { name: 'kati' }
@@ -151,6 +155,7 @@ const FRAME_MAX: Partial<Record<Screen['name'], number>> = {
   duell: 760,
   live: 760,
   ekg: 760,
+  lernstand: 760,
   schicht: 760,
   feedback: 760,
   kati: 760,
@@ -167,6 +172,7 @@ const FRAME_MAX: Partial<Record<Screen['name'], number>> = {
 const TAB_OF: Partial<Record<Screen['name'], TabId>> = {
   home: 'home',
   training: 'training',
+  lernstand: 'training',
   garage: 'garage',
   wache: 'garage',
   hilfspunkt: 'garage',
@@ -203,6 +209,7 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   duell: 'home',
   live: 'home',
   ekg: 'home',
+  lernstand: 'home',
   schicht: 'home',
   feedback: 'home',
   kati: 'lexikon',
@@ -319,6 +326,40 @@ export default function App() {
     schichtRueck.current = false;
     startCaseIntern(daily);
   };
+  /** Wiederholen: bevorzugt Einsätze, die ich nur mit höchstens einem Stern geschafft habe */
+  const startWiederholen = () => {
+    zaehle('wiederholen-gestartet');
+    karteRueck.current = false;
+    karteBonus.current = 0;
+    karteRoute.current = false;
+    schichtRueck.current = false;
+    zaehle('einsatz-gestartet');
+    if (aktiv === 'helfer') {
+      const schwach = schwacheFaelle(HELFER_FAELLE, progress.bestStars);
+      const pool = (schwach.length > 0 ? schwach : HELFER_FAELLE).filter((f) => f.id !== lastCaseId.current);
+      const fall = (pool.length > 0 ? pool : HELFER_FAELLE)[Math.floor(Math.random() * Math.max(1, pool.length))];
+      lastCaseId.current = fall.id;
+      return setScreen({ name: 'helfer', fall, daily: false, key: Date.now() });
+    }
+    const schwach = schwacheFaelle(CASES, progress.bestStars);
+    const medCase = waehleEinsatz(CASES, progress, verlauf.current, schwach.length > 0 ? { nurIds: new Set(schwach.map((c) => c.id)) } : {});
+    lastCaseId.current = medCase.id;
+    merkeEinsatz(verlauf.current, medCase);
+    setScreen({ name: 'case', medCase, daily: false, key: Date.now() });
+  };
+  /** Wochen-Challenge: ein Einsatz aus dem Thema der Woche (nur Sanitätsdienst) */
+  const startWoche = () => {
+    zaehle('wochenchallenge-gestartet');
+    karteRueck.current = false;
+    karteBonus.current = 0;
+    karteRoute.current = false;
+    schichtRueck.current = false;
+    zaehle('einsatz-gestartet');
+    const medCase = waehleEinsatz(CASES, progress, verlauf.current, { kategorie: wochenThema().id });
+    lastCaseId.current = medCase.id;
+    merkeEinsatz(verlauf.current, medCase);
+    setScreen({ name: 'case', medCase, daily: false, key: Date.now() });
+  };
   // Schichtmodus: mehrere Einsätze hintereinander mit Check-Fragen dazwischen
   const schichtEinsatz = () => {
     karteRueck.current = false;
@@ -390,9 +431,14 @@ export default function App() {
       });
       result.total += day.goalBonus;
     }
+    const woche = zaehleWochenfall(day.progress, run.medCase.kategorie);
+    if (woche.bonus > 0) {
+      result.lines.push({ label: `Wochen-Challenge geschafft: ${wochenThema().title}`, points: WOCHEN_BONUS });
+      result.total += woche.bonus;
+    }
     const id = run.medCase.id;
     const updated: Progress = {
-      ...day.progress,
+      ...woche.progress,
       streak: result.stars >= 2 ? progress.streak + 1 : 0,
       totalPoints: progress.totalPoints + result.total,
       casesPlayed: progress.casesPlayed + 1,
@@ -1043,7 +1089,19 @@ export default function App() {
                           setScreen({ name: 'live', key: Date.now() });
                         }}
                         onEkg={() => setScreen({ name: 'ekg', key: Date.now() })}
+                        onLernstand={() => setScreen({ name: 'lernstand' })}
+                        onWiederholen={startWiederholen}
+                        onWoche={startWoche}
                         onDifficulty={setDifficulty}
+                      />
+                    )}
+                    {screen.name === 'lernstand' && (
+                      <LernstandScreen
+                        progress={progress}
+                        faelle={aktiv === 'helfer' ? HELFER_FAELLE : CASES}
+                        titel={(fid) => (aktiv === 'helfer' ? HELFER_FAELLE.find((f) => f.id === fid)?.titel : CASES.find((c) => c.id === fid)?.diagnosis) ?? fid}
+                        onWiederholen={startWiederholen}
+                        onBack={() => setScreen({ name: 'training' })}
                       />
                     )}
                     {screen.name === 'lexikon' && <LexikonScreen progress={progress} onKati={() => setScreen({ name: 'kati' })} />}

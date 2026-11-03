@@ -40,3 +40,31 @@ export function sprich(text: string, optionen?: { geraet?: boolean; aufgeregt?: 
   u.pitch = optionen?.geraet ? 0.7 : optionen?.aufgeregt ? 1.15 : 1;
   s.speak(u);
 }
+
+// ───────── Monitor-Piepton ─────────
+let audio: AudioContext | null = null;
+
+/** Kurzer Piepton wie ein Überwachungsmonitor (nur Web, nur wenn der Ton an ist). `hoch` = dringlicher Ton. */
+export function piepe(hoch = false): void {
+  if (Platform.OS !== 'web' || typeof window === 'undefined' || !tonAn()) return;
+  try {
+    const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AC) return;
+    audio = audio ?? new AC();
+    if (audio.state === 'suspended') void audio.resume();
+    const o = audio.createOscillator();
+    const g = audio.createGain();
+    o.type = 'sine';
+    o.frequency.value = hoch ? 1040 : 800;
+    const t = audio.currentTime;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.05, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+    o.connect(g);
+    g.connect(audio.destination);
+    o.start(t);
+    o.stop(t + 0.1);
+  } catch {
+    // ohne Ton geht es auch
+  }
+}

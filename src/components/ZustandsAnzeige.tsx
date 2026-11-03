@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Line, Path } from 'react-native-svg';
+import { piepe } from '../game/sprache';
 import { colors, fonts, spacing, type } from '../theme';
 import { PatientGesicht } from './Gesicht';
 import { Bar } from './UI';
@@ -51,6 +52,8 @@ interface Schlag {
   start: number;
   dauer: number;
   hoehe: number;
+  /** Der Piepton für diesen Schlag ist schon erklungen */
+  gepiept?: boolean;
 }
 
 /** Wie schnell, wie unregelmäßig und wie flach der Herzschlag bei diesem Zustand ist */
@@ -74,7 +77,17 @@ function HerzKurve({ zustand }: { zustand: number }) {
   const zaehler = useRef(0);
 
   useEffect(() => {
-    const t = setInterval(() => setTakt((n) => (n + 1) % 1e6), 70);
+    const t = setInterval(() => {
+      setTakt((n) => (n + 1) % 1e6);
+      // Piepton im Takt: sobald die R-Zacke den rechten Rand erreicht
+      const jetzt = (Date.now() - zeit0.current) / 1000;
+      for (const s of schlaege.current) {
+        if (!s.gepiept && s.start + 0.25 * s.dauer <= jetzt) {
+          s.gepiept = true;
+          if (jetzt - (s.start + 0.25 * s.dauer) < 0.3) piepe(z.current < 40);
+        }
+      }
+    }, 70);
     return () => clearInterval(t);
   }, []);
 

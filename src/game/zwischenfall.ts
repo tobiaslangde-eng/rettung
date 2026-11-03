@@ -1,5 +1,5 @@
 import { MedCase } from '../data/cases';
-import { ZF_ALLGEMEIN, ZF_BASIS } from '../data/einsaetze/zwischenfaelle';
+import { KOLLAPS_ERWACHSENER, KOLLAPS_KIND, ZF_ALLGEMEIN, ZF_BASIS } from '../data/einsaetze/zwischenfaelle';
 import { INCIDENTS, Incident } from '../data/incidents';
 import { Difficulty } from './difficulty';
 
@@ -43,4 +43,12 @@ export function planeZwischenfaelle(c: MedCase, difficulty: Difficulty, zufall: 
     gewaehlt.push({ ...wahl, afterMeasurements: spaetester >= 2 ? 1 : spaetester + 2 });
   }
   return gewaehlt.sort((a, b) => a.afterMeasurements - b.afterMeasurements);
+}
+
+/** Der Kollaps, wenn der Zustand des Patienten unter die Schwelle fällt (Kinder bekommen die Kinder-Variante) */
+export function kollapsFuer(c: MedCase): Incident {
+  const vorlage = c.patient.age <= 12 ? KOLLAPS_KIND : KOLLAPS_ERWACHSENER;
+  const name = c.patient.name.split(' ')[0];
+  const ersetze = (t: string) => t.split('{name}').join(name);
+  return { ...vorlage, text: ersetze(vorlage.text), options: vorlage.options.map(ersetze) as Incident['options'], explanation: ersetze(vorlage.explanation) };
 }

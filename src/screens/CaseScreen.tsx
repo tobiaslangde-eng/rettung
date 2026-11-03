@@ -3,11 +3,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { DriveAnimation } from '../components/DriveAnimation';
 import { Button, Card, Led, Pill, StatChip, Tap, TopBar } from '../components/UI';
+import { TonKnopf } from '../components/TonKnopf';
 import { ZustandsAnzeige } from '../components/ZustandsAnzeige';
 import { AskKati, Kati } from '../components/Kati';
 import { MedCase } from '../data/cases';
-import { INCIDENT_ARTEN, INCIDENT_CONDITION, Incident } from '../data/incidents';
-import { planeZwischenfaelle } from '../game/zwischenfall';
+import { INCIDENT_ARTEN, INCIDENT_CONDITION, Incident, KOLLAPS_CONDITION, KOLLAPS_SCHWELLE } from '../data/incidents';
+import { kollapsFuer, planeZwischenfaelle } from '../game/zwischenfall';
 import { Rating, VITALS, VITAL_BY_ID, VitalId, formatVital, normalText, rateVital } from '../data/vitals';
 import { DifficultyDef, HINT_COST } from '../game/difficulty';
 import { EquipmentEffects } from '../game/equipment';
@@ -106,7 +107,8 @@ export function CaseScreen({
   const [examHint, setExamHint] = useState(difficulty.hints === 'gratis');
   const [fiftyFifty, setFiftyFifty] = useState(false);
   /** Zwischenfälle dieses Durchgangs (wechseln von Mal zu Mal; Extremfälle haben mehrere nacheinander) */
-  const incidents = useMemo(() => planeZwischenfaelle(medCase, difficulty.id), [medCase, difficulty.id]);
+  const [incidents, setIncidents] = useState<Incident[]>(() => planeZwischenfaelle(medCase, difficulty.id));
+  const [kollapsGezeigt, setKollapsGezeigt] = useState(false);
   const [incidentIdx, setIncidentIdx] = useState(0);
   const incident: Incident | undefined = incidents[incidentIdx];
   const incidentOptions = useMemo(() => (incident ? shuffle(incident.options) : []), [incident]);
@@ -135,6 +137,15 @@ export function CaseScreen({
     const t = setInterval(() => setCondition((c) => clampCondition(c - drain)), 1000);
     return () => clearInterval(t);
   }, [draining, difficulty.drainPerSecond, equipment.drainFactor]);
+
+  // Fällt der Zustand unter die Schwelle, kollabiert der Patient einmal: ein zusätzlicher Zwischenfall, sofort.
+  useEffect(() => {
+    if (kollapsGezeigt || phase !== 'exam' || condition >= KOLLAPS_SCHWELLE) return;
+    setKollapsGezeigt(true);
+    // läuft gerade ein Zwischenfall (schon beantwortet, noch nicht geschlossen), kommt der Kollaps danach
+    const stelle = incidentChoice ? incidentIdx + 1 : incidentIdx;
+    setIncidents((l) => [...l.slice(0, stelle), kollapsFuer(medCase), ...l.slice(stelle)]);
+  }, [condition, kollapsGezeigt, phase, incidentChoice, incidentIdx, medCase]);
 
   const goto = useCallback((p: Phase) => {
     setPhase(p);
@@ -169,7 +180,8 @@ export function CaseScreen({
     setIncidentResults((r) => [...r, ok]);
     // Auf „Schwer“ ohne Sofort-Feedback wirkt die Entscheidung erst am Ende.
     if (difficulty.instantFeedback) {
-      setCondition((c) => clampCondition(c + (ok ? INCIDENT_CONDITION.correct : INCIDENT_CONDITION.wrong)));
+      const w = incident!.kollaps ? KOLLAPS_CONDITION : INCIDENT_CONDITION;
+      setCondition((c) => clampCondition(c + (ok ? w.correct : w.wrong)));
     }
   };
 
@@ -201,7 +213,10 @@ export function CaseScreen({
       c += medCase.treatments[i].correct ? CONDITION.treatmentCorrect : CONDITION.treatmentWrong;
     }
     if (!difficulty.instantFeedback) {
-      for (const ok of incidentResults) c += ok ? INCIDENT_CONDITION.correct : INCIDENT_CONDITION.wrong;
+      incidentResults.forEach((ok, i) => {
+        const w = incidents[i]?.kollaps ? KOLLAPS_CONDITION : INCIDENT_CONDITION;
+        c += ok ? w.correct : w.wrong;
+      });
     }
     onFinish({
       medCase,
@@ -292,6 +307,7 @@ export function CaseScreen({
               Komm, schnapp dir den Notfallrucksack – wir fahren! Denk dran: Jede Messung kostet Zeit
               {difficulty.drainPerSecond > 0 ? ', und heute zählt jede Sekunde.' : '.'}
             </Kati>
+            <TonKnopf />
             <Button label="Los geht's!" variant="alarm" onPress={() => goto('drive')} />
           </>
         )}
@@ -522,7 +538,7 @@ export function CaseScreen({
             <Text style={styles.incidentEyebrow}>
               {INCIDENT_ARTEN[incident.art ?? 'medizin'].icon} {INCIDENT_ARTEN[incident.art ?? 'medizin'].titel}
             </Text>
-            {incidents.length > 1 && (
+            {incidents.length > 1 && !incident.kollaps && (
               <Text style={styles.incidentFeedback}>
                 {medCase.extrem ? '🔥 Extremfall' : 'Einsatz'} · Zwischenfall {incidentIdx + 1} von {incidents.length}
               </Text>

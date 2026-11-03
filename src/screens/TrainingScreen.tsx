@@ -29,6 +29,9 @@ export function TrainingScreen({
   onDuell,
   onLive,
   onEkg,
+  onLernstand,
+  onWiederholen,
+  onWoche,
   onDifficulty,
 }: {
   progress: Progress;
@@ -43,6 +46,9 @@ export function TrainingScreen({
   onDuell: () => void;
   onLive: () => void;
   onEkg: () => void;
+  onLernstand: () => void;
+  onWiederholen: () => void;
+  onWoche: () => void;
   onDifficulty: (d: Difficulty) => void;
 }) {
   const L = useLayout();
@@ -86,6 +92,9 @@ export function TrainingScreen({
               onDuell={onDuell}
               onLive={onLive}
               onEkg={onEkg}
+              onLernstand={onLernstand}
+              onWiederholen={onWiederholen}
+              onWoche={onWoche}
               onDifficulty={onDifficulty}
             />
           </View>

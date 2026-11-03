@@ -1,5 +1,5 @@
 /** Art des Zwischenfalls: Der Patient verschlechtert sich, oder es ist etwas ganz anderes los. */
-export type IncidentArt = 'medizin' | 'gefahr' | 'umfeld' | 'technik' | 'team' | 'zeit';
+export type IncidentArt = 'medizin' | 'gefahr' | 'umfeld' | 'technik' | 'team' | 'zeit' | 'kollaps';
 
 export const INCIDENT_ARTEN: Record<IncidentArt, { icon: string; titel: string }> = {
   medizin: { icon: '⚠️', titel: 'Zwischenfall!' },
@@ -8,6 +8,7 @@ export const INCIDENT_ARTEN: Record<IncidentArt, { icon: string; titel: string }
   technik: { icon: '🔧', titel: 'Technik-Problem!' },
   team: { icon: '📻', titel: 'Absprache im Team!' },
   zeit: { icon: '⏱️', titel: 'Die Zeit drängt!' },
+  kollaps: { icon: '🚨', titel: 'Kollaps!' },
 };
 
 /** Zwischenfälle: Mitten in der Untersuchung passiert etwas, und ich muss sofort reagieren. */
@@ -20,6 +21,8 @@ export interface Incident {
   explanation: string;
   /** Fehlt die Angabe, ist es ein medizinischer Zwischenfall */
   art?: IncidentArt;
+  /** Kollaps bei sehr schlechtem Zustand: kommt zusätzlich und zählt nicht in die Höchstpunktzahl */
+  kollaps?: boolean;
 }
 
 export const INCIDENTS: Record<string, Incident> = {
@@ -131,3 +134,7 @@ export const INCIDENTS: Record<string, Incident> = {
 export const INCIDENT_POINTS = { correct: 20, wrong: -10 };
 /** Wirkung auf den Zustand des Patienten */
 export const INCIDENT_CONDITION = { correct: 5, wrong: -15 };
+/** Wirkung beim Kollaps: Die richtige Reaktion holt den Patienten zurück, die falsche kostet viel */
+export const KOLLAPS_CONDITION = { correct: 20, wrong: -10 };
+/** Unter diesem Zustand (in %) kollabiert der Patient einmal im Einsatz */
+export const KOLLAPS_SCHWELLE = 15;
