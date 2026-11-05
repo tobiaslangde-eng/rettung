@@ -21,6 +21,9 @@ export const POINTS = {
   extremBonus: 40,
   /** Zeitdruck-Modus: Bonus, wenn am Ende noch mindestens 30 Sekunden übrig sind */
   zeitBonus: 25,
+  /** Bonus je erfragter wichtiger Antwort (höchstens drei zählen) */
+  anamnese: 5,
+  anamneseMax: 3,
   /** Serienbonus je gutem Einsatz in Folge, gedeckelt */
   streakPerLevel: 10,
   streakMax: 50,
@@ -61,6 +64,8 @@ export interface CaseRun {
   hintsUsed: number;
   /** Zeitdruck-Modus: Bonus-EP, wenn ich mit genug Zeit fertig war */
   zeitBonus?: number;
+  /** Wichtige Antworten, die ich beim Patienten erfragt habe */
+  anamneseWichtig?: number;
   /** Zwischenfälle dieses Einsatzes mit meiner Reaktion (leer, wenn es keine gab) */
   incidents?: { incident: Incident; correct: boolean }[];
 }
@@ -156,6 +161,11 @@ export function scoreRun(run: CaseRun, streakBefore = 0): ScoreResult {
 
   // Boni zählen nicht in die Sternewertung, erhöhen aber die EP.
   let bonus = 0;
+  if (run.anamneseWichtig && run.anamneseWichtig > 0) {
+    const n = Math.min(run.anamneseWichtig, POINTS.anamneseMax);
+    lines.push({ label: `Anamnese: ${n} wichtige ${n === 1 ? 'Antwort' : 'Antworten'} erfragt`, points: n * POINTS.anamnese });
+    bonus += n * POINTS.anamnese;
+  }
   if (run.zeitBonus && run.zeitBonus > 0) {
     lines.push({ label: 'Zeitbonus: schnell entschieden', points: run.zeitBonus });
     bonus += run.zeitBonus;

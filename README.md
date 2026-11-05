@@ -110,6 +110,11 @@ Weg in den Rettungsdienst.
 - **Echter Kollaps:** Fällt der Zustand des Patienten unter 15 %, kollabiert er einmal im Einsatz (Kreislaufstillstand,
   für Kinder mit eigener Kinder-Variante): sofort richtig reagieren, sonst wird es noch schlimmer. Zählt nicht in die Höchstpunktzahl.
 - **Monitor-Ton:** Mit „Ton an“ piept der Herzmonitor im Takt des Herzschlags (Web), bei kritischem Zustand höher.
+- **Patient fragen:** Im Einsatz kann ich den Patienten (oder Angehörige und Zeugen) fragen: Was ist passiert? Wo tut es weh? Seit wann?
+  Vorerkrankungen? Medikamente? Allergien? Jede Frage kostet 1 Minute und etwas Kraft. Je schlechter es dem Patienten geht, desto
+  stockender antwortet er („Der Rücken … brennt …“), unter 15 % gar nicht mehr. Wichtige Antworten (💡) bringen Bonus-EP (5 je Antwort, höchstens 3).
+  Für die 28 Grundfälle und die 20 Extremfälle sind die Antworten von Hand geschrieben (auf „Mittel“ und „Schwer“ steht anfangs nur die
+  erste Aussage da, der Rest kommt auf Nachfrage), für alle anderen werden sie aus der Anamnese abgeleitet. Bei „Ton an“ wird die Antwort vorgelesen.
 - **Zeitdruck-Modus** (Training → Spielmodi, nur Sanitätsdienst): Eine Uhr läuft mit (180/150/120 Sekunden je Stufe). Sie steht beim
   Zwischenfall und beim Einstufen eines Werts. Mit mindestens 30 Sekunden Rest gibt es +25 EP, ist die Zeit um, verliert der Patient zusätzlich Kraft.
 - **Reihenfolge-Rennen** (Live-Runde): „Was kommt direkt nach …?“ zu Abläufen wie Wiederbelebung, Absichern, Schlaganfall –

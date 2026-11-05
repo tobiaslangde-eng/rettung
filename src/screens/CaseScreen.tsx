@@ -3,12 +3,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { DriveAnimation } from '../components/DriveAnimation';
 import { Bar, Button, Card, Led, Pill, StatChip, Tap, TopBar } from '../components/UI';
+import { PatientFragen } from '../components/PatientFragen';
 import { TonKnopf } from '../components/TonKnopf';
 import { ZustandsAnzeige } from '../components/ZustandsAnzeige';
 import { AskKati, Kati } from '../components/Kati';
 import { MedCase } from '../data/cases';
 import { INCIDENT_ARTEN, INCIDENT_CONDITION, Incident, KOLLAPS_CONDITION, KOLLAPS_SCHWELLE } from '../data/incidents';
 import { kollapsFuer, planeZwischenfaelle } from '../game/zwischenfall';
+import { Antwort, FrageId, antwortFuer, hatEchteAntworten, kannAntworten } from '../game/patient';
+import { sprich } from '../game/sprache';
 import { Rating, VITALS, VITAL_BY_ID, VitalId, formatVital, normalText, rateVital } from '../data/vitals';
 import { DifficultyDef, HINT_COST } from '../game/difficulty';
 import { EquipmentEffects } from '../game/equipment';
@@ -144,6 +147,8 @@ export function CaseScreen({
   const incidentOptions = useMemo(() => (incident ? shuffle(incident.options) : []), [incident]);
   const [incidentChoice, setIncidentChoice] = useState<string | null>(null);
   const [incidentResults, setIncidentResults] = useState<boolean[]>([]);
+  /** „Patient fragen“: meine Fragen und die Antworten */
+  const [antworten, setAntworten] = useState<Antwort[]>([]);
   /** Zeitdruck: verbleibende Sekunden (zählt nur, wenn nichts anderes meine Aufmerksamkeit braucht) */
   const [restSekunden, setRestSekunden] = useState<number>(ZEITLIMIT[difficulty.id]);
   const restRef = useRef<number>(ZEITLIMIT[difficulty.id]);
@@ -156,6 +161,8 @@ export function CaseScreen({
   const treatmentOrder = useMemo(() => shuffle(medCase.treatments.map((_, i) => i)), [medCase]);
 
   const firstName = medCase.patient.name.split(' ')[0];
+  /** Bei den Einsätzen mit echten Antworten steht anfangs nur die erste Aussage da – der Rest kommt auf Nachfrage (nicht auf „Leicht“). */
+  const anamneseSichtbar = hatEchteAntworten(medCase.id) && difficulty.id !== 'leicht' ? medCase.anamnese.slice(0, 1) : medCase.anamnese;
 
   // Schwer: Der Patient verschlechtert sich in Echtzeit, solange ich untersuche und überlege.
   const incidentActive =
@@ -210,6 +217,15 @@ export function CaseScreen({
     } else {
       setPending(id);
     }
+  };
+
+  /** Den Patienten (oder einen Angehörigen) etwas fragen: kostet eine Minute und etwas Kraft */
+  const frageStellen = (f: FrageId) => {
+    if (pending || incidentActive || antworten.some((a) => a.frage === f)) return;
+    const a = antwortFuer(medCase, f, condition);
+    setAntworten((l) => [...l, a]);
+    setCondition((c) => clampCondition(c - difficulty.measureCost * 0.5 * equipment.measureFactor));
+    sprich(a.text, { aufgeregt: condition < 40 });
   };
 
   const rate = (r: Rating) => {
@@ -271,6 +287,7 @@ export function CaseScreen({
       difficulty: difficulty.id,
       condition: clampCondition(c + equipment.endBonus),
       zeitBonus: zeitdruck && restSekunden >= ZEIT_BONUS_AB ? POINTS.zeitBonus : 0,
+      anamneseWichtig: antworten.filter((a) => a.wichtig).length,
       hintsUsed,
       incidents: incidentResults.map((correct, i) => ({ incident: incidents[i], correct })),
     });
@@ -280,7 +297,7 @@ export function CaseScreen({
     return <DriveAnimation location={medCase.location} rtwLevel={rtwLevel} onDone={arrive} />;
   }
 
-  const minutes = 4 + measured.length * MINUTES_PER_MEASUREMENT + (pending ? MINUTES_PER_MEASUREMENT : 0);
+  const minutes = 4 + (measured.length + antworten.length) * MINUTES_PER_MEASUREMENT + (pending ? MINUTES_PER_MEASUREMENT : 0);
   const stepIndex = STEPS.findIndex((s) => s.phase === phase);
   const p = medCase.patient;
   const missingKey = medCase.keyVitals.find((id) => !measured.some((m) => m.id === id));
@@ -372,11 +389,14 @@ export function CaseScreen({
                   </Card>
                   <Card>
                     <Label text="Was ich höre" color={colors.sky} />
-                    {medCase.anamnese.map((a, i) => (
+                    {anamneseSichtbar.map((a, i) => (
                       <Text key={i} style={[type.body, styles.bullet]}>
                         • {a}
                       </Text>
                     ))}
+                    {anamneseSichtbar.length < medCase.anamnese.length && (
+                      <Text style={type.small}>Mehr erfährst du, wenn du den Patienten fragst.</Text>
+                    )}
                   </Card>
                   <Card>
                     <Label text="Was ich sehe" color={colors.mintTint} />
@@ -386,6 +406,12 @@ export function CaseScreen({
                       </Text>
                     ))}
                   </Card>
+                  <PatientFragen
+                    antworten={antworten}
+                    moeglich={kannAntworten(medCase, condition)}
+                    gesperrt={incidentActive || !!pending}
+                    onFrage={frageStellen}
+                  />
                 </>,
                 <>
                   <Label text="Was messe ich?" color={colors.yellow} />

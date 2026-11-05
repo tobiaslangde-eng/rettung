@@ -12,6 +12,7 @@ execFileSync(
     'node_modules/typescript/bin/tsc',
     'src/data/cases.ts',
     'src/game/zwischenfall.ts',
+    'src/data/patientAntworten.ts',
     '--ignoreConfig',
     '--outDir',
     out,
@@ -29,6 +30,7 @@ const require = createRequire(import.meta.url);
 const { CASES } = require(join(out, 'data/cases.js'));
 const { planeZwischenfaelle, eigeneZwischenfaelle } = require(join(out, 'game/zwischenfall.js'));
 const { ZF_ALLGEMEIN } = require(join(out, 'data/einsaetze/zwischenfaelle.js'));
+const { ANTWORTEN, SPRECHER } = require(join(out, 'data/patientAntworten.js'));
 
 let fehler = 0;
 const f = (id, text) => {
@@ -65,6 +67,16 @@ for (const c of CASES) {
   if (c.extrem && eigene.length < 2) f(c.id, 'Extremfall braucht mindestens 2 Zwischenfälle');
 }
 ZF_ALLGEMEIN.forEach((i, n) => pruefeIncident('allgemein', i, `#${n + 1}`));
+
+// Patient fragen: Antworten
+const ids2 = new Set(CASES.map((c) => c.id));
+for (const [id, satz] of Object.entries(ANTWORTEN)) {
+  if (!ids2.has(id)) f(id, 'Antworten für unbekannten Einsatz');
+  if (!Array.isArray(satz) || satz.length !== 6 || satz.some((t) => typeof t !== 'string' || t.replace(/^!/, '').trim().length < 3)) f(id, 'Antworten: genau 6 Texte nötig');
+  if (Array.isArray(satz) && !satz.some((t) => t.startsWith('!'))) f(id, 'Antworten: mindestens eine wichtige Antwort (!) nötig');
+}
+for (const id of Object.keys(SPRECHER)) if (!(id in ANTWORTEN)) f(id, 'Sprecher ohne Antworten');
+console.log(`${Object.keys(ANTWORTEN).length} Einsätze mit handgeschriebenen Patientenantworten`);
 
 // Planung: viele Durchgänge je Schwierigkeit
 const stat = { leicht: 0, mittel: 0, schwer: 0 };
