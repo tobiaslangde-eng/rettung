@@ -37,6 +37,22 @@ const kids = () => faelle().filter((c) => c.patient.age <= 12);
 
 export const BADGES: Badge[] = [
   {
+    id: 'sim-erster',
+    icon: '🫀',
+    title: 'Simulator: erster Patient',
+    description: 'Im Patienten-Simulator einen Patienten stabil übergeben',
+    nur: 'sani',
+    earned: (p) => p.simUebergeben >= 1,
+  },
+  {
+    id: 'sim-profi',
+    icon: '🏅',
+    title: 'Simulator-Profi',
+    description: 'Im Patienten-Simulator mindestens 5 Szenarien mit 3 Sternen',
+    nur: 'sani',
+    earned: (p) => Object.values(p.simSterne).filter((s) => s >= 3).length >= 5,
+  },
+  {
     id: 'erster',
     icon: '🚑',
     title: 'Erster Einsatz',

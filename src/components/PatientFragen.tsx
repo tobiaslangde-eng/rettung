@@ -9,6 +9,7 @@ export function PatientFragen({
   moeglich,
   gesperrt,
   hinweis,
+  kosten,
   onFrage,
 }: {
   antworten: Antwort[];
@@ -18,6 +19,8 @@ export function PatientFragen({
   gesperrt?: boolean;
   /** Zusatzzeile unter der Überschrift */
   hinweis?: string;
+  /** Ersetzt „Jede Frage kostet 1 Minute und etwas Kraft.“ */
+  kosten?: string;
   onFrage: (f: FrageId) => void;
 }) {
   const gefragt = new Set(antworten.map((a) => a.frage));
@@ -25,7 +28,7 @@ export function PatientFragen({
     <Card style={{ gap: spacing.sm }}>
       <Eyebrow title="Patient fragen" />
       <Text style={type.small}>
-        Jede Frage kostet 1 Minute und etwas Kraft. {hinweis ?? 'Wichtige Antworten bringen Bonus-EP.'}
+        {kosten ?? 'Jede Frage kostet 1 Minute und etwas Kraft.'} {hinweis ?? 'Wichtige Antworten bringen Bonus-EP.'}
       </Text>
       <View style={styles.chips}>
         {FRAGEN.map((f) => {

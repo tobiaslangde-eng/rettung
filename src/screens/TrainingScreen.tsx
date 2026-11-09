@@ -29,6 +29,7 @@ export function TrainingScreen({
   onDuell,
   onLive,
   onEkg,
+  onSimulator,
   onLernstand,
   onWiederholen,
   onWoche,
@@ -47,6 +48,7 @@ export function TrainingScreen({
   onDuell: () => void;
   onLive: () => void;
   onEkg: () => void;
+  onSimulator: () => void;
   onLernstand: () => void;
   onWiederholen: () => void;
   onWoche: () => void;
@@ -94,6 +96,7 @@ export function TrainingScreen({
               onDuell={onDuell}
               onLive={onLive}
               onEkg={onEkg}
+              onSimulator={onSimulator}
               onLernstand={onLernstand}
               onWiederholen={onWiederholen}
               onWoche={onWoche}

@@ -1,0 +1,938 @@
+/**
+ * Szenarien für den Patienten-Simulator. Jedes Szenario beschreibt Krankheit, Verlauf, passende Maßnahmen,
+ * Befunde und die Auswertung. Lernsimulation: Werte und Zeiten sind vereinfacht, im Einsatz gelten SOP und Notarzt.
+ */
+import {
+  AktionDef,
+  clamp,
+  effekt,
+  fehler,
+  hat,
+  logge,
+  SimState,
+  SimSzenario,
+  vor,
+} from '../game/simulator';
+
+type Pflicht = 'eigene' | 'med' | 'volumen' | 'waerme' | 'lagerung';
+const S = (x: Omit<SimSzenario, Pflicht> & Partial<Pick<SimSzenario, Pflicht>>): SimSzenario => ({
+  eigene: [],
+  med: {},
+  volumen: 0.2,
+  waerme: 0.03,
+  lagerung: {},
+  ...x,
+});
+
+const sm = (x: number) => {
+  const k = clamp(x);
+  return k * k * (3 - 2 * k);
+};
+const lageIn = (s: SimState, ...l: string[]) => l.includes(s.geraete.lage);
+const o2ab = (s: SimState, t: number) => vor(s, 'o2-maske', t) || vor(s, 'o2-reservoir', t) || vor(s, 'o2-nasenbrille', t);
+const gegeben = (s: SimState, id: string) => hat(s, id + '-ok');
+const gegebenVor = (s: SimState, id: string, t: number) => vor(s, id + '-ok', t);
+const zeitOk = (s: SimState, soll: number) => !!s.ende && s.ende.art === 'uebergabe' && s.ende.t <= soll;
+
+// ───────────────────────── 1. Herzinfarkt ─────────────────────────
+const stemi = S({
+  id: 'stemi',
+  titel: 'Herzinfarkt im Wohnzimmer',
+  kurz: 'Brustschmerz und kalter Schweiß – und das Herz kann jederzeit aus dem Takt kommen.',
+  icon: '🫀',
+  farbe: 'red',
+  bereich: 'Herz & Kreislauf',
+  stufe: 2,
+  alarm: {
+    stichwort: 'RD 2 · Brustschmerz',
+    meldung: 'Mann, 58 Jahre, starker Druck auf der Brust seit etwa 20 Minuten, kaltschweißig. Die Ehefrau ist am Telefon.',
+    ort: 'Birkenweg 7, 1. OG, Wohnzimmer',
+  },
+  szene: 'Klaus Neumann sitzt grau im Gesicht auf dem Sofa und presst die Faust gegen die Brust. Seine Frau steht hilflos daneben, die Wohnungstür ist offen.',
+  patient: { name: 'Klaus Neumann', alter: 58, sex: 'm', kennung: 'sim-stemi' },
+  basis: { hf: 72, sys: 150, dia: 90, spo2: 97, af: 14, temp: 36.8, bz: 118 },
+  x0: 0.4,
+  wachstum: 0.001,
+  wA: 0.35,
+  wK: 0.85,
+  wN: 0.3,
+  potenz: 1.5,
+  o2: 0.3,
+  afHoch: true,
+  startLage: 'sitzend',
+  lagerung: { sitzend: { atem: 0.03 }, oberkoerper: { atem: 0.03 }, flach: { atem: -0.08 } },
+  stillstand: { rhythmus: () => 'vf', ursache: () => true },
+  rhythmus: () => 'stemi',
+  vfRisiko: (s) => (s.x > 0.5 ? 0.0015 + (s.x - 0.5) * 0.012 : 0.0004),
+  notarztEta: 300,
+  zielklinik: 'katheter',
+  szenenzeitSoll: 900,
+  antworten: [
+    '!Es drückt auf der Brust wie ein Elefant … und ich schwitze so.',
+    'Mitten in der Brust. Es zieht in den linken Arm und in den Kiefer.',
+    '!Angefangen hat es vor etwa 20 Minuten beim Treppensteigen.',
+    'Bluthochdruck, und ich rauche seit 30 Jahren. Mein Vater hatte auch einen Herzinfarkt.',
+    '!Eine Tablette für den Blutdruck. Blutverdünner nehme ich nicht.',
+    'Keine Allergien.',
+  ],
+  med: {
+    asa: { wirkung: (s) => effekt(s, 'x', -0.06, 60) },
+    nitro: {
+      kontra: (s) => (s.w.sys < 110 ? 'Der Blutdruck ist zu niedrig für Nitro.' : null),
+      wirkung: (s) => effekt(s, 'x', -0.12, 60),
+    },
+    fentanyl: {
+      kontra: (s) => (s.w.sys < 100 ? 'Bei diesem Blutdruck ist ein starkes Schmerzmittel gefährlich.' : null),
+      wirkung: (s) => effekt(s, 'x', -0.08, 60),
+    },
+  },
+  befund: {
+    ekg12: () => 'ST-Hebungen in V2–V5 sowie I und aVL: akuter Vorderwandinfarkt (STEMI). Ein Fall für den Herzkatheter!',
+    lunge: () => 'Beidseits unauffällig, keine Rasselgeräusche.',
+    neuro: () => 'Wach, orientiert, keine Lähmungen, Pupillen normal.',
+  },
+  beobachtung: () => ({ sonst: ['Er presst die Hand auf die Brust, das Gesicht ist grau, auf der Stirn steht kalter Schweiß.'] }),
+  spruch: (s) => (!s.kreislauf ? '' : s.x < 0.5 ? 'Mir ist so schwer auf der Brust …' : s.x < 0.75 ? 'Mir wird schwarz vor Augen … helfen Sie mir!' : 'Ich … kann nicht mehr …'),
+  ziele: [
+    { id: 'monitor', titel: 'EKG-Monitor und Pulsoxymeter in den ersten 3 Minuten', gewicht: 2, pruefe: (s) => vor(s, 'ekg', 180) && vor(s, 'spo2', 180), hinweis: 'Bei Brustschmerz drohen Rhythmusstörungen: früh überwachen.' },
+    { id: 'ekg12', titel: '12-Kanal-EKG in den ersten 6 Minuten', gewicht: 4, pruefe: (s) => vor(s, 'ekg12', 360), hinweis: 'Das 12-Kanal-EKG stellt die Diagnose STEMI und bestimmt das Ziel.' },
+    { id: 'nibp', titel: 'Blutdruck gemessen', gewicht: 1, pruefe: (s) => vor(s, 'nibp', 240), hinweis: 'Der Blutdruck entscheidet, ob Nitro erlaubt ist.' },
+    { id: 'pads', titel: 'Defi-Pads vorsorglich geklebt', gewicht: 2, pruefe: (s) => vor(s, 'pads', 420), hinweis: 'Beim Infarkt kann jederzeit Kammerflimmern kommen – mit Pads vergehen weniger Sekunden bis zum Schock.' },
+    { id: 'zugang', titel: 'Venösen Zugang gelegt', gewicht: 1.5, pruefe: (s) => vor(s, 'zugang-ok', 480), hinweis: 'Ohne Zugang kann der Notarzt keine Medikamente geben.' },
+    { id: 'notarzt', titel: 'Notarzt früh nachgefordert (in 2,5 Minuten)', gewicht: 2, pruefe: (s) => vor(s, 'notarzt-rufen', 150), hinweis: 'Beim akuten Infarkt braucht der Patient ärztliche Hilfe, nicht nur Transport.' },
+    { id: 'asa', titel: 'ASS gegeben', gewicht: 2, pruefe: (s) => gegeben(s, 'asa'), hinweis: 'ASS hemmt die Blutgerinnsel im Herzkranzgefäß.' },
+    { id: 'nitro', titel: 'Nitro bei ausreichendem Blutdruck gegeben', gewicht: 1, pruefe: (s) => gegeben(s, 'nitro'), hinweis: 'Nitro entlastet das Herz, wenn der Blutdruck über 110 mmHg liegt.' },
+    { id: 'lage', titel: 'Oberkörper hoch / sitzend belassen', gewicht: 1, pruefe: (s) => lageIn(s, 'sitzend', 'oberkoerper'), hinweis: 'Aufrecht und ruhig entlastet das Herz. Flach lagern verschlechtert die Atmung.' },
+    { id: 'klinik', titel: 'Klinik mit Herzkatheter voranmelden', gewicht: 3, pruefe: (s) => s.klinik === 'katheter', hinweis: 'Nur ein Herzkatheter öffnet das Gefäß. Ohne Voranmeldung geht Zeit verloren.' },
+    { id: 'zeit', titel: 'Szenenzeit unter 15 Minuten', gewicht: 3, pruefe: (s) => zeitOk(s, 900), hinweis: 'Beim STEMI zählt jede Minute bis zum Katheter („Time is muscle“).' },
+  ],
+  lehre: {
+    text: [
+      'Beim STEMI ist ein Herzkranzgefäß verschlossen. Jede Minute stirbt Herzmuskel, und jederzeit kann Kammerflimmern auftreten.',
+      'Ablauf: Monitor und Pads, 12-Kanal-EKG, Blutdruck, Zugang, Notarzt, ASS und – bei Blutdruck über 110 – Nitro. Dann ohne Umweg in eine Klinik mit Herzkatheter, mit Voranmeldung.',
+    ],
+    merke: 'Brustschmerz = Monitor, 12-Kanal-EKG, Pads bereit, Katheter-Klinik voranmelden.',
+  },
+});
+
+// ───────────────────────── 2. Anaphylaxie ─────────────────────────
+const allergenStopp: AktionDef = {
+  id: 'allergen',
+  gruppe: 'team',
+  titel: 'Auslöser beseitigen (Stachel, Kühlen)',
+  icon: '🐝',
+  dauer: 10,
+  haende: 1,
+  fertig: (s) => {
+    effekt(s, 'x', -0.04, 20);
+    logge(s, 'gut', 'Der Stachel ist entfernt, die Einstichstelle wird gekühlt. Der Auslöser wirkt nicht weiter nach.');
+  },
+};
+const anaphylaxie = S({
+  id: 'anaphylaxie',
+  titel: 'Wespenstich im Biergarten',
+  kurz: 'Quaddeln, Atemnot und fallender Blutdruck: Hier entscheidet eine Spritze in den ersten Minuten.',
+  icon: '🐝',
+  farbe: 'amber',
+  bereich: 'Allergie & Atemnot',
+  stufe: 2,
+  alarm: {
+    stichwort: 'RD 2 · Allergische Reaktion',
+    meldung: 'Frau, 34 Jahre, von einer Wespe gestochen, Schwellung im Gesicht, Atemnot. Eine Freundin ist bei ihr.',
+    ort: 'Biergarten „Zum Adler“, Tisch 12',
+  },
+  szene: 'Lena sitzt blass am Gartentisch, die Lippen sind geschwollen, die Haut am Hals ist rot gefleckt. Ihre Freundin hält ihr die Hand und weint fast.',
+  patient: { name: 'Lena Berger', alter: 34, sex: 'w', kennung: 'sim-ana' },
+  basis: { hf: 72, sys: 120, dia: 75, spo2: 99, af: 14, temp: 36.7, bz: 96 },
+  x0: 0.4,
+  wachstum: 0.0028,
+  wA: 0.9,
+  wK: 1.0,
+  wN: 0.6,
+  potenz: 1.3,
+  o2: 0.6,
+  afHoch: true,
+  volumen: 0.8,
+  startLage: 'sitzend',
+  lagerung: {
+    sitzend: { atem: 0.06, kreis: -0.03 },
+    oberkoerper: { atem: 0.06, kreis: -0.03 },
+    beinehoch: { kreis: 0.1, atem: -0.06 },
+    flach: { kreis: 0.05, atem: -0.12 },
+    seitenlage: {},
+  },
+  stillstand: { rhythmus: () => 'pea', ursache: (s) => !!s.flags.adrenalin || gegeben(s, 'adrenalin-im') },
+  notarztEta: 360,
+  zielklinik: 'naechste',
+  akzeptabel: ['intensiv'],
+  szenenzeitSoll: 780,
+  antworten: [
+    '!Ich wurde in den Hals gestochen, und dann fing alles an zu jucken und zu schwellen.',
+    'Mein Hals ist ganz eng, und alles kribbelt.',
+    '!Vor ungefähr 10 Minuten, direkt nach dem Stich.',
+    'Ich habe Heuschnupfen, sonst nichts.',
+    'Nur die Pille.',
+    '!Bei Wespen hatte ich schon mal eine starke Reaktion, das war schon schlimm.',
+  ],
+  med: {
+    'adrenalin-im': {
+      kontra: (s) => {
+        const letzte = s.getan['adrenalin-im-ok']?.slice(-1)[0];
+        return letzte !== undefined && s.t - letzte < 300 ? 'Die nächste Adrenalin-Dosis frühestens nach 5 Minuten.' : null;
+      },
+      wirkung: (s) => {
+        effekt(s, 'x', -0.42, 40, 5);
+        s.wachstumFaktor = 0.3;
+        s.flags.adrenalinIm = true;
+      },
+    },
+    salbutamol: { wirkung: (s) => effekt(s, 'x', -0.1, 60) },
+    prednisolon: { wirkung: (s) => effekt(s, 'x', -0.04, 120) },
+    'adrenalin-iv': {
+      kontra: (s) => (s.kreislauf && s.w.sys >= 80 ? 'Bei erhaltenem Kreislauf reicht Adrenalin i.m. – i.v. nur beim lebensbedrohlichen Schock.' : null),
+      wirkung: (s) => {
+        s.flags.adrenalin = ((s.flags.adrenalin as number) || 0) + 1;
+        if (s.kreislauf) effekt(s, 'x', -0.4, 30);
+      },
+    },
+  },
+  eigene: [allergenStopp],
+  befund: {
+    ekg12: () => 'Sinustachykardie, keine ST-Hebung.',
+    lunge: (s) => (s.x > 0.5 ? 'Giemen und Brummen beidseits, das Einatmen ist pfeifend (Stridor).' : 'Leichtes Giemen beidseits.'),
+    neuro: (s) => (s.achsen.neuro > 0.7 ? 'Ängstlich, orientiert, keine Lähmungen.' : 'Zunehmend benommen – der Kreislauf lässt nach.'),
+  },
+  beobachtung: (s) => ({
+    sonst: ['Rote Quaddeln am Hals und an den Armen, Lippen und Augenlider geschwollen.', ...(s.x > 0.55 ? ['Beim Einatmen pfeift es hörbar (Stridor).'] : [])],
+  }),
+  spruch: (s) => (!s.kreislauf ? '' : s.x < 0.55 ? 'Mein Hals schwillt zu … alles juckt!' : s.x < 0.8 ? 'Ich … kriege … keine Luft …' : ''),
+  ziele: [
+    { id: 'adrenalin', titel: 'Adrenalin i.m. in den ersten 2,5 Minuten', gewicht: 5, pruefe: (s) => gegebenVor(s, 'adrenalin-im', 150) || gegebenVor(s, 'adrenalin-iv', 300), hinweis: 'Adrenalin ist das wichtigste Medikament bei der Anaphylaxie – je früher, desto besser.' },
+    { id: 'notarzt', titel: 'Notarzt in den ersten 2 Minuten nachgefordert', gewicht: 2, pruefe: (s) => vor(s, 'notarzt-rufen', 120), hinweis: 'Die Reaktion kann sich verschlimmern; ein Arzt kann weitere Medikamente geben.' },
+    { id: 'o2', titel: 'Hochdosiert Sauerstoff (Reservoirmaske)', gewicht: 1.5, pruefe: (s) => vor(s, 'o2-reservoir', 240), hinweis: 'Bei Atemnot gibt es 15 l Sauerstoff über die Reservoirmaske.' },
+    { id: 'spo2', titel: 'Pulsoxymeter in den ersten 90 Sekunden', gewicht: 1, pruefe: (s) => vor(s, 'spo2', 90), hinweis: 'Die Sättigung zeigt, wie ernst die Atemnot ist.' },
+    { id: 'zugang', titel: 'Zugang und Infusion', gewicht: 1.5, pruefe: (s) => vor(s, 'zugang-ok', 300) && hat(s, 'infusion'), hinweis: 'Der Körper verliert Flüssigkeit in das Gewebe – Volumen stützt den Kreislauf.' },
+    { id: 'lage', titel: 'Sinnvolle Lagerung (Beine hoch bei Schock, sitzend bei Atemnot)', gewicht: 1, pruefe: (s) => lageIn(s, 'beinehoch', 'sitzend', 'oberkoerper'), hinweis: 'Bei Atemnot Oberkörper hoch, bei Schock Beine hoch – nie flach bei Atemnot.' },
+    { id: 'allergen', titel: 'Auslöser beseitigt', gewicht: 0.5, pruefe: (s) => hat(s, 'allergen'), hinweis: 'Stachel entfernen, Stelle kühlen.' },
+    { id: 'klinik', titel: 'Überwachung in der Klinik (Notaufnahme oder Intensiv)', gewicht: 1, pruefe: (s) => s.klinik === 'naechste' || s.klinik === 'intensiv', hinweis: 'Eine zweite Reaktion nach Stunden ist möglich – der Patient muss überwacht werden.' },
+  ],
+  lehre: {
+    text: [
+      'Bei der Anaphylaxie schwellen die Atemwege, die Bronchien verkrampfen, und der Blutdruck fällt, weil die Gefäße weit werden.',
+      'Das Wichtigste ist früh Adrenalin i.m. in den Oberschenkel. Danach Sauerstoff, Zugang, Volumen, passende Lagerung und eine Klinik zur Überwachung.',
+    ],
+    merke: 'Anaphylaxie: Adrenalin zuerst, dann der Rest. Jede Minute Warten verschlechtert die Lage.',
+  },
+});
+
+// ───────────────────────── 3. Asthma ─────────────────────────
+const asthmaRuhe: AktionDef = {
+  id: 'ruhig',
+  gruppe: 'team',
+  titel: 'Beruhigen (Lippenbremse, ruhige Atmung)',
+  icon: '🧘',
+  dauer: 8,
+  haende: 1,
+  fertig: (s) => {
+    effekt(s, 'x', -0.03, 20);
+    logge(s, 'gut', 'Ruhig zureden und die Lippenbremse üben: Der Patient atmet etwas gleichmäßiger.');
+  },
+};
+const asthma = S({
+  id: 'asthma',
+  titel: 'Asthmaanfall nach dem Sport',
+  kurz: 'Der junge Mann ringt um Luft – das Spray hilft nicht mehr. Wird es still, wird es gefährlich.',
+  icon: '🫁',
+  farbe: 'blue',
+  bereich: 'Atemnot',
+  stufe: 1,
+  alarm: {
+    stichwort: 'RD 1 · Atemnot',
+    meldung: 'Mann, 22 Jahre, bekannter Asthmatiker, schwere Atemnot nach dem Training, das Spray wirkt nicht. Der Trainer ist bei ihm.',
+    ort: 'Sporthalle Süd, Umkleide',
+  },
+  szene: 'Jonas sitzt vornübergebeugt auf der Bank und stützt sich auf die Knie. Er spricht nur noch in kurzen Wörtern, das Atmen pfeift hörbar.',
+  patient: { name: 'Jonas Keller', alter: 22, sex: 'm', kennung: 'sim-asthma' },
+  basis: { hf: 70, sys: 125, dia: 80, spo2: 98, af: 14, temp: 36.7, bz: 92 },
+  x0: 0.5,
+  wachstum: 0.0018,
+  wA: 1.0,
+  wK: 0.45,
+  wN: 0.5,
+  potenz: 1.5,
+  o2: 0.8,
+  afHoch: true,
+  startLage: 'sitzend',
+  lagerung: { sitzend: { atem: 0.08 }, oberkoerper: { atem: 0.04 }, flach: { atem: -0.25 }, beinehoch: { atem: -0.3 }, seitenlage: { atem: -0.1 } },
+  stillstand: { rhythmus: () => 'pea', ursache: (s) => s.geraete.bvm },
+  notarztEta: 360,
+  zielklinik: 'naechste',
+  akzeptabel: ['intensiv'],
+  szenenzeitSoll: 780,
+  antworten: [
+    '!Ich … kriege … keine Luft … Das Spray … hilft nicht.',
+    'Die Brust ist … ganz eng.',
+    '!Seit … dem Training … vor 20 Minuten.',
+    'Asthma … seit der Kindheit.',
+    '!Das Spray … dreimal genommen … Kortison … morgens.',
+    'Nur … Pollen.',
+  ],
+  med: {
+    salbutamol: { wirkung: (s) => { effekt(s, 'x', -0.32, 90); s.wachstumFaktor = Math.min(s.wachstumFaktor, 0.5); } },
+    'adrenalin-im': {
+      kontra: (s) => (s.x < 0.7 ? 'Adrenalin bei Asthma nur beim lebensbedrohlichen Anfall, wenn Salbutamol nicht reicht.' : null),
+      wirkung: (s) => effekt(s, 'x', -0.3, 40),
+    },
+    prednisolon: { wirkung: (s) => effekt(s, 'x', -0.05, 120) },
+  },
+  eigene: [asthmaRuhe],
+  befund: {
+    ekg12: () => 'Sinustachykardie, sonst unauffällig.',
+    lunge: (s) => (s.x > 0.8 ? 'Das Atemgeräusch ist kaum noch zu hören – stiller Thorax! Lebensgefahr.' : 'Exspiratorisches Giemen und Brummen beidseits.'),
+    neuro: () => 'Wach, ängstlich, orientiert.',
+  },
+  beobachtung: (s) => ({
+    sonst: ['Er sitzt vorgebeugt, stützt sich auf den Knien auf und atmet mit gespitzten Lippen.', ...(s.x > 0.8 ? ['Er wird still und müde – ein schlechtes Zeichen!'] : [])],
+  }),
+  spruch: (s) => (!s.kreislauf ? '' : s.x < 0.55 ? 'Ich … krieg … keine Luft!' : s.x < 0.8 ? '(flüstert) Kann … nicht mehr …' : ''),
+  ziele: [
+    { id: 'lage', titel: 'Aufrecht sitzen lassen, nie flach lagern', gewicht: 2, pruefe: (s) => lageIn(s, 'sitzend', 'oberkoerper'), hinweis: 'Aufrecht fällt das Atmen leichter, flach verschlimmert die Atemnot.' },
+    { id: 'spo2', titel: 'Pulsoxymeter in der ersten Minute', gewicht: 1, pruefe: (s) => vor(s, 'spo2', 60), hinweis: 'Die Sättigung zeigt den Ernst der Lage.' },
+    { id: 'o2', titel: 'Sauerstoff in den ersten 2 Minuten', gewicht: 2, pruefe: (s) => o2ab(s, 120), hinweis: 'Bei Atemnot mit niedriger Sättigung gibt es Sauerstoff.' },
+    { id: 'salbutamol', titel: 'Salbutamol in den ersten 2,5 Minuten', gewicht: 5, pruefe: (s) => gegebenVor(s, 'salbutamol', 150), hinweis: 'Salbutamol weitet die Bronchien – das ist die Behandlung der Wahl.' },
+    { id: 'notarzt', titel: 'Notarzt nachgefordert (in 4 Minuten)', gewicht: 1.5, pruefe: (s) => vor(s, 'notarzt-rufen', 240), hinweis: 'Bei schwerem Anfall wird ärztliche Hilfe gebraucht.' },
+    { id: 'ruhig', titel: 'Ruhig zugesprochen', gewicht: 0.5, pruefe: (s) => hat(s, 'ruhig'), hinweis: 'Angst verschlimmert die Atemnot.' },
+    { id: 'lunge', titel: 'Lunge abgehört', gewicht: 1, pruefe: (s) => hat(s, 'lunge'), hinweis: 'Giemen oder „stiller Thorax“ zeigt, wie ernst es ist.' },
+    { id: 'pred', titel: 'Kortison durch den Notarzt', gewicht: 1, pruefe: (s) => gegeben(s, 'prednisolon'), hinweis: 'Kortison bremst die Entzündung nach einem schweren Anfall.' },
+  ],
+  lehre: {
+    text: [
+      'Beim Asthmaanfall verkrampfen die Bronchien. Wird das Atemgeräusch leiser, ist das kein gutes Zeichen: Der Patient erschöpft („stiller Thorax“).',
+      'Aufrecht sitzen, Sauerstoff, Salbutamol als Vernebler (mehrfach möglich), Notarzt, Kortison. Beim lebensbedrohlichen Anfall kommt Adrenalin dazu.',
+    ],
+    merke: 'Asthma: aufrecht, Sauerstoff, Salbutamol. Wird er leise oder müde, ist es lebensbedrohlich.',
+  },
+});
+
+// ───────────────────────── 4. Unterzucker ─────────────────────────
+const hypo = S({
+  id: 'hypoglykaemie',
+  titel: 'Unterzucker in der Küche',
+  kurz: 'Verwirrt, schwitzig, zitterig – eine kleine Messung zeigt die Ursache. Aber wird er noch schlucken können?',
+  icon: '🍬',
+  farbe: 'green',
+  bereich: 'Stoffwechsel',
+  stufe: 1,
+  alarm: {
+    stichwort: 'RD 1 · Bewusstseinsstörung',
+    meldung: 'Mann, 67 Jahre, Diabetiker, plötzlich verwirrt und schweißnass. Die Ehefrau ruft an.',
+    ort: 'Lindenstraße 14, Küche',
+  },
+  szene: 'Werner sitzt am Küchentisch, hat eine halb gegessene Brotscheibe vor sich, schaut verwirrt und zittert. Seine Frau reicht ihm ein Glas Wasser.',
+  patient: { name: 'Werner Schulz', alter: 67, sex: 'm', kennung: 'sim-hypo' },
+  sprecher: 'Ehefrau',
+  basis: { hf: 76, sys: 145, dia: 85, spo2: 97, af: 14, temp: 36.6, bz: 110 },
+  x0: 0.6,
+  wachstum: 0.0014,
+  wA: 0.2,
+  wK: 0.25,
+  wN: 0.7,
+  potenz: 2,
+  o2: 0.5,
+  afHoch: false,
+  startLage: 'sitzend',
+  bzFn: (s) => 150 - 125 * sm(s.x / 0.75),
+  stillstand: { rhythmus: () => 'asystolie', ursache: (s) => gegeben(s, 'glukose-iv') },
+  notarztEta: 480,
+  zielklinik: 'naechste',
+  szenenzeitSoll: 900,
+  antworten: [
+    '!Er hat heute sein Insulin gespritzt, aber kaum etwas gegessen. Dann wurde er komisch.',
+    'Er sagt nichts zu Schmerzen, er ist nur so durcheinander und zittert.',
+    '!Das hat vor etwa einer halben Stunde angefangen.',
+    '!Er hat Diabetes, seit 15 Jahren, und spritzt Insulin.',
+    'Insulin und eine Tablette für das Herz.',
+    'Nein, keine Allergien.',
+  ],
+  med: {
+    'glukose-oral': {
+      kontra: (s) => (s.w.gcs < 11 ? 'Der Patient ist nicht mehr wach genug: Beim Schlucken droht Aspiration. Nur Glukose i.v.!' : null),
+      wirkung: (s) => effekt(s, 'x', -0.5, 150),
+    },
+    'glukose-iv': { wirkung: (s) => effekt(s, 'x', -0.8, 60) },
+  },
+  ereignisse: [
+    {
+      id: 'krampf',
+      wenn: (s) => s.x > 0.85,
+      aus: (s) => {
+        s.flags.krampf = true;
+        logge(s, 'alarm', 'Der Patient krampft! Zuckungen am ganzen Körper – Verletzungen vermeiden, Atemweg sichern.');
+      },
+    },
+    {
+      id: 'krampf-ende',
+      wenn: (s) => !!s.flags.krampf && s.x < 0.6,
+      aus: (s) => {
+        s.flags.krampf = false;
+        logge(s, 'info', 'Der Krampfanfall lässt nach.');
+      },
+    },
+  ],
+  befund: {
+    ekg12: () => 'Sinusrhythmus, keine ST-Veränderungen.',
+    lunge: () => 'Unauffällig.',
+    neuro: () => 'Verwirrt, nicht orientiert zu Zeit und Ort, grobschlägiger Tremor, keine Lähmung, Pupillen gleich und reaktiv.',
+  },
+  beobachtung: () => ({ sonst: ['Er schwitzt stark, die Hände zittern, er greift nach dem Brot, aber kaut kaum.'] }),
+  spruch: (s) => (!s.kreislauf ? '' : s.x < 0.5 ? 'Lass mich … ich bin nur müde …' : s.x < 0.8 ? 'Wer … sind Sie?' : ''),
+  ziele: [
+    { id: 'bz', titel: 'Blutzucker in der ersten Minute', gewicht: 4, pruefe: (s) => vor(s, 'bz', 60), hinweis: 'Bei jeder Bewusstseinsstörung zuerst den Blutzucker messen.' },
+    { id: 'glukose', titel: 'Glukose in den ersten 4 Minuten', gewicht: 4, pruefe: (s) => gegebenVor(s, 'glukose-oral', 240) || gegebenVor(s, 'glukose-iv', 240), hinweis: 'Beim Unterzucker gibt es Zucker: oral, wenn er noch sicher schluckt, sonst i.v.' },
+    { id: 'frage', titel: 'Wichtige Hinweise von der Ehefrau erfragt', gewicht: 2, pruefe: (s) => hat(s, 'wichtige-antwort'), hinweis: 'Diabetes und Insulin sind der entscheidende Hinweis.' },
+    { id: 'spo2', titel: 'Pulsoxymeter angelegt', gewicht: 1, pruefe: (s) => vor(s, 'spo2', 180), hinweis: 'Vitalwerte immer kontrollieren.' },
+    { id: 'zugang', titel: 'Zugang gelegt (falls er nicht mehr schlucken kann)', gewicht: 1, pruefe: (s) => hat(s, 'zugang-ok') || s.w.gcs >= 11, hinweis: 'Sinkt das Bewusstsein, braucht er den Zugang für die Glukose.' },
+    { id: 'klinik', titel: 'Zur Kontrolle ins Krankenhaus (Ursache klären)', gewicht: 1, pruefe: (s) => !!s.klinik || s.ende?.art === 'uebergabe', hinweis: 'Insulin wirkt lange: Der Zucker kann wieder fallen.' },
+  ],
+  lehre: {
+    text: [
+      'Unterzucker (unter etwa 60 mg/dl) macht verwirrt, schwitzig und zittrig – und kann zu Krampf und Bewusstlosigkeit führen.',
+      'Immer zuerst den Blutzucker messen. Wach und schluckfähig: Glukose oral. Sonst Glukose i.v. – nie etwas in den Mund einflößen, wenn er schläfrig ist.',
+    ],
+    merke: 'Bewusstseinsstörung = Blutzucker messen. Schnell behandelt, ist der Unterzucker gut zu beheben.',
+  },
+});
+
+// ───────────────────────── 5. Schlaganfall ─────────────────────────
+const schlaganfall = S({
+  id: 'schlaganfall',
+  titel: 'Schlaganfall am Esstisch',
+  kurz: 'Hängender Mundwinkel, kraftloser Arm: Hier zählt jede Minute bis zur Stroke Unit.',
+  icon: '🧠',
+  farbe: 'violet',
+  bereich: 'Neurologie',
+  stufe: 2,
+  alarm: {
+    stichwort: 'RD 2 · Neurologischer Notfall',
+    meldung: 'Frau, 72 Jahre, plötzlich undeutliche Sprache, hängender Mundwinkel, rechte Hand kraftlos. Die Tochter ist vor Ort.',
+    ort: 'Ahornallee 3, Esszimmer',
+  },
+  szene: 'Gisela sitzt am Tisch, der rechte Mundwinkel hängt herab, sie versucht zu sprechen, doch nur verwaschene Wörter kommen. Die Tochter kniet neben ihr.',
+  patient: { name: 'Gisela Hartmann', alter: 72, sex: 'w', kennung: 'sim-stroke' },
+  sprecher: 'Tochter',
+  basis: { hf: 84, sys: 185, dia: 100, spo2: 96, af: 16, temp: 36.9, bz: 112 },
+  x0: 0.3,
+  wachstum: 0.0004,
+  wA: 0.3,
+  wK: 0.2,
+  wN: 0.6,
+  potenz: 1.2,
+  o2: 0.3,
+  afHoch: true,
+  startLage: 'sitzend',
+  lagerung: { oberkoerper: { atem: 0.03 }, sitzend: { atem: 0.02 }, flach: { atem: -0.03 } },
+  stillstand: { rhythmus: () => 'vf', ursache: () => false },
+  rhythmus: () => 'af',
+  notarztEta: 420,
+  zielklinik: 'stroke',
+  szenenzeitSoll: 600,
+  antworten: [
+    '!Sie wollte etwas sagen, aber es kam nur Gelalle heraus, und der Mundwinkel hing.',
+    'Über Schmerzen klagt sie nicht – nur ihr rechter Arm ist so schwach.',
+    '!Das war genau um 18:05 Uhr, ich habe auf die Uhr geschaut. Eben noch war alles normal.',
+    'Sie hat Vorhofflimmern und Bluthochdruck.',
+    '!Sie nimmt Marcumar, also Blutverdünner, und eine Blutdrucktablette.',
+    'Keine Allergien.',
+  ],
+  med: {
+    'glukose-iv': { kontra: () => 'Der Blutzucker ist normal – keine Glukose.', wirkung: () => undefined },
+    asa: { kontra: () => 'Kein ASS: Eine Hirnblutung ist nicht ausgeschlossen (erst die Computertomografie in der Klinik).', wirkung: () => undefined },
+    nitro: { kontra: () => 'Den Blutdruck bei einem Schlaganfall nicht eigenmächtig senken.', wirkung: () => undefined },
+  },
+  ereignisse: [
+    {
+      id: 'erbrechen',
+      wenn: (s) => s.t >= 170,
+      aus: (s) => {
+        s.flags.sekret = true;
+        s.flags.erbrochenT = s.t;
+        logge(s, 'alarm', 'Die Patientin muss erbrechen! Erbrochenes im Mund – Aspirationsgefahr.');
+      },
+    },
+    {
+      id: 'aspiration',
+      wenn: (s) => !!s.flags.sekret && s.t >= ((s.flags.erbrochenT as number) || 0) + 70,
+      aus: (s) => {
+        s.x = clamp(s.x + 0.15);
+        fehler(s, 'Erbrochenes ist in die Atemwege geraten (Aspiration).', 2, true);
+      },
+    },
+  ],
+  befund: {
+    ekg12: () => 'Vorhofflimmern (absolut unregelmäßig), keine ST-Hebung.',
+    lunge: () => 'Beidseits unauffällig.',
+    neuro: () => 'FAST positiv: rechter Mundwinkel hängt, rechter Arm sinkt ab, Sprache verwaschen. Pupillen gleich, Blick nach links gerichtet.',
+  },
+  beobachtung: () => ({ sonst: ['Der rechte Mundwinkel hängt herab. Der rechte Arm liegt schlaff auf dem Tisch.'] }),
+  spruch: (s) => (!s.kreislauf ? '' : s.flags.sekret ? 'Mmh … mir ist so übel …' : 'Mmh … meine Hand … so komisch …'),
+  ziele: [
+    { id: 'bz', titel: 'Blutzucker in den ersten 2 Minuten', gewicht: 3, pruefe: (s) => vor(s, 'bz', 120), hinweis: 'Ein Unterzucker kann einen Schlaganfall nachahmen – immer ausschließen.' },
+    { id: 'fast', titel: 'Neurostatus (FAST) in den ersten 2 Minuten', gewicht: 3, pruefe: (s) => vor(s, 'neuro', 120), hinweis: 'FAST (Gesicht, Arme, Sprache, Zeit) bestätigt den Verdacht.' },
+    { id: 'zeit', titel: 'Zeitpunkt des Beginns erfragt', gewicht: 3, pruefe: (s) => vor(s, 'frage-seit', 180), hinweis: 'Die Zeit seit Symptombeginn entscheidet über die Lyse-Behandlung.' },
+    { id: 'spo2', titel: 'Pulsoxymeter und Blutdruck', gewicht: 1.5, pruefe: (s) => vor(s, 'spo2', 180) && vor(s, 'nibp', 240), hinweis: 'Basis-Überwachung bei jedem Patienten.' },
+    { id: 'zugang', titel: 'Zugang gelegt', gewicht: 1, pruefe: (s) => hat(s, 'zugang-ok'), hinweis: 'Die Klinik braucht einen Zugang für die Bildgebung und Medikamente.' },
+    { id: 'absaugen', titel: 'Bei Erbrechen abgesaugt oder in Seitenlage gebracht', gewicht: 2, pruefe: (s) => !s.flags.sekret && !s.fehler.some((f) => f.text.startsWith('Erbrochenes')), hinweis: 'Schlaganfallpatienten verschlucken sich leicht.' },
+    { id: 'lage', titel: 'Oberkörper hoch (30°) gelagert', gewicht: 1, pruefe: (s) => lageIn(s, 'oberkoerper', 'sitzend', 'seitenlage'), hinweis: 'Oberkörper 30° hoch senkt den Hirndruck.' },
+    { id: 'klinik', titel: 'Stroke Unit voranmelden', gewicht: 4, pruefe: (s) => s.klinik === 'stroke', hinweis: 'Nur eine Stroke Unit kann Lyse oder Thrombektomie durchführen.' },
+    { id: 'schnell', titel: 'Szenenzeit unter 10 Minuten', gewicht: 4, pruefe: (s) => zeitOk(s, 600), hinweis: 'Time is brain: Pro Minute gehen etwa 2 Millionen Nervenzellen verloren.' },
+  ],
+  lehre: {
+    text: [
+      'Beim Schlaganfall ist die Durchblutung des Gehirns gestört. Lyse und Thrombektomie wirken nur in einem begrenzten Zeitfenster.',
+      'Ablauf: FAST, Blutzucker, Zeitpunkt des Beginns, Basisüberwachung, kein ASS und keine Blutdrucksenkung, Oberkörper 30° hoch, Stroke Unit voranmelden und zügig fahren.',
+    ],
+    merke: 'Schlaganfall: Zeit notieren, Blutzucker, Stroke Unit voranmelden, ohne Umwege fahren.',
+  },
+});
+
+// ───────────────────────── 6. Kreislaufstillstand ─────────────────────────
+const reanimation = S({
+  id: 'reanimation',
+  titel: 'Wiederbelebung im Garten',
+  kurz: 'Der Mann liegt reglos im Rasen. Jetzt zählt jeder Handgriff: erkennen, drücken, schocken.',
+  icon: '⚡',
+  farbe: 'red',
+  bereich: 'Reanimation',
+  stufe: 3,
+  alarm: {
+    stichwort: 'RD 1 · Reanimation',
+    meldung: 'Mann, 63 Jahre, beim Rasenmähen zusammengebrochen, reagiert nicht. Ein Nachbar ist dabei, begonnen hat noch niemand.',
+    ort: 'Eichenweg 11, Garten',
+  },
+  szene: 'Dieter liegt auf dem Rücken neben dem Rasenmäher, das Gesicht ist grau. Der Nachbar steht daneben und zittert: „Er ist einfach umgekippt!“',
+  patient: { name: 'Dieter Maurer', alter: 63, sex: 'm', kennung: 'sim-cpr' },
+  sprecher: 'Nachbar',
+  basis: { hf: 70, sys: 130, dia: 80, spo2: 97, af: 14, temp: 36.5, bz: 105 },
+  x0: 0.9,
+  wachstum: 0.0003,
+  wA: 0.6,
+  wK: 0.8,
+  wN: 0.5,
+  potenz: 1.3,
+  o2: 0.8,
+  afHoch: true,
+  startLage: 'flach',
+  startStillstand: true,
+  roscX: 0.45,
+  stillstand: { rhythmus: (s) => (zufallStart(s) < 0.7 ? 'vf' : 'asystolie'), ursache: (s) => s.geraete.bvm },
+  notarztEta: 300,
+  zielklinik: 'katheter',
+  akzeptabel: ['intensiv'],
+  szenenzeitSoll: 1500,
+  antworten: [
+    '!Er hat den Rasen gemäht und ist einfach umgekippt. Ich habe sofort die 112 gerufen.',
+    'Er hat sich kurz vorher an die Brust gefasst, glaube ich.',
+    '!Vor etwa drei Minuten, ich habe auf die Uhr geschaut.',
+    'Er hatte schon mal einen Herzinfarkt, glaube ich.',
+    'Tabletten fürs Herz, den Namen weiß ich nicht.',
+    'Keine Ahnung.',
+  ],
+  med: {},
+  befund: {
+    ekg12: () => 'Sinustachykardie, ST-Hebungen in II, III und aVF (Hinterwandinfarkt). Katheter-Klinik!',
+    lunge: () => 'Beidseits Atemgeräusch hörbar.',
+    neuro: (s) => (s.rosc ? 'Bewusstlos, Pupillen mittelweit, träge Lichtreaktion.' : 'Bewusstlos, Pupillen weit.'),
+  },
+  spruch: () => '',
+  ziele: [
+    { id: 'erkennen', titel: 'Stillstand in den ersten 30 Sekunden erkannt', gewicht: 2, pruefe: (s) => vor(s, 'pulscheck', 35) || vor(s, 'hlw-an', 35), hinweis: 'Bewusstlos und keine normale Atmung = Wiederbelebung beginnen.' },
+    { id: 'hlw', titel: 'Herzdruckmassage in den ersten 40 Sekunden', gewicht: 5, pruefe: (s) => vor(s, 'hlw-an', 45), hinweis: 'Jede Sekunde ohne Herzdruckmassage verschlechtert die Überlebenschance.' },
+    { id: 'pads', titel: 'Defi-Pads innerhalb von 2 Minuten', gewicht: 3, pruefe: (s) => vor(s, 'pads', 120), hinweis: 'Der Defibrillator analysiert den Rhythmus und rettet bei Kammerflimmern.' },
+    { id: 'analyse', titel: 'Erste Rhythmusanalyse innerhalb von 3 Minuten', gewicht: 3, pruefe: (s) => vor(s, 'analyse', 180), hinweis: 'Bei Kammerflimmern ist der Schock die wichtigste Behandlung.' },
+    { id: 'bvm', titel: 'Beutelbeatmung mit Sauerstoff', gewicht: 2, pruefe: (s) => hat(s, 'bvm'), hinweis: 'Gerade bei Sauerstoffmangel als Ursache wichtig.' },
+    { id: 'zugang', titel: 'Zugang gelegt', gewicht: 1, pruefe: (s) => hat(s, 'zugang-ok'), hinweis: 'Ohne Zugang gibt es keine Medikamente.' },
+    { id: 'notarzt', titel: 'Notarzt in den ersten 90 Sekunden nachgefordert', gewicht: 2, pruefe: (s) => vor(s, 'notarzt-rufen', 90), hinweis: 'Eine Reanimation braucht schnell mehr Hände und ärztliche Hilfe.' },
+    { id: 'adrenalin', titel: 'Adrenalin durch den Notarzt', gewicht: 2, pruefe: (s) => gegeben(s, 'adrenalin-iv'), hinweis: 'Adrenalin unterstützt die Rückkehr des Kreislaufs.' },
+    { id: 'wechsel', titel: 'Helfer gewechselt (alle 2 Minuten)', gewicht: 2, pruefe: (s) => hat(s, 'hlw-wechsel'), hinweis: 'Nach zwei Minuten lässt die Qualität der Herzdruckmassage nach.' },
+    { id: 'pausen', titel: 'Pausen unter 15 % der Zeit', gewicht: 2, pruefe: (s) => s.handsOff / Math.max(1, s.t) < 0.15, hinweis: 'Jede Pause ohne Herzdruckmassage nimmt dem Gehirn Blut.' },
+    { id: 'rosc', titel: 'Kreislauf zurückgeholt (ROSC)', gewicht: 5, pruefe: (s) => s.rosc > 0, hinweis: 'Das Ziel jeder Reanimation.' },
+    { id: 'ekg12', titel: 'Nach ROSC: 12-Kanal-EKG', gewicht: 2, pruefe: (s) => s.rosc > 0 && hat(s, 'ekg12'), hinweis: 'Es zeigt, ob ein Herzinfarkt die Ursache war.' },
+    { id: 'klinik', titel: 'Nach ROSC: Klinik mit Herzkatheter voranmelden', gewicht: 3, pruefe: (s) => s.rosc > 0 && (s.klinik === 'katheter' || s.klinik === 'intensiv'), hinweis: 'Nach Reanimation wegen Herzinfarkt zählt der schnelle Katheter.' },
+  ],
+  lehre: {
+    text: [
+      'Bei Kreislaufstillstand entscheidet die Qualität der Herzdruckmassage: fest, schnell (100–120 pro Minute), kaum Pausen, alle 2 Minuten wechseln.',
+      'Kammerflimmern behandelt der Defibrillator: Pads kleben, analysieren, schocken, sofort weiter drücken. Bei Asystolie hilft der Schock nicht – hier zählen gute Wiederbelebung, Beatmung, Adrenalin und die Suche nach der Ursache.',
+    ],
+    merke: 'Erkennen, drücken, Defi: Je kürzer die Pausen, desto besser die Chancen.',
+  },
+});
+function zufallStart(s: SimState): number {
+  // Start-Rhythmus aus dem Seed ableiten (gleicher Seed = gleicher Einsatz)
+  return (((s.rng >>> 0) % 1000) + 1) / 1001;
+}
+
+// ───────────────────────── 7. Lungenödem ─────────────────────────
+const lungenoedem = S({
+  id: 'lungenoedem',
+  titel: 'Lungenödem in der Nacht',
+  kurz: 'Brodelnde Atmung, hoher Blutdruck: Aufrecht setzen, Sauerstoff, Nitro – aber bloß keine Infusion!',
+  icon: '💧',
+  farbe: 'blue',
+  bereich: 'Herz & Kreislauf',
+  stufe: 2,
+  alarm: {
+    stichwort: 'RD 2 · Atemnot',
+    meldung: 'Mann, 74 Jahre, nachts plötzlich schwere Atemnot, brodelnde Atmung, Herzschwäche bekannt. Die Ehefrau ruft an.',
+    ort: 'Gartenstraße 22, Schlafzimmer',
+  },
+  szene: 'Heinrich liegt im Bett und ringt nach Luft. Aus seinem Mund kommt rosa Schaum, es brodelt bei jedem Atemzug. Seine Frau knipst das Licht an.',
+  patient: { name: 'Heinrich Vogel', alter: 74, sex: 'm', kennung: 'sim-loe' },
+  basis: { hf: 90, sys: 195, dia: 105, spo2: 97, af: 16, temp: 36.8, bz: 135 },
+  x0: 0.45,
+  wachstum: 0.0016,
+  wA: 0.85,
+  wK: 0.5,
+  wN: 0.4,
+  potenz: 1.4,
+  o2: 0.7,
+  afHoch: true,
+  volumen: -1,
+  startLage: 'flach',
+  lagerung: { sitzend: { atem: 0.1 }, oberkoerper: { atem: 0.05 }, flach: { atem: -0.08 }, beinehoch: { atem: -0.2 }, seitenlage: { atem: -0.05 } },
+  stillstand: { rhythmus: () => 'pea', ursache: (s) => s.geraete.bvm },
+  rhythmus: () => 'af',
+  notarztEta: 360,
+  zielklinik: 'naechste',
+  akzeptabel: ['intensiv', 'katheter'],
+  szenenzeitSoll: 780,
+  antworten: [
+    '!Ich bin aufgewacht und kriege keine Luft … es rasselt in der Brust!',
+    'Ich habe so einen Druck auf der Brust und ersticke.',
+    '!Seit ungefähr einer halben Stunde, es wurde immer schlimmer.',
+    'Herzschwäche und hoher Blutdruck.',
+    '!Wassertabletten, Betablocker und etwas für den Blutdruck. Heute Abend habe ich eine vergessen.',
+    'Keine Allergien.',
+  ],
+  med: {
+    nitro: {
+      kontra: (s) => (s.w.sys < 110 ? 'Der Blutdruck ist zu niedrig für Nitro.' : null),
+      wirkung: (s) => effekt(s, 'x', -0.3, 60),
+    },
+    furosemid: { wirkung: (s) => effekt(s, 'x', -0.18, 240) },
+    fentanyl: { wirkung: (s) => effekt(s, 'x', -0.06, 90) },
+  },
+  befund: {
+    ekg12: () => 'Vorhofflimmern mit schneller Überleitung, keine ST-Hebung.',
+    lunge: () => 'Beidseits feuchte Rasselgeräusche („brodelnd“) bis in die Oberfelder.',
+    neuro: () => 'Wach, ängstlich, orientiert.',
+  },
+  beobachtung: (s) => ({
+    sonst: ['Rosa-schaumiger Auswurf am Mund, die Atemgeräusche sind schon ohne Stethoskop zu hören.', ...(s.geraete.lage === 'flach' ? ['Er kämpft im Liegen um jeden Atemzug.'] : [])],
+  }),
+  spruch: (s) => (!s.kreislauf ? '' : s.x < 0.65 ? 'Ich … ersticke … setzen Sie mich auf!' : s.x < 0.85 ? '(ringt nach Luft) …' : ''),
+  ziele: [
+    { id: 'lage', titel: 'Aufrecht gesetzt (Oberkörper hoch, Beine tief)', gewicht: 3, pruefe: (s) => (vor(s, 'lage-sitzend', 60) || vor(s, 'lage-oberkoerper', 60)) && lageIn(s, 'sitzend', 'oberkoerper'), hinweis: 'Aufrecht sammelt sich das Wasser in den unteren Lungenabschnitten und im Körper.' },
+    { id: 'o2', titel: 'Sauerstoff in den ersten 90 Sekunden', gewicht: 2, pruefe: (s) => o2ab(s, 90), hinweis: 'Das Lungenödem hemmt den Gasaustausch.' },
+    { id: 'spo2', titel: 'Pulsoxymeter in der ersten Minute', gewicht: 1, pruefe: (s) => vor(s, 'spo2', 60), hinweis: 'Die Sättigung zeigt den Ernst.' },
+    { id: 'nibp', titel: 'Blutdruck vor dem Nitro gemessen', gewicht: 1, pruefe: (s) => vor(s, 'nibp', 180), hinweis: 'Nitro darf man nur bei ausreichendem Blutdruck geben.' },
+    { id: 'nitro', titel: 'Nitro gegeben', gewicht: 3, pruefe: (s) => gegeben(s, 'nitro'), hinweis: 'Nitro entlastet das Herz und senkt den Druck in der Lunge.' },
+    { id: 'zugang', titel: 'Zugang gelegt (ohne Infusion!)', gewicht: 1, pruefe: (s) => hat(s, 'zugang-ok'), hinweis: 'Der Zugang wird für Medikamente gebraucht.' },
+    { id: 'notarzt', titel: 'Notarzt in den ersten 2,5 Minuten nachgefordert', gewicht: 2, pruefe: (s) => vor(s, 'notarzt-rufen', 150), hinweis: 'Weitere Medikamente und ärztliche Beurteilung.' },
+    { id: 'furosemid', titel: 'Furosemid durch den Notarzt', gewicht: 1, pruefe: (s) => gegeben(s, 'furosemid'), hinweis: 'Entwässert und entlastet.' },
+    { id: 'keineinfusion', titel: 'Keine Infusion gegeben', gewicht: 2, pruefe: (s) => !hat(s, 'infusion'), hinweis: 'Das Herz kann zusätzliche Flüssigkeit nicht bewältigen.' },
+  ],
+  lehre: {
+    text: [
+      'Beim kardialen Lungenödem staut sich das Blut in die Lunge zurück, weil das Herz zu schwach pumpt. Typisch sind brodelnde Atmung, rosa Schaum, hoher Blutdruck.',
+      'Aufrecht setzen, Sauerstoff, Nitro (nur bei ausreichendem Blutdruck), später Furosemid, Notarzt. Eine Infusion verschlechtert den Zustand.',
+    ],
+    merke: 'Lungenödem: aufrecht, Sauerstoff, Nitro bei Blutdruck über 110 – nie Infusion!',
+  },
+});
+
+// ───────────────────────── 8. Trauma ─────────────────────────
+const immobil: AktionDef = {
+  id: 'immobil',
+  gruppe: 'team',
+  titel: 'Wirbelsäule schützen (Vakuummatratze)',
+  icon: '🧱',
+  dauer: 45,
+  haende: 2,
+  fertig: (s) => {
+    s.flags.immobil = true;
+    logge(s, 'info', 'Der Patient liegt schonend auf der Vakuummatratze, die Wirbelsäule ist geschützt.');
+  },
+};
+const trauma = S({
+  id: 'trauma',
+  titel: 'Motorradunfall auf der Landstraße',
+  kurz: 'Starke Blutung am Bein und ein Kreislauf, der immer schneller nachgibt: Jetzt zählt jede Minute.',
+  icon: '🏍️',
+  farbe: 'red',
+  bereich: 'Trauma',
+  stufe: 3,
+  alarm: {
+    stichwort: 'RD 2 · Verkehrsunfall',
+    meldung: 'Motorradfahrer, 29 Jahre, in der Kurve gestürzt, stark blutende Beinverletzung, ansprechbar. Ersthelfer sind vor Ort.',
+    ort: 'Landstraße K 12, Kurve bei km 4',
+  },
+  szene: 'Marco liegt neben seinem Motorrad im Straßengraben, der linke Oberschenkel ist aufgerissen und blutet stark. Ein Ersthelfer drückt mit einem Pullover auf die Wunde.',
+  patient: { name: 'Marco Lindner', alter: 29, sex: 'm', kennung: 'sim-trauma' },
+  basis: { hf: 70, sys: 130, dia: 80, spo2: 98, af: 14, temp: 36.6, bz: 98 },
+  x0: 0.35,
+  wachstum: 0.003,
+  wA: 0.35,
+  wK: 1.0,
+  wN: 0.6,
+  potenz: 1.1,
+  o2: 0.5,
+  afHoch: true,
+  volumen: 1,
+  waerme: 0.08,
+  blutung: true,
+  startLage: 'flach',
+  lagerung: { beinehoch: { kreis: 0.04 } },
+  stillstand: { rhythmus: () => 'pea', ursache: (s) => !!s.flags.blutungGestoppt && s.geraete.infusionen >= 1 },
+  notarztEta: 420,
+  zielklinik: 'schockraum',
+  szenenzeitSoll: 600,
+  antworten: [
+    '!Ich bin in der Kurve weggerutscht. Mein Bein … da ist so viel Blut!',
+    'Mein Oberschenkel brennt. Sonst tut mir nichts weh.',
+    '!Das ist gerade eben passiert, vor vielleicht fünf Minuten.',
+    'Nichts, ich bin gesund.',
+    'Keine Medikamente.',
+    'Keine Allergien.',
+  ],
+  med: {
+    tranexam: { wirkung: (s) => effekt(s, 'x', -0.1, 60) },
+    fentanyl: {
+      kontra: (s) => (s.w.sys < 90 ? 'Bei diesem Blutdruck (Schock) kein Fentanyl.' : null),
+      wirkung: (s) => effekt(s, 'bNeuro', 0.02, 30),
+    },
+  },
+  eigene: [immobil],
+  befund: {
+    ekg12: () => 'Sinustachykardie, keine ST-Veränderungen.',
+    lunge: () => 'Beidseits unauffällig, kein Hinweis auf Thoraxverletzung.',
+    neuro: () => 'Wach, orientiert, bewegt alle Extremitäten (außer dem verletzten Bein), Pupillen gleich.',
+  },
+  beobachtung: (s) => ({
+    sonst: [
+      s.flags.blutungGestoppt ? 'Die Blutung steht, der Stauschlauch sitzt fest.' : 'Aus dem linken Oberschenkel pulsiert hellrotes Blut, der Boden ist schon rot.',
+    ],
+  }),
+  spruch: (s) => (!s.kreislauf ? '' : s.x < 0.5 ? 'Es blutet so stark … helfen Sie mir!' : s.x < 0.8 ? 'Mir ist so kalt … und schwindelig …' : ''),
+  ziele: [
+    { id: 'blutung', titel: 'Lebensbedrohliche Blutung sofort gestoppt (Tourniquet)', gewicht: 6, pruefe: (s) => vor(s, 'tourniquet', 75), hinweis: 'Eine starke Blutung stoppt man als Erstes – zuerst die Blutung, dann der Rest (xABCDE).' },
+    { id: 'nibp', titel: 'Blutdruck gemessen', gewicht: 1, pruefe: (s) => vor(s, 'nibp', 240), hinweis: 'Der Blutdruck zeigt den Schock.' },
+    { id: 'spo2', titel: 'Monitor in den ersten 2,5 Minuten', gewicht: 1, pruefe: (s) => vor(s, 'spo2', 150), hinweis: 'Überwachung bei jedem Traumapatienten.' },
+    { id: 'notarzt', titel: 'Notarzt in den ersten 2 Minuten nachgefordert', gewicht: 2, pruefe: (s) => vor(s, 'notarzt-rufen', 120), hinweis: 'Schwerverletzte brauchen schnell ärztliche Hilfe.' },
+    { id: 'zugang', titel: 'Zugang gelegt', gewicht: 1.5, pruefe: (s) => vor(s, 'zugang-ok', 300), hinweis: 'Für Volumen und Medikamente.' },
+    { id: 'waerme', titel: 'Vor Auskühlung geschützt', gewicht: 1.5, pruefe: (s) => hat(s, 'waerme'), hinweis: 'Kälte verschlechtert die Blutgerinnung.' },
+    { id: 'immobil', titel: 'Wirbelsäule geschützt', gewicht: 1, pruefe: (s) => !!s.flags.immobil, hinweis: 'Nach Sturz mit hoher Geschwindigkeit drohen Wirbelverletzungen.' },
+    { id: 'volumen', titel: 'Nicht zu viel Volumen (höchstens 2 Beutel)', gewicht: 1, pruefe: (s) => s.geraete.infusionen <= 2, hinweis: 'Zu viel Flüssigkeit verdünnt das Blut und fördert die Blutung.' },
+    { id: 'klinik', titel: 'Traumazentrum (Schockraum) voranmelden', gewicht: 3, pruefe: (s) => s.klinik === 'schockraum', hinweis: 'Schwerverletzte gehören in ein Traumazentrum.' },
+    { id: 'zeit', titel: 'Szenenzeit unter 10 Minuten', gewicht: 4, pruefe: (s) => zeitOk(s, 600), hinweis: 'Beim Trauma gilt „load and go“: Zeit ist der Feind.' },
+  ],
+  lehre: {
+    text: [
+      'Bei starker Blutung zählt zuerst die Blutstillung (xABCDE): Druckverband, und wenn das nicht reicht, das Tourniquet. Danach Atemweg, Atmung, Kreislauf.',
+      'Wärmeerhalt, Zugang mit zurückhaltender Volumengabe, Wirbelsäule schützen, Traumazentrum voranmelden und zügig fahren.',
+    ],
+    merke: 'Starke Blutung = sofort stoppen (Tourniquet), warm halten, Schockraum voranmelden, schnell los.',
+  },
+});
+
+
+// ───────────────────────── 9. Herzblock ─────────────────────────
+const schrittmacher: AktionDef = {
+  id: 'schrittmacher',
+  gruppe: 'defi',
+  titel: 'Schrittmacher über Defi-Pads (Notarzt)',
+  icon: '🔌',
+  tag: 'Notarzt',
+  dauer: 30,
+  haende: 0,
+  geht: (s) => (!s.notarzt.da ? 'Der Notarzt ist noch nicht da.' : !s.geraete.pads ? 'Erst die Pads kleben.' : null),
+  fertig: (s) => {
+    effekt(s, 'x', -0.45, 20);
+    s.flags.schrittmacher = true;
+    logge(s, 'arzt', 'Notarzt: „Schrittmacher läuft, Frequenz 70 – wir haben Stimulation.“ Der Herzschlag ist wieder regelmäßig schnell genug.');
+  },
+};
+const herzblock = S({
+  id: 'herzblock',
+  titel: 'Ohnmacht im Seniorenheim',
+  kurz: 'Der Puls liegt bei 30: Der Herzblock kann jederzeit in einen Stillstand münden.',
+  icon: '🐢',
+  farbe: 'violet',
+  bereich: 'Herzrhythmus',
+  stufe: 2,
+  alarm: {
+    stichwort: 'RD 2 · Synkope',
+    meldung: 'Frau, 79 Jahre, plötzlich schwindelig und kurz ohnmächtig. Die Pflegekraft meldet einen sehr langsamen Puls.',
+    ort: 'Seniorenresidenz Sonnenhof, Zimmer 14',
+  },
+  szene: 'Ingrid sitzt blass im Sessel, fühlt sich schwach und sagt, ihr sei schwindelig. Die Pflegekraft hat am Handgelenk nur etwa 30 Schläge gezählt.',
+  patient: { name: 'Ingrid Falk', alter: 79, sex: 'w', kennung: 'sim-av3' },
+  basis: { hf: 72, sys: 140, dia: 80, spo2: 96, af: 15, temp: 36.6, bz: 118 },
+  x0: 0.45,
+  wachstum: 0.0012,
+  wA: 0.3,
+  wK: 1.0,
+  wN: 0.5,
+  potenz: 1.3,
+  o2: 0.4,
+  afHoch: true,
+  startLage: 'sitzend',
+  lagerung: { flach: { kreis: 0.08, atem: -0.03 }, beinehoch: { kreis: 0.1 } },
+  hfZiel: (s) => 30 + 24 * (1 - sm(s.x / 0.6)),
+  rhythmus: () => 'av3',
+  stillstand: { rhythmus: () => 'asystolie', ursache: () => false },
+  notarztEta: 360,
+  zielklinik: 'intensiv',
+  akzeptabel: ['katheter'],
+  szenenzeitSoll: 780,
+  antworten: [
+    '!Mir wurde plötzlich schwarz vor Augen, ich bin fast umgekippt.',
+    'Nirgends. Ich bin nur so schwach und schwindelig.',
+    '!Vor etwa einer Stunde ging es los, seitdem ist mir immer wieder schwindelig.',
+    'Herzschwäche und Bluthochdruck.',
+    '!Betablocker und eine Wassertablette, heute früh wie immer.',
+    'Keine Allergien.',
+  ],
+  med: {
+    atropin: { wirkung: (s) => effekt(s, 'x', -0.3, 40) },
+    fentanyl: { kontra: () => 'Kein starkes Schmerzmittel bei diesem Kreislauf.', wirkung: () => undefined },
+  },
+  eigene: [schrittmacher],
+  befund: {
+    ekg12: () => 'Totaler AV-Block (3. Grades): P-Wellen und QRS-Komplexe laufen unabhängig, Kammerfrequenz um 30/min, breiter Ersatzrhythmus.',
+    lunge: () => 'Beidseits unauffällig.',
+    neuro: (s) => (s.achsen.neuro > 0.6 ? 'Wach, orientiert, etwas benommen.' : 'Benommen, verlangsamt.'),
+  },
+  beobachtung: () => ({ sonst: ['Sehr langsamer, kräftiger Puls am Handgelenk, Haut blass und kühl.'] }),
+  spruch: (s) => (!s.kreislauf ? '' : s.x < 0.4 ? 'Mir ist besser, aber so müde …' : s.x < 0.7 ? 'Mir wird so schwindelig … alles dreht sich.' : 'Ich … mir wird schwarz …'),
+  ziele: [
+    { id: 'ekg', titel: 'EKG-Monitor in den ersten 90 Sekunden', gewicht: 3, pruefe: (s) => vor(s, 'ekg', 90), hinweis: 'Nur das EKG zeigt, ob der langsame Puls ein Herzblock ist.' },
+    { id: 'nibp', titel: 'Blutdruck gemessen', gewicht: 1, pruefe: (s) => vor(s, 'nibp', 240), hinweis: 'Bei sehr langsamem Puls kann der Blutdruck abstürzen.' },
+    { id: 'spo2', titel: 'Pulsoxymeter angelegt', gewicht: 1, pruefe: (s) => vor(s, 'spo2', 120), hinweis: 'Grundüberwachung.' },
+    { id: 'notarzt', titel: 'Notarzt in den ersten 2 Minuten nachgefordert', gewicht: 3, pruefe: (s) => vor(s, 'notarzt-rufen', 120), hinweis: 'Ein Herzblock braucht Atropin oder einen Schrittmacher – beides gehört in ärztliche Hand.' },
+    { id: 'pads', titel: 'Defi-Pads vorsorglich geklebt', gewicht: 2, pruefe: (s) => vor(s, 'pads', 300), hinweis: 'Mit Pads ist der Schrittmacher sofort möglich – und ein Schock, falls das Herz stehen bleibt.' },
+    { id: 'zugang', titel: 'Zugang gelegt', gewicht: 1.5, pruefe: (s) => vor(s, 'zugang-ok', 360), hinweis: 'Für Atropin und weitere Medikamente.' },
+    { id: 'atropin', titel: 'Atropin durch den Notarzt', gewicht: 2, pruefe: (s) => gegeben(s, 'atropin'), hinweis: 'Atropin beschleunigt das Herz – oft nur kurz.' },
+    { id: 'pm', titel: 'Schrittmacher über die Pads', gewicht: 3, pruefe: (s) => !!s.flags.schrittmacher, hinweis: 'Beim kompletten Herzblock ist der Schrittmacher die zuverlässige Lösung.' },
+    { id: 'ekg12', titel: '12-Kanal-EKG geschrieben', gewicht: 1.5, pruefe: (s) => hat(s, 'ekg12'), hinweis: 'Zeigt den AV-Block und mögliche Infarktzeichen.' },
+    { id: 'klinik', titel: 'Klinik mit Intensivstation / Herzkatheter voranmelden', gewicht: 2, pruefe: (s) => s.klinik === 'intensiv' || s.klinik === 'katheter', hinweis: 'Dort wird ein dauerhafter Schrittmacher eingesetzt.' },
+  ],
+  lehre: {
+    text: [
+      'Beim AV-Block 3. Grades kommen die Impulse aus den Vorhöfen nicht in die Kammern. Eine Ersatzzelle schlägt sehr langsam (um 30/min). Das führt zu Schwindel, Ohnmacht und kann in einen Stillstand münden.',
+      'Monitor, Blutdruck, Zugang, Pads (für den Schrittmacher und als Sicherheit), Notarzt. Der Arzt gibt Atropin oder startet den Schrittmacher. Danach in die Klinik zum dauerhaften Schrittmacher.',
+    ],
+    merke: 'Puls um 30 plus Schwindel: EKG, Pads kleben, Notarzt – und auf Stillstand gefasst sein.',
+  },
+});
+
+// ───────────────────────── 10. Krampfanfall ─────────────────────────
+const schuetzen: AktionDef = {
+  id: 'schuetzen',
+  gruppe: 'atem',
+  titel: 'Verletzungen vermeiden (polstern, Platz schaffen)',
+  icon: '🧸',
+  dauer: 8,
+  haende: 1,
+  fertig: (s) => logge(s, 'gut', 'Gegenstände weggeräumt, der Kopf liegt weich. Nicht festhalten und nichts in den Mund schieben.'),
+};
+const krampf = S({
+  id: 'krampf',
+  titel: 'Krampfanfall im Restaurant',
+  kurz: 'Zuckungen seit Minuten, Atmung unregelmäßig: schützen, Atemweg, Zucker – und rechtzeitig Medikamente.',
+  icon: '⚡️',
+  farbe: 'amber',
+  bereich: 'Neurologie',
+  stufe: 2,
+  alarm: {
+    stichwort: 'RD 2 · Krampfanfall',
+    meldung: 'Mann, 31 Jahre, Krampfanfall seit einigen Minuten, bekannte Epilepsie. Gäste haben ihn auf den Boden gelegt.',
+    ort: 'Restaurant „Ratsstube“, Gastraum',
+  },
+  szene: 'Tobias liegt auf dem Boden zwischen den Tischen, der ganze Körper zuckt, die Lippen sind bläulich. Eine Kellnerin hat eine Jacke unter seinen Kopf geschoben.',
+  patient: { name: 'Tobias Reuter', alter: 31, sex: 'm', kennung: 'sim-krampf' },
+  sprecher: 'Kellnerin',
+  basis: { hf: 70, sys: 125, dia: 80, spo2: 98, af: 14, temp: 37.0, bz: 100 },
+  x0: 0.5,
+  wachstum: 0.001,
+  wA: 0.8,
+  wK: 0.2,
+  wN: 0.9,
+  potenz: 1.4,
+  o2: 0.7,
+  afHoch: true,
+  startLage: 'flach',
+  startFlags: { krampf: true },
+  lagerung: { seitenlage: { atem: 0.1 }, flach: { atem: -0.05 } },
+  stillstand: { rhythmus: () => 'pea', ursache: (s) => s.geraete.bvm },
+  notarztEta: 360,
+  zielklinik: 'naechste',
+  akzeptabel: ['intensiv'],
+  szenenzeitSoll: 900,
+  antworten: [
+    '!Er hat gegessen, dann hat er plötzlich geschrien und ist zusammengesackt. Seitdem krampft er.',
+    'Das kann ich nicht sagen, er reagiert ja nicht.',
+    '!Das geht jetzt schon etwa vier, fünf Minuten so.',
+    '!Sein Freund sagt, er hat Epilepsie.',
+    'Ich glaube, er nimmt Tabletten dagegen, hat sie heute aber vielleicht vergessen.',
+    'Keine Ahnung.',
+  ],
+  med: {
+    midazolam: {
+      kontra: (s) => (s.w.af < 8 && !s.geraete.bvm ? 'Die Atmung ist zu langsam: erst beatmen, sonst wird sie durch das Medikament noch schwächer.' : null),
+      wirkung: (s) => effekt(s, 'x', -0.65, 40),
+    },
+    'glukose-iv': { kontra: (s) => ((s.sz.basis.bz >= 70) ? 'Der Blutzucker ist normal – keine Glukose.' : null), wirkung: () => undefined },
+  },
+  eigene: [schuetzen],
+  ereignisse: [
+    {
+      id: 'krampf-ende',
+      wenn: (s) => !!s.flags.krampf && s.x < 0.35,
+      aus: (s) => {
+        s.flags.krampf = false;
+        s.bonus.neuro = clamp(s.bonus.neuro - 0.25, -0.6, 0.6);
+        logge(s, 'gut', 'Der Krampfanfall lässt nach. Der Patient ist erschöpft und tief benommen (postiktal) – Atemweg und Atmung im Blick behalten.');
+      },
+    },
+  ],
+  befund: {
+    ekg12: () => 'Sinustachykardie, keine ST-Veränderungen.',
+    lunge: () => 'Beidseits Atemgeräusch, durch die Krämpfe schwer zu beurteilen.',
+    neuro: (s) => (s.flags.krampf ? 'Generalisierte Zuckungen, keine Reaktion auf Ansprache, Pupillen weit.' : 'Tief benommen nach dem Anfall (postiktal), Pupillen gleich, keine Lähmung.'),
+  },
+  beobachtung: (s) => ({ sonst: [s.flags.krampf ? 'Der ganze Körper zuckt rhythmisch, Schaum steht vor dem Mund, die Lippen sind bläulich.' : 'Der Patient liegt schlaff, atmet tief und schnarchend.'] }),
+  spruch: () => '',
+  ziele: [
+    { id: 'schutz', titel: 'Vor Verletzungen geschützt', gewicht: 1.5, pruefe: (s) => vor(s, 'schuetzen', 60), hinweis: 'Gegenstände weg, Kopf polstern – nicht festhalten.' },
+    { id: 'kein-guedel', titel: 'Nichts in den Mund geschoben', gewicht: 1.5, pruefe: (s) => !s.fehler.some((f) => f.text.startsWith('Während des Krampfanfalls')), hinweis: 'Beim Krampf ist der Kiefer verkrampft – Gegenstände verletzen Zähne und Atemwege.' },
+    { id: 'bz', titel: 'Blutzucker in den ersten 90 Sekunden', gewicht: 2, pruefe: (s) => vor(s, 'bz', 90), hinweis: 'Unterzucker kann Krämpfe auslösen.' },
+    { id: 'o2', titel: 'Sauerstoff in den ersten 2 Minuten', gewicht: 2, pruefe: (s) => o2ab(s, 120), hinweis: 'Während des Krampfs atmet der Patient schlecht.' },
+    { id: 'spo2', titel: 'Pulsoxymeter in den ersten 90 Sekunden', gewicht: 1, pruefe: (s) => vor(s, 'spo2', 90), hinweis: 'Die Sättigung fällt im Krampf schnell.' },
+    { id: 'notarzt', titel: 'Notarzt in den ersten 90 Sekunden nachgefordert', gewicht: 3, pruefe: (s) => vor(s, 'notarzt-rufen', 90), hinweis: 'Ein Krampf über 5 Minuten braucht ein Medikament vom Arzt.' },
+    { id: 'zugang', titel: 'Zugang gelegt', gewicht: 1.5, pruefe: (s) => hat(s, 'zugang-ok'), hinweis: 'Für Midazolam.' },
+    { id: 'midazolam', titel: 'Midazolam durch den Notarzt', gewicht: 4, pruefe: (s) => gegeben(s, 'midazolam'), hinweis: 'Ein anhaltender Krampf (Status epilepticus) muss medikamentös beendet werden.' },
+    { id: 'seitenlage', titel: 'Nach dem Anfall in stabile Seitenlage', gewicht: 2, pruefe: (s) => !s.flags.krampf && lageIn(s, 'seitenlage'), hinweis: 'Nach dem Krampf ist der Patient benommen – die Seitenlage schützt den Atemweg.' },
+    { id: 'klinik', titel: 'Überwachung in der Klinik', gewicht: 1, pruefe: (s) => s.klinik === 'naechste' || s.klinik === 'intensiv', hinweis: 'Nach einem langen Anfall muss der Patient überwacht werden.' },
+  ],
+  lehre: {
+    text: [
+      'Beim Krampfanfall zuerst schützen: Platz schaffen, Kopf polstern, nicht festhalten, nichts in den Mund schieben. Meist endet er nach 1–3 Minuten von selbst.',
+      'Dauert er länger als 5 Minuten (Status epilepticus), braucht der Patient ein Medikament vom Arzt. Dazu Blutzucker, Sauerstoff, Zugang, und nach dem Anfall die stabile Seitenlage.',
+    ],
+    merke: 'Krampf: schützen, nichts in den Mund, Sauerstoff, Blutzucker, früh Notarzt. Nach dem Anfall Seitenlage.',
+  },
+});
+
+export const SIM_SZENARIEN: SimSzenario[] = [asthma, hypo, stemi, anaphylaxie, lungenoedem, schlaganfall, herzblock, krampf, trauma, reanimation];
+export const SIM_BY_ID = Object.fromEntries(SIM_SZENARIEN.map((s) => [s.id, s])) as Record<string, SimSzenario>;

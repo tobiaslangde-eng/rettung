@@ -21,6 +21,7 @@ export function SpielmodiView({
   onDuell,
   onLive,
   onEkg,
+  onSimulator,
   onLernstand,
   onWiederholen,
   onWoche,
@@ -35,6 +36,7 @@ export function SpielmodiView({
   onDuell: () => void;
   onLive: () => void;
   onEkg: () => void;
+  onSimulator: () => void;
   onLernstand: () => void;
   onWiederholen: () => void;
   onWoche: () => void;
@@ -113,6 +115,15 @@ export function SpielmodiView({
             name: 'Wochen-Challenge',
             aktion: onWoche,
             gesperrt: !frei,
+          },
+          {
+            icon: '🫀',
+            titel: 'Patienten-Simulator',
+            text: 'Echtzeit-Einsatz mit Monitor, Defi, Notarzt und Zeitdruck: Der Patient reagiert auf alles, was du tust.',
+            stand: `${progress.simGespielt} gespielt · ${progress.simUebergeben} übergeben`,
+            tint: 'ink' as keyof typeof tiles,
+            name: 'Patienten-Simulator',
+            aktion: onSimulator,
           },
           {
             icon: '📈',

@@ -68,3 +68,29 @@ export function piepe(hoch = false): void {
     // ohne Ton geht es auch
   }
 }
+
+/** Beliebiger kurzer Ton (Web, nur wenn der Ton an ist): für Alarm, Defibrillator und Gerätegeräusche im Simulator */
+export function spieleTon(freq: number, dauer = 0.12, laut = 0.05, typ: OscillatorType = 'sine', verzug = 0, bis?: number): void {
+  if (Platform.OS !== 'web' || typeof window === 'undefined' || !tonAn()) return;
+  try {
+    const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AC) return;
+    audio = audio ?? new AC();
+    if (audio.state === 'suspended') void audio.resume();
+    const o = audio.createOscillator();
+    const g = audio.createGain();
+    o.type = typ;
+    const t = audio.currentTime + verzug;
+    o.frequency.setValueAtTime(freq, t);
+    if (bis) o.frequency.exponentialRampToValueAtTime(bis, t + dauer);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(laut, t + Math.min(0.01, dauer / 3));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dauer);
+    o.connect(g);
+    g.connect(audio.destination);
+    o.start(t);
+    o.stop(t + dauer + 0.02);
+  } catch {
+    // ohne Ton geht es auch
+  }
+}

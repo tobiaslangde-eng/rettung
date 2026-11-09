@@ -125,6 +125,10 @@ export interface Progress {
   liveSiege: number;
   /** EKG lesen: insgesamt richtig eingeordnete Streifen */
   ekgRichtig: number;
+  /** Patienten-Simulator: gespielte und übergebene Einsätze, beste Sterne je Szenario */
+  simGespielt: number;
+  simUebergeben: number;
+  simSterne: Record<string, number>;
   /** Spickzettel, die schon gespeichert oder geöffnet wurden (IDs) */
   spickGesehen: string[];
   /** Rückmeldung wurde schon gegeben */
@@ -192,6 +196,9 @@ export const EMPTY_PROGRESS: Progress = {
   liveGespielt: 0,
   liveSiege: 0,
   ekgRichtig: 0,
+  simGespielt: 0,
+  simUebergeben: 0,
+  simSterne: {},
   spickGesehen: [],
   feedbackGegeben: false,
   challengeWoche: '',

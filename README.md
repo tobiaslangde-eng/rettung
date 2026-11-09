@@ -115,6 +115,20 @@ Weg in den Rettungsdienst.
   stockender antwortet er („Der Rücken … brennt …“), unter 15 % gar nicht mehr. Wichtige Antworten (💡) bringen Bonus-EP (5 je Antwort, höchstens 3).
   Für die 28 Grundfälle und die 20 Extremfälle sind die Antworten von Hand geschrieben (auf „Mittel“ und „Schwer“ steht anfangs nur die
   erste Aussage da, der Rest kommt auf Nachfrage), für alle anderen werden sie aus der Anamnese abgeleitet. Bei „Ton an“ wird die Antwort vorgelesen.
+- **Patienten-Simulator** (Training → Spielmodi, nur Sanitätsdienst; am PC in der Seitenleiste): Ein Einsatz in **Echtzeit** mit
+  allem Drum und Dran. Der Patient lebt weiter und reagiert auf alles, was ich tue. Der **Monitor** zeigt EKG (11 Rhythmen), Pulskurve und
+  Atemkurve live, die Zahlen erscheinen erst, wenn Pulsoxymeter, EKG, Blutdruckmanschette oder Blutzuckermessgerät angelegt sind. Alarme
+  blinken und piepen (stumm schalten möglich), der Piepton folgt dem Puls und der Sättigung. Die **Patientenfigur** zeigt Lagerung (sitzend,
+  Oberkörper hoch, flach, Beine hoch, Seitenlage), Maske, Pads, Zugang mit tropfender Infusion, Rettungsdecke, Tourniquet, Beutelbeatmung,
+  Herzdruckmassage und den Schock-Blitz. Ich habe **zwei Hände** (Du und Kollege): Jede Maßnahme bindet eine oder beide Hände.
+  Über 60 Maßnahmen in sechs Bereichen: Messen, Atmung, Kreislauf, Defi & HLW (Pads, Analyse, Schock, 30 Sekunden Herzdruckmassage mit
+  Helferwechsel alle 2 Minuten), Medikamente („SOP“ in Notkompetenz oder nur auf Anordnung des **Notarztes**, der erst nachgefordert werden
+  muss und dann eintrifft) und Team (Voranmeldung der richtigen Klinik, Trage, Abfahrt). Dazu das Gespräch mit dem Patienten oder Zeugen.
+  10 Szenarien: Asthma, Unterzucker, Herzinfarkt (mit drohendem Kammerflimmern), Wespenstich mit Anaphylaxie, Lungenödem, Schlaganfall,
+  Herzblock, Krampfanfall, Motorradunfall mit Blutung und Wiederbelebung. Am Ende gibt es eine **Auswertung** mit Verlaufskurve und
+  Maßnahmen-Symbolen, Soll-Ist-Vergleich mit Begründung, Fehlerliste, Sternen und EP sowie einem Lernhinweis. Tempo ×1/×2, Pause, Ton.
+  Aufbau: `src/game/simulator.ts` (Patientenmodell), `src/game/simAktionen.ts` (Maßnahmen), `src/data/simulator.ts` (Szenarien),
+  `src/game/ekgLive.ts` (Live-Kurven); Prüfung mit `node scripts/check-simulator.mjs` (siehe `docs/SIMULATOR.md`).
 - **Zeitdruck-Modus** (Training → Spielmodi, nur Sanitätsdienst): Eine Uhr läuft mit (180/150/120 Sekunden je Stufe). Sie steht beim
   Zwischenfall und beim Einstufen eines Werts. Mit mindestens 30 Sekunden Rest gibt es +25 EP, ist die Zeit um, verliert der Patient zusätzlich Kraft.
 - **Reihenfolge-Rennen** (Live-Runde): „Was kommt direkt nach …?“ zu Abläufen wie Wiederbelebung, Absichern, Schlaganfall –

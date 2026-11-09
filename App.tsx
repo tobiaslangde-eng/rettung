@@ -66,6 +66,7 @@ import { mitUrkundenDatum } from './src/game/urkunden';
 import { DuellScreen } from './src/screens/DuellScreen';
 import { LiveScreen } from './src/screens/LiveScreen';
 import { EkgScreen } from './src/screens/EkgScreen';
+import { SimulatorScreen } from './src/screens/SimulatorScreen';
 import { bitteUmDauerhaftenSpeicher } from './src/game/umgebung';
 import { leseRaumLink, loescheRaumLink } from './src/game/livetransport';
 import { DuellEinladung, leseEinladung, loescheEinladung } from './src/game/duell';
@@ -105,6 +106,7 @@ type Screen =
   | { name: 'duell'; key: number }
   | { name: 'live'; key: number }
   | { name: 'ekg'; key: number }
+  | { name: 'simulator'; key: number }
   | { name: 'lernstand' }
   | { name: 'schicht' }
   | { name: 'feedback' }
@@ -155,6 +157,7 @@ const FRAME_MAX: Partial<Record<Screen['name'], number>> = {
   duell: 760,
   live: 760,
   ekg: 760,
+  simulator: 980,
   lernstand: 760,
   schicht: 760,
   feedback: 760,
@@ -209,6 +212,7 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   duell: 'home',
   live: 'home',
   ekg: 'home',
+  simulator: 'simulator',
   lernstand: 'home',
   schicht: 'home',
   feedback: 'home',
@@ -681,7 +685,7 @@ export default function App() {
   const navigate = (t: NavTarget) => {
     if (t === 'karte') return oeffneKarte();
     if (t === 'start') return startCase();
-    if (['quiz', 'wissen', 'cpr', 'manv', 'detektiv', 'schritte', 'notruf', 'zuerst', 'pack', 'handgriffe', 'mythen', 'aed', 'pruefung', 'gefahr', 'leitstelle', 'fehler', 'labor'].includes(t)) {
+    if (['quiz', 'wissen', 'cpr', 'manv', 'detektiv', 'schritte', 'notruf', 'zuerst', 'pack', 'handgriffe', 'mythen', 'aed', 'pruefung', 'gefahr', 'leitstelle', 'fehler', 'labor', 'simulator'].includes(t)) {
       zaehle('training-' + t);
       return setScreen({ name: t, key: Date.now() } as Screen);
     }
@@ -970,6 +974,22 @@ export default function App() {
                         onBack={() => setScreen({ name: 'training' })}
                       />
                     )}
+                    {screen.name === 'simulator' && (
+                      <SimulatorScreen
+                        key={screen.key}
+                        bestSterne={progress.simSterne}
+                        onFinish={(id, ep, sterne, uebergeben) =>
+                          commit({
+                            ...progress,
+                            totalPoints: progress.totalPoints + trainingPunkte(ep),
+                            simGespielt: progress.simGespielt + 1,
+                            simUebergeben: progress.simUebergeben + (uebergeben ? 1 : 0),
+                            simSterne: { ...progress.simSterne, [id]: Math.max(progress.simSterne[id] ?? 0, sterne) },
+                          })
+                        }
+                        onBack={() => setScreen({ name: 'training' })}
+                      />
+                    )}
                     {screen.name === 'live' && (
                       <LiveScreen
                         key={screen.key}
@@ -1096,6 +1116,7 @@ export default function App() {
                           setScreen({ name: 'live', key: Date.now() });
                         }}
                         onEkg={() => setScreen({ name: 'ekg', key: Date.now() })}
+                        onSimulator={() => setScreen({ name: 'simulator', key: Date.now() })}
                         onLernstand={() => setScreen({ name: 'lernstand' })}
                         onWiederholen={startWiederholen}
                         onWoche={startWoche}

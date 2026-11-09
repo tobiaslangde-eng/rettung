@@ -237,7 +237,7 @@ function mulberry32(a: number) {
   };
 }
 
-const gauss = (t: number, mu: number, sigma: number, amp: number) => amp * Math.exp(-0.5 * ((t - mu) / sigma) ** 2);
+export const gauss = (t: number, mu: number, sigma: number, amp: number) => amp * Math.exp(-0.5 * ((t - mu) / sigma) ** 2);
 const sigmoid = (x: number) => 1 / (1 + Math.exp(-x));
 
 export interface EkgKurve {
@@ -247,7 +247,7 @@ export interface EkgKurve {
   qrs: number[];
 }
 
-type Schlag = {
+export type Schlag = {
   tq: number;
   /** PQ-Zeit; 0 = keine P-Welle */
   pq?: number;
@@ -259,7 +259,7 @@ type Schlag = {
 };
 
 /** Ein einzelner Herzschlag (P, QRS, ST, T) an der Stelle t */
-function schlagWert(t: number, s: Schlag): number {
+export function schlagWert(t: number, s: Schlag): number {
   const x = t - s.tq;
   if (x < -0.4 || x > 0.7) return 0;
   const r = s.ampR ?? 1;

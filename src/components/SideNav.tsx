@@ -38,7 +38,8 @@ export type NavTarget =
   | 'wissen'
   | 'quiz'
   | 'lexikon'
-  | 'guide';
+  | 'guide'
+  | 'simulator';
 
 /** Feste Seitenleiste für große Bildschirme (PC, Mac, iPad quer) */
 export function SideNav({
@@ -68,6 +69,7 @@ export function SideNav({
       group: i === 0 ? 'Training' : undefined,
       bereich: t.id,
     })),
+    ...(r.id === 'sani' ? [{ id: 'simulator' as NavTarget, icon: '🫀', label: 'Patienten-Simulator' }] : []),
     { id: 'lexikon', icon: '📖', label: 'Lexikon', group: 'Nachschlagen' },
     { id: 'guide', icon: '⚙️', label: 'Mehr' },
   ];
