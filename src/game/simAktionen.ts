@@ -133,8 +133,9 @@ const messen: AktionDef[] = [
     dauer: 10,
     haende: 1,
     fertig: (s) => {
-      s.messung.temp = { t: s.t, wert: s.sz.basis.temp };
-      logge(s, 'info', `Temperatur ${s.sz.basis.temp.toFixed(1).replace('.', ',')} °C.`);
+      const w = Math.round((s.sz.tempFn ? s.sz.tempFn(s) : s.sz.basis.temp) * 10) / 10;
+      s.messung.temp = { t: s.t, wert: w };
+      logge(s, 'info', `Temperatur ${w.toFixed(1).replace('.', ',')} °C.`);
     },
   },
   {
@@ -539,6 +540,10 @@ export const MED_LISTE: MedInfo[] = [
   { id: 'amiodaron', titel: 'Amiodaron 300 mg i.v.', icon: '🧬', arzt: true, iv: true, dauer: 15 },
   { id: 'atropin', titel: 'Atropin 0,5 mg i.v.', icon: '💧', arzt: true, iv: true, dauer: 15 },
   { id: 'midazolam', titel: 'Midazolam i.v. (Krampf stoppen)', icon: '😴', arzt: true, iv: true, dauer: 15 },
+  { id: 'naloxon', titel: 'Naloxon (Opioid-Gegenmittel)', icon: '🛡️', arzt: false, iv: false, dauer: 15 },
+  { id: 'heparin', titel: 'Heparin i.v. (Blutverdünner)', icon: '🩸', arzt: true, iv: true, dauer: 15 },
+  { id: 'magnesium', titel: 'Magnesium i.v.', icon: '🧂', arzt: true, iv: true, dauer: 15 },
+  { id: 'adrenalin-inhal', titel: 'Adrenalin zum Inhalieren', icon: '🌫️', arzt: true, iv: false, dauer: 15 },
 ];
 export const MED_BY_ID = Object.fromEntries(MED_LISTE.map((m) => [m.id, m]));
 

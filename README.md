@@ -124,8 +124,12 @@ Weg in den Rettungsdienst.
   Über 60 Maßnahmen in sechs Bereichen: Messen, Atmung, Kreislauf, Defi & HLW (Pads, Analyse, Schock, 30 Sekunden Herzdruckmassage mit
   Helferwechsel alle 2 Minuten), Medikamente („SOP“ in Notkompetenz oder nur auf Anordnung des **Notarztes**, der erst nachgefordert werden
   muss und dann eintrifft) und Team (Voranmeldung der richtigen Klinik, Trage, Abfahrt). Dazu das Gespräch mit dem Patienten oder Zeugen.
-  10 Szenarien: Asthma, Unterzucker, Herzinfarkt (mit drohendem Kammerflimmern), Wespenstich mit Anaphylaxie, Lungenödem, Schlaganfall,
-  Herzblock, Krampfanfall, Motorradunfall mit Blutung und Wiederbelebung. Am Ende gibt es eine **Auswertung** mit Verlaufskurve und
+  23 Szenarien, filterbar nach Herz, Atmung, Neuro, Trauma, Stoffwechsel, Umwelt, Kinder, Sonstige und Reanimation, zum Beispiel Asthma,
+  COPD (Sauerstoff nur dosiert), Herzinfarkt (mit drohendem Kammerflimmern), Anaphylaxie, Lungenödem und Lungenembolie, Schlaganfall, Herzblock,
+  Krampfanfall und Eklampsie, Sepsis, Rauchgas (das Pulsoxymeter täuscht), Unterkühlung, Hitzschlag, Opioid-Überdosis, Magenblutung,
+  Verschlucken (Rückenschläge und Oberbauchkompression), Pseudokrupp beim Kleinkind, Motorradunfall mit Blutung und Wiederbelebung.
+  Sind beide Hände belegt, wird die nächste Maßnahme **vorgemerkt** und startet von selbst; eine Hinweisleiste und die ABCDE-Ampel
+  (Atemweg, Atmung, Kreislauf, Bewusstsein) geben Überblick. Am Ende gibt es eine **Auswertung** mit Verlaufskurve und
   Maßnahmen-Symbolen, Soll-Ist-Vergleich mit Begründung, Fehlerliste, Sternen und EP sowie einem Lernhinweis. Tempo ×1/×2, Pause, Ton.
   Aufbau: `src/game/simulator.ts` (Patientenmodell), `src/game/simAktionen.ts` (Maßnahmen), `src/data/simulator.ts` (Szenarien),
   `src/game/ekgLive.ts` (Live-Kurven); Prüfung mit `node scripts/check-simulator.mjs` (siehe `docs/SIMULATOR.md`).

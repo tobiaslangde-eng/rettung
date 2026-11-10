@@ -33,6 +33,14 @@ Messwerte erscheinen nur, wenn das passende Gerät angelegt ist. Der Monitor zei
 4. `node scripts/check-simulator.mjs` ausführen: Es spielt jedes Szenario mit gutem Plan (soll überleben), ohne Maßnahmen und mit
    verspäteter Hilfe durch und gibt Zeiten bis zum kritischen Zustand und zum Stillstand aus.
 
+## Bedienung (Überblick)
+
+- Sieben gleich breite Reiter: Messen, Atmung, Kreislauf, Defi & HLW, Medikamente, Team, Gespräch. Lagerung, Sauerstoff und Klinik sind
+  Auswahlreihen (genau eine Möglichkeit leuchtet), alles andere kleine Kacheln.
+- Zwei Hände: Eine Maßnahme bindet 1 oder 2 Hände. Ist keine Hand frei, wird sie **vorgemerkt** (bis zu 3) und startet in dieser Reihenfolge.
+  Voraussetzungen (z. B. „erst Zugang legen“) erklärt die Hinweisleiste unter der Szene.
+- ABCDE-Ampel unter der Szene zeigt grün/gelb/rot nach Sichtbefund – auch ohne angelegte Geräte.
+
 ## Auswertung
 
 Jedes Szenario hat `ziele` (Gewicht, Prüfung, Begründung). Sterne: übergeben = 1, ab 55 % erfüllt = 2, ab 80 %, ohne schweren Fehler und
@@ -41,6 +49,6 @@ EP: übergeben 25 + 15 · Sterne + 0,3 · Quote; verstorben 8 + 0,15 · Quote.
 
 ## Bekannte Grenzen
 
-- Pädiatrische Szenarien fehlen noch (Dosierungen und Normwerte unterscheiden sich).
+- Pädiatrie: nur Pseudokrupp (Dosierungen werden nicht abgebildet; der Monitor nutzt für Alarme Erwachsenengrenzen).
 - Kein Beatmungsgerät, keine Intubation, kein CPAP (nicht im Aufgabenbereich des Rettungssanitäters).
 - Ton: Piepton, Alarm, Metronom und Schock laufen nur im Browser (Web Audio) und nur mit „Ton an“.

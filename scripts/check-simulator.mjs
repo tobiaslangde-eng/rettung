@@ -91,10 +91,33 @@ const PLAENE = {
   schlaganfall: [[0, 'bz'], [0, 'spo2'], [10, 'neuro'], [20, 'frage-seit'], [30, 'nibp'], [40, 'zugang'], [60, 'klinik-stroke'], [80, 'trage'], [140, 'abfahrt']],
   herzblock: [[0, 'ekg'], [0, 'spo2'], [20, 'notarzt-rufen'], [30, 'nibp'], [40, 'pads'], [60, 'zugang'], [80, 'ekg12'], [100, 'atropin'], [110, 'schrittmacher'], [150, 'klinik-intensiv'], [170, 'trage'], [470, 'abfahrt']],
   krampf: [[0, 'schuetzen'], [0, 'spo2'], [8, 'o2-maske'], [15, 'bz'], [20, 'notarzt-rufen'], [40, 'zugang'], [70, 'midazolam'], [120, 'lage-seitenlage'], [140, 'klinik-naechste'], [170, 'trage'], [450, 'abfahrt']],
+  copd: [[0, 'spo2'], [0, 'o2-nasenbrille'], [10, 'salbutamol'], [25, 'notarzt-rufen'], [40, 'lunge'], [60, 'zugang'], [130, 'klinik-naechste'], [160, 'trage'], [440, 'abfahrt']],
+  sepsis: [[0, 'nibp'], [0, 'spo2'], [15, 'temp'], [20, 'afzaehlen'], [35, 'bz'], [45, 'zugang'], [75, 'infusion'], [90, 'o2-nasenbrille'], [100, 'notarzt-rufen'], [120, 'lage-beinehoch'], [150, 'klinik-intensiv'], [180, 'trage'], [300, 'abfahrt']],
+  rauchgas: [[0, 'aus-dem-rauch'], [0, 'o2-reservoir'], [25, 'spo2'], [30, 'notarzt-rufen'], [50, 'zugang'], [90, 'klinik-intensiv'], [120, 'trage'], [300, 'abfahrt']],
+  magenblutung: [[0, 'lage-beinehoch'], [5, 'spo2'], [15, 'notarzt-rufen'], [25, 'zugang'], [55, 'absaugen'], [60, 'zugang'], [90, 'infusion'], [100, 'waerme'], [110, 'nibp'], [130, 'klinik-intensiv'], [150, 'trage'], [300, 'abfahrt']],
+  lungenembolie: [[0, 'lage-oberkoerper'], [0, 'o2-maske'], [10, 'spo2'], [20, 'notarzt-rufen'], [30, 'frage-passiert'], [45, 'zugang'], [75, 'ekg12'], [130, 'heparin'], [160, 'klinik-intensiv'], [190, 'trage'], [470, 'abfahrt']],
+  opioid: [[0, 'eigenschutz'], [5, 'bvm'], [15, 'spo2'], [25, 'naloxon'], [40, 'bz'], [50, 'notarzt-rufen'], [80, 'lage-seitenlage'], [110, 'klinik-naechste'], [130, 'trage'], [450, 'abfahrt']],
+  'hitzschlag-lauf': [[0, 'kuehlen'], [30, 'temp'], [40, 'spo2'], [45, 'bz'], [60, 'notarzt-rufen'], [70, 'zugang'], [100, 'infusion'], [140, 'klinik-intensiv'], [160, 'trage'], [440, 'abfahrt']],
+  unterkuehlung: [[0, 'waerme'], [10, 'temp'], [20, 'spo2'], [25, 'ekg'], [40, 'notarzt-rufen'], [60, 'zugang'], [100, 'klinik-intensiv'], [130, 'trage'], [440, 'abfahrt']],
+  bolus: [[0, 'rueckenschlaege'], [8, 'oberbauch'], [16, 'rueckenschlaege'], [24, 'oberbauch'], [40, 'spo2'], [50, 'notarzt-rufen'], [60, 'o2-maske'], [100, 'klinik-naechste'], [130, 'trage'], [400, 'abfahrt']],
+  hyperventilation: [[0, 'spo2'], [5, 'beruhigen'], [20, 'frage-seit'], [30, 'bz'], [40, 'nibp'], [55, 'lunge'], [100, 'klinik-naechste'], [120, 'trage'], [300, 'abfahrt']],
+  pseudokrupp: [[0, 'kind-beruhigen'], [5, 'spo2'], [15, 'o2-nasenbrille'], [25, 'notarzt-rufen'], [60, 'zugang'], [100, 'klinik-kinder'], [130, 'trage'], [400, 'adrenalin-inhal'], [410, 'prednisolon'], [520, 'abfahrt']],
+  eklampsie: [[0, 'schuetzen'], [5, 'lage-seitenlage'], [12, 'o2-maske'], [20, 'notarzt-rufen'], [30, 'spo2'], [40, 'bz'], [50, 'nibp'], [65, 'zugang'], [330, 'magnesium'], [350, 'klinik-geburt'], [370, 'trage'], [450, 'abfahrt']],
+  'kollaps-hitze': [[0, 'lage-beinehoch'], [10, 'nibp'], [15, 'spo2'], [25, 'bz'], [35, 'ekg'], [40, 'trinken'], [55, 'zugang'], [85, 'infusion'], [130, 'klinik-naechste'], [160, 'trage'], [300, 'abfahrt']],
   trauma: [[0, 'tourniquet'], [0, 'spo2'], [20, 'notarzt-rufen'], [30, 'nibp'], [40, 'waerme'], [60, 'zugang'], [90, 'immobil'], [130, 'klinik-schockraum'], [150, 'trage'], [200, 'abfahrt']],
   reanimation: [[5, 'ekg'], [12, 'spo2'], [60, 'ekg12'], [60, 'klinik-katheter'], [60, 'trage'], [60, 'abfahrt']],
 };
 
+// Warteschlange: bei belegten Händen vormerken und später automatisch starten
+{
+  const sz = SIM_SZENARIEN[0];
+  const s = eng.neuerEinsatz(sz, 3);
+  const defs = Object.fromEntries(akt.aktionenFuer(sz).map((d) => [d.id, d]));
+  const r = ['spo2', 'ekg', 'nibp', 'bz'].map((id) => eng.anfordern(s, defs[id]));
+  if (r.join() !== 'start,start,vorgemerkt,vorgemerkt') f('Warteschlange: ' + r.join());
+  for (let i = 0; i < 400; i++) eng.tick(s, 0.25);
+  if (!s.messung.nibp || !s.messung.bz || s.warteschlange.length) f('Vorgemerkte Maßnahmen wurden nicht ausgeführt');
+}
 console.log('Szenario        | Start (SpO2/RR/HF) | guter Plan                         | ohne Maßnahmen');
 for (const sz of SIM_SZENARIEN) {
   if (process.env.SZ && sz.id !== process.env.SZ) continue;
@@ -127,7 +150,7 @@ for (const sz of SIM_SZENARIEN) {
   const n2 = nichts.ende ? `${nichts.ende.art} nach ${eng.mmss(nichts.ende.t)}` : `lebt noch (${eng.mmss(nichts.t)}), Stillstände ${nichts.stillstaende}`;
   console.log(`${sz.id.padEnd(15)} | ${start.padEnd(34)} | ${String(ueberlebt).padStart(2)}/${N} übergeben ${gut.slice(0, 6).join(' ')} | ${n2}`);
   if (sz.id !== 'reanimation' && ueberlebt < N - 3) f(`${sz.id}: guter Plan überlebt nur ${ueberlebt}/${N}`);
-  if (sz.id !== 'reanimation' && nichts.ende === null && nichts.stillstaende === 0 && sz.id !== 'schlaganfall' && sz.id !== 'hypoglykaemie') f(`${sz.id}: ohne Maßnahmen passiert nichts Schlimmes`);
+  if (sz.id !== 'reanimation' && nichts.ende === null && nichts.stillstaende === 0 && !['schlaganfall', 'hypoglykaemie', 'hyperventilation', 'kollaps-hitze'].includes(sz.id)) f(`${sz.id}: ohne Maßnahmen passiert nichts Schlimmes`);
 }
 console.log(fehler === 0 ? 'Alles in Ordnung.' : `${fehler} Fehler`);
 process.exit(fehler === 0 ? 0 : 1);

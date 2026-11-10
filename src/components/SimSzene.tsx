@@ -71,7 +71,7 @@ export function SimSzene({ sim, toast }: { sim: SimState; toast: { text: string;
 
   return (
     <View style={styles.box} onLayout={(e) => setBreite(e.nativeEvent.layout.width)}>
-      <Svg width="100%" height="100%" viewBox="0 20 360 160" preserveAspectRatio="xMidYMid slice">
+      <Svg width="100%" height="100%" viewBox="0 36 360 138" preserveAspectRatio="xMidYMid slice">
         <Defs>
           <LinearGradient id="wand" x1="0" y1="0" x2="0" y2="1">
             <Stop offset="0" stopColor="#14232C" />
@@ -239,7 +239,7 @@ export function SimSzene({ sim, toast }: { sim: SimState; toast: { text: string;
         style={{
           position: 'absolute',
           left: (p.head[0] - 24) * skala,
-          top: (p.head[1] - 24 - 20) * skala,
+          top: (p.head[1] - 24 - 36) * skala,
           width: 48 * skala,
           height: 48 * skala,
           borderRadius: 30 * skala,
@@ -304,13 +304,40 @@ export function SimSzene({ sim, toast }: { sim: SimState; toast: { text: string;
 }
 
 const styles = StyleSheet.create({
-  box: { width: '100%', aspectRatio: 360 / 160, borderRadius: 18, overflow: 'hidden', backgroundColor: '#0B161D', borderWidth: 1, borderColor: '#1B3340' },
+  box: { width: '100%', aspectRatio: 360 / 138, borderRadius: 18, overflow: 'hidden', backgroundColor: '#0B161D', borderWidth: 1, borderColor: '#1B3340' },
   licht: { position: 'absolute', top: 0, bottom: 0, width: 26 },
   oben: { position: 'absolute', left: 8, top: 8, right: 8, flexDirection: 'row', flexWrap: 'wrap', gap: 5 },
   chip: { borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3 },
   chipText: { fontFamily: fonts.displayBlack, fontSize: 10.5, letterSpacing: 0.3, color: '#0B1F24' },
-  sprech: { position: 'absolute', right: 10, top: 40, maxWidth: '38%', backgroundColor: 'rgba(255,255,255,0.94)', borderRadius: 14, borderTopRightRadius: 3, paddingHorizontal: 10, paddingVertical: 6 },
+  sprech: { position: 'absolute', right: 10, top: 34, maxWidth: '40%', backgroundColor: 'rgba(255,255,255,0.94)', borderRadius: 14, borderTopRightRadius: 3, paddingHorizontal: 10, paddingVertical: 6 },
   sprechText: { fontFamily: fonts.semibold, fontSize: 12, lineHeight: 16, color: '#14232C' },
   toast: { position: 'absolute', left: 8, right: 8, bottom: 8, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6 },
   toastText: { fontFamily: fonts.semibold, fontSize: 12, lineHeight: 16, color: '#fff' },
 });
+
+const AMPEL = { gruen: ['#0F3A2B', '#35F28F'], gelb: ['#3A2F0F', '#FFC531'], rot: ['#3F1119', '#FF5A6A'] } as const;
+
+/** ABCDE-Ampel: Was man dem Patienten ansieht – Atemweg, Atmung, Kreislauf, Bewusstsein (ohne Geräte) */
+export function AbcdeLeiste({ sim }: { sim: SimState }) {
+  const { atem: a, kreis: k, neuro: n } = sim.achsen;
+  const stillstand = !sim.kreislauf;
+  const stufe = (gut: number, mittel: number, wert: number) => (wert > gut ? 'gruen' : wert > mittel ? 'gelb' : 'rot');
+  const punkte: { b: string; t: string; f: 'gruen' | 'gelb' | 'rot' }[] = [
+    { b: 'A', t: 'Atemweg', f: stillstand || sim.flags.sekret ? 'rot' : n < 0.35 ? 'gelb' : 'gruen' },
+    { b: 'B', t: 'Atmung', f: stillstand ? 'rot' : stufe(0.78, 0.55, a) },
+    { b: 'C', t: 'Kreislauf', f: stillstand ? 'rot' : stufe(0.7, 0.45, k) },
+    { b: 'D', t: 'Bewusstsein', f: stillstand ? 'rot' : stufe(0.75, 0.45, n) },
+  ];
+  return (
+    <View style={{ flexDirection: 'row', gap: 5 }}>
+      {punkte.map((p) => (
+        <View key={p.b} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: AMPEL[p.f][0], borderRadius: 10, paddingHorizontal: 7, paddingVertical: 4 }}>
+          <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: AMPEL[p.f][1] }} />
+          <Text style={{ fontFamily: fonts.bold, fontSize: 10.5, color: '#E6F4F1' }} numberOfLines={1}>
+            {p.b} {p.t}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}

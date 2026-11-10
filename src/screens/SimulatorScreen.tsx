@@ -1,16 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { zaehle } from '../analytics';
-import { SimAktionen, TeamLeiste } from '../components/SimAktionen';
+import { HinweisLeiste, SimAktionen, TeamLeiste } from '../components/SimAktionen';
 import { SimAuswertung } from '../components/SimAuswertung';
 import { Quellen, SimMonitor } from '../components/SimMonitor';
-import { SimSzene } from '../components/SimSzene';
+import { AbcdeLeiste, SimSzene } from '../components/SimSzene';
 import { Konfetti } from '../components/Konfetti';
 import { Button, Tap } from '../components/UI';
 import { SIM_SZENARIEN } from '../data/simulator';
 import { AtemQuelle, EkgQuelle } from '../game/ekgLive';
 import { aktionenFuer, FRAGEN_IDS, FRAGEN_TEXT, simAntwort } from '../game/simAktionen';
-import { Auswertung, alarmStatus, bewerte, mmss, neuerEinsatz, SimState, SimSzenario, starteAktion, tick, AktionDef } from '../game/simulator';
+import { Auswertung, alarmStatus, anfordern, bewerte, mmss, neuerEinsatz, SimState, SimSzenario, tick, AktionDef } from '../game/simulator';
 import { setzeTon, spracheMoeglich, spieleTon, sprich, stoppe, tonAn } from '../game/sprache';
 import { useLayout } from '../layout';
 import { fonts } from '../theme';
@@ -33,6 +33,21 @@ const klang = {
   klick: () => spieleTon(1000, 0.035, 0.04, 'square'),
   los: () => spieleTon(520, 0.08, 0.04),
 };
+
+/** Kopfzeile: liegt außerhalb des Bildschirms, damit sie bei jedem Takt erhalten bleibt (sonst gehen Fingertipps verloren) */
+function Kopf({ titel, rechts, abbrechen, onBack }: { titel: string; rechts?: ReactNode; abbrechen?: () => void; onBack: () => void }) {
+  return (
+    <View style={styles.kopf}>
+      <Tap onPress={abbrechen ?? onBack} accessibilityLabel={abbrechen ? 'Einsatz abbrechen' : 'Zurück'} style={styles.rund}>
+        <Text style={styles.rundText}>{abbrechen ? '✕' : '‹'}</Text>
+      </Tap>
+      <Text style={styles.kopfTitel} numberOfLines={1}>
+        {titel}
+      </Text>
+      {rechts}
+    </View>
+  );
+}
 
 /** Patienten-Simulator: Ein Einsatz in Echtzeit mit Monitor, Geräten, Notarzt und Zeitdruck */
 export function SimulatorScreen({
@@ -58,6 +73,8 @@ export function SimulatorScreen({
   const [anfahrt, setAnfahrt] = useState(0);
   const [ton, setTon] = useState(tonAn());
   const [alleLog, setAlleLog] = useState(false);
+  const [hinweis, setHinweis] = useState<{ text: string; art: 'ok' | 'nein' | 'info'; bis: number } | null>(null);
+  const [filter, setFilter] = useState('Alle');
   const pauseRef = useRef(false);
   const tempoRef = useRef<1 | 2>(1);
   pauseRef.current = pause;
@@ -77,6 +94,7 @@ export function SimulatorScreen({
     setAbbruch(false);
     setAnfahrt(0);
     setAlleLog(false);
+    setHinweis(null);
     setPhase('alarm');
     zaehle('sim-gestartet-' + neu.id);
   };
@@ -157,24 +175,18 @@ export function SimulatorScreen({
 
   const sim = simRef.current;
   const toastJetzt = toast && Date.now() < toast.bis ? toast : null;
-
-  const Kopf = ({ titel, rechts, links }: { titel: string; rechts?: React.ReactNode; links?: () => void }) => (
-    <View style={styles.kopf}>
-      <Tap onPress={links ?? onBack} accessibilityLabel={links ? 'Einsatz abbrechen' : 'Zurück'} style={styles.rund}>
-        <Text style={styles.rundText}>{links ? '✕' : '‹'}</Text>
-      </Tap>
-      <Text style={styles.kopfTitel} numberOfLines={1}>
-        {titel}
-      </Text>
-      {rechts}
-    </View>
-  );
+  const hinweisJetzt = hinweis && Date.now() < hinweis.bis ? hinweis : null;
+  const onStumm = useCallback(() => {
+    if (simRef.current) simRef.current.alarmStumm = simRef.current.t + 60;
+    setVersion((v) => v + 1);
+  }, []);
+  const beep = useCallback((spo2: number) => spieleTon(520 + Math.max(0, spo2 - 70) * 9, 0.07, 0.05), []);
 
   // ───────────── Auswahl ─────────────
   if (phase === 'wahl') {
     return (
       <View style={[styles.root]}>
-        <Kopf titel="Patienten-Simulator" />
+        <Kopf titel="Patienten-Simulator" onBack={onBack} />
         <ScrollView contentContainerStyle={[styles.inhalt, L.wide && styles.breit]}>
           <View style={styles.karte}>
             <Text style={styles.h}>🫀 Ein echter Einsatz in Echtzeit</Text>
@@ -183,7 +195,19 @@ export function SimulatorScreen({
             </Text>
             <Text style={styles.klein}>Kein Hilfsmittel erklärt dir, was richtig ist. Am Ende bekommst du eine Auswertung mit Verlauf und Fehlern.</Text>
           </View>
-          {SIM_SZENARIEN.map((x) => {
+          <View style={styles.filter}>
+            {['Alle', ...['Herz', 'Atmung', 'Neuro', 'Trauma', 'Stoffwechsel', 'Umwelt', 'Kinder', 'Sonstige', 'Reanimation'].filter((g) => SIM_SZENARIEN.some((x) => x.gruppe === g))].map((g) => (
+              <Tap key={g} onPress={() => setFilter(g)} accessibilityLabel={`Filter ${g}`} style={[styles.filterChip, filter === g && { backgroundColor: '#1D4A5A', borderColor: P.blau }]}>
+                <Text style={styles.filterText}>
+                  {g} {g === 'Alle' ? SIM_SZENARIEN.length : SIM_SZENARIEN.filter((x) => x.gruppe === g).length}
+                </Text>
+              </Tap>
+            ))}
+          </View>
+          <Text style={styles.klein}>
+            {SIM_SZENARIEN.filter((x) => (bestSterne[x.id] ?? 0) > 0).length} von {SIM_SZENARIEN.length} Einsätzen schon übergeben
+          </Text>
+          {SIM_SZENARIEN.filter((x) => filter === 'Alle' || x.gruppe === filter).map((x) => {
             const st = bestSterne[x.id] ?? 0;
             return (
               <Tap key={x.id} onPress={() => starte(x)} accessibilityLabel={`Szenario ${x.titel}`} style={styles.szenario}>
@@ -201,7 +225,10 @@ export function SimulatorScreen({
             );
           })}
           <Tap
-            onPress={() => starte(SIM_SZENARIEN[Math.floor(Math.random() * SIM_SZENARIEN.length)])}
+            onPress={() => {
+              const pool = SIM_SZENARIEN.filter((x) => filter === 'Alle' || x.gruppe === filter);
+              starte(pool[Math.floor(Math.random() * pool.length)]);
+            }}
             accessibilityLabel="Zufälliger Einsatz"
             style={[styles.szenario, { borderColor: P.gelb, justifyContent: 'center' }]}
           >
@@ -222,7 +249,7 @@ export function SimulatorScreen({
     const da = anfahrt >= 1;
     return (
       <View style={styles.root}>
-        <Kopf titel="Alarmierung" links={() => setPhase('wahl')} />
+        <Kopf titel="Alarmierung" abbrechen={() => setPhase('wahl')} onBack={onBack} />
         <ScrollView contentContainerStyle={[styles.inhalt, L.wide && styles.breit]}>
           <View style={[styles.karte, { borderColor: P.rot, borderWidth: 2 }]}>
             <Text style={[styles.klein, { color: P.rot, letterSpacing: 1.2, fontFamily: fonts.bold }]}>ALARM · {sz.alarm.stichwort.toUpperCase()}</Text>
@@ -270,7 +297,7 @@ export function SimulatorScreen({
   if (phase === 'ende' && aw) {
     return (
       <View style={styles.root}>
-        <Kopf titel="Auswertung" />
+        <Kopf titel="Auswertung" onBack={onBack} />
         {aw.sterne >= 3 && <Konfetti />}
         <ScrollView contentContainerStyle={[styles.inhalt, L.wide && styles.breit]}>
           <SimAuswertung sim={sim} a={aw} />
@@ -285,10 +312,18 @@ export function SimulatorScreen({
   // ───────────── Einsatz läuft ─────────────
   const q = quellen.current!;
   const onStart = (d: AktionDef) => {
-    if (pause) return setToast({ text: 'Der Einsatz ist pausiert.', art: 'info', bis: Date.now() + 2500 });
-    const grund = starteAktion(sim, d);
-    if (grund) setToast({ text: grund, art: 'info', bis: Date.now() + 3000 });
-    else klang.klick();
+    if (pause) {
+      setHinweis({ text: 'Der Einsatz ist pausiert – tippe ▶ zum Weiterspielen.', art: 'nein', bis: Date.now() + 3500 });
+      return;
+    }
+    const r = anfordern(sim, d);
+    if (r === 'start') {
+      klang.klick();
+      setHinweis({ text: `${d.titel} – läuft (${d.dauer} s).`, art: 'ok', bis: Date.now() + 2500 });
+    } else if (r === 'vorgemerkt') {
+      klang.klick();
+      setHinweis({ text: `${d.titel} ist vorgemerkt und startet, sobald eine Hand frei ist.`, art: 'info', bis: Date.now() + 3500 });
+    } else setHinweis({ text: `${d.titel}: ${r}`, art: 'nein', bis: Date.now() + 4500 });
     setVersion((v) => v + 1);
   };
   const gesprochen = new Set(sim.antworten.map((a) => a.frage));
@@ -332,21 +367,20 @@ export function SimulatorScreen({
     </View>
   );
 
-  const log = [...sim.log].reverse().slice(0, alleLog ? 80 : 10);
+  const log = [...sim.log].reverse().slice(0, alleLog ? 80 : 4);
   const oben = (
     <View style={{ gap: 8 }}>
       <SimMonitor
         sim={sim}
         quellen={q}
-        onStumm={() => {
-          sim.alarmStumm = sim.t + 60;
-          setVersion((v) => v + 1);
-        }}
-        ton={(spo2) => spieleTon(520 + Math.max(0, spo2 - 70) * 9, 0.07, 0.05)}
+        onStumm={onStumm}
+        ton={beep}
       />
       <View style={L.wide ? undefined : { maxWidth: 520, width: '100%', alignSelf: 'center' }}>
         <SimSzene sim={sim} toast={toastJetzt} />
       </View>
+      <AbcdeLeiste sim={sim} />
+      <HinweisLeiste hinweis={hinweisJetzt} />
     </View>
   );
   const unten = (
@@ -361,7 +395,7 @@ export function SimulatorScreen({
             {e.text}
           </Text>
         ))}
-        {sim.log.length > 10 && (
+        {sim.log.length > 4 && (
           <Tap onPress={() => setAlleLog(!alleLog)} accessibilityLabel="Protokoll umschalten">
             <Text style={[styles.klein, { color: P.blau }]}>{alleLog ? 'Weniger anzeigen' : 'Mehr anzeigen'}</Text>
           </Tap>
@@ -374,7 +408,8 @@ export function SimulatorScreen({
     <View style={styles.root}>
       <Kopf
         titel={sz.titel}
-        links={() => setAbbruch(true)}
+        onBack={onBack}
+        abbrechen={() => setAbbruch(true)}
         rechts={
           <View style={styles.rechts}>
             <Text style={styles.uhr} accessibilityLabel={`Einsatzzeit ${mmss(sim.t)}`}>
@@ -478,6 +513,9 @@ const styles = StyleSheet.create({
   balken: { height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.1)', overflow: 'hidden', marginTop: 4 },
   fuell: { height: '100%', borderRadius: 4 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  filter: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  filterChip: { borderRadius: 999, borderWidth: 1.5, borderColor: P.rand, backgroundColor: P.bg, paddingHorizontal: 12, paddingVertical: 7 },
+  filterText: { fontFamily: fonts.bold, fontSize: 12.5, color: P.text },
   frage: { borderRadius: 999, borderWidth: 1.5, borderColor: P.blau, backgroundColor: P.bg, paddingHorizontal: 12, paddingVertical: 7 },
   frageDone: { backgroundColor: '#14402F', borderColor: '#14402F' },
   frageText: { fontFamily: fonts.bold, fontSize: 13, color: P.blau },

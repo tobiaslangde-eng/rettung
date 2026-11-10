@@ -10,7 +10,7 @@ import { LiveRhythmus } from './ekgLive';
 export type Gruppe = 'messen' | 'atem' | 'kreislauf' | 'defi' | 'meds' | 'team';
 export type LagerungId = 'sitzend' | 'oberkoerper' | 'flach' | 'beinehoch' | 'seitenlage';
 export type SauerstoffId = 'aus' | 'nasenbrille' | 'maske' | 'reservoir';
-export type KlinikId = 'naechste' | 'katheter' | 'stroke' | 'schockraum' | 'intensiv';
+export type KlinikId = 'naechste' | 'katheter' | 'stroke' | 'schockraum' | 'intensiv' | 'kinder' | 'geburt';
 export type Art = 'info' | 'gut' | 'fehler' | 'alarm' | 'arzt' | 'patient' | 'system';
 
 export const HAENDE = 2;
@@ -20,6 +20,8 @@ export const KLINIKEN: Record<KlinikId, { name: string; kurz: string; icon: stri
   stroke: { name: 'Klinik mit Stroke Unit', kurz: 'Stroke Unit', icon: '🧠' },
   schockraum: { name: 'Traumazentrum (Schockraum)', kurz: 'Schockraum', icon: '🚨' },
   intensiv: { name: 'Klinik mit Intensivstation', kurz: 'Intensivstation', icon: '🛏️' },
+  kinder: { name: 'Kinderklinik', kurz: 'Kinderklinik', icon: '🧸' },
+  geburt: { name: 'Klinik mit Geburtshilfe', kurz: 'Geburtshilfe', icon: '🤰' },
 };
 
 export interface Werte {
@@ -109,6 +111,8 @@ export interface SimSzenario {
   icon: string;
   farbe: string;
   bereich: string;
+  /** Gruppe für den Filter auf der Auswahlseite */
+  gruppe: 'Herz' | 'Atmung' | 'Neuro' | 'Trauma' | 'Stoffwechsel' | 'Umwelt' | 'Kinder' | 'Sonstige' | 'Reanimation';
   stufe: 1 | 2 | 3;
   alarm: { stichwort: string; meldung: string; ort: string };
   szene: string;
@@ -140,6 +144,12 @@ export interface SimSzenario {
   rhythmus?: (s: SimState) => LiveRhythmus;
   vfRisiko?: (s: SimState) => number;
   bzFn?: (s: SimState) => number;
+  /** Hoher Sauerstoff schadet (COPD): Maske und Reservoirmaske dämpfen das Bewusstsein */
+  hyperkapnie?: boolean;
+  /** Das Pulsoxymeter zeigt etwas anderes als die Wahrheit (z. B. Kohlenmonoxid) */
+  spo2Anzeige?: (s: SimState, wahr: number) => number;
+  /** Körpertemperatur, die vom Schweregrad abhängt (Hitzschlag, Unterkühlung, Sepsis) */
+  tempFn?: (s: SimState) => number;
   /** Eigene Zielfrequenz des Herzens (z. B. AV-Block) */
   hfZiel?: (s: SimState) => number;
   /** Zustände, die von Anfang an gelten (z. B. Krampfanfall) */
@@ -205,6 +215,7 @@ export interface SimState {
     af: null | { t: number; wert: number };
     ekg12: null | { t: number; text: string };
   };
+  warteschlange: AktionDef[];
   laufend: { id: string; titel: string; icon: string; start: number; ende: number; haende: number; def: AktionDef }[];
   effekte: Effekt[];
   notarzt: { angefordert: number | null; da: boolean; ankunft: number | null };
@@ -284,6 +295,7 @@ function zielAchsen(s: SimState, aktuell: SimState['achsen']) {
   let kreis = 1 - z.wK * xp + s.bonus.kreis + (lb.kreis ?? 0) + (g.waerme ? z.waerme : 0);
   let neuro = 1 - z.wN * xp + s.bonus.neuro;
   if (g.bvm) atem += 0.25;
+  if (z.hyperkapnie) neuro -= g.o2 === 'reservoir' ? 0.38 : g.o2 === 'maske' ? 0.22 : 0;
   if (g.guedel && aktuell.neuro < 0.35) atem += 0.08;
   if (s.flags.sekret) atem -= 0.25;
   if (s.flags.krampf) atem -= 0.2;
@@ -303,6 +315,7 @@ function zielWerte(s: SimState): Werte {
   const sp = z.basis.spo2 - (z.basis.spo2 - 38) * Math.pow(1 - a, 1.5);
   let af = z.afHoch ? z.basis.af + (1 - a) * 28 : z.basis.af * (0.35 + 0.65 * n);
   if (z.afHoch && a < 0.3) af *= Math.max(0.2, a / 0.3);
+  if (z.hyperkapnie) af *= 0.45 + 0.55 * clamp(n / 0.7);
   let hf = z.hfBrady ? z.basis.hf * (0.55 + 0.45 * k) : z.basis.hf + (1 - k) * 45 + (1 - a) * 30;
   if (k < 0.3 && !z.hfBrady) hf *= 0.55 + k * 1.5;
   if (z.hfZiel) hf = z.hfZiel(s);
@@ -342,6 +355,7 @@ export function neuerEinsatz(sz: SimSzenario, seed: number): SimState {
     defi: { analyse: null, schocks: 0, erfolglos: 0, blitz: -99 },
     geraete: { spo2: false, ekg: false, pads: false, zugang: 0, infusionen: 0, o2: 'aus', bvm: false, guedel: false, waerme: false, lage: sz.startLage, trage: false },
     messung: { nibp: null, bz: null, temp: null, af: null, ekg12: null },
+    warteschlange: [],
     laufend: [],
     effekte: [],
     notarzt: { angefordert: null, da: false, ankunft: null },
@@ -446,7 +460,7 @@ export function sichtbar(s: SimState) {
   const ekg = g.ekg || g.pads;
   return {
     hf: ekg ? (stillstand && ekgFrei ? null : Math.round(s.w.hf)) : g.spo2 && !stillstand ? Math.round(s.w.hf) : null,
-    spo2: g.spo2 && !stillstand ? Math.round(clamp(s.w.spo2, 0, 100)) : null,
+    spo2: g.spo2 && !stillstand ? Math.round(clamp(s.sz.spo2Anzeige ? s.sz.spo2Anzeige(s, s.w.spo2) : s.w.spo2, 0, 100)) : null,
     af: g.ekg && !stillstand ? Math.round(s.w.af) : null,
     nibp: s.messung.nibp,
     bz: s.messung.bz,
@@ -463,7 +477,7 @@ export function alarmStatus(s: SimState): { prio: 'hoch' | 'mittel' | null; text
   }
   if (g.spo2 && !s.kreislauf) return { prio: 'mittel', text: 'KEINE PULSKURVE' };
   if (s.kreislauf && (g.ekg || g.pads || g.spo2)) {
-    if (g.spo2 && s.w.spo2 < 90) return { prio: 'hoch', text: 'SpO₂ NIEDRIG' };
+    if (g.spo2 && (s.sz.spo2Anzeige ? s.sz.spo2Anzeige(s, s.w.spo2) : s.w.spo2) < 90) return { prio: 'hoch', text: 'SpO₂ NIEDRIG' };
     if (s.w.hf > 130) return { prio: 'mittel', text: 'HF HOCH' };
     if (s.w.hf < 45) return { prio: 'mittel', text: 'HF NIEDRIG' };
   }
@@ -487,6 +501,19 @@ export function tick(s: SimState, dt: number): void {
     }
   }
   s.cpr.pause = s.laufend.some((l) => l.def.hlwPause);
+  // vorgemerkte Maßnahmen starten, sobald Hände frei sind (in der Reihenfolge des Vormerkens)
+  if (s.warteschlange.length) {
+    const rest: AktionDef[] = [];
+    for (const d of s.warteschlange) {
+      const g = moeglich(s, d, true);
+      if (g === HAENDE_BELEGT) rest.push(d);
+      else if (g === null) {
+        d.start?.(s);
+        s.laufend.push({ id: d.id, titel: d.titel, icon: d.icon, start: s.t, ende: s.t + d.dauer, haende: d.haende, def: d });
+      } else logge(s, 'info', `${d.titel} entfällt: ${g}`);
+    }
+    s.warteschlange = rest;
+  }
 
   // Notarzt trifft ein
   if (s.notarzt.angefordert !== null && !s.notarzt.da && s.t >= s.notarzt.angefordert + z.notarztEta) {
@@ -611,13 +638,17 @@ function stillstand(s: SimState, dt: number) {
 // ───────────────────────── Aktionen ─────────────────────────
 
 export const freieHaende = (s: SimState) => HAENDE - s.laufend.reduce((a, l) => a + l.haende, 0);
+export const HAENDE_BELEGT = 'Beide Hände sind beschäftigt.';
 
 /** null = möglich, sonst der Grund */
-export function moeglich(s: SimState, d: AktionDef): string | null {
+export function moeglich(s: SimState, d: AktionDef, ausDerSchlange = false): string | null {
   if (s.ende) return 'Der Einsatz ist beendet.';
   if (s.laufend.some((l) => l.id === d.id)) return 'Läuft schon.';
-  if (d.haende > freieHaende(s)) return 'Beide Hände sind beschäftigt.';
-  return d.geht?.(s) ?? null;
+  if (!ausDerSchlange && s.warteschlange.some((w) => w.id === d.id)) return 'Ist schon vorgemerkt.';
+  const eigener = d.geht?.(s);
+  if (eigener) return eigener;
+  if (d.haende > freieHaende(s)) return HAENDE_BELEGT;
+  return null;
 }
 
 export function starteAktion(s: SimState, d: AktionDef): string | null {
@@ -626,6 +657,24 @@ export function starteAktion(s: SimState, d: AktionDef): string | null {
   d.start?.(s);
   s.laufend.push({ id: d.id, titel: d.titel, icon: d.icon, start: s.t, ende: s.t + d.dauer, haende: d.haende, def: d });
   return null;
+}
+
+/**
+ * Maßnahme anfordern: startet sofort, wird bei belegten Händen vorgemerkt oder sagt, warum sie nicht geht.
+ * 'start' | 'vorgemerkt' | Text mit dem Grund
+ */
+export function anfordern(s: SimState, d: AktionDef): 'start' | 'vorgemerkt' | string {
+  const g = moeglich(s, d);
+  if (g === null) {
+    starteAktion(s, d);
+    return 'start';
+  }
+  if (g === HAENDE_BELEGT && s.warteschlange.length < 3) {
+    s.warteschlange.push(d);
+    logge(s, 'info', `Vorgemerkt: ${d.titel} – startet, sobald eine Hand frei ist.`);
+    return 'vorgemerkt';
+  }
+  return g === HAENDE_BELEGT ? 'Die Warteschlange ist voll (3 Maßnahmen).' : g;
 }
 
 export function abfahrt(s: SimState) {

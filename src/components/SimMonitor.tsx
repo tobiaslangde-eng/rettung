@@ -106,6 +106,8 @@ export function SimMonitor({
   const letzterSchlag = useRef(0);
   const s = useRef(sim);
   s.current = sim;
+  const tonRef = useRef(ton);
+  tonRef.current = ton;
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -129,12 +131,12 @@ export function SimMonitor({
       const letzter = letzterVor(quellen.ekg.schlaege, jetzt);
       if (z.kreislauf && z.geraete.spo2 && letzter > letzterSchlag.current) {
         letzterSchlag.current = letzter;
-        ton?.(z.w.spo2);
+        tonRef.current?.(z.w.spo2);
       }
       setTakt((n) => (n + 1) % 1e6);
     }, 70);
     return () => clearInterval(id);
-  }, [quellen, ton]);
+  }, [quellen]);
 
   const z = sim;
   const g = z.geraete;
@@ -166,11 +168,11 @@ export function SimMonitor({
           <Text style={[styles.kanal, { color: MON.hf }]}>
             II {z.rhythmus === 'vf' ? 'Kammerflimmern' : z.rhythmus === 'asystolie' ? 'Asystolie' : z.rhythmus === 'pea' ? '' : ''}
           </Text>
-          <Kurve d={pfad(k.ekg, k.w, 64, 40, 34)} farbe={hfFarbe} hoehe={64} aus={!g.ekg && !g.pads} text="Kein EKG – Elektroden kleben" />
+          <Kurve d={pfad(k.ekg, k.w, 54, 34, 29)} farbe={hfFarbe} hoehe={54} aus={!g.ekg && !g.pads} text="Kein EKG – Elektroden kleben" />
           <Text style={[styles.kanal, { color: MON.spo2 }]}>PLETH</Text>
-          <Kurve d={pfad(k.pleth, k.w, 38, 32, 22)} farbe={MON.spo2} hoehe={38} aus={!g.spo2} text="Kein Pulsoxymeter" />
+          <Kurve d={pfad(k.pleth, k.w, 32, 27, 19)} farbe={MON.spo2} hoehe={32} aus={!g.spo2} text="Kein Pulsoxymeter" />
           <Text style={[styles.kanal, { color: MON.af }]}>ATMUNG</Text>
-          <Kurve d={pfad(k.atem, k.w, 28, 24, 18)} farbe={MON.af} hoehe={28} aus={!g.ekg} text="" />
+          <Kurve d={pfad(k.atem, k.w, 24, 20, 15)} farbe={MON.af} hoehe={24} aus={!g.ekg} text="" />
         </View>
         <View style={styles.zahlen}>
           <View style={styles.zeile}>
@@ -212,8 +214,8 @@ const styles = StyleSheet.create({
   aus: { position: 'absolute', alignSelf: 'center', fontFamily: fonts.semibold, fontSize: 10.5, color: MON.leise },
   zeile: { flexDirection: 'row', alignItems: 'baseline', gap: 5 },
   einheit: { fontFamily: fonts.bold, fontSize: 10, width: 34, opacity: 0.9 },
-  gross: { fontFamily: fonts.displayBlack, fontSize: 36, lineHeight: 40, letterSpacing: -1 },
-  mittel: { fontFamily: fonts.displayBlack, fontSize: 21, lineHeight: 26, letterSpacing: -0.5 },
+  gross: { fontFamily: fonts.displayBlack, fontSize: 32, lineHeight: 35, letterSpacing: -1 },
+  mittel: { fontFamily: fonts.displayBlack, fontSize: 19, lineHeight: 23, letterSpacing: -0.5 },
   herz: { fontSize: 14 },
   klein: { fontFamily: fonts.medium, fontSize: 9.5, color: MON.leise, marginTop: -4, marginLeft: 39 },
   chips: { flexDirection: 'row', gap: 8, minHeight: 16 },
