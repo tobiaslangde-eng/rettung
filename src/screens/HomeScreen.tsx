@@ -23,6 +23,7 @@ import { Progress } from '../game/storage';
 import { TrainingId, trainingsFuer } from '../game/trainings';
 import { useLayout, useSidebar } from '../layout';
 import { TileTint, colors, fonts, spacing, tiles, type } from '../theme';
+import { KontoKachel } from '../components/KontoKachel';
 
 const WOCHENTAGE = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 const MONATE = [
@@ -60,6 +61,7 @@ export function HomeScreen({
   onFeedback,
   onAlleTrainings,
   onSichern,
+  onKonto,
 }: {
   progress: Progress;
   onStart: () => void;
@@ -90,6 +92,8 @@ export function HomeScreen({
   onAlleTrainings: () => void;
   /** Spielstand-Code holen (Mehr) */
   onSichern: () => void;
+  /** Nur in der Vorschau: Store-Demo (Konto und Plus) */
+  onKonto?: () => void;
 }) {
   const L = useLayout();
   const sidebar = useSidebar();
@@ -427,6 +431,7 @@ export function HomeScreen({
       <BentoGrid>
         <SpeicherHinweis punkte={progress.totalPoints} onSichern={onSichern} />
         {status}
+        {onKonto && <KontoKachel onPress={onKonto} />}
         {heute}
         {story}
         {schnell}

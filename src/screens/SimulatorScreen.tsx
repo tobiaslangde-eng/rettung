@@ -12,6 +12,7 @@ import { AtemQuelle, EkgQuelle } from '../game/ekgLive';
 import { aktionenFuer, FRAGEN_IDS, FRAGEN_TEXT, simAntwort } from '../game/simAktionen';
 import { Auswertung, alarmStatus, anfordern, bewerte, mmss, neuerEinsatz, SimState, SimSzenario, tick, AktionDef } from '../game/simulator';
 import { setzeTon, spracheMoeglich, spieleTon, sprich, stoppe, tonAn } from '../game/sprache';
+import { STORE_DEMO, szenarioFrei, useKontoStore } from '../game/konto';
 import { useLayout } from '../layout';
 import { fonts } from '../theme';
 
@@ -54,12 +55,17 @@ export function SimulatorScreen({
   bestSterne,
   onFinish,
   onBack,
+  onPlus,
 }: {
   bestSterne: Record<string, number>;
   onFinish: (id: string, ep: number, sterne: number, uebergeben: boolean) => void;
   onBack: () => void;
+  /** Nur in der Vorschau: Plus-Seite (Store-Demo) öffnen */
+  onPlus?: () => void;
 }) {
   const L = useLayout();
+  const kontoState = useKontoStore();
+  const frei = (id: string) => !STORE_DEMO || szenarioFrei(id, kontoState);
   const [phase, setPhase] = useState<'wahl' | 'alarm' | 'sim' | 'ende'>('wahl');
   const [sz, setSz] = useState<SimSzenario | null>(null);
   const simRef = useRef<SimState | null>(null);
@@ -195,6 +201,12 @@ export function SimulatorScreen({
             </Text>
             <Text style={styles.klein}>Kein Hilfsmittel erklärt dir, was richtig ist. Am Ende bekommst du eine Auswertung mit Verlauf und Fehlern.</Text>
           </View>
+          {STORE_DEMO && kontoState.schranken && !szenarioFrei('___', kontoState) && onPlus && (
+            <Tap onPress={onPlus} accessibilityLabel="Plus freischalten" style={[styles.karte, { borderColor: P.rot, borderWidth: 2 }]}>
+              <Text style={[styles.h, { color: P.rot }]}>🔒 Store-Demo: 3 Szenarien frei</Text>
+              <Text style={styles.text}>Alle 23 Szenarien gibt es mit Plus. Zum Ausprobieren: tippen und „7 Tage kostenlos testen“ wählen. Es wird nichts bezahlt.</Text>
+            </Tap>
+          )}
           <View style={styles.filter}>
             {['Alle', ...['Herz', 'Atmung', 'Neuro', 'Trauma', 'Stoffwechsel', 'Umwelt', 'Kinder', 'Sonstige', 'Reanimation'].filter((g) => SIM_SZENARIEN.some((x) => x.gruppe === g))].map((g) => (
               <Tap key={g} onPress={() => setFilter(g)} accessibilityLabel={`Filter ${g}`} style={[styles.filterChip, filter === g && { backgroundColor: '#1D4A5A', borderColor: P.blau }]}>
@@ -209,8 +221,14 @@ export function SimulatorScreen({
           </Text>
           {SIM_SZENARIEN.filter((x) => filter === 'Alle' || x.gruppe === filter).map((x) => {
             const st = bestSterne[x.id] ?? 0;
+            const gesperrt = !frei(x.id);
             return (
-              <Tap key={x.id} onPress={() => starte(x)} accessibilityLabel={`Szenario ${x.titel}`} style={styles.szenario}>
+              <Tap
+                key={x.id}
+                onPress={() => (gesperrt ? onPlus?.() : starte(x))}
+                accessibilityLabel={gesperrt ? `Szenario ${x.titel}, mit Plus` : `Szenario ${x.titel}`}
+                style={[styles.szenario, gesperrt && { opacity: 0.8 }]}
+              >
                 <Text style={styles.szIcon}>{x.icon}</Text>
                 <View style={{ flex: 1, gap: 2 }}>
                   <Text style={styles.szTitel}>{x.titel}</Text>
@@ -220,13 +238,14 @@ export function SimulatorScreen({
                     {'○'.repeat(3 - x.stufe)} · {st > 0 ? '⭐'.repeat(st) : 'noch nicht übergeben'}
                   </Text>
                 </View>
-                <Text style={styles.pfeil}>›</Text>
+                {gesperrt ? <Text style={styles.plusMarke}>🔒 Plus</Text> : <Text style={styles.pfeil}>›</Text>}
               </Tap>
             );
           })}
           <Tap
             onPress={() => {
-              const pool = SIM_SZENARIEN.filter((x) => filter === 'Alle' || x.gruppe === filter);
+              const pool = SIM_SZENARIEN.filter((x) => (filter === 'Alle' || x.gruppe === filter) && frei(x.id));
+              if (pool.length === 0) return onPlus?.();
               starte(pool[Math.floor(Math.random() * pool.length)]);
             }}
             accessibilityLabel="Zufälliger Einsatz"
@@ -509,6 +528,7 @@ const styles = StyleSheet.create({
   szTitel: { fontFamily: fonts.displayBlack, fontSize: 16, letterSpacing: -0.2, color: P.text },
   szText: { fontFamily: fonts.regular, fontSize: 12.5, lineHeight: 17, color: P.leise },
   szMeta: { fontFamily: fonts.bold, fontSize: 11.5, color: P.blau, marginTop: 2 },
+  plusMarke: { color: '#FFC531', fontFamily: fonts.bold, fontSize: 13 },
   pfeil: { fontFamily: fonts.displayBlack, fontSize: 26, color: P.blau },
   balken: { height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.1)', overflow: 'hidden', marginTop: 4 },
   fuell: { height: '100%', borderRadius: 4 },

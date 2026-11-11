@@ -117,6 +117,7 @@ export function GuideScreen({
   onModus,
   onFeedback,
   onEinfuehrung,
+  onKonto,
 }: {
   progress: Progress;
   onReset: () => void;
@@ -126,6 +127,8 @@ export function GuideScreen({
   onModus: (m: 'story' | 'frei') => void;
   onFeedback: () => void;
   onEinfuehrung: () => void;
+  /** Nur in der Vorschau: Store-Demo (Konto und Plus) */
+  onKonto?: () => void;
 }) {
   const [dar, setDar] = useState<Darstellung>(ladeDarstellung);
   const setzeDar = (d: Darstellung) => {
@@ -164,6 +167,14 @@ export function GuideScreen({
     <View style={{ flex: 1 }}>
       <TopBar kicker="Anleitung & Spielstand" title="Mehr" />
       <ScrollView contentContainerStyle={styles.content}>
+        {onKonto && (
+          <Card style={{ gap: spacing.sm }}>
+            <Text style={type.eyebrow}>🧪 Store-Demo</Text>
+            <Text style={type.h2}>Konto und Plus</Text>
+            <Text style={type.small}>Probier aus, wie Anmeldung und ein Plus-Abo in einer Store-App aussehen würden. Nur zum Testen: kein Server, keine Zahlung.</Text>
+            <Button label="Konto und Plus ansehen" onPress={onKonto} />
+          </Card>
+        )}
         <Text style={type.h2}>Einstellungen</Text>
         <Card style={{ gap: spacing.sm }}>
           <Text style={type.eyebrow}>Meine Rolle</Text>

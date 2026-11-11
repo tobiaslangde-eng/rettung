@@ -33,6 +33,9 @@ import { CaseScreen } from './src/screens/CaseScreen';
 import { CprScreen } from './src/screens/CprScreen';
 import { GarageScreen } from './src/screens/GarageScreen';
 import { GuideScreen } from './src/screens/GuideScreen';
+import { KontoScreen } from './src/screens/KontoScreen';
+import { PlusScreen } from './src/screens/PlusScreen';
+import { STORE_DEMO, ladeKonto } from './src/game/konto';
 import { HelferAbschluss, HelferScreen } from './src/screens/HelferScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { KnowledgeScreen } from './src/screens/KnowledgeScreen';
@@ -107,6 +110,8 @@ type Screen =
   | { name: 'live'; key: number }
   | { name: 'ekg'; key: number }
   | { name: 'simulator'; key: number }
+  | { name: 'konto' }
+  | { name: 'plus' }
   | { name: 'lernstand' }
   | { name: 'schicht' }
   | { name: 'feedback' }
@@ -213,6 +218,8 @@ const NAV_OF: Partial<Record<Screen['name'], NavTarget>> = {
   live: 'home',
   ekg: 'home',
   simulator: 'simulator',
+  konto: 'guide',
+  plus: 'guide',
   lernstand: 'home',
   schicht: 'home',
   feedback: 'home',
@@ -243,6 +250,7 @@ export default function App() {
   const [rolle, setRolle] = useState<Rolle | null | undefined>(undefined);
   useEffect(() => {
     startAnalytics();
+    if (STORE_DEMO) ladeKonto();
     bitteUmDauerhaftenSpeicher();
     wendeDarstellungAn(ladeDarstellung());
     einladung.current = leseEinladung();
@@ -817,6 +825,7 @@ export default function App() {
                         onUrkunden={() => setScreen({ name: 'urkunden' })}
                         onSpick={() => setScreen({ name: 'spick' })}
                         onSichern={() => setScreen({ name: 'guide' })}
+                        onKonto={STORE_DEMO ? () => setScreen({ name: 'konto' }) : undefined}
                         onFeedback={() => setScreen({ name: 'feedback' })}
                         onAlleTrainings={() => setScreen({ name: 'training' })}
                         onSchicht={() => {
@@ -978,6 +987,7 @@ export default function App() {
                       <SimulatorScreen
                         key={screen.key}
                         bestSterne={progress.simSterne}
+                        onPlus={() => setScreen({ name: 'plus' })}
                         onFinish={(id, ep, sterne, uebergeben) =>
                           commit({
                             ...progress,
@@ -1145,6 +1155,7 @@ export default function App() {
                         onModus={(m) => importProgress({ ...progress, modus: m })}
                         onFeedback={() => setScreen({ name: 'feedback' })}
                         onEinfuehrung={() => setEinfuehrung(true)}
+                        onKonto={STORE_DEMO ? () => setScreen({ name: 'konto' }) : undefined}
                       />
                     )}
                     {screen.name === 'quiz' && (
@@ -1153,6 +1164,8 @@ export default function App() {
                     {screen.name === 'wissen' && (
                       <KnowledgeScreen key={screen.key} best={progress.knowBest} onFinish={finishKnowledge} onBack={back} />
                     )}
+                    {screen.name === 'konto' && <KontoScreen onBack={() => setScreen({ name: 'guide' })} onPlus={() => setScreen({ name: 'plus' })} />}
+                    {screen.name === 'plus' && <PlusScreen onBack={() => setScreen({ name: 'training' })} onKonto={() => setScreen({ name: 'konto' })} />}
                     {screen.name === 'dev' && <DevScreen progress={progress} onChange={importProgress} onBack={() => setScreen({ name: 'guide' })} />}
                     {screen.name === 'hilfspunkt' && <HilfspunktScreen progress={progress} onBuild={baueHilf} />}
                     {screen.name === 'wache' && <WacheScreen progress={progress} onBuild={baue} />}

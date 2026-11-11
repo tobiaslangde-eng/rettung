@@ -6,6 +6,8 @@
 
 **[▶ Jetzt im Browser spielen](https://rettung.tankard.de)** · kostenlos, ohne Anmeldung, auf iPhone, iPad, Android, PC und Mac
 
+**Store-Demo (nur Vorschau):** Konto, Anmeldung und ein Plus-Abo zum Ausprobieren – ohne Server und ohne Zahlung. Siehe [docs/STORE-DEMO.md](docs/STORE-DEMO.md).
+
 ## Über dieses Projekt
 
 Einsatz 112 ist ein **Freizeitprojekt eines Rettungssanitäters**.
