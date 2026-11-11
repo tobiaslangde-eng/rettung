@@ -11,6 +11,7 @@ import { freiAb, istFrei } from '../game/story';
 import { Progress } from '../game/storage';
 import { TRAINING_GRUPPEN, TrainingId, trainingsFuer } from '../game/trainings';
 import { useLayout } from '../layout';
+import { plusGesperrt, useKontoStore } from '../game/konto';
 import { colors, fonts, spacing, type } from '../theme';
 
 type Ansicht = 'pfad' | 'ueben' | 'modi';
@@ -57,6 +58,7 @@ export function TrainingScreen({
 }) {
   const L = useLayout();
   const r = useRolle();
+  const konto = useKontoStore();
   const scroll = useRef<ScrollView>(null);
   const [ansicht, setAnsicht] = useState<Ansicht>(progress.modus === 'frei' ? 'ueben' : 'pfad');
   const alle = trainingsFuer(r.id, progress);
@@ -129,6 +131,7 @@ export function TrainingScreen({
                   <BentoGrid>
                     {liste.map((t) => {
                       const frei = istFrei(r.id, progress, t.id);
+                      const plusSperre = frei && plusGesperrt(t.id, r.id, konto);
                       return (
                         <Tile
                           key={t.id}
@@ -143,7 +146,7 @@ export function TrainingScreen({
                             <View style={styles.iconBox}>
                               <Text style={[styles.icon, !frei && { opacity: 0.4 }]}>{t.icon}</Text>
                             </View>
-                            {!frei ? <Text style={styles.lock}>🔒</Text> : !t.stand ? <Text style={styles.neu}>NEU</Text> : null}
+                            {!frei || plusSperre ? <Text style={styles.lock}>🔒</Text> : !t.stand ? <Text style={styles.neu}>NEU</Text> : null}
                           </View>
                           <View style={{ gap: 3 }}>
                             <Text
@@ -157,7 +160,7 @@ export function TrainingScreen({
                             </Text>
                             <View style={[styles.stand, { backgroundColor: frei ? colors.veil : colors.paper }]}>
                               <Text style={[styles.standText, { color: frei ? r.akzentDunkel : colors.muted }]} numberOfLines={1}>
-                                {frei ? (t.stand ?? 'Noch nicht gespielt') : `🔒 Kapitel ${freiAb(r.id, t.id)}`}
+                                {plusSperre ? '🔒 Plus' : frei ? (t.stand ?? 'Noch nicht gespielt') : `🔒 Kapitel ${freiAb(r.id, t.id)}`}
                               </Text>
                             </View>
                           </View>

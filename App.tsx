@@ -35,7 +35,7 @@ import { GarageScreen } from './src/screens/GarageScreen';
 import { GuideScreen } from './src/screens/GuideScreen';
 import { KontoScreen } from './src/screens/KontoScreen';
 import { PlusScreen } from './src/screens/PlusScreen';
-import { STORE_DEMO, ladeKonto } from './src/game/konto';
+import { STORE_DEMO, ladeKonto, pruefeZugang, useKontoStore } from './src/game/konto';
 import { HelferAbschluss, HelferScreen } from './src/screens/HelferScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { KnowledgeScreen } from './src/screens/KnowledgeScreen';
@@ -111,7 +111,7 @@ type Screen =
   | { name: 'ekg'; key: number }
   | { name: 'simulator'; key: number }
   | { name: 'konto' }
-  | { name: 'plus' }
+  | { name: 'plus'; grund?: string }
   | { name: 'lernstand' }
   | { name: 'schicht' }
   | { name: 'feedback' }
@@ -243,7 +243,17 @@ function pickHelferFall(progress: Progress, lastId?: string): HelferFall {
 }
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>({ name: 'home' });
+  const [screen, setScreenRaw] = useState<Screen>({ name: 'home' });
+  // Store-Demo: Ohne Plus sind viele Bereiche gesperrt (nur Vorschau). Der Wechsel läuft hier zentral durch.
+  useKontoStore();
+  const rolleRef = useRef<Rolle>('sani');
+  const setScreen = (s: Screen) => {
+    if (STORE_DEMO) {
+      const z = pruefeZugang(s.name, rolleRef.current);
+      if (!z.ok) return setScreenRaw({ name: 'plus', grund: z.grund });
+    }
+    setScreenRaw(s);
+  };
   const win = useWindowDimensions();
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
   /** Gewählte Rolle; null = Auswahl anzeigen, undefined = wird noch geladen */
@@ -287,6 +297,7 @@ export default function App() {
   // Spiel-Logik (Ränge, Ausrüstung, Abzeichen) richtet sich nach der aktiven Rolle
   setAktiveRolle(rolle ?? 'sani');
   const aktiv: Rolle = rolle ?? 'sani';
+  rolleRef.current = aktiv;
   const [fontsLoaded, fontError] = useFonts({
     // Schriften (SIL Open Font License), auf die benötigten Zeichen verkleinert – siehe assets/fonts/
     Bricolage_700Bold: require('./assets/fonts/Bricolage_700Bold.ttf'),
@@ -1165,7 +1176,7 @@ export default function App() {
                       <KnowledgeScreen key={screen.key} best={progress.knowBest} onFinish={finishKnowledge} onBack={back} />
                     )}
                     {screen.name === 'konto' && <KontoScreen onBack={() => setScreen({ name: 'guide' })} onPlus={() => setScreen({ name: 'plus' })} />}
-                    {screen.name === 'plus' && <PlusScreen onBack={() => setScreen({ name: 'training' })} onKonto={() => setScreen({ name: 'konto' })} />}
+                    {screen.name === 'plus' && <PlusScreen grund={screen.grund} onBack={() => setScreen({ name: 'training' })} onKonto={() => setScreen({ name: 'konto' })} />}
                     {screen.name === 'dev' && <DevScreen progress={progress} onChange={importProgress} onBack={() => setScreen({ name: 'guide' })} />}
                     {screen.name === 'hilfspunkt' && <HilfspunktScreen progress={progress} onBuild={baueHilf} />}
                     {screen.name === 'wache' && <WacheScreen progress={progress} onBuild={baue} />}

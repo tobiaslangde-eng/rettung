@@ -16,6 +16,38 @@ const KEY = (PREVIEW ? 'kiirabi.vorschau.' : 'kiirabi.') + 'konto.demo.v1';
 /** Diese Szenarien sind ohne Plus frei (wenn die Schranken eingeschaltet sind) */
 export const FREIE_SZENARIEN = ['anaphylaxie', 'asthma', 'hyperventilation'];
 export const TEST_TAGE = 7;
+/** Ohne Plus: so viele Einsätze pro Tag */
+export const TAGES_EINSAETZE = 3;
+/** Ohne Plus frei spielbare Trainings (je Rolle). Alles andere braucht Plus. */
+export const FREIE_TRAININGS: Record<'sani' | 'helfer', string[]> = {
+  sani: ['quiz', 'wissen', 'cpr'],
+  helfer: ['notruf', 'schritte', 'wissen'],
+};
+/** Bildschirme, die ohne Plus gesperrt sind (Trainings außer den freien) */
+const PLUS_BEREICHE: Record<string, string> = {
+  detektiv: 'Detektiv-Akten',
+  schritte: 'Schritte-Training',
+  manv: 'Großeinsatz',
+  notruf: 'Notruf üben',
+  zuerst: 'Was zuerst?',
+  pack: 'Gut gepackt',
+  handgriffe: 'Handgriffe',
+  mythen: 'Mythen-Check',
+  aed: 'AED üben',
+  pruefung: 'Prüfung',
+  gefahr: 'Gefahren-Check',
+  leitstelle: 'Leitstelle',
+  fehler: 'Fehler finden',
+  labor: 'Handgriff-Labor',
+  quiz: 'Schnelltraining',
+  wissen: 'Wissensfragen',
+  cpr: 'Herzdruckmassage',
+  ekg: 'EKG lesen',
+  duell: 'Duell mit Freunden',
+  karte: 'Stadtkarte',
+  schicht: 'Schichtmodus',
+  lernstand: 'Mein Lernstand',
+};
 export const PREISE = { jahr: '29,99 €', monat: '4,99 €' } as const;
 
 export type PlusPlan = 'jahr' | 'monat';
@@ -43,9 +75,13 @@ export interface KontoState {
   /** Plus-Schranken im Simulator (zum Ausprobieren ein- und ausschaltbar) */
   schranken: boolean;
   klassenCode: string | null;
+  /** Ersthelfer-Bereich ohne Plus unbegrenzt frei (Standard) oder ebenfalls begrenzt */
+  helferFrei: boolean;
+  /** Einsätze am Tag (nur Zähler) */
+  einsaetze: { tag: string; n: number };
 }
 
-const START: KontoState = { geladen: false, konten: [], aktiv: null, plus: null, schranken: true, klassenCode: null };
+const START: KontoState = { geladen: false, konten: [], aktiv: null, plus: null, schranken: true, klassenCode: null, helferFrei: true, einsaetze: { tag: '', n: 0 } };
 let state: KontoState = START;
 const hoerer = new Set<() => void>();
 
@@ -72,6 +108,8 @@ export async function ladeKonto(): Promise<void> {
           plus: d.plus && (d.plus.plan === 'jahr' || d.plus.plan === 'monat') ? d.plus : null,
           schranken: d.schranken !== false,
           klassenCode: typeof d.klassenCode === 'string' ? d.klassenCode : null,
+          helferFrei: d.helferFrei !== false,
+          einsaetze: d.einsaetze && typeof d.einsaetze.tag === 'string' && typeof d.einsaetze.n === 'number' ? d.einsaetze : { tag: '', n: 0 },
         },
         false,
       );
@@ -171,4 +209,48 @@ export function setzeSchranken(an: boolean) {
 /** Klassen-Code: nur Anzeige in der Demo (kein Server) */
 export function setzeKlassenCode(code: string | null) {
   setze({ ...state, klassenCode: code && code.trim() ? code.trim().toUpperCase().slice(0, 12) : null });
+}
+
+function heute(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+
+export function setzeHelferFrei(frei: boolean) {
+  setze({ ...state, helferFrei: frei });
+}
+
+/** Ohne Plus noch freie Einsätze heute (null = unbegrenzt) */
+export function einsaetzeUebrig(s: KontoState = state, rolle: 'sani' | 'helfer' = 'sani'): number | null {
+  if (!STORE_DEMO || !s.schranken || istPlus(s) || (rolle === 'helfer' && s.helferFrei)) return null;
+  const n = s.einsaetze.tag === heute() ? s.einsaetze.n : 0;
+  return Math.max(0, TAGES_EINSAETZE - n);
+}
+
+/** Ist dieser Bereich ohne Plus gesperrt? (für Anzeige von „🔒 Plus“) */
+export function plusGesperrt(bereich: string, rolle: 'sani' | 'helfer', s: KontoState = state): boolean {
+  if (!STORE_DEMO || !s.schranken || istPlus(s) || (rolle === 'helfer' && s.helferFrei)) return false;
+  if (!(bereich in PLUS_BEREICHE)) return false;
+  return !FREIE_TRAININGS[rolle].includes(bereich);
+}
+
+export type Zugang = { ok: true } | { ok: false; grund: string };
+
+/**
+ * Prüft den Wechsel zu einem Bildschirm. Bei „case“ und „helfer“ (Einsatz startet) wird der Tageszähler erhöht.
+ * Wird in der Live-Version nie gesperrt.
+ */
+export function pruefeZugang(bildschirm: string, rolle: 'sani' | 'helfer'): Zugang {
+  const s = state;
+  if (!STORE_DEMO || !s.schranken || istPlus(s) || (rolle === 'helfer' && s.helferFrei)) return { ok: true };
+  if (bildschirm === 'case' || bildschirm === 'helfer') {
+    const n = s.einsaetze.tag === heute() ? s.einsaetze.n : 0;
+    if (n >= TAGES_EINSAETZE) return { ok: false, grund: `Du hast heute deine ${TAGES_EINSAETZE} freien Einsätze gespielt.` };
+    setze({ ...s, einsaetze: { tag: heute(), n: n + 1 } });
+    return { ok: true };
+  }
+  if (bildschirm in PLUS_BEREICHE && !FREIE_TRAININGS[rolle].includes(bildschirm)) {
+    return { ok: false, grund: `„${PLUS_BEREICHE[bildschirm]}“ gehört zu Plus.` };
+  }
+  return { ok: true };
 }

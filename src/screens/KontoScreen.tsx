@@ -7,6 +7,9 @@ import {
   TEST_TAGE,
   aktivesKonto,
   beendePlus,
+  einsaetzeUebrig,
+  setzeHelferFrei,
+  TAGES_EINSAETZE,
   istPlus,
   loescheKonto,
   meldeAb,
@@ -176,7 +179,7 @@ export function KontoScreen({ onBack, onPlus }: { onBack: () => void; onPlus: ()
         <Card style={{ gap: spacing.sm }}>
           <Text style={type.eyebrow}>Demo-Einstellungen</Text>
           <Text style={type.small}>
-            Mit eingeschalteten Plus-Schranken sind im Patienten-Simulator drei Szenarien frei, die anderen brauchen Plus. Ausgeschaltet ist alles offen wie bisher.
+            Mit eingeschalteten Plus-Schranken ist ohne Plus vieles gesperrt. Ausgeschaltet ist alles offen wie bisher.
           </Text>
           <Segmented
             options={[
@@ -186,6 +189,20 @@ export function KontoScreen({ onBack, onPlus }: { onBack: () => void; onPlus: ()
             value={s.schranken ? 'an' : 'aus'}
             onChange={(v) => setzeSchranken(v === 'an')}
           />
+          <Text style={[type.small, { marginTop: spacing.xs }]}>
+            Ohne Plus gibt es {TAGES_EINSAETZE} Einsätze pro Tag. Frei sind nur wenige Trainings (Sanitäter: Schnelltraining, Wissensfragen, Herzdruck; Ersthelfer: Notruf, Schritte, Wissensfragen) und 3 Simulator-Szenarien. Alles andere ist gesperrt.
+            {einsaetzeUebrig(s, 'sani') !== null ? ` Heute noch frei: ${einsaetzeUebrig(s, 'sani')}.` : ''}
+          </Text>
+          <Text style={type.eyebrow}>Ersthelfer-Bereich</Text>
+          <Segmented
+            options={[
+              { id: 'frei' as const, label: 'Immer frei' },
+              { id: 'begrenzt' as const, label: 'Auch begrenzt' },
+            ]}
+            value={s.helferFrei ? 'frei' : 'begrenzt'}
+            onChange={(v) => setzeHelferFrei(v === 'frei')}
+          />
+          <Text style={type.small}>Vorschlag: Erste Hilfe bleibt für alle kostenlos. Hier kannst du ausprobieren, wie es mit Begrenzung wäre.</Text>
           {s.plus && <Button label={`Plus beenden (Demo, ${TEST_TAGE}-Tage-Test zurücksetzen)`} variant="outline" onPress={beendePlus} />}
         </Card>
 

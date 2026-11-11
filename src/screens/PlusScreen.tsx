@@ -7,12 +7,13 @@ import { colors, fonts, radius, spacing, type } from '../theme';
 
 const VORTEILE: { text: string; echt: boolean }[] = [
   { text: 'Alle 23 Simulator-Szenarien', echt: true },
-  { text: 'Alle 196 Einsätze und 13 EKG-Rhythmen', echt: false },
-  { text: 'Volle Lernstand-Auswertung', echt: false },
+  { text: 'Unbegrenzt Einsätze (kostenlos: 3 pro Tag)', echt: true },
+  { text: 'Alle Trainings, EKG lesen, Stadtkarte, Schichtmodus und Duell', echt: true },
+  { text: 'Mein Lernstand mit voller Auswertung', echt: true },
   { text: 'Spielstand auf allen Geräten (mit echtem Konto)', echt: false },
 ];
 
-export function PlusScreen({ onBack, onKonto }: { onBack: () => void; onKonto: () => void }) {
+export function PlusScreen({ onBack, onKonto, grund }: { onBack: () => void; onKonto: () => void; grund?: string }) {
   const L = useLayout();
   const s = useKontoStore();
   const [plan, setPlan] = useState<PlusPlan>('jahr');
@@ -29,9 +30,15 @@ export function PlusScreen({ onBack, onKonto }: { onBack: () => void; onKonto: (
     <View style={{ flex: 1 }}>
       <TopBar kicker="Store-Demo" title="Plus" onBack={onBack} />
       <ScrollView contentContainerStyle={[styles.content, L.wide && styles.breit]}>
+        {grund ? (
+          <Card style={styles.grund}>
+            <Text style={styles.grundTitel}>🔒 Das ist ein Plus-Bereich</Text>
+            <Text style={type.body}>{grund}</Text>
+          </Card>
+        ) : null}
         <Card style={styles.demo}>
           <Text style={styles.demoTitel}>🧪 Nur zum Ausprobieren</Text>
-          <Text style={type.small}>Es wird nichts bezahlt und nichts abgebucht. Die Preise sind Vorschläge. Gesperrt ist in der Demo nur der Patienten-Simulator; die anderen Punkte zeigen, wie Plus später aussehen könnte.</Text>
+          <Text style={type.small}>Es wird nichts bezahlt und nichts abgebucht. Die Preise sind Vorschläge. Ohne Plus ist in dieser Demo vieles gesperrt, damit du den Unterschied siehst. Die Einstellungen dazu findest du im Konto.</Text>
         </Card>
 
         <View style={styles.hero}>
@@ -108,6 +115,8 @@ const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.md, paddingBottom: 120 },
   breit: { maxWidth: 720, width: '100%', alignSelf: 'center' },
   demo: { gap: 6, backgroundColor: colors.yellowTint, borderColor: colors.yellow },
+  grund: { gap: 6, borderColor: colors.red, borderWidth: 2 },
+  grundTitel: { fontFamily: fonts.bold, fontSize: 16, color: colors.redDark },
   demoTitel: { fontFamily: fonts.bold, fontSize: 15, color: colors.ink },
   hero: { gap: 8, paddingVertical: spacing.sm },
   pill: { alignSelf: 'flex-start', backgroundColor: colors.red, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5 },

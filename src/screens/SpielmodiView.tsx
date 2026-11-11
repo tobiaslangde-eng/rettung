@@ -9,6 +9,7 @@ import { WOCHEN_BONUS, wochenStand } from '../game/woche';
 import { schwacheFaelle } from '../game/lernstand';
 import { CASES } from '../data/cases';
 import { HELFER_FAELLE } from '../data/helfer';
+import { einsaetzeUebrig, plusGesperrt, useKontoStore } from '../game/konto';
 import { colors, fonts, spacing, tiles, type } from '../theme';
 
 /** Spielmodi: alles, was man als eigenes Spiel starten kann */
@@ -44,6 +45,7 @@ export function SpielmodiView({
   onZeitdruck: (an: boolean) => void;
 }) {
   const r = useRolle();
+  const konto = useKontoStore();
   const helfer = r.id === 'helfer';
   const day = dayState(progress);
   const frei = istFrei(r.id, progress, 'einsatz');
@@ -202,6 +204,18 @@ export function SpielmodiView({
       )}
       {modi.map((m) => {
         const t = tiles[m.tint];
+        // Store-Demo: Plus-Hinweise ohne Plus
+        const bereichVon: Record<string, string> = { Stadtkarte: 'karte', 'EKG lesen': 'ekg', 'Mein Lernstand': 'lernstand', 'Duell mit Freunden': 'duell', Schicht: 'schicht' };
+        const uebrig = einsaetzeUebrig(konto, r.id);
+        const einsatzKachel = m.name === 'Einsatz starten' || m.name === 'Notfall starten' || m.name === `${r.einsatz} des Tages` || m.name === 'Wiederholen' || m.name === 'Wochen-Challenge';
+        const plusText =
+          bereichVon[m.name] && plusGesperrt(bereichVon[m.name], r.id, konto)
+            ? '🔒 Plus'
+            : einsatzKachel && uebrig !== null
+              ? uebrig > 0
+                ? `Heute noch ${uebrig} freie${uebrig === 1 ? 'r' : ''} Einsatz${uebrig === 1 ? '' : 'e'} · mehr mit Plus`
+                : '🔒 Heute keine freien Einsätze mehr · Plus'
+              : null;
         return (
           <Tap
             key={m.name}
@@ -216,7 +230,7 @@ export function SpielmodiView({
             <View style={{ flex: 1, gap: 2 }}>
               <Text style={[type.headline, { fontSize: 17 }]}>{m.titel}</Text>
               <Text style={type.small}>{m.text}</Text>
-              <Text style={[styles.stand, { color: t.accent }]}>{m.gesperrt && !frei ? `🔒 ${gesperrt}` : m.stand}</Text>
+              <Text style={[styles.stand, { color: t.accent }]}>{m.gesperrt && !frei ? `🔒 ${gesperrt}` : (plusText ?? m.stand)}</Text>
             </View>
             <Text style={[styles.pfeil, { color: t.accent }]}>›</Text>
           </Tap>
